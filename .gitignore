@@ -1,0 +1,51 @@
+.idea
+mqtt/vendor
+graphql/vendor
+
+mqtt/.env
+
+mysql/data
+!mysql/data/.gitkeep
+
+redis/*
+!redis/redis.conf
+
+#
+# mac
+#
+.DS_Store
+
+#
+# http api
+#
+http-api/vendor
+http-api/tmp
+http-api/.env
+
+
+#
+# admin-template
+#
+# Logs
+admin-template/.DS_Store
+admin-template/node_modules
+admin-template/dist
+admin-template/tests/**/coverage/
+# local env files
+admin-template/.env.local
+admin-template/.env.*.local
+# Log files
+admin-template/npm-debug.log*
+admin-template/yarn-debug.log*
+admin-template/yarn-error.log*
+admin-template/pnpm-debug.log*
+# Editor directories and files
+admin-template/.idea
+admin-template/.vscode
+admin-template/.history
+admin-template/.ionide
+admin-template/*.suo
+admin-template/*.ntvs*
+admin-template/*.njsproj
+admin-template/*.sln
+admin-template/*.sw?

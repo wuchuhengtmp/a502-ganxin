@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql
+    ports:
+      - "${MYSQL_HOST_PORT}:3306"
+    volumes:
+      - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:ro
+      - ./mysql/data:/var/lib/mysql/:rw
+    restart: always
+    networks:
+      - default
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      TZ: "$TZ"
+  # 管理后台接口服务
+  http-api:
+    image: golang:1.16.3-alpine3.13
+    ports:
+      - "3008:3000"
+    volumes:
+      - ./http-api:/opt/www/
+    privileged: true
+    depends_on:
+      - mysql
+    working_dir: /opt/www/
+    restart: always
+    environment:
+      - GO111MODULE=on
+      # 国内代理
+      - GOPROXY=https://goproxy.cn,direct
+    container_name: http-api
+    command:
+      - /bin/sh
+      - -c
+      - |
+        go run main.go http_api
+#  # 管理后模板服务
+#  admin-template:
+#    image: node:15.12.0
+#    ports:
+#      - "9527:9527"
+#    volumes:
+#      - ./admin-template:/opt/www/
+#    privileged: true
+#    depends_on:
+#      - http-api
+#    working_dir: /opt/www/
+#    restart: always
+#    container_name: admin-template
+#    command:
+#      - /bin/sh
+#      - -c
+#      - |
+#        yarn config set registry https://registry.npm.taobao.org
+#        yarn
+#        yarn serve
+networks:
+  default:
