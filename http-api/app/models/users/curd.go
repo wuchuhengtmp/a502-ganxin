@@ -26,9 +26,6 @@ func (WechatModel) IsUserByOpenId(wcOpenId string) bool {
 
 func (w *WechatModel) AddUser() (Users, error) {
 	user := Users{}
-	user.WcOpenId = w.WcOpenId
-	user.WcUnionId = w.WcUnionId
-	user.WcSessionKey = w.WcSessionKey
 	err := model.DB.Model(&Users{}).Create(&user).Error
 	return user, err
 }

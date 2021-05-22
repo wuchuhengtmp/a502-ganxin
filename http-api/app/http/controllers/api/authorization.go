@@ -54,16 +54,16 @@ func (*AuthorizationController) Create (w http.ResponseWriter, r *http.Request) 
 			NotifyFrontEndRedirectLogin(token, w)
 
 		} else {
-			user, _ := wechatModel.GetUserByOpenId(res.OpenID)
-			token, _ := jwt.GenerateTokenByUID(user.ID)
-			if len(user.AvatarUrl) == 0 {
-				NotifyFrontEndRedirectLogin(token, w)
-			} else {
-				resData := struct{ AccessToken string `json:"accessToken"` }{
-					AccessToken: token,
-				}
-				response.SuccessResponse(resData, w)
-			}
+			//user, _ := wechatModel.GetUserByOpenId(res.OpenID)
+			//token, _ := jwt.GenerateTokenByUID(user.ID)
+			//if len(user.AvatarUrl) == 0 {
+			//	NotifyFrontEndRedirectLogin(token, w)
+			//} else {
+			//	resData := struct{ AccessToken string `json:"accessToken"` }{
+			//		AccessToken: token,
+			//	}
+			//	response.SuccessResponse(resData, w)
+			//}
 		}
 	}
 }

@@ -1,14 +1,9 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 type Todo {
   id: ID!
   text: String!
   done: Boolean!
   user: User!
 }
-
 type User {
   id: ID!
   name: String!
@@ -24,6 +19,12 @@ input NewTodo {
   userId: String!
 }
 
+type LoginRes {
+  """ 授权token """    accessToken: String!
+  """ 过期时长(秒) """  expired: Int!
+}
 type Mutation {
   createTodo(input: NewTodo!): Todo!
+  """ 登录 """
+  login( """ 手机号 """ phone: String, """ 密码 """ password: String ): LoginRes!
 }

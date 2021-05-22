@@ -2,6 +2,13 @@
 
 package model
 
+type LoginRes struct {
+	//  授权token
+	AccessToken string `json:"accessToken"`
+	//  过期时长(秒)
+	Expired int `json:"expired"`
+}
+
 type NewTodo struct {
 	Text   string `json:"text"`
 	UserID string `json:"userId"`

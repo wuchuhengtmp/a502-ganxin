@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"http-api/app/http/graph/generated"
 	"http-api/app/http/graph/model"
+	mutation_resolver "http-api/app/http/graph/schema/mutation-resolver"
 	"math/rand"
 )
+//type LoginMutationResolver =
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	todo := &model.Todo{
@@ -26,7 +28,10 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 }
 
 func (r *queryResolver) Hello(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.User {
+		ID: "hello",
+		Name: "1123",
+	}, nil
 }
 
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
@@ -37,7 +42,7 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 }
 
 // Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
@@ -45,6 +50,10 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Todo returns generated.TodoResolver implementation.
 func (r *Resolver) Todo() generated.TodoResolver { return &todoResolver{r} }
 
-type mutationResolver struct{ *Resolver }
+type mutationResolver struct{
+	*Resolver
+	*mutation_resolver.MutationResolver
+}
+
 type queryResolver struct{ *Resolver }
 type todoResolver struct{ *Resolver }

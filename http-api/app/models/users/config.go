@@ -7,16 +7,18 @@
  */
 package users
 
-import "gorm.io/gorm"
-
+import (
+	"gorm.io/gorm"
+)
 
 type Users struct {
 	ID           int64  `json:"id"`
-	Username     string `json:"username" gorm:"comment:账号"`
+	Name 		 string `json:"name" gorm:"comment:用户名"`
 	Password     string `json:"password" gorm:"comment:密码"`
-	Nickname     string `json:"nickname" gorm:"comment:昵称"`
-	Gender       int64  `json:"gender" gorm:"comment:性别 1男2女0不知"`
-	AvatarUrl    string `json:"avatarUrl" gorm:"comment:头像"`
-	WechatModel
+	Phone 		 string `json:"phone" gorm:"comment:手机号"`
+	Mac 		 string `json:"MAC" gorm:"comment:设备mac地址"`
+	RoteId		 int8   `json:"roteId" gorm:"comment:角色id"`
+	Company 	 string `json:"company" gorm:"comment:公司名"`
+	DeviceState  int8 	`json:"deviceState" gorm:"手持机状态"`
 	gorm.Model
 }
