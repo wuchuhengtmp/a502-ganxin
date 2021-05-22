@@ -8,6 +8,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/urfave/cli"
 	"http-api/app/http/middlewares"
@@ -57,8 +58,15 @@ var router = mux.NewRouter().StrictSlash(true)
 func RunWeb (c *cli.Context)  {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
-
-	http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
+	done := make(chan bool)
+	go http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
+	fmt.Printf(`
+		Server is running!
+		Listening on port %s
+		Explore at http://localhost:%s
+		Explore graphql at http://localhost:%s/graphql`,
+	pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"))
+	<-done
 }
 
 func RunMigrateSeed(c *cli.Context) {
