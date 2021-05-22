@@ -49,3 +49,5 @@ admin-template/*.ntvs*
 admin-template/*.njsproj
 admin-template/*.sln
 admin-template/*.sw?
+
+sqlserver/data
