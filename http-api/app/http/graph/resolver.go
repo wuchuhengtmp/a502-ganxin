@@ -1,8 +1,8 @@
 //go:generate go run github.com/99designs/gqlgen
-package graphql
+package graph
 
 import (
-	"http-api/app/http/graphql/model"
+	"http-api/app/http/graph/model"
 )
 
 type Resolver struct{
