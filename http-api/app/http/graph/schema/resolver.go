@@ -1,5 +1,5 @@
 //go:generate go run github.com/99designs/gqlgen
-package graph
+package schema
 
 import (
 	"http-api/app/http/graph/model"
