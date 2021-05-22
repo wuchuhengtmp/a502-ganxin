@@ -61,10 +61,12 @@ func RunWeb (c *cli.Context)  {
 	done := make(chan bool)
 	go http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
 	fmt.Printf(`
-		Server is running!
+		🚀 🚀 🚀 Server is running!
 		Listening on port %s
 		Explore at http://localhost:%s
-		Explore graphql at http://localhost:%s/graphql`,
+		Explore graphql at http://localhost:%s/graphql
+
+		`,
 	pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"))
 	<-done
 }
