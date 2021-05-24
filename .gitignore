@@ -51,3 +51,6 @@ admin-template/*.sln
 admin-template/*.sw?
 
 sqlserver/data
+
+http-api/public/uploads
+!http-api/public/uploads/.gitkeep

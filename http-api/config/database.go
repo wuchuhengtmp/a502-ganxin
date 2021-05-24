@@ -3,7 +3,7 @@ package config
 import "http-api/pkg/config"
 
 func init()  {
-	config.Add("database", config.StrMap{
+	config.Add("database", config.StrMap {
 		"connection": config.Env("DB_CONNECTION"),
 		/**
 		 * mysql 配置

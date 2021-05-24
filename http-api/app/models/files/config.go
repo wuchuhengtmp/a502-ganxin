@@ -6,7 +6,7 @@
  * @DATE    2021/5/24
  * @Listen  MIT
  */
-package file
+package files
 
 type Files struct {
 	ID int64 `json:"id"`

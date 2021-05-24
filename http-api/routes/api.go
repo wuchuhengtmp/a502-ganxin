@@ -17,17 +17,14 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
-	"http-api/app/http/controllers/api"
-	"http-api/app/http/graph/schema"
 	"http-api/app/http/graph/generated"
+	"http-api/app/http/graph/schema"
 	"http-api/app/http/middlewares"
 )
 
 func RegisterApiRoutes(r *mux.Router) {
-	rp := r.PathPrefix("/api").Subrouter()
-	a := new (api.AuthorizationController)
-	// 获取token
-	rp.HandleFunc("/authorizations", a.Create).Methods("POST").Name("authorization.create")
+	//rp := r.PathPrefix("/api").Subrouter()
+	//a := new (api.AuthorizationController)
 
 	// graphql 沙盒
 	r.Handle("/graphql", playground.Handler("GraphQL playground", "/query"))
