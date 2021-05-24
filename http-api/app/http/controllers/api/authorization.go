@@ -11,7 +11,6 @@ import (
 	"http-api/app/models/users"
 	"http-api/app/requests/api"
 	"http-api/app/util/wechat"
-	"http-api/pkg/jwt"
 	"http-api/pkg/response"
 	"net/http"
 )
@@ -49,9 +48,9 @@ func (*AuthorizationController) Create (w http.ResponseWriter, r *http.Request) 
 			wechatModel.WcOpenId = res.OpenID
 			wechatModel.WcSessionKey = res.SessionKey
 			wechatModel.WcUnionId = res.UnionID
-			user, _ := wechatModel.AddUser()
-			token, _ := jwt.GenerateTokenByUID(user.ID)
-			NotifyFrontEndRedirectLogin(token, w)
+			//user, _ := wechatModel.AddUser()
+			//token, _ := jwt.GenerateTokenByUID(user.ID)
+			//NotifyFrontEndRedirectLogin(token, w)
 
 		} else {
 			//user, _ := wechatModel.GetUserByOpenId(res.OpenID)

@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"http-api/app/models/configs"
 	"http-api/app/models/repositories"
+	"http-api/app/models/roles"
 	"http-api/app/models/users"
 	"http-api/pkg/config"
 	"http-api/pkg/model"
@@ -35,5 +36,6 @@ func SetupDB() {
 		configs.Configs{},
 		users.Users{},
 		repositories.Repositories{},
+		roles.Roles{},
 	)
 }

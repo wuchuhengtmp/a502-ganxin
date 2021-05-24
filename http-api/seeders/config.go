@@ -12,9 +12,12 @@ import (
 )
 
 func All() []seed.Seed {
-	return append(
-		[]seed.Seed{},
-		configsSeeders...
-	)
+	seeds := []seed.Seed{}
+	seeds = append( seeds, configsSeeders... )
+	seeds = append( seeds, UsersSeeders... )
+	seeds = append( seeds, rolesSeeders... )
+
+	return seeds
 }
+
 

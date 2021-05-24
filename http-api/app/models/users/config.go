@@ -22,3 +22,7 @@ type Users struct {
 	DeviceState  int8 	`json:"deviceState" gorm:"手持机状态"`
 	gorm.Model
 }
+
+func (Users) TableName() string {
+	return "users"
+}

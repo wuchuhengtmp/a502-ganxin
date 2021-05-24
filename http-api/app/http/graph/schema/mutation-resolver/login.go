@@ -11,16 +11,31 @@ package mutation_resolver
 import (
 	"context"
 	"errors"
+	"fmt"
 	"http-api/app/http/graph/model"
+	"http-api/app/models/users"
+	"http-api/pkg/helper"
+	"http-api/pkg/jwt"
+	sqlModel "http-api/pkg/model"
 )
 
 /**
  * 登录
  */
 func (r *MutationResolver) Login (ctx context.Context, phone *string, password *string) (*model.LoginRes, error)   {
-	err := errors.New("密码错误")
-	return &model.LoginRes{
-
-	}, err
-
+	sqlDB := sqlModel.DB
+	user := users.Users{}
+	err := sqlDB.Where("phone=? AND password=?", phone, helper.GetHashByStr(*password)).First(&user).Error
+	if err != nil {
+		err = errors.New("没有这个账号或密码错误")
+		return &model.LoginRes{ }, err
+	} else {
+		accessToken, _ := jwt.GenerateTokenByUID(user.ID)
+		expired := jwt.GetExpiredAt()
+		fmt.Print(expired)
+		return &model.LoginRes{
+			AccessToken: accessToken,
+			Expired: expired,
+		}, nil
+	}
 }
