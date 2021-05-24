@@ -16,6 +16,8 @@ func All() []seed.Seed {
 	seeds = append( seeds, configsSeeders... )
 	seeds = append( seeds, UsersSeeders... )
 	seeds = append( seeds, rolesSeeders... )
+	seeds = append(seeds, specificationinfoSeeds...)
+	seeds = append(seeds, codeInfoSeeds...)
 
 	return seeds
 }

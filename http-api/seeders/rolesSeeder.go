@@ -18,11 +18,31 @@ var rolesSeeders =  []seed.Seed{
 	seed.Seed{
 		Name: "create role",
 		Run: func(db *gorm.DB) error {
-			return createRole(db,
-				1,
-				"管理员",
-					"admin",
-				)
+			return createRole(db, 1, "超级管理员", "admin")
+		},
+	},
+	seed.Seed{
+		Name: "create role",
+		Run: func(db *gorm.DB) error {
+			return createRole(db, 2, "公司管理员", "companyAdmin")
+		},
+	},
+	seed.Seed{
+		Name: "create role",
+		Run: func(db *gorm.DB) error {
+			return createRole(db, 3, "仓库管理员", "repositoryAdmin")
+		},
+	},
+	seed.Seed{
+		Name: "create role",
+		Run: func(db *gorm.DB) error {
+			return createRole(db, 4, "项目管理员", "projectAdmin")
+		},
+	},
+	seed.Seed{
+		Name: "create role",
+		Run: func(db *gorm.DB) error {
+			return createRole(db, 5, "维修管理员", "maintenanceAdmin")
 		},
 	},
 }

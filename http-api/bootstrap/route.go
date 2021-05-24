@@ -2,6 +2,8 @@ package bootstrap
 
 import (
 	"github.com/gorilla/mux"
+	"http-api/app/models/codeinfo"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/configs"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
@@ -37,5 +39,7 @@ func SetupDB() {
 		users.Users{},
 		repositories.Repositories{},
 		roles.Roles{},
+		specificationinfo.SpecificationInfo{},
+		codeinfo.CodeInfo{},
 	)
 }

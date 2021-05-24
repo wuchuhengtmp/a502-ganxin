@@ -13,8 +13,15 @@ import (
 	"http-api/pkg/seed"
 )
 
-var configsSeeders =  []seed.Seed{ }
+var configsSeeders =  []seed.Seed{
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 1, "PRICE", "1", "型钢单价")
+		},
+	},
+}
 
-func CreateConfig(db *gorm.DB, id int64,  name string, value string)  error {
-	return db.Create(&configs.Configs{ID: id, Name: name, Value: value}).Error
+func CreateConfig(db *gorm.DB, id int64,  name string, value string, remark string)  error {
+	return db.Create(&configs.Configs{ID: id, Name: name, Value: value, Remark: remark}).Error
 }
