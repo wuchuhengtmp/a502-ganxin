@@ -22,7 +22,8 @@ import (
 /**
  * 登录
  */
-func (r *MutationResolver) Login (ctx context.Context, phone *string, password *string) (*model.LoginRes, error)   {
+func (r *MutationResolver) Login (ctx context.Context, phone *string, password *string, mac *string) (*model.LoginRes, error)   {
+	// todo 这里要验证当前用户是否有能使用这个mac地址对应的设备
 	sqlDB := sqlModel.DB
 	user := users.Users{}
 	err := sqlDB.Where("phone=? AND password=?", phone, helper.GetHashByStr(*password)).First(&user).Error

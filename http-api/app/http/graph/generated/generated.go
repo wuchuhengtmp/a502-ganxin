@@ -51,7 +51,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
-		Login      func(childComplexity int, phone *string, password *string) int
+		Login      func(childComplexity int, phone *string, password *string, mac *string) int
 	}
 
 	Query struct {
@@ -74,7 +74,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
-	Login(ctx context.Context, phone *string, password *string) (*model.LoginRes, error)
+	Login(ctx context.Context, phone *string, password *string, mac *string) (*model.LoginRes, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
@@ -135,7 +135,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Login(childComplexity, args["phone"].(*string), args["password"].(*string)), true
+		return e.complexity.Mutation.Login(childComplexity, args["phone"].(*string), args["password"].(*string), args["mac"].(*string)), true
 
 	case "Query.hello":
 		if e.complexity.Query.Hello == nil {
@@ -280,12 +280,12 @@ input NewTodo {
 
 type LoginRes {
   """ 授权token """    accessToken: String!
-  """ 过期时长(秒) """  expired: Int!
+  """ 过期时间戳(秒 7天) """  expired: Int!
 }
 type Mutation {
   createTodo(input: NewTodo!): Todo!
   """ 登录 """
-  login( """ 手机号 """ phone: String, """ 密码 """ password: String ): LoginRes!
+  login( """ 手机号 """ phone: String, """ 密码 """ password: String, """ 设备的mac 地址 """ mac: String ): LoginRes!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -330,6 +330,15 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		}
 	}
 	args["password"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["mac"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mac"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["mac"] = arg2
 	return args, nil
 }
 
@@ -523,7 +532,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, args["phone"].(*string), args["password"].(*string))
+		return ec.resolvers.Mutation().Login(rctx, args["phone"].(*string), args["password"].(*string), args["mac"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

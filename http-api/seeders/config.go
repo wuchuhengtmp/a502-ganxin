@@ -19,6 +19,8 @@ func All() []seed.Seed {
 	seeds = append(seeds, specificationinfoSeeds...)
 	seeds = append(seeds, codeInfoSeeds...)
 	seeds = append(seeds, fileSeeders...)
+	seeds = append(seeds, repositorySeeder...)
+	seeds = append(seeds, deviceSeeders...)
 
 	return seeds
 }

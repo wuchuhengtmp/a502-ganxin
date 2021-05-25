@@ -5,7 +5,7 @@ package model
 type LoginRes struct {
 	//  授权token
 	AccessToken string `json:"accessToken"`
-	//  过期时长(秒)
+	//  过期时间戳(秒 7天)
 	Expired int `json:"expired"`
 }
 

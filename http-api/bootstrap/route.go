@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/configs"
+	"http-api/app/models/devices"
 	"http-api/app/models/files"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
@@ -43,5 +44,7 @@ func SetupDB() {
 		specificationinfo.SpecificationInfo{},
 		codeinfo.CodeInfo{},
 		files.Files{},
+		repositories.Repositories{},
+		devices.Devices{},
 	)
 }

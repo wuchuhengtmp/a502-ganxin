@@ -16,7 +16,6 @@ type Users struct {
 	Name         string `json:"name" gorm:"comment:用户名"`
 	Password     string `json:"password" gorm:"comment:密码"`
 	Phone        string `json:"phone" gorm:"comment:手机号"`
-	Mac          string `json:"MAC" gorm:"comment:设备mac地址"`
 	RoteId       int8   `json:"roteId" gorm:"comment:角色id"`
 	DeviceState  int8   `json:"deviceState" gorm:"comment:手持机状态"`
 	Wechat       string `json:"wechat" gorm:"comment:微信"`

@@ -17,7 +17,7 @@ func init()  {
 			Domain interface{}// 访问域名
 			PrefixPath string // 目录前缀
 		}{
-			Domain: config.Env("FILE_SYSTEM_DOMAIN", "127.0.0.1"),
+			Domain: config.Env("FILE_SYSTEM_DOMAIN", "http://127.0.0.1"),
 			PrefixPath: "uploads/local", // 相当于 public/local 目录
 		},
 	})
