@@ -17,10 +17,9 @@ type Users struct {
 	Password     string `json:"password" gorm:"comment:密码"`
 	Phone        string `json:"phone" gorm:"comment:手机号"`
 	RoteId       int8   `json:"roteId" gorm:"comment:角色id"`
-	DeviceState  int8   `json:"deviceState" gorm:"comment:手持机状态"`
 	Wechat       string `json:"wechat" gorm:"comment:微信"`
 	CompanyId    int64  `json:"CompanyId" gorm:"comment:所属公司id"`
-	State        bool   `json:"state" gorm:"state:启用状态"`
+	IsAble       bool   `json:"is_able" gorm:"comment:启用状态"`
 	AvatarFileId int64  `json:"avatar" gorm:"comment:头像文件id"`
 	gorm.Model
 }

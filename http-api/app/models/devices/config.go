@@ -11,9 +11,9 @@ package devices
 import "gorm.io/gorm"
 
 type Devices struct {
-	ID    int64  `json:"id"`
-	Mac   string `json:"mac" gorm:"comment:mac地址"`
-	Uid   int64  `json:"uid" gorm:"comment:用户id"`
-	State bool   `json:"state" gorm:"comment:是否启用"`
+	ID     int64  `json:"id"`
+	Mac    string `json:"mac" gorm:"comment:mac地址"`
+	Uid    int64  `json:"uid" gorm:"comment:用户id"`
+	IsAble bool   `json:"is_abl" gorm:"comment:是否启用"`
 	gorm.Model
 }
