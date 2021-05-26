@@ -21,9 +21,9 @@ type Companies struct {
 	LogoFileId       int64     `json:"logoFileId" gorm:"comment:文件id"`
 	BackgroundFileId int64     `json:"backgroundFileId" gorm:"comment:app背景文件id"`
 	State            bool      `json:"state" gorm:"comment:账号状态"`
-	Phone 			 string  	`json:"phone" gorm:"comment:公司的电话"`
-	Wechat 			 string  	`json:"wechat" gorm:"comment:公司的微信"`
-	StartedAt        time.Time `json:"started_at" gorm:"comment:开始时间"`
+	Phone            string    `json:"phone" gorm:"comment:公司的电话"`
+	Wechat           string    `json:"wechat" gorm:"comment:公司的微信"`
+	StartedAt        time.Time `json:"startedAt" gorm:"comment:开始时间"`
 	EndedAt          time.Time `json:"ended_at" gorm:"comment:结束时间"`
 	gorm.Model
 }

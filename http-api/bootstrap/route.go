@@ -3,12 +3,21 @@ package bootstrap
 import (
 	"github.com/gorilla/mux"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/companies"
 	"http-api/app/models/configs"
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
+	"http-api/app/models/fix"
+	fix_records "http-api/app/models/fix-records"
+	"http-api/app/models/logs"
+	"http-api/app/models/msg"
+	order_details "http-api/app/models/order-details"
+	"http-api/app/models/orders"
+	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/config"
 	"http-api/pkg/model"
@@ -46,5 +55,15 @@ func SetupDB() {
 		files.Files{},
 		repositories.Repositories{},
 		devices.Devices{},
+		companies.Companies{},
+		logs.Logos{},
+		steels.Steels{},
+		projects.Projects{},
+		order_details.OrderDetail{},
+		orders.Order{},
+		fix.Fix{},
+		fix_records.FixRecord{},
+		logs.Logos{},
+		msg.Msg{},
 	)
 }

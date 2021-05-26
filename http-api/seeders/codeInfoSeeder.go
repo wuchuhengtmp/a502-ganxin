@@ -19,38 +19,38 @@ var codeInfoSeeds = []seed.Seed{
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 1, codeinfo.MeterialFacturer, "兴达工业", true, "这是备注1")
+			return createCodeInfo( db, 1, codeinfo.MaterialManufacturer, "兴达工业", true, "这是备注1")
 		},
 	},
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 2, codeinfo.MeterialFacturer, "长洲工业", false, "这是备注2")
+			return createCodeInfo( db, 2, codeinfo.MaterialManufacturer, "长洲工业", false, "这是备注2")
 		},
 	},
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 3, codeinfo.MeterialFacturer, " 北建工业", false, "这是备注3")
+			return createCodeInfo( db, 3, codeinfo.MaterialManufacturer, " 北建工业", false, "这是备注3")
 		},
 	},
 	// 制造厂商
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 4, codeinfo.Producer, "制作厂商1", true, "这是备注1")
+			return createCodeInfo( db, 4, codeinfo.Manufacturer, "制作厂商1", true, "这是备注1")
 		},
 	},
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 5, codeinfo.Producer, "制作厂商2", false, "这是备注2")
+			return createCodeInfo( db, 5, codeinfo.Manufacturer, "制作厂商2", false, "这是备注2")
 		},
 	},
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 6, codeinfo.Producer, "制作厂商3", false, "这是备注3")
+			return createCodeInfo( db, 6, codeinfo.Manufacturer, "制作厂商3", false, "这是备注3")
 		},
 	},
 	// 运输公司

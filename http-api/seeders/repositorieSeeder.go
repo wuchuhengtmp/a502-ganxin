@@ -28,6 +28,7 @@ var repositorySeeder = []seed.Seed{
 				5322.6,
 				"",
 				true,
+				1,
 				)
 		},
 	},
@@ -44,6 +45,7 @@ var repositorySeeder = []seed.Seed{
 				355.3,
 				"",
 				false,
+				1,
 			)
 		},
 	},
@@ -60,7 +62,9 @@ func createRepository(
 	total int64,
 	weight float64,
 	remark string,
-	state bool) error {
+	state bool,
+	companyId int64,
+	) error {
 	return db.Create(&repositories.Repositories{
 		ID:      id,
 		Name:    name,
@@ -72,5 +76,6 @@ func createRepository(
 		Weight:  weight,
 		Remark:  remark,
 		State:   state,
+		CompanyId: companyId,
 	}).Error
 }

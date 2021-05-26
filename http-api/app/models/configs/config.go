@@ -15,9 +15,9 @@ import (
 )
 
 type Configs struct {
-	ID    int64  `json:"id"`
-	Name  string `json:"name" gorm:"comment:参数名"`
-	Value string `json:"value" gorm:"comment:参数值"`
+	ID     int64  `json:"id"`
+	Name   string `json:"name" gorm:"comment:参数名"`
+	Value  string `json:"value" gorm:"comment:参数值"`
 	Remark string `json:"remark" gorm:"comment:配置备注"`
 	gorm.Model
 }

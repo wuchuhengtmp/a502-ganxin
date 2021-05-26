@@ -8,8 +8,11 @@
  */
 package files
 
+import "gorm.io/gorm"
+
 type Files struct {
 	ID int64 `json:"id"`
 	Path string `json:"path" gorm:"comment:文件路径"`
 	Disk string `json:"disk" gorm:"comment:硬盘,default:local"`
+	gorm.Model
 }

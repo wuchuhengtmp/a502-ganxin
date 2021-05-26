@@ -11,9 +11,9 @@ package codeinfo
 import "gorm.io/gorm"
 
 // 材料厂商类型
-const MeterialFacturer string = "MeterialFacturer"
+const MaterialManufacturer string = "MaterialManufacturer"
 // 制造厂商类型
-const Producer string = "Producer"
+const Manufacturer string = "Manufacturer"
 // 运输公司类型
 const ExpressCompany string = "ExpressCompany"
 
@@ -23,5 +23,6 @@ type CodeInfo struct {
 	Name      string `json:"length" gorm:"comment:厂商名称"`
 	IsDefault bool   `json:"isDefault" gorm:"comment:是否默认"`
 	Remark    string `json:"remark" gorm:"comment:备注"`
+	CompanyId int64 `json:"companyId" gorm:"comment:公司id"`
 	gorm.Model
 }

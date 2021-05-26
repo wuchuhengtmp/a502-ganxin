@@ -18,5 +18,6 @@ type SpecificationInfo struct {
 	Length    float64 `json:"length" gorm:"comment:长度(m/米)"`
 	Weight    float64 `json:"weight" gorm:"comment:重量(t/吨)"`
 	IsDefault bool    `json:"isDefault" gorm:"comment:是否默认"`
+	CompanyId int64   `json:"companyId" gorm:"comment:所属的公司id"`
 	gorm.Model
 }
