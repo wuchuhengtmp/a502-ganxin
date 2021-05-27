@@ -18,13 +18,26 @@ input NewTodo {
   text: String!
   userId: String!
 }
+enum Role {
+  """ 超级管理员 """
+  admin
+  """ 公司管理员 """
+  companyAdmin
+  """ 仓库管理员 """
+  repositoryAdmin
+  """ 项目管理员 """
+  projectAdmin
+  """ 维修管理员 """
+  maintenanceAdmin
+}
 
 type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!
+  """ 角色标识 """ role: Role!
 }
 type Mutation {
   createTodo(input: NewTodo!): Todo!
   """ 登录 """
-  login( """ 手机号 """ phone: String, """ 密码 """ password: String, """ 设备的mac 地址 """ mac: String ): LoginRes!
+  login( """ 手机号 """ phone: String!, """ 密码 """ password: String!, """ 设备的mac地址 设备端登录必要 """ mac: String ): LoginRes!
 }

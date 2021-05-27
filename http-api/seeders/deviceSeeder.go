@@ -29,11 +29,11 @@ var deviceSeeders =  []seed.Seed{
 	},
 }
 
-func createDevice(db *gorm.DB, id int64, mac string, uid int64, state bool)  error {
+func createDevice(db *gorm.DB, id int64, mac string, uid int64, isAble bool)  error {
 	return db.Create(&devices.Devices{
 		ID: id,
 		Mac: mac,
 		Uid: uid,
-		State: state,
+		IsAble: isAble,
 	}).Error
 }

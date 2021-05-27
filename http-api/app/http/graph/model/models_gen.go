@@ -2,11 +2,17 @@
 
 package model
 
+import (
+	"http-api/app/models/roles"
+)
+
 type LoginRes struct {
 	//  授权token
 	AccessToken string `json:"accessToken"`
 	//  过期时间戳(秒 7天)
 	Expired int `json:"expired"`
+	//  角色标识
+	Role roles.Role `json:"role"`
 }
 
 type NewTodo struct {

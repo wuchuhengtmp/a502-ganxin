@@ -11,7 +11,6 @@ package mutation_resolver
 import (
 	"context"
 	"errors"
-	"fmt"
 	"http-api/app/http/graph/model"
 	"http-api/app/models/users"
 	"http-api/pkg/helper"
@@ -22,21 +21,22 @@ import (
 /**
  * 登录
  */
-func (r *MutationResolver) Login (ctx context.Context, phone *string, password *string, mac *string) (*model.LoginRes, error)   {
+func (r *MutationResolver) Login (ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)   {
 	// todo 这里要验证当前用户是否有能使用这个mac地址对应的设备
 	sqlDB := sqlModel.DB
 	user := users.Users{}
-	err := sqlDB.Where("phone=? AND password=?", phone, helper.GetHashByStr(*password)).First(&user).Error
+	err := sqlDB.Where("phone=? AND password=?", phone, helper.GetHashByStr(password)).First(&user).Error
 	if err != nil {
 		err = errors.New("没有这个账号或密码错误")
 		return &model.LoginRes{ }, err
 	} else {
 		accessToken, _ := jwt.GenerateTokenByUID(user.ID)
 		expired := jwt.GetExpiredAt()
-		fmt.Print(expired)
+		role, _ := user.GetRole()
 		return &model.LoginRes{
 			AccessToken: accessToken,
 			Expired: expired,
+			Role: role.Tag,
 		}, nil
 	}
 }

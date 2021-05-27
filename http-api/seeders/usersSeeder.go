@@ -26,7 +26,6 @@ var UsersSeeders =  []seed.Seed{
 				"13427969604",
 				1,
 				1,
-				1,
 				)
 		},
 	},
@@ -39,7 +38,6 @@ func CreateUser(
 	password string,
 	phone string,
 	roteId int8,
-	deviceState  int8,
 	avatarFileId int64,
 )  error {
 	return db.Create(&users.Users{
@@ -48,7 +46,6 @@ func CreateUser(
 		Password: password,
 		Phone: phone,
 		RoteId: roteId,
-		DeviceState: deviceState,
 		AvatarFileId: avatarFileId,
 	}).Error
 }

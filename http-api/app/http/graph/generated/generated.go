@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"http-api/app/http/graph/model"
+	"http-api/app/models/roles"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -47,11 +48,12 @@ type ComplexityRoot struct {
 	LoginRes struct {
 		AccessToken func(childComplexity int) int
 		Expired     func(childComplexity int) int
+		Role        func(childComplexity int) int
 	}
 
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
-		Login      func(childComplexity int, phone *string, password *string, mac *string) int
+		Login      func(childComplexity int, phone string, password string, mac *string) int
 	}
 
 	Query struct {
@@ -74,7 +76,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
-	Login(ctx context.Context, phone *string, password *string, mac *string) (*model.LoginRes, error)
+	Login(ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
@@ -113,6 +115,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LoginRes.Expired(childComplexity), true
 
+	case "LoginRes.role":
+		if e.complexity.LoginRes.Role == nil {
+			break
+		}
+
+		return e.complexity.LoginRes.Role(childComplexity), true
+
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
 			break
@@ -135,7 +144,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Login(childComplexity, args["phone"].(*string), args["password"].(*string), args["mac"].(*string)), true
+		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
 
 	case "Query.hello":
 		if e.complexity.Query.Hello == nil {
@@ -277,15 +286,28 @@ input NewTodo {
   text: String!
   userId: String!
 }
+enum Role {
+  """ 超级管理员 """
+  admin
+  """ 公司管理员 """
+  companyAdmin
+  """ 仓库管理员 """
+  repositoryAdmin
+  """ 项目管理员 """
+  projectAdmin
+  """ 维修管理员 """
+  maintenanceAdmin
+}
 
 type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!
+  """ 角色标识 """ role: Role!
 }
 type Mutation {
   createTodo(input: NewTodo!): Todo!
   """ 登录 """
-  login( """ 手机号 """ phone: String, """ 密码 """ password: String, """ 设备的mac 地址 """ mac: String ): LoginRes!
+  login( """ 手机号 """ phone: String!, """ 密码 """ password: String!, """ 设备的mac地址 设备端登录必要 """ mac: String ): LoginRes!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -312,19 +334,19 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["phone"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["phone"] = arg0
-	var arg1 *string
+	var arg1 string
 	if tmp, ok := rawArgs["password"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -465,6 +487,41 @@ func (ec *executionContext) _LoginRes_expired(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _LoginRes_role(ctx context.Context, field graphql.CollectedField, obj *model.LoginRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LoginRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(roles.Role)
+	fc.Result = res
+	return ec.marshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -532,7 +589,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, args["phone"].(*string), args["password"].(*string), args["mac"].(*string))
+		return ec.resolvers.Mutation().Login(rctx, args["phone"].(string), args["password"].(string), args["mac"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2044,6 +2101,11 @@ func (ec *executionContext) _LoginRes(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "role":
+			out.Values[i] = ec._LoginRes_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2539,6 +2601,16 @@ func (ec *executionContext) marshalNLoginRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraph�
 func (ec *executionContext) unmarshalNNewTodo2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐNewTodo(ctx context.Context, v interface{}) (model.NewTodo, error) {
 	res, err := ec.unmarshalInputNewTodo(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx context.Context, v interface{}) (roles.Role, error) {
+	var res roles.Role
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx context.Context, sel ast.SelectionSet, v roles.Role) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

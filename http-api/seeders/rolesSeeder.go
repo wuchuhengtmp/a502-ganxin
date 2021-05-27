@@ -47,7 +47,7 @@ var rolesSeeders =  []seed.Seed{
 	},
 }
 
-func createRole(db *gorm.DB, id int64, name string, tag string)  error {
+func createRole(db *gorm.DB, id int64, name string, tag roles.Role)  error {
 	return db.Create(&roles.Roles{
 		ID: id,
 		Name: name,
