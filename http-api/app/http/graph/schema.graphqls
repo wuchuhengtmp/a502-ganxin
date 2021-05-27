@@ -42,3 +42,8 @@ type Mutation {
   """ 登录 """
   login( """ 手机号 """ phone: String!, """ 密码 """ password: String!, """ 设备的mac地址 设备端登录必要 """ mac: String ): LoginRes!
 }
+
+schema {
+  query: Query
+  mutation: Mutation
+}

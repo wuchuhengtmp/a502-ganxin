@@ -42,7 +42,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role roles.Role) (res interface{}, err error)
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.Role) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -53,13 +53,19 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateTodo func(childComplexity int, input model.NewTodo) int
-		Login      func(childComplexity int, phone string, password string, mac *string) int
+		CreateTodo   func(childComplexity int, input model.NewTodo) int
+		Login        func(childComplexity int, phone string, password string, mac *string) int
+		SingleUpload func(childComplexity int, file graphql.Upload) int
 	}
 
 	Query struct {
 		Hello func(childComplexity int) int
 		Todos func(childComplexity int) int
+	}
+
+	SingleUploadRes struct {
+		ID  func(childComplexity int) int
+		URL func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -78,6 +84,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 	Login(ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)
+	SingleUpload(ctx context.Context, file graphql.Upload) (*model.SingleUploadRes, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
@@ -147,6 +154,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
 
+	case "Mutation.singleUpload":
+		if e.complexity.Mutation.SingleUpload == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_singleUpload_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SingleUpload(childComplexity, args["file"].(graphql.Upload)), true
+
 	case "Query.hello":
 		if e.complexity.Query.Hello == nil {
 			break
@@ -160,6 +179,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Todos(childComplexity), true
+
+	case "SingleUploadRes.id":
+		if e.complexity.SingleUploadRes.ID == nil {
+			break
+		}
+
+		return e.complexity.SingleUploadRes.ID(childComplexity), true
+
+	case "SingleUploadRes.url":
+		if e.complexity.SingleUploadRes.URL == nil {
+			break
+		}
+
+		return e.complexity.SingleUploadRes.URL(childComplexity), true
 
 	case "Todo.done":
 		if e.complexity.Todo.Done == nil {
@@ -299,7 +332,7 @@ enum Role {
   """ 维修管理员 """
   maintenanceAdmin
 }
-directive @hasRole(role: Role!) on FIELD_DEFINITION
+directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
 
 type LoginRes {
   """ 授权token """    accessToken: String!
@@ -310,6 +343,24 @@ type Mutation {
   createTodo(input: NewTodo!): Todo!
   """ 登录 """
   login( """ 手机号 """ phone: String!, """ 密码 """ password: String!, """ 设备的mac地址 设备端登录必要 """ mac: String ): LoginRes!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}`, BuiltIn: false},
+	{Name: "../upload.graphql", Input: `scalar Upload
+
+type SingleUploadRes {
+    """ 文件ID """
+    id: Int!
+    """ 文访问链接 """
+    url: String!
+}
+
+extend type Mutation {
+    """ 单文件上传 """
+    singleUpload(file: Upload!): SingleUploadRes!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -321,10 +372,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 roles.Role
+	var arg0 []roles.Role
 	if tmp, ok := rawArgs["role"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-		arg0, err = ec.unmarshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, tmp)
+		arg0, err = ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -378,6 +429,21 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		}
 	}
 	args["mac"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_singleUpload_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 graphql.Upload
+	if tmp, ok := rawArgs["file"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+		arg0, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["file"] = arg0
 	return args, nil
 }
 
@@ -623,6 +689,48 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	return ec.marshalNLoginRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐLoginRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_singleUpload_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SingleUpload(rctx, args["file"].(graphql.Upload))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SingleUploadRes)
+	fc.Result = res
+	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -762,6 +870,76 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SingleUploadRes_id(ctx context.Context, field graphql.CollectedField, obj *model.SingleUploadRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SingleUploadRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SingleUploadRes_url(ctx context.Context, field graphql.CollectedField, obj *model.SingleUploadRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SingleUploadRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
@@ -2159,6 +2337,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "singleUpload":
+			out.Values[i] = ec._Mutation_singleUpload(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2217,6 +2400,38 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var singleUploadResImplementors = []string{"SingleUploadRes"}
+
+func (ec *executionContext) _SingleUploadRes(ctx context.Context, sel ast.SelectionSet, obj *model.SingleUploadRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, singleUploadResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SingleUploadRes")
+		case "id":
+			out.Values[i] = ec._SingleUploadRes_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "url":
+			out.Values[i] = ec._SingleUploadRes_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2630,6 +2845,78 @@ func (ec *executionContext) marshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRol
 	return v
 }
 
+func (ec *executionContext) unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleᚄ(ctx context.Context, v interface{}) ([]roles.Role, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]roles.Role, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []roles.Role) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNSingleUploadRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx context.Context, sel ast.SelectionSet, v model.SingleUploadRes) graphql.Marshaler {
+	return ec._SingleUploadRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx context.Context, sel ast.SelectionSet, v *model.SingleUploadRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SingleUploadRes(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2694,6 +2981,21 @@ func (ec *executionContext) marshalNTodo2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmo
 		return graphql.Null
 	}
 	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (graphql.Upload, error) {
+	res, err := graphql.UnmarshalUpload(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v graphql.Upload) graphql.Marshaler {
+	res := graphql.MarshalUpload(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNUser2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

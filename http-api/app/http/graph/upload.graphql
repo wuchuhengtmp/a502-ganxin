@@ -1,0 +1,13 @@
+scalar Upload
+
+type SingleUploadRes {
+    """ 文件ID """
+    id: Int!
+    """ 文访问链接 """
+    url: String!
+}
+
+extend type Mutation {
+    """ 单文件上传 """
+    singleUpload(file: Upload!): SingleUploadRes!
+}

@@ -11,7 +11,6 @@ package routes
 import (
 	"github.com/gorilla/mux"
 	"http-api/app/http/controllers"
-	"http-api/app/http/middlewares"
 	"net/http"
 )
 
@@ -21,6 +20,6 @@ func RegisterWebRoutes(r *mux.Router)  {
 	r.PathPrefix("/uploads/").Handler(http.FileServer(http.Dir("./public")))
 
 	r.HandleFunc("/", pc.Home).Methods("GET").Name("home")
-
-	r.Use(middlewares.ForceHTML)
+	// todo 强制text/html 会造成静态图片不能正常显示的情况
+	//r.Use(middlewares.ForceHTML)
 }

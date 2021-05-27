@@ -41,7 +41,7 @@ func CreateFile(
 	path string,
 	disk string,
 )  error {
-	return db.Create(&files.Files{
+	return db.Create(&files.File{
 		ID: id,
 		Path: path,
 		Disk: disk,

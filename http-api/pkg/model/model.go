@@ -71,7 +71,14 @@ func getMysqlServerConfig() gorm.Dialector {
 	)
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=%t&loc=%s",
-		username, password, host, port, database, charset, true, "Local",
+		username,
+		password,
+		host,
+		port,
+		database,
+		charset,
+		true,
+		"Local",
 	)
 	gormConfig := mysql.New( mysql.Config{
 		DSN: dsn,

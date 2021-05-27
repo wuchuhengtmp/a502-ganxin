@@ -12,13 +12,14 @@ import "http-api/pkg/config"
 
 func init()  {
 	config.Add("fileSystem", config.StrMap {
+		"default":  config.Env("DEFAULT_DISK", "local"),
 		// 本地存储配置
 		"local": struct {
 			Domain interface{}// 访问域名
 			PrefixPath string // 目录前缀
 		}{
 			Domain: config.Env("FILE_SYSTEM_DOMAIN", "http://127.0.0.1"),
-			PrefixPath: "uploads/local", // 相当于 public/local 目录
+			PrefixPath: "uploads/local", // 相当于 项目根目录 public/uploads/local 目录
 		},
 	})
 }

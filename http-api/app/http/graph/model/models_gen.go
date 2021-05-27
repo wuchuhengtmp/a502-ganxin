@@ -20,6 +20,13 @@ type NewTodo struct {
 	UserID string `json:"userId"`
 }
 
+type SingleUploadRes struct {
+	//  文件ID
+	ID int `json:"id"`
+	//  文访问链接
+	URL string `json:"url"`
+}
+
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
