@@ -30,7 +30,13 @@ func (r *MutationResolver) Login (ctx context.Context, phone string, password st
 		err = errors.New("没有这个账号或密码错误")
 		return &model.LoginRes{ }, err
 	} else {
-		accessToken, _ := jwt.GenerateTokenByUID(user.ID)
+		var isDevice bool
+		var macAddres string
+		if mac != nil && len(*mac) > 0 {
+			macAddres = *mac
+			isDevice = true
+		}
+		accessToken, _ := jwt.GenerateTokenByUID(user.ID, isDevice, macAddres)
 		expired := jwt.GetExpiredAt()
 		role, _ := user.GetRole()
 		return &model.LoginRes{

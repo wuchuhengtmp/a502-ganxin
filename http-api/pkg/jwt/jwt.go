@@ -10,13 +10,19 @@ import (
 )
 
 type MyCustomClaims struct {
+	IsDevice bool   `json:"isDevice"`
+	Mac      string `json:"mac"`
+	Uid      int64  `json:"uid"`
 	jwt.StandardClaims
 }
 
 // 生成token
-func GenerateTokenByUID(uid int64) (tokenStr string, err error) {
+func GenerateTokenByUID(uid int64, isDevice bool, mac string) (tokenStr string, err error) {
 	privateKey := []byte(config.GetString("jwt.secret"))
 	claims := MyCustomClaims{
+		isDevice,
+		mac,
+		uid,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Unix() + config.GetInt64("jwt.expired"),
 			Id:	strconv.FormatInt(uid, 10),

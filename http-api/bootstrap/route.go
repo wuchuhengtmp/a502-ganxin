@@ -30,6 +30,7 @@ func SetupRoute() *mux.Router  {
 	router := mux.NewRouter()
 	routes.RegisterWebRoutes(router)
 	routes.RegisterApiRoutes(router)
+	routes.RegisterGraphRoutes(router)
 	route.SetRoute(router)
 	return router
 }
