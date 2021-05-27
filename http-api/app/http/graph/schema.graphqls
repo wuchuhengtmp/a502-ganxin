@@ -30,6 +30,7 @@ enum Role {
   """ 维修管理员 """
   maintenanceAdmin
 }
+directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
 
 type LoginRes {
   """ 授权token """    accessToken: String!
