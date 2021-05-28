@@ -77,7 +77,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Hello func(childComplexity int) int
+		GetAllCompany func(childComplexity int) int
+		Hello         func(childComplexity int) int
 	}
 
 	SingleUploadRes struct {
@@ -98,6 +99,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Hello(ctx context.Context) (*model.User, error)
+	GetAllCompany(ctx context.Context) ([]*model.CreateCompanyRes, error)
 }
 
 type executableSchema struct {
@@ -270,6 +272,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SingleUpload(childComplexity, args["file"].(graphql.Upload)), true
 
+	case "Query.getAllCompany":
+		if e.complexity.Query.GetAllCompany == nil {
+			break
+		}
+
+		return e.complexity.Query.GetAllCompany(childComplexity), true
+
 	case "Query.hello":
 		if e.complexity.Query.Hello == nil {
 			break
@@ -369,8 +378,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphqls", Input: `scalar Timestamp
-scalar Time
+	{Name: "../schema.graphqls", Input: `scalar Time
 type User {
   id: ID!
   name: String!
@@ -473,6 +481,11 @@ input CreateCompanyInput {
 extend type Mutation {
     """ 创建公司 """
     createCompany(input: CreateCompanyInput!): CreateCompanyRes! @hasRole(role: [admin])
+}
+
+extend type Query {
+    """ 获取公司列表 """
+    getAllCompany: [CreateCompanyRes]!
 }
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
@@ -1404,6 +1417,41 @@ func (ec *executionContext) _Query_hello(ctx context.Context, field graphql.Coll
 	res := resTmp.(*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllCompany(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.CreateCompanyRes)
+	fc.Result = res
+	return ec.marshalNCreateCompanyRes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3043,6 +3091,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getAllCompany":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllCompany(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -3389,6 +3451,43 @@ func (ec *executionContext) unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttp
 
 func (ec *executionContext) marshalNCreateCompanyRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx context.Context, sel ast.SelectionSet, v model.CreateCompanyRes) graphql.Marshaler {
 	return ec._CreateCompanyRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateCompanyRes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx context.Context, sel ast.SelectionSet, v []*model.CreateCompanyRes) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalNCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx context.Context, sel ast.SelectionSet, v *model.CreateCompanyRes) graphql.Marshaler {
@@ -3837,6 +3936,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return graphql.MarshalBoolean(*v)
+}
+
+func (ec *executionContext) marshalOCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx context.Context, sel ast.SelectionSet, v *model.CreateCompanyRes) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CreateCompanyRes(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

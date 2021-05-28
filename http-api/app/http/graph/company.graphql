@@ -63,3 +63,8 @@ extend type Mutation {
     """ 创建公司 """
     createCompany(input: CreateCompanyInput!): CreateCompanyRes! @hasRole(role: [admin])
 }
+
+extend type Query {
+    """ 获取公司列表 """
+    getAllCompany: [CreateCompanyRes]!
+}

@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"http-api/app/http/graph/generated"
 	"http-api/app/http/graph/model"
-	mutation_resolver "http-api/app/http/graph/schema/mutation-resolver"
+	mutation_resolver "http-api/app/http/graph/schema/mutation_resolver"
+	query_resolver "http-api/app/http/graph/schema/query_resolver"
 )
-//type LoginMutationResolver =
 
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
@@ -35,12 +35,15 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{} }
 
 // Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{} }
 
 type mutationResolver struct{
 	*Resolver
 	*mutation_resolver.MutationResolver
 }
 
-type queryResolver struct{ *Resolver }
+type queryResolver struct{
+	*Resolver
+	query_resolver.QueryResolver
+}
 type todoResolver struct{ *Resolver }
