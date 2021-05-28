@@ -13,6 +13,8 @@ type LoginRes struct {
 	Expired int `json:"expired"`
 	//  角色标识
 	Role roles.Role `json:"role"`
+	//  角色名
+	RoleName string `json:"roleName"`
 }
 
 type NewTodo struct {

@@ -50,6 +50,7 @@ type ComplexityRoot struct {
 		AccessToken func(childComplexity int) int
 		Expired     func(childComplexity int) int
 		Role        func(childComplexity int) int
+		RoleName    func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -129,6 +130,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LoginRes.Role(childComplexity), true
+
+	case "LoginRes.roleName":
+		if e.complexity.LoginRes.RoleName == nil {
+			break
+		}
+
+		return e.complexity.LoginRes.RoleName(childComplexity), true
 
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
@@ -338,6 +346,7 @@ type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!
   """ 角色标识 """ role: Role!
+  """ 角色名 """ roleName: String!
 }
 type Mutation {
   createTodo(input: NewTodo!): Todo!
@@ -603,6 +612,41 @@ func (ec *executionContext) _LoginRes_role(ctx context.Context, field graphql.Co
 	res := resTmp.(roles.Role)
 	fc.Result = res
 	return ec.marshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LoginRes_roleName(ctx context.Context, field graphql.CollectedField, obj *model.LoginRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LoginRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RoleName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2298,6 +2342,11 @@ func (ec *executionContext) _LoginRes(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "role":
 			out.Values[i] = ec._LoginRes_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "roleName":
+			out.Values[i] = ec._LoginRes_roleName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

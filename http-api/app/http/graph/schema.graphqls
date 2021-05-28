@@ -36,6 +36,7 @@ type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!
   """ 角色标识 """ role: Role!
+  """ 角色名 """ roleName: String!
 }
 type Mutation {
   createTodo(input: NewTodo!): Todo!

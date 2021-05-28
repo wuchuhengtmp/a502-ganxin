@@ -43,6 +43,7 @@ func (r *MutationResolver) Login (ctx context.Context, phone string, password st
 			AccessToken: accessToken,
 			Expired: expired,
 			Role: role.Tag,
+			RoleName: role.Name,
 		}, nil
 	}
 }
