@@ -10,7 +10,7 @@ package companies
 
 import "http-api/pkg/model"
 
-func (b *Companies)Create () error  {
+func (c *Companies)Create () error  {
 	db := model.DB
-	return db.Model(b).Create(b).Error
+	return db.Model(c).Create(c).Error
 }

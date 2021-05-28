@@ -19,23 +19,6 @@ var companySeeders =  []seed.Seed{
 	seed.Seed{
 		Name: "create files",
 		Run: func(db *gorm.DB) error {
-			return CreateCompany( db, 1,
-				"上海北星建筑工程有限公司",
-				"BXJZ",
-						"悦人达己 创新卓越",
-						2,
-						3,
-						true,
-						"13427969604",
-						"wc20030318",
-						getAfterDayTime(0),
-						getAfterDayTime(365),
-			)
-		},
-	},
-	seed.Seed{
-		Name: "create files",
-		Run: func(db *gorm.DB) error {
 			return CreateCompany( db, 2,
 				"公司名1",
 				"GSM1",

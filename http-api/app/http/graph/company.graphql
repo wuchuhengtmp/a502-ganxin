@@ -66,5 +66,5 @@ extend type Mutation {
 
 extend type Query {
     """ 获取公司列表 """
-    getAllCompany: [CreateCompanyRes]!
+    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin])
 }

@@ -19,7 +19,7 @@ type Users struct {
 	Name         string      `json:"name" gorm:"comment:用户名"`
 	Password     string      `json:"password" gorm:"comment:密码"`
 	Phone        string      `json:"phone" gorm:"comment:手机号"`
-	RoteId       int8        `json:"roteId" gorm:"comment:角色id"`
+	RoleId       int8        `json:"roleId" gorm:"comment:角色id"`
 	Wechat       string      `json:"wechat" gorm:"comment:微信"`
 	CompanyId    int64       `json:"CompanyId" gorm:"comment:所属公司id"`
 	IsAble       bool        `json:"is_able" gorm:"comment:启用状态"`
@@ -38,6 +38,6 @@ func (Users) TableName() string {
 func (u Users) GetRole() (roles.Role, error) {
 	role := roles.Role{}
 	sqlDB := sqlModel.DB
-	err := sqlDB.Model(&role).Where("id = ?", u.RoteId).First(&role).Error
+	err := sqlDB.Model(&role).Where("id = ?", u.RoleId).First(&role).Error
 	return role, err
 }

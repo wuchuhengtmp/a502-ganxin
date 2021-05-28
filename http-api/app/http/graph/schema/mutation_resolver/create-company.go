@@ -46,7 +46,7 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		Name:         input.AdminName,
 		Password:     globalHelper.GetHashByStr(input.AdminPassword),
 		Phone:        input.AdminPhone,
-		RoteId:       roles.RoleCompanyAdminId,
+		RoleId:       roles.RoleCompanyAdminId,
 		Wechat:       input.AdminWechat,
 		CompanyId:    company.ID,
 		IsAble:       true,

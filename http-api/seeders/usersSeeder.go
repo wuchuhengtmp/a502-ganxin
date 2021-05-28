@@ -53,7 +53,7 @@ func CreateUser(
 	name string,
 	password string,
 	phone string,
-	roteId int8,
+	roleId int8,
 	avatarFileId int64,
 	companyId int64,
 ) error {
@@ -62,7 +62,7 @@ func CreateUser(
 		Name:         name,
 		Password:     password,
 		Phone:        phone,
-		RoteId:       roteId,
+		RoleId:       roleId,
 		AvatarFileId: avatarFileId,
 		CompanyId:    companyId,
 	}).Error

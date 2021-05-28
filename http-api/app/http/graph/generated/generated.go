@@ -485,7 +485,7 @@ extend type Mutation {
 
 extend type Query {
     """ 获取公司列表 """
-    getAllCompany: [CreateCompanyRes]!
+    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin])
 }
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
@@ -1436,8 +1436,32 @@ func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field grap
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllCompany(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetAllCompany(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.CreateCompanyRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/http/graph/model.CreateCompanyRes`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

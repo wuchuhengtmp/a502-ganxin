@@ -10,7 +10,9 @@ package companies
 
 import (
 	"gorm.io/gorm"
-	"http-api/app/models"
+	"http-api/app/models/roles"
+	"http-api/app/models/users"
+	"http-api/pkg/model"
 	"time"
 )
 
@@ -26,6 +28,21 @@ type Companies struct {
 	Wechat           string    `json:"wechat" gorm:"comment:公司的微信"`
 	StartedAt        time.Time `json:"startedAt" gorm:"comment:开始时间"`
 	EndedAt          time.Time `json:"ended_at" gorm:"comment:结束时间"`
-	models.Base
 	gorm.Model
+}
+
+func GetAll() (cs []Companies) {
+	db := model.DB
+	db.Model(&Companies{}).Find(&cs)
+	return cs
+}
+/**
+ * 获取公司的管理员
+ */
+func (c *Companies) GetAdmin() (user users.Users, err error) {
+	db := model.DB
+	err = db.Model(&user).
+		Where("role_id = ? AND company_id = ?", roles.RoleCompanyAdminId, c.ID).
+		First(&user).Error
+	return user, err
 }
