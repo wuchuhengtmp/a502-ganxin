@@ -50,7 +50,7 @@ func SetupDB() {
 		configs.Configs{},
 		users.Users{},
 		repositories.Repositories{},
-		roles.Roles{},
+		roles.Role{},
 		specificationinfo.SpecificationInfo{},
 		codeinfo.CodeInfo{},
 		files.File{},

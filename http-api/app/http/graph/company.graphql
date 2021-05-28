@@ -1,0 +1,65 @@
+# 公司相关的操作
+type CreateCompanyRes {
+    id: Int!
+    """ 公司名 """
+    Name:             String!
+    """ 用于型钢编码生成 """
+    PinYin:           String!
+    """ APP 企业宗旨 """
+    Symbol:           String!
+    """ logo文件 """
+    LogoFile:       SingleUploadRes!
+    """ app背景文件 """
+    BackgroundFile: SingleUploadRes!
+    """ 账号状态 """
+    IsAble: Boolean!
+    """ 公司的电话 """
+    Phone:            String!
+    """ 公司的微信 """
+    Wechat:           String!
+    """ 开始时间 """
+    StartedAt:        String!
+    """ 结束时间 """
+    EndedAt:          String!
+    """ 管理员名称 """
+    AdminName: String!
+    """ 创建时间 """
+    CreatedAt: String!
+}
+""" 创建公司参数 """
+input CreateCompanyInput {
+    """ 公司名 """
+    Name: String!
+    """ 公司名称拼写简写 """
+    PinYin: String!
+    """  宗旨 """
+    Symbol:           String!
+    """ logo 文件Id """
+    LogoFileId:       Int!
+    """ App 背景图片Id """
+    BackgroundFileId: Int!
+    """ 账号状态 """
+    IsAble: Boolean!
+    """ 公司的电话 """
+    Phone:            String!
+    """ 公司的微信 """
+    Wechat:           String!
+    """ 开始时间 """
+    StartedAt:        String!
+    """ 结束时间 """
+    EndedAt:          String!
+    """ 管理员名称 """
+    AdminName: String!
+    """ 管理员手机 """
+    AdminPhone: String!
+    """ 管理员密码 """
+    AdminPassword: String!
+    """ 管理员微信 """
+    AdminWechat: String!
+    """ 管理员头像Id """
+    AdminAvatarFileId: Int!
+}
+extend type Mutation {
+    """ 创建公司 """
+    createCompany(input: CreateCompanyInput!): CreateCompanyRes! @hasRole(role: [admin])
+}

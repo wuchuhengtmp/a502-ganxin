@@ -6,20 +6,77 @@ import (
 	"http-api/app/models/roles"
 )
 
+//  创建公司参数
+type CreateCompanyInput struct {
+	//  公司名
+	Name string `json:"Name"`
+	//  公司名称拼写简写
+	PinYin string `json:"PinYin"`
+	//   宗旨
+	Symbol string `json:"Symbol"`
+	//  logo 文件Id
+	LogoFileID int `json:"LogoFileId"`
+	//  App 背景图片Id
+	BackgroundFileID int `json:"BackgroundFileId"`
+	//  账号状态
+	IsAble bool `json:"IsAble"`
+	//  公司的电话
+	Phone string `json:"Phone"`
+	//  公司的微信
+	Wechat string `json:"Wechat"`
+	//  开始时间
+	StartedAt string `json:"StartedAt"`
+	//  结束时间
+	EndedAt string `json:"EndedAt"`
+	//  管理员名称
+	AdminName string `json:"AdminName"`
+	//  管理员手机
+	AdminPhone string `json:"AdminPhone"`
+	//  管理员密码
+	AdminPassword string `json:"AdminPassword"`
+	//  管理员微信
+	AdminWechat string `json:"AdminWechat"`
+	//  管理员头像Id
+	AdminAvatarFileID int `json:"AdminAvatarFileId"`
+}
+
+type CreateCompanyRes struct {
+	ID int `json:"id"`
+	//  公司名
+	Name string `json:"Name"`
+	//  用于型钢编码生成
+	PinYin string `json:"PinYin"`
+	//  APP 企业宗旨
+	Symbol string `json:"Symbol"`
+	//  logo文件
+	LogoFile *SingleUploadRes `json:"LogoFile"`
+	//  app背景文件
+	BackgroundFile *SingleUploadRes `json:"BackgroundFile"`
+	//  账号状态
+	IsAble bool `json:"IsAble"`
+	//  公司的电话
+	Phone string `json:"Phone"`
+	//  公司的微信
+	Wechat string `json:"Wechat"`
+	//  开始时间
+	StartedAt string `json:"StartedAt"`
+	//  结束时间
+	EndedAt string `json:"EndedAt"`
+	//  管理员名称
+	AdminName string `json:"AdminName"`
+	//  创建时间
+	CreatedAt string `json:"CreatedAt"`
+}
+
 type LoginRes struct {
 	//  授权token
 	AccessToken string `json:"accessToken"`
 	//  过期时间戳(秒 7天)
 	Expired int `json:"expired"`
 	//  角色标识
-	Role roles.Role `json:"role"`
+	Role roles.GraphqlRole `json:"role"`
 	//  角色名
 	RoleName string `json:"roleName"`
-}
-
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
 }
 
 type SingleUploadRes struct {

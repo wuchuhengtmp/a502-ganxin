@@ -33,8 +33,8 @@ func (Users) TableName() string {
 /**
  * 获取关联的角色
  */
-func (u Users) GetRole() (roles.Roles, error) {
-	role := roles.Roles{}
+func (u Users) GetRole() (roles.Role, error) {
+	role := roles.Role{}
 	sqlDB := sqlModel.DB
 	err := sqlDB.Model(&role).Where("id = ?", u.RoteId).First(&role).Error
 	return role, err
