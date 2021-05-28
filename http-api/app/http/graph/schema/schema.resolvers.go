@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"http-api/app/http/graph/generated"
 	"http-api/app/http/graph/model"
-	mutation_resolver "http-api/app/http/graph/schema/mutation_resolver"
-	query_resolver "http-api/app/http/graph/schema/query_resolver"
+	"http-api/app/http/graph/schema/mutation_resolver"
+	"http-api/app/http/graph/schema/query_resolver"
 )
 
 

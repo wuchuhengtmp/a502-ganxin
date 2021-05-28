@@ -10,6 +10,7 @@ package errors
 
 import (
 	"context"
+	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -32,10 +33,10 @@ func InvalidToken(ctx context.Context) (bool, error)  {
 /**
  * 无权调用
  */
-func AccessDenied(ctx context.Context) (bool, error)  {
+func AccessDenied(ctx context.Context, msg string) (bool, error)  {
 	err := &gqlerror.Error {
 		Path: graphql.GetPath(ctx),
-		Message: "拒绝访问",
+		Message: fmt.Sprintf("拒绝访问:需要任一的 %s 权限", msg) ,
 		Extensions: map[string]interface{}{
 			"code": 4100,
 		},

@@ -10,6 +10,7 @@ package directives
 
 import (
 	"context"
+	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/errors"
@@ -41,7 +42,11 @@ func HasRole (ctx context.Context, obj interface{}, next graphql.Resolver, roles
 	if allRoles.isContain(myRole.Tag) {
 		return next(ctx)
 	} else {
-		return errors.AccessDenied(ctx)
+		var errMsg string
+		for _, role := range roles {
+			errMsg = fmt.Sprintf("%s %s", errMsg, role)
+		}
+		return errors.AccessDenied(ctx, errMsg)
 	}
 }
 
