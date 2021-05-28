@@ -10,10 +10,17 @@ package mutation_resolver
 
 import (
 	"context"
+	"http-api/app/http/graph/errors"
 	"http-api/app/http/graph/model"
+	"http-api/app/http/graph/schema/requests"
 )
 
 func (m *MutationResolver)CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CreateCompanyRes, error) {
+	CreateCompanyRequest := requests.CreateCompanyRequest{}
+	err := CreateCompanyRequest.ValidateCreateCompanyRequest(input)
+	if err != nil {
+		return nil, errors.ValidateErr(ctx, err)
+	}
 	res := model.CreateCompanyRes{ }
 	res.LogoFile = &model.SingleUploadRes{}
 	res.BackgroundFile = &model.SingleUploadRes{}

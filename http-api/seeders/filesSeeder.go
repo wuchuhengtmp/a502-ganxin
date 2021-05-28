@@ -33,6 +33,24 @@ var fileSeeders =  []seed.Seed{
 			return CreateFile( db, 3, "background.png", "local")
 		},
 	},
+	seed.Seed{
+		Name: "create files",
+		Run: func(db *gorm.DB) error {
+			return CreateFile( db, 4, "2021-5-28/1622171038-1622171009253.jpg", "local")
+		},
+	},
+	seed.Seed{
+		Name: "create files",
+		Run: func(db *gorm.DB) error {
+			return CreateFile( db, 5, "2021-5-28/1622171414-companyBackground.png", "local")
+		},
+	},
+	seed.Seed{
+		Name: "create files",
+		Run: func(db *gorm.DB) error {
+			return CreateFile( db, 6, "2021-5-28/1622171422-companyLogo.png", "local")
+		},
+	},
 }
 
 func CreateFile(

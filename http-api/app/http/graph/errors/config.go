@@ -43,3 +43,18 @@ func AccessDenied(ctx context.Context) (bool, error)  {
 
 	return false, err
 }
+
+/**
+ * 验证错误
+ */
+func ValidateErr(ctx context.Context, err error)  error  {
+	gqlErr := &gqlerror.Error {
+		Path: graphql.GetPath(ctx),
+		Message: err.Error(),
+		Extensions: map[string]interface{}{
+			"code": 4200,
+		},
+	}
+
+	return gqlErr
+}
