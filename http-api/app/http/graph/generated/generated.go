@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -368,7 +369,9 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphqls", Input: `type User {
+	{Name: "../schema.graphqls", Input: `scalar Timestamp
+scalar Time
+type User {
   id: ID!
   name: String!
 }
@@ -426,13 +429,13 @@ type CreateCompanyRes {
     """ 公司的微信 """
     Wechat:           String!
     """ 开始时间 """
-    StartedAt:        String!
+    StartedAt: Time!
     """ 结束时间 """
-    EndedAt:          String!
+    EndedAt: Time!
     """ 管理员名称 """
     AdminName: String!
     """ 创建时间 """
-    CreatedAt: String!
+    CreatedAt: Time!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {
@@ -968,9 +971,9 @@ func (ec *executionContext) _CreateCompanyRes_StartedAt(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CreateCompanyRes_EndedAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
@@ -1003,9 +1006,9 @@ func (ec *executionContext) _CreateCompanyRes_EndedAt(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CreateCompanyRes_AdminName(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
@@ -1073,9 +1076,9 @@ func (ec *executionContext) _CreateCompanyRes_CreatedAt(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LoginRes_accessToken(ctx context.Context, field graphql.CollectedField, obj *model.LoginRes) (ret graphql.Marshaler) {
@@ -3531,6 +3534,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

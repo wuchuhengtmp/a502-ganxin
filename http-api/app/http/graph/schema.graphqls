@@ -1,3 +1,4 @@
+scalar Time
 type User {
   id: ID!
   name: String!

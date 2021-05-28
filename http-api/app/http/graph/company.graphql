@@ -18,13 +18,13 @@ type CreateCompanyRes {
     """ 公司的微信 """
     Wechat:           String!
     """ 开始时间 """
-    StartedAt:        String!
+    StartedAt: Time!
     """ 结束时间 """
-    EndedAt:          String!
+    EndedAt: Time!
     """ 管理员名称 """
     AdminName: String!
     """ 创建时间 """
-    CreatedAt: String!
+    CreatedAt: Time!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {

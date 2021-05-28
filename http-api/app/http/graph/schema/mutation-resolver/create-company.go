@@ -76,10 +76,10 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		IsAble:    company.IsAble,
 		Phone:     company.Phone,
 		Wechat:    company.Wechat,
-		StartedAt: helper.FormatTime(company.StartedAt),
-		EndedAt:   helper.FormatTime(company.EndedAt),
+		StartedAt: company.StartedAt,
+		EndedAt:   company.EndedAt,
 		AdminName: user.Name,
-		CreatedAt: helper.FormatTime(company.CreatedAt),
+		CreatedAt: company.CreatedAt,
 	}
 
 	return &res, nil

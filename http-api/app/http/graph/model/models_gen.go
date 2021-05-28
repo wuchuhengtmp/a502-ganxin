@@ -4,6 +4,7 @@ package model
 
 import (
 	"http-api/app/models/roles"
+	"time"
 )
 
 //  创建公司参数
@@ -59,13 +60,13 @@ type CreateCompanyRes struct {
 	//  公司的微信
 	Wechat string `json:"Wechat"`
 	//  开始时间
-	StartedAt string `json:"StartedAt"`
+	StartedAt time.Time `json:"StartedAt"`
 	//  结束时间
-	EndedAt string `json:"EndedAt"`
+	EndedAt time.Time `json:"EndedAt"`
 	//  管理员名称
 	AdminName string `json:"AdminName"`
 	//  创建时间
-	CreatedAt string `json:"CreatedAt"`
+	CreatedAt time.Time `json:"CreatedAt"`
 }
 
 type LoginRes struct {
