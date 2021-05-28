@@ -10,6 +10,7 @@ package companies
 
 import (
 	"gorm.io/gorm"
+	"http-api/app/models"
 	"time"
 )
 
@@ -25,5 +26,6 @@ type Companies struct {
 	Wechat           string    `json:"wechat" gorm:"comment:公司的微信"`
 	StartedAt        time.Time `json:"startedAt" gorm:"comment:开始时间"`
 	EndedAt          time.Time `json:"ended_at" gorm:"comment:结束时间"`
+	models.Base
 	gorm.Model
 }

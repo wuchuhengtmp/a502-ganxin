@@ -14,7 +14,7 @@ import (
 	"http-api/pkg/seed"
 )
 
-var UsersSeeders =  []seed.Seed{
+var UsersSeeders = []seed.Seed{
 	seed.Seed{
 		Name: "create user",
 		Run: func(db *gorm.DB) error {
@@ -26,7 +26,23 @@ var UsersSeeders =  []seed.Seed{
 				"13427969604",
 				1,
 				1,
-				)
+				0,
+			)
+		},
+	},
+	seed.Seed{
+		Name: "create user",
+		Run: func(db *gorm.DB) error {
+			return CreateUser(
+				db,
+				2,
+				"公司管理员1",
+				helper.GetHashByStr("12345678"),
+				"13427969600",
+				2,
+				4,
+				2,
+			)
 		},
 	},
 }
@@ -39,13 +55,15 @@ func CreateUser(
 	phone string,
 	roteId int8,
 	avatarFileId int64,
-)  error {
+	companyId int64,
+) error {
 	return db.Create(&users.Users{
-		ID: id,
-		Name: name,
-		Password: password,
-		Phone: phone,
-		RoteId: roteId,
+		ID:           id,
+		Name:         name,
+		Password:     password,
+		Phone:        phone,
+		RoteId:       roteId,
 		AvatarFileId: avatarFileId,
+		CompanyId:    companyId,
 	}).Error
 }

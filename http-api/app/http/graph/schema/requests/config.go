@@ -11,6 +11,8 @@ package requests
 import (
 	"fmt"
 	"github.com/thedevsaddam/govalidator"
+	"http-api/app/http/graph/util/helper"
+	"http-api/app/models/files"
 	"regexp"
 )
 
@@ -24,7 +26,29 @@ func init()  {
 		} else {
 			return fmt.Errorf("%s:%s 不是正确的手机号", field, value)
 		}
+
+		return nil
+	})
+	// 时间字串验证规则
+	govalidator.AddCustomRule("time", func(field string, rule string, message string, value interface{}) error {
+		_, err := helper.Str2Time(value.(string))
+		if err != nil {
+			return fmt.Errorf("%s:%s 不是正确的 类2006-01-02 15:04:05 时间格式", field, value)
+		}
+
+		return nil
+	})
+
+	// 是否存在这个文件验证规则
+	govalidator.AddCustomRule("fileExist", func(field string, rule string, message string, value interface{}) error {
+		id := int64(value.(int))
+		file := files.File{
+			ID: id,
+		}
+		if !file.IsExist() {
+			return fmt.Errorf("%s:%d 该文件不存在", field, id)
+		}
+
 		return nil
 	})
 }
-

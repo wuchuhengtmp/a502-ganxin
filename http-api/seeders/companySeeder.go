@@ -33,6 +33,23 @@ var companySeeders =  []seed.Seed{
 			)
 		},
 	},
+	seed.Seed{
+		Name: "create files",
+		Run: func(db *gorm.DB) error {
+			return CreateCompany( db, 2,
+				"公司名1",
+				"GSM1",
+				"悦人达己 创新卓越",
+				6,
+				5,
+				true,
+				"13427969600",
+				"wc20030318",
+				getAfterDayTime(0),
+				getAfterDayTime(365),
+			)
+		},
+	},
 }
 
 func getAfterDayTime(day int) time.Time {

@@ -21,6 +21,11 @@ type File struct {
 	gorm.Model
 }
 
+func (file *File)GetFileById(id int64) error {
+	db := model.DB
+	return db.Model(file).Where("id = ?", id).First(file).Error
+}
+
 /**
  * 保存文件
  */
@@ -29,6 +34,17 @@ func (file *File) CreateFile() error {
 	file.Disk = filesystem.GetDefaultDisk()
 	err := db.Model(file).Create(file).Error
 	return err
+}
+
+func (file *File) IsExist() bool {
+	db := model.DB
+	f := File{}
+	err := db.Model(file).Where("id = ?", file.ID).First(&f).Error
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
 }
 
 func (file *File) GetUrl() string {

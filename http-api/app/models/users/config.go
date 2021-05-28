@@ -9,6 +9,7 @@ package users
 
 import (
 	"gorm.io/gorm"
+	"http-api/app/models"
 	"http-api/app/models/roles"
 	sqlModel "http-api/pkg/model"
 )
@@ -23,6 +24,7 @@ type Users struct {
 	CompanyId    int64       `json:"CompanyId" gorm:"comment:所属公司id"`
 	IsAble       bool        `json:"is_able" gorm:"comment:启用状态"`
 	AvatarFileId int64       `json:"avatar" gorm:"comment:头像文件id"`
+	models.Base
 	gorm.Model
 }
 

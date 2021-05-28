@@ -27,7 +27,8 @@ type FileInstance struct {
  * 获取文件的url链接
  */
 func (f FileInstance) Url(path string) string {
-	return fmt.Sprintf("%s/%s/%s", f.Domain, f.Path, path)
+	s := fmt.Sprintf("%s/%s/%s", f.Domain, f.Path, path)
+	return s
 }
 const AccessDir = "public"
 /**

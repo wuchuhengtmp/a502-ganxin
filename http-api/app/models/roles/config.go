@@ -16,9 +16,9 @@ import (
 )
 
 type Role struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name" gorm:"comment:角色名"`
-	Tag  GraphqlRole   `json:"tag" gorm:"comment:角色标识"`
+	ID   int64       `json:"id"`
+	Name string      `json:"name" gorm:"comment:角色名"`
+	Tag  GraphqlRole `json:"tag" gorm:"comment:角色标识"`
 	gorm.Model
 }
 
@@ -35,6 +35,17 @@ const (
 	RoleProjectAdmin GraphqlRole = "projectAdmin"
 	//  维修管理员
 	RoleMaintenanceAdmin GraphqlRole = "maintenanceAdmin"
+
+	//  超级管理员Id
+	RoleAdminId int8 = 1
+	//  公司管理员Id
+	RoleCompanyAdminId int8 = 2
+	//  仓库管理员id
+	RoleRepositoryAdminId int8 = 3
+	//  项目管理员id
+	RoleProjectAdminId int8 = 4
+	//  维修管理员id
+	RoleMaintenanceAdminId int8 = 5
 )
 
 func (e GraphqlRole) IsValid() bool {
