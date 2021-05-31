@@ -31,13 +31,13 @@ func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CompanyItem
 		signEl.Symbol = company.Symbol
 		logFile := files.File{ }
 		_ = logFile.GetSelfById(company.LogoFileId)
-		signEl.LogoFile = &model.SingleUploadRes{
+		signEl.LogoFile = &model.FileItem{
 			ID: int(logFile.ID),
 			URL: logFile.GetUrl(),
 		}
 		backgroundFile := files.File{}
 		_ = backgroundFile.GetSelfById(company.BackgroundFileId)
-		signEl.BackgroundFile = &model.SingleUploadRes{
+		signEl.BackgroundFile = &model.FileItem{
 			ID: int(backgroundFile.ID),
 			URL: backgroundFile.GetUrl(),
 		}
@@ -53,7 +53,7 @@ func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CompanyItem
 		signEl.Wechat = adminUser.Wechat
 		adminAvatar := files.File{}
 		adminAvatar.GetSelfById(adminUser.ID)
-		signEl.AdminAvatar = &model.SingleUploadRes{
+		signEl.AdminAvatar = &model.FileItem{
 			ID: int( adminAvatar.ID),
 			URL: adminAvatar.GetUrl(),
 		}

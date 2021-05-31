@@ -58,7 +58,7 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 	logoFile.GetSelfById(company.LogoFileId)
 	backgroundFile := files.File{}
 	backgroundFile.GetSelfById(company.BackgroundFileId)
-	bf := model.SingleUploadRes{
+	bf := model.FileItem{
 		ID: int(backgroundFile.ID),
 		URL: backgroundFile.GetUrl(),
 	}
@@ -70,7 +70,7 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		Name:   company.Name,
 		PinYin: company.PinYin,
 		Symbol: company.Symbol,
-		LogoFile: &model.SingleUploadRes{
+		LogoFile: &model.FileItem{
 			ID: int( logoFile.ID),
 			URL: logoFile.GetUrl(),
 		},
@@ -84,7 +84,7 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		AdminName: user.Name,
 		AdminWechat: user.Wechat,
 		AdminPhone: user.Phone,
-		AdminAvatar: &model.SingleUploadRes{
+		AdminAvatar: &model.FileItem{
 			ID: int( adminAvatar.ID),
 			URL: adminAvatar.GetUrl(),
 		},

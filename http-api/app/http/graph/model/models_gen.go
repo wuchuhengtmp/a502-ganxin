@@ -16,9 +16,9 @@ type CompanyItemRes struct {
 	//  APP 企业宗旨
 	Symbol string `json:"symbol"`
 	//  logo文件
-	LogoFile *SingleUploadRes `json:"logoFile"`
+	LogoFile *FileItem `json:"logoFile"`
 	//  app背景文件
-	BackgroundFile *SingleUploadRes `json:"backgroundFile"`
+	BackgroundFile *FileItem `json:"backgroundFile"`
 	//  账号状态
 	IsAble bool `json:"isAble"`
 	//  公司的电话
@@ -38,7 +38,7 @@ type CompanyItemRes struct {
 	//  管理员微信
 	AdminWechat string `json:"adminWechat"`
 	//  管理员头像
-	AdminAvatar *SingleUploadRes `json:"adminAvatar"`
+	AdminAvatar *FileItem `json:"adminAvatar"`
 }
 
 //  创建公司参数
@@ -118,6 +118,13 @@ type ErrCodes struct {
 	Desc string `json:"desc"`
 }
 
+type FileItem struct {
+	//  文件ID
+	ID int `json:"id"`
+	//  文访问链接
+	URL string `json:"url"`
+}
+
 type GraphDesc struct {
 	//  接口错码说明
 	Title string `json:"title"`
@@ -136,13 +143,6 @@ type LoginRes struct {
 	Role roles.GraphqlRole `json:"role"`
 	//  角色名
 	RoleName string `json:"roleName"`
-}
-
-type SingleUploadRes struct {
-	//  文件ID
-	ID int `json:"id"`
-	//  文访问链接
-	URL string `json:"url"`
 }
 
 type User struct {

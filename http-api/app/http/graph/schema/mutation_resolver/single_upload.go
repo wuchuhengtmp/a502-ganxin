@@ -22,7 +22,7 @@ import (
 /**
  * 单文件上传
  */
-func (m *MutationResolver)SingleUpload(ctx context.Context, file graphql.Upload) (*model.SingleUploadRes, error) {
+func (m *MutationResolver)SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error) {
 	year, month, day := time.Now().Date()
 	path := fmt.Sprintf("%d-%d-%d/%d-%s", year, month, day, time.Now().Unix(), file.Filename)
 	content, _ := ioutil.ReadAll(file.File)
@@ -31,7 +31,7 @@ func (m *MutationResolver)SingleUpload(ctx context.Context, file graphql.Upload)
 		Path: path,
 	}
 	newFile.CreateFile()
-	res := model.SingleUploadRes{}
+	res := model.FileItem{}
 	res.ID =  int(newFile.ID)
 	res.URL = newFile.GetUrl()
 

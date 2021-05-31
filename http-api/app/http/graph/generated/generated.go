@@ -72,6 +72,11 @@ type ComplexityRoot struct {
 		Desc func(childComplexity int) int
 	}
 
+	FileItem struct {
+		ID  func(childComplexity int) int
+		URL func(childComplexity int) int
+	}
+
 	GraphDesc struct {
 		Desc     func(childComplexity int) int
 		ErrCodes func(childComplexity int) int
@@ -97,11 +102,6 @@ type ComplexityRoot struct {
 		GetAllCompany func(childComplexity int) int
 	}
 
-	SingleUploadRes struct {
-		ID  func(childComplexity int) int
-		URL func(childComplexity int) int
-	}
-
 	User struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
@@ -112,7 +112,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)
 	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CompanyItemRes, error)
 	EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CompanyItemRes, error)
-	SingleUpload(ctx context.Context, file graphql.Upload) (*model.SingleUploadRes, error)
+	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
@@ -260,6 +260,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ErrCodes.Desc(childComplexity), true
 
+	case "FileItem.id":
+		if e.complexity.FileItem.ID == nil {
+			break
+		}
+
+		return e.complexity.FileItem.ID(childComplexity), true
+
+	case "FileItem.url":
+		if e.complexity.FileItem.URL == nil {
+			break
+		}
+
+		return e.complexity.FileItem.URL(childComplexity), true
+
 	case "GraphDesc.desc":
 		if e.complexity.GraphDesc.Desc == nil {
 			break
@@ -370,20 +384,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetAllCompany(childComplexity), true
-
-	case "SingleUploadRes.id":
-		if e.complexity.SingleUploadRes.ID == nil {
-			break
-		}
-
-		return e.complexity.SingleUploadRes.ID(childComplexity), true
-
-	case "SingleUploadRes.url":
-		if e.complexity.SingleUploadRes.URL == nil {
-			break
-		}
-
-		return e.complexity.SingleUploadRes.URL(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -530,9 +530,9 @@ type CompanyItemRes {
     """ APP 企业宗旨 """
     symbol:           String!
     """ logo文件 """
-    logoFile:       SingleUploadRes!
+    logoFile:       FileItem!
     """ app背景文件 """
-    backgroundFile: SingleUploadRes!
+    backgroundFile: FileItem!
     """ 账号状态 """
     isAble: Boolean!
     """ 公司的电话 """
@@ -552,7 +552,7 @@ type CompanyItemRes {
     """ 管理员微信 """
     adminWechat: String!
     """ 管理员头像 """
-    adminAvatar: SingleUploadRes!
+    adminAvatar: FileItem!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {
@@ -637,7 +637,7 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
-type SingleUploadRes {
+type FileItem {
     """ 文件ID """
     id: Int!
     """ 文访问链接 """
@@ -646,7 +646,7 @@ type SingleUploadRes {
 
 extend type Mutation {
     """ 单文件上传 """
-    singleUpload(file: Upload!): SingleUploadRes!
+    singleUpload(file: Upload!): FileItem!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -971,9 +971,9 @@ func (ec *executionContext) _CompanyItemRes_logoFile(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.SingleUploadRes)
+	res := resTmp.(*model.FileItem)
 	fc.Result = res
-	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
+	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CompanyItemRes_backgroundFile(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
@@ -1006,9 +1006,9 @@ func (ec *executionContext) _CompanyItemRes_backgroundFile(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.SingleUploadRes)
+	res := resTmp.(*model.FileItem)
 	fc.Result = res
-	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
+	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CompanyItemRes_isAble(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
@@ -1356,9 +1356,9 @@ func (ec *executionContext) _CompanyItemRes_adminAvatar(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.SingleUploadRes)
+	res := resTmp.(*model.FileItem)
 	fc.Result = res
-	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
+	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ErrCodes_code(ctx context.Context, field graphql.CollectedField, obj *model.ErrCodes) (ret graphql.Marshaler) {
@@ -1415,6 +1415,76 @@ func (ec *executionContext) _ErrCodes_desc(ctx context.Context, field graphql.Co
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Desc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FileItem_id(ctx context.Context, field graphql.CollectedField, obj *model.FileItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FileItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FileItem_url(ctx context.Context, field graphql.CollectedField, obj *model.FileItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FileItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1887,9 +1957,9 @@ func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.SingleUploadRes)
+	res := resTmp.(*model.FileItem)
 	fc.Result = res
-	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
+	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_errorCodeDesc(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2055,76 +2125,6 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _SingleUploadRes_id(ctx context.Context, field graphql.CollectedField, obj *model.SingleUploadRes) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "SingleUploadRes",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _SingleUploadRes_url(ctx context.Context, field graphql.CollectedField, obj *model.SingleUploadRes) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "SingleUploadRes",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -3698,6 +3698,38 @@ func (ec *executionContext) _ErrCodes(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var fileItemImplementors = []string{"FileItem"}
+
+func (ec *executionContext) _FileItem(ctx context.Context, sel ast.SelectionSet, obj *model.FileItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, fileItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FileItem")
+		case "id":
+			out.Values[i] = ec._FileItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "url":
+			out.Values[i] = ec._FileItem_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var graphDescImplementors = []string{"GraphDesc"}
 
 func (ec *executionContext) _GraphDesc(ctx context.Context, sel ast.SelectionSet, obj *model.GraphDesc) graphql.Marshaler {
@@ -3870,38 +3902,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var singleUploadResImplementors = []string{"SingleUploadRes"}
-
-func (ec *executionContext) _SingleUploadRes(ctx context.Context, sel ast.SelectionSet, obj *model.SingleUploadRes) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, singleUploadResImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SingleUploadRes")
-		case "id":
-			out.Values[i] = ec._SingleUploadRes_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "url":
-			out.Values[i] = ec._SingleUploadRes_url(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4303,6 +4303,20 @@ func (ec *executionContext) marshalNErrCodes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgra
 	return ret
 }
 
+func (ec *executionContext) marshalNFileItem2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx context.Context, sel ast.SelectionSet, v model.FileItem) graphql.Marshaler {
+	return ec._FileItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx context.Context, sel ast.SelectionSet, v *model.FileItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._FileItem(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNGraphDesc2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGraphDesc(ctx context.Context, sel ast.SelectionSet, v model.GraphDesc) graphql.Marshaler {
 	return ec._GraphDesc(ctx, sel, &v)
 }
@@ -4427,20 +4441,6 @@ func (ec *executionContext) marshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐ
 	}
 	wg.Wait()
 	return ret
-}
-
-func (ec *executionContext) marshalNSingleUploadRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx context.Context, sel ast.SelectionSet, v model.SingleUploadRes) graphql.Marshaler {
-	return ec._SingleUploadRes(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx context.Context, sel ast.SelectionSet, v *model.SingleUploadRes) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._SingleUploadRes(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

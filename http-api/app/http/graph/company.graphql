@@ -8,9 +8,9 @@ type CompanyItemRes {
     """ APP 企业宗旨 """
     symbol:           String!
     """ logo文件 """
-    logoFile:       SingleUploadRes!
+    logoFile:       FileItem!
     """ app背景文件 """
-    backgroundFile: SingleUploadRes!
+    backgroundFile: FileItem!
     """ 账号状态 """
     isAble: Boolean!
     """ 公司的电话 """
@@ -30,7 +30,7 @@ type CompanyItemRes {
     """ 管理员微信 """
     adminWechat: String!
     """ 管理员头像 """
-    adminAvatar: SingleUploadRes!
+    adminAvatar: FileItem!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {

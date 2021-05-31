@@ -1,6 +1,6 @@
 scalar Upload
 
-type SingleUploadRes {
+type FileItem {
     """ 文件ID """
     id: Int!
     """ 文访问链接 """
@@ -9,5 +9,5 @@ type SingleUploadRes {
 
 extend type Mutation {
     """ 单文件上传 """
-    singleUpload(file: Upload!): SingleUploadRes!
+    singleUpload(file: Upload!): FileItem!
 }
