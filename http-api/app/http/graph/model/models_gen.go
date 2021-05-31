@@ -105,6 +105,22 @@ type EditCompanyInput struct {
 	AdminAvatarFileID int `json:"adminAvatarFileId"`
 }
 
+type ErrCodes struct {
+	//  错误码编号
+	Code int `json:"code"`
+	//  错误码用途说明
+	Desc string `json:"desc"`
+}
+
+type GraphDesc struct {
+	//  接口错码说明
+	Title string `json:"title"`
+	//  详细说明
+	Desc string `json:"desc"`
+	//  错码列表
+	ErrCodes []*ErrCodes `json:"errCodes"`
+}
+
 type LoginRes struct {
 	//  授权token
 	AccessToken string `json:"accessToken"`

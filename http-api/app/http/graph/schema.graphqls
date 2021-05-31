@@ -3,9 +3,24 @@ type User {
   id: ID!
   name: String!
 }
+type ErrCodes {
+  """ 错误码编号 """
+  code: Int!
+  """ 错误码用途说明 """
+  desc: String!
+}
+type GraphDesc {
+  """ 接口错码说明 """
+  title: String!
+  """ 详细说明 """
+  desc: String!
+  """ 错码列表 """
+  errCodes: [ErrCodes]!
+}
 
 type Query {
-  hello: User!
+  """ 接口错码说明 """
+  errorCodeDesc: GraphDesc!
 }
 
 enum Role {

@@ -43,7 +43,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.GraphqlRole) (res interface{}, err error)
+	CompanyScopeAuth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	HasRole          func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.GraphqlRole) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -63,6 +64,17 @@ type ComplexityRoot struct {
 		Wechat         func(childComplexity int) int
 	}
 
+	ErrCodes struct {
+		Code func(childComplexity int) int
+		Desc func(childComplexity int) int
+	}
+
+	GraphDesc struct {
+		Desc     func(childComplexity int) int
+		ErrCodes func(childComplexity int) int
+		Title    func(childComplexity int) int
+	}
+
 	LoginRes struct {
 		AccessToken func(childComplexity int) int
 		Expired     func(childComplexity int) int
@@ -78,8 +90,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		ErrorCodeDesc func(childComplexity int) int
 		GetAllCompany func(childComplexity int) int
-		Hello         func(childComplexity int) int
 	}
 
 	SingleUploadRes struct {
@@ -100,7 +112,7 @@ type MutationResolver interface {
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.SingleUploadRes, error)
 }
 type QueryResolver interface {
-	Hello(ctx context.Context) (*model.User, error)
+	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*model.CreateCompanyRes, error)
 }
 
@@ -210,6 +222,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateCompanyRes.Wechat(childComplexity), true
 
+	case "ErrCodes.code":
+		if e.complexity.ErrCodes.Code == nil {
+			break
+		}
+
+		return e.complexity.ErrCodes.Code(childComplexity), true
+
+	case "ErrCodes.desc":
+		if e.complexity.ErrCodes.Desc == nil {
+			break
+		}
+
+		return e.complexity.ErrCodes.Desc(childComplexity), true
+
+	case "GraphDesc.desc":
+		if e.complexity.GraphDesc.Desc == nil {
+			break
+		}
+
+		return e.complexity.GraphDesc.Desc(childComplexity), true
+
+	case "GraphDesc.errCodes":
+		if e.complexity.GraphDesc.ErrCodes == nil {
+			break
+		}
+
+		return e.complexity.GraphDesc.ErrCodes(childComplexity), true
+
+	case "GraphDesc.title":
+		if e.complexity.GraphDesc.Title == nil {
+			break
+		}
+
+		return e.complexity.GraphDesc.Title(childComplexity), true
+
 	case "LoginRes.accessToken":
 		if e.complexity.LoginRes.AccessToken == nil {
 			break
@@ -286,19 +333,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SingleUpload(childComplexity, args["file"].(graphql.Upload)), true
 
+	case "Query.errorCodeDesc":
+		if e.complexity.Query.ErrorCodeDesc == nil {
+			break
+		}
+
+		return e.complexity.Query.ErrorCodeDesc(childComplexity), true
+
 	case "Query.getAllCompany":
 		if e.complexity.Query.GetAllCompany == nil {
 			break
 		}
 
 		return e.complexity.Query.GetAllCompany(childComplexity), true
-
-	case "Query.hello":
-		if e.complexity.Query.Hello == nil {
-			break
-		}
-
-		return e.complexity.Query.Hello(childComplexity), true
 
 	case "SingleUploadRes.id":
 		if e.complexity.SingleUploadRes.ID == nil {
@@ -397,9 +444,24 @@ type User {
   id: ID!
   name: String!
 }
+type ErrCodes {
+  """ 错误码编号 """
+  code: Int!
+  """ 错误码用途说明 """
+  desc: String!
+}
+type GraphDesc {
+  """ 接口错码说明 """
+  title: String!
+  """ 详细说明 """
+  desc: String!
+  """ 错码列表 """
+  errCodes: [ErrCodes]!
+}
 
 type Query {
-  hello: User!
+  """ 接口错码说明 """
+  errorCodeDesc: GraphDesc!
 }
 
 enum Role {
@@ -414,7 +476,10 @@ enum Role {
   """ 维修管理员 """
   maintenanceAdmin
 }
+# 角色鉴权
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
+# 公司数据作用域鉴权, 用户只能修改归属公司的数据
+directive @companyScopeAuth on FIELD_DEFINITION
 
 type LoginRes {
   """ 授权token """    accessToken: String!
@@ -1161,6 +1226,181 @@ func (ec *executionContext) _CreateCompanyRes_createdAt(ctx context.Context, fie
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _ErrCodes_code(ctx context.Context, field graphql.CollectedField, obj *model.ErrCodes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ErrCodes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ErrCodes_desc(ctx context.Context, field graphql.CollectedField, obj *model.ErrCodes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ErrCodes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Desc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GraphDesc_title(ctx context.Context, field graphql.CollectedField, obj *model.GraphDesc) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GraphDesc",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GraphDesc_desc(ctx context.Context, field graphql.CollectedField, obj *model.GraphDesc) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GraphDesc",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Desc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GraphDesc_errCodes(ctx context.Context, field graphql.CollectedField, obj *model.GraphDesc) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GraphDesc",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ErrCodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ErrCodes)
+	fc.Result = res
+	return ec.marshalNErrCodes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐErrCodes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _LoginRes_accessToken(ctx context.Context, field graphql.CollectedField, obj *model.LoginRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1517,7 +1757,7 @@ func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field gr
 	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_hello(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_errorCodeDesc(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1535,7 +1775,7 @@ func (ec *executionContext) _Query_hello(ctx context.Context, field graphql.Coll
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Hello(rctx)
+		return ec.resolvers.Query().ErrorCodeDesc(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1547,9 +1787,9 @@ func (ec *executionContext) _Query_hello(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*model.GraphDesc)
 	fc.Result = res
-	return ec.marshalNUser2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNGraphDesc2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGraphDesc(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3276,6 +3516,75 @@ func (ec *executionContext) _CreateCompanyRes(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var errCodesImplementors = []string{"ErrCodes"}
+
+func (ec *executionContext) _ErrCodes(ctx context.Context, sel ast.SelectionSet, obj *model.ErrCodes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, errCodesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ErrCodes")
+		case "code":
+			out.Values[i] = ec._ErrCodes_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "desc":
+			out.Values[i] = ec._ErrCodes_desc(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var graphDescImplementors = []string{"GraphDesc"}
+
+func (ec *executionContext) _GraphDesc(ctx context.Context, sel ast.SelectionSet, obj *model.GraphDesc) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, graphDescImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GraphDesc")
+		case "title":
+			out.Values[i] = ec._GraphDesc_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "desc":
+			out.Values[i] = ec._GraphDesc_desc(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "errCodes":
+			out.Values[i] = ec._GraphDesc_errCodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var loginResImplementors = []string{"LoginRes"}
 
 func (ec *executionContext) _LoginRes(ctx context.Context, sel ast.SelectionSet, obj *model.LoginRes) graphql.Marshaler {
@@ -3379,7 +3688,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "hello":
+		case "errorCodeDesc":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -3387,7 +3696,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_hello(ctx, field)
+				res = ec._Query_errorCodeDesc(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3807,6 +4116,57 @@ func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttp�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNErrCodes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐErrCodes(ctx context.Context, sel ast.SelectionSet, v []*model.ErrCodes) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOErrCodes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐErrCodes(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNGraphDesc2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGraphDesc(ctx context.Context, sel ast.SelectionSet, v model.GraphDesc) graphql.Marshaler {
+	return ec._GraphDesc(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGraphDesc2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGraphDesc(ctx context.Context, sel ast.SelectionSet, v *model.GraphDesc) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GraphDesc(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3976,20 +4336,6 @@ func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋg
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNUser2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
-	return ec._User(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNUser2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4250,6 +4596,13 @@ func (ec *executionContext) marshalOCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttp�
 		return graphql.Null
 	}
 	return ec._CreateCompanyRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOErrCodes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐErrCodes(ctx context.Context, sel ast.SelectionSet, v *model.ErrCodes) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ErrCodes(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

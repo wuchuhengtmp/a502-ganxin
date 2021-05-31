@@ -4,32 +4,10 @@ package schema
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"context"
-	"fmt"
 	"http-api/app/http/graph/generated"
-	"http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/mutation_resolver"
 	"http-api/app/http/graph/schema/query_resolver"
 )
-
-
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	return r.todos, nil
-}
-
-func (r *queryResolver) Hello(ctx context.Context) (*model.User, error) {
-	return &model.User {
-		ID: "hello",
-		Name: "1123",
-	}, nil
-}
-
-func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	return &model.User{
-		ID:   obj.UserID,
-		Name: fmt.Sprintf("user %s", obj.UserID),
-	}, nil
-}
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{} }
@@ -46,4 +24,3 @@ type queryResolver struct{
 	*Resolver
 	query_resolver.QueryResolver
 }
-type todoResolver struct{ *Resolver }
