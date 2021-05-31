@@ -15,15 +15,21 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
+const (
+	InvalidErrCode    = 4000 // 验证错误码
+	AccessDenyErrCode = 4100 // 权限限制错误码
+	ServerErrCode     = 5000 // 服务器错误码
+)
+
 /**
  * 没有token或token无效
  */
-func InvalidToken(ctx context.Context) (bool, error)  {
-	 err := &gqlerror.Error {
-		Path: graphql.GetPath(ctx),
+func InvalidToken(ctx context.Context) (bool, error) {
+	err := &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
 		Message: "没有token或token无效",
 		Extensions: map[string]interface{}{
-			"code": 4000,
+			"code": InvalidErrCode,
 		},
 	}
 
@@ -33,10 +39,10 @@ func InvalidToken(ctx context.Context) (bool, error)  {
 /**
  * 无权调用
  */
-func AccessDenied(ctx context.Context, msg string) (bool, error)  {
-	err := &gqlerror.Error {
-		Path: graphql.GetPath(ctx),
-		Message: fmt.Sprintf("拒绝访问:需要任一的 %s 权限", msg) ,
+func AccessDenied(ctx context.Context, msg string) (bool, error) {
+	err := &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: fmt.Sprintf("拒绝访问:需要任一的 %s 权限", msg),
 		Extensions: map[string]interface{}{
 			"code": 4100,
 		},
@@ -48,12 +54,27 @@ func AccessDenied(ctx context.Context, msg string) (bool, error)  {
 /**
  * 验证错误
  */
-func ValidateErr(ctx context.Context, err error)  error  {
-	gqlErr := &gqlerror.Error {
-		Path: graphql.GetPath(ctx),
+func ValidateErr(ctx context.Context, err error) error {
+	gqlErr := &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
 		Message: err.Error(),
 		Extensions: map[string]interface{}{
-			"code": 4200,
+			"code": AccessDenyErrCode,
+		},
+	}
+
+	return gqlErr
+}
+
+/**
+ * 后台出现错误
+ */
+func ServerErr(ctx context.Context, err error) error {
+	gqlErr := &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: err.Error(),
+		Extensions: map[string]interface{}{
+			"code": ServerErrCode,
 		},
 	}
 

@@ -44,3 +44,13 @@ func (c *Companies) GetAdmin() (user users.Users, err error) {
 		First(&user).Error
 	return user, err
 }
+
+/**
+ *  有没有这家公司
+ */
+func (Companies) HasCompanyId(cid int64) (*Companies, error)  {
+	 db := model.DB
+	 cp := Companies{}
+	 err := db.Model(&Companies{}).Where("id = ?", cid).First(&cp).Error
+	 return &cp, err
+}

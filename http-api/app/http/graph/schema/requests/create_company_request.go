@@ -37,7 +37,8 @@ func (data *CreateCompanyRequest) ValidateCreateCompanyRequest(input model.Creat
 	data.AdminAvatarFileId = input.AdminAvatarFileID
 	rules := govalidator.MapData{
 		"Phone":             []string{"phone"},
-		"AdminPhone":        []string{"phone"},
+		"AdminPhone":        []string{"phone", "not_user_phone_exists"},
+		"AdminPassword":     []string{"min:6"},
 		"EndedAt":           []string{"time"},
 		"StartedAt":         []string{"time"},
 		"AdminAvatarFileId": []string{"fileExist"},

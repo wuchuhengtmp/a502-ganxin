@@ -33,6 +33,30 @@ func (Users) TableName() string {
 }
 
 /**
+ * 用户手机号是否存在
+ */
+func (Users) IsPhoneExists(phone string) bool {
+	db := sqlModel.DB
+	u := Users{}
+	err := db.Model(&Users{}).Where("phone = ?", phone).First(&u).Error
+	if err == nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+/**
+ * 有没有这个用户
+ */
+func (Users) HasUserById(id int64) (*Users, error) {
+	db := sqlModel.DB
+	u := Users{}
+	err := db.Model(&u).Where("id = ?",id).First(&u).Error
+	return &u, err
+}
+
+/**
  * 获取关联的角色
  */
 func (u Users) GetRole() (roles.Role, error) {
@@ -40,4 +64,36 @@ func (u Users) GetRole() (roles.Role, error) {
 	sqlDB := sqlModel.DB
 	err := sqlDB.Model(&role).Where("id = ?", u.RoleId).First(&role).Error
 	return role, err
+}
+
+/**
+ * 公司管理员电话新的电话比较原有的， 是否已经更改了
+ */
+func (Users) IsChangeCompanyAdminPhone(companyId int64, phone string) bool {
+	db := sqlModel.DB
+	u := Users{}
+	db.Model(&Users{}).Where(
+		"role_id = ? AND company_id = ?",
+		roles.RoleCompanyAdminId,
+		companyId,
+	).First(&u)
+	if u.Phone != phone {
+		return false
+	} else {
+		return false
+	}
+}
+
+/**
+ * 是否是唯一的手机号
+ */
+func (Users) IsUniPhone(phone string) bool {
+	db := sqlModel.DB
+	u := Users{}
+	err := db.Model(Users{}).Where("phone = ?", phone).First(&u).Error
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
 }

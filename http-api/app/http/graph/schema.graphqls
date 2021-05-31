@@ -20,7 +20,10 @@ enum Role {
   """ 维修管理员 """
   maintenanceAdmin
 }
+# 角色鉴权
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
+# 公司数据作用域鉴权, 用户只能修改归属公司的数据
+directive @companyScopeAuth on FIELD_DEFINITION
 
 type LoginRes {
   """ 授权token """    accessToken: String!

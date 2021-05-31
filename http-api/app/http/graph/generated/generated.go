@@ -72,6 +72,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateCompany func(childComplexity int, input model.CreateCompanyInput) int
+		EditCompany   func(childComplexity int, input model.EditCompanyInput) int
 		Login         func(childComplexity int, phone string, password string, mac *string) int
 		SingleUpload  func(childComplexity int, file graphql.Upload) int
 	}
@@ -95,6 +96,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Login(ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)
 	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CreateCompanyRes, error)
+	EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CreateCompanyRes, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.SingleUploadRes, error)
 }
 type QueryResolver interface {
@@ -117,28 +119,28 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "CreateCompanyRes.AdminName":
+	case "CreateCompanyRes.adminName":
 		if e.complexity.CreateCompanyRes.AdminName == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.AdminName(childComplexity), true
 
-	case "CreateCompanyRes.BackgroundFile":
+	case "CreateCompanyRes.backgroundFile":
 		if e.complexity.CreateCompanyRes.BackgroundFile == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.BackgroundFile(childComplexity), true
 
-	case "CreateCompanyRes.CreatedAt":
+	case "CreateCompanyRes.createdAt":
 		if e.complexity.CreateCompanyRes.CreatedAt == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.CreatedAt(childComplexity), true
 
-	case "CreateCompanyRes.EndedAt":
+	case "CreateCompanyRes.endedAt":
 		if e.complexity.CreateCompanyRes.EndedAt == nil {
 			break
 		}
@@ -152,56 +154,56 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateCompanyRes.ID(childComplexity), true
 
-	case "CreateCompanyRes.IsAble":
+	case "CreateCompanyRes.isAble":
 		if e.complexity.CreateCompanyRes.IsAble == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.IsAble(childComplexity), true
 
-	case "CreateCompanyRes.LogoFile":
+	case "CreateCompanyRes.logoFile":
 		if e.complexity.CreateCompanyRes.LogoFile == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.LogoFile(childComplexity), true
 
-	case "CreateCompanyRes.Name":
+	case "CreateCompanyRes.name":
 		if e.complexity.CreateCompanyRes.Name == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.Name(childComplexity), true
 
-	case "CreateCompanyRes.Phone":
+	case "CreateCompanyRes.phone":
 		if e.complexity.CreateCompanyRes.Phone == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.Phone(childComplexity), true
 
-	case "CreateCompanyRes.PinYin":
+	case "CreateCompanyRes.pinYin":
 		if e.complexity.CreateCompanyRes.PinYin == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.PinYin(childComplexity), true
 
-	case "CreateCompanyRes.StartedAt":
+	case "CreateCompanyRes.startedAt":
 		if e.complexity.CreateCompanyRes.StartedAt == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.StartedAt(childComplexity), true
 
-	case "CreateCompanyRes.Symbol":
+	case "CreateCompanyRes.symbol":
 		if e.complexity.CreateCompanyRes.Symbol == nil {
 			break
 		}
 
 		return e.complexity.CreateCompanyRes.Symbol(childComplexity), true
 
-	case "CreateCompanyRes.Wechat":
+	case "CreateCompanyRes.wechat":
 		if e.complexity.CreateCompanyRes.Wechat == nil {
 			break
 		}
@@ -247,6 +249,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateCompany(childComplexity, args["input"].(model.CreateCompanyInput)), true
+
+	case "Mutation.editCompany":
+		if e.complexity.Mutation.EditCompany == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editCompany_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditCompany(childComplexity, args["input"].(model.EditCompanyInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -421,71 +435,109 @@ schema {
 type CreateCompanyRes {
     id: Int!
     """ 公司名 """
-    Name:             String!
+    name:             String!
     """ 用于型钢编码生成 """
-    PinYin:           String!
+    pinYin:           String!
     """ APP 企业宗旨 """
-    Symbol:           String!
+    symbol:           String!
     """ logo文件 """
-    LogoFile:       SingleUploadRes!
+    logoFile:       SingleUploadRes!
     """ app背景文件 """
-    BackgroundFile: SingleUploadRes!
+    backgroundFile: SingleUploadRes!
     """ 账号状态 """
-    IsAble: Boolean!
+    isAble: Boolean!
     """ 公司的电话 """
-    Phone:            String!
+    phone:            String!
     """ 公司的微信 """
-    Wechat:           String!
+    wechat:           String!
     """ 开始时间 """
-    StartedAt: Time!
+    startedAt: Time!
     """ 结束时间 """
-    EndedAt: Time!
+    endedAt: Time!
     """ 管理员名称 """
-    AdminName: String!
+    adminName: String!
     """ 创建时间 """
-    CreatedAt: Time!
+    createdAt: Time!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {
     """ 公司名 """
-    Name: String!
+    name: String!
     """ 公司名称拼写简写 """
-    PinYin: String!
+    pinYin: String!
     """  宗旨 """
-    Symbol:           String!
+    symbol:           String!
     """ logo 文件Id """
-    LogoFileId:       Int!
+    logoFileId:       Int!
     """ App 背景图片Id """
-    BackgroundFileId: Int!
+    backgroundFileId: Int!
     """ 账号状态 """
-    IsAble: Boolean!
+    isAble: Boolean!
     """ 公司的电话 """
-    Phone:            String!
+    phone:            String!
     """ 公司的微信 """
-    Wechat:           String!
+    wechat:           String!
     """ 开始时间 """
-    StartedAt:        String!
+    startedAt:        String!
     """ 结束时间 """
-    EndedAt:          String!
+    endedAt:          String!
     """ 管理员名称 """
-    AdminName: String!
+    adminName: String!
     """ 管理员手机 """
-    AdminPhone: String!
+    adminPhone: String!
     """ 管理员密码 """
-    AdminPassword: String!
+    adminPassword: String!
     """ 管理员微信 """
-    AdminWechat: String!
+    adminWechat: String!
     """ 管理员头像Id """
-    AdminAvatarFileId: Int!
+    adminAvatarFileId: Int!
 }
+""" 修改公司参数 """
+input EditCompanyInput {
+    """ 公司ID """
+    id: Int!
+    """ 公司名 """
+    name: String!
+    """ 公司名称拼写简写 """
+    pinYin: String!
+    """  宗旨 """
+    symbol:           String!
+    """ logo 文件Id """
+    logoFileId:       Int!
+    """ App 背景图片Id """
+    backgroundFileId: Int!
+    """ 账号状态 """
+    isAble: Boolean!
+    """ 公司的电话 """
+    phone:            String!
+    """ 公司的微信 """
+    wechat:           String!
+    """ 开始时间 """
+    startedAt:        String!
+    """ 结束时间 """
+    endedAt:          String!
+    """ 管理员名称 """
+    adminName: String!
+    """ 管理员手机 """
+    adminPhone: String!
+    """ 管理员密码 """
+    adminPassword: String
+    """ 管理员微信 """
+    adminWechat: String!
+    """ 管理员头像Id """
+    adminAvatarFileId: Int!
+}
+
 extend type Mutation {
     """ 创建公司 """
     createCompany(input: CreateCompanyInput!): CreateCompanyRes! @hasRole(role: [admin])
+    """ 修改公司 """
+    editCompany(input: EditCompanyInput!): CreateCompanyRes! @hasRole(role: [admin, companyAdmin])
 }
 
 extend type Query {
     """ 获取公司列表 """
-    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin])
+    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
@@ -530,6 +582,21 @@ func (ec *executionContext) field_Mutation_createCompany_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editCompany_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.EditCompanyInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -674,7 +741,7 @@ func (ec *executionContext) _CreateCompanyRes_id(ctx context.Context, field grap
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_Name(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_name(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -709,7 +776,7 @@ func (ec *executionContext) _CreateCompanyRes_Name(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_PinYin(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_pinYin(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -744,7 +811,7 @@ func (ec *executionContext) _CreateCompanyRes_PinYin(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_Symbol(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_symbol(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -779,7 +846,7 @@ func (ec *executionContext) _CreateCompanyRes_Symbol(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_LogoFile(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_logoFile(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -814,7 +881,7 @@ func (ec *executionContext) _CreateCompanyRes_LogoFile(ctx context.Context, fiel
 	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_BackgroundFile(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_backgroundFile(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -849,7 +916,7 @@ func (ec *executionContext) _CreateCompanyRes_BackgroundFile(ctx context.Context
 	return ec.marshalNSingleUploadRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSingleUploadRes(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_IsAble(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_isAble(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -884,7 +951,7 @@ func (ec *executionContext) _CreateCompanyRes_IsAble(ctx context.Context, field 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_Phone(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_phone(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -919,7 +986,7 @@ func (ec *executionContext) _CreateCompanyRes_Phone(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_Wechat(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_wechat(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -954,7 +1021,7 @@ func (ec *executionContext) _CreateCompanyRes_Wechat(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_StartedAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -989,7 +1056,7 @@ func (ec *executionContext) _CreateCompanyRes_StartedAt(ctx context.Context, fie
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_EndedAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_endedAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1024,7 +1091,7 @@ func (ec *executionContext) _CreateCompanyRes_EndedAt(ctx context.Context, field
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_AdminName(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_adminName(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1059,7 +1126,7 @@ func (ec *executionContext) _CreateCompanyRes_AdminName(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CreateCompanyRes_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateCompanyRes_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.CreateCompanyRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1342,6 +1409,72 @@ func (ec *executionContext) _Mutation_createCompany(ctx context.Context, field g
 	return ec.marshalNCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_editCompany(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editCompany_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditCompany(rctx, args["input"].(model.EditCompanyInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CreateCompanyRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.CreateCompanyRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreateCompanyRes)
+	fc.Result = res
+	return ec.marshalNCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1441,7 +1574,7 @@ func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field grap
 			return ec.resolvers.Query().GetAllCompany(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
 			if err != nil {
 				return nil, err
 			}
@@ -2782,122 +2915,262 @@ func (ec *executionContext) unmarshalInputCreateCompanyInput(ctx context.Context
 
 	for k, v := range asMap {
 		switch k {
-		case "Name":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "PinYin":
+		case "pinYin":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PinYin"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pinYin"))
 			it.PinYin, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Symbol":
+		case "symbol":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Symbol"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("symbol"))
 			it.Symbol, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "LogoFileId":
+		case "logoFileId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("LogoFileId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logoFileId"))
 			it.LogoFileID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "BackgroundFileId":
+		case "backgroundFileId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("BackgroundFileId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backgroundFileId"))
 			it.BackgroundFileID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "IsAble":
+		case "isAble":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IsAble"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAble"))
 			it.IsAble, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Phone":
+		case "phone":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Phone"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
 			it.Phone, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Wechat":
+		case "wechat":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Wechat"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wechat"))
 			it.Wechat, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "StartedAt":
+		case "startedAt":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("StartedAt"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startedAt"))
 			it.StartedAt, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "EndedAt":
+		case "endedAt":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("EndedAt"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endedAt"))
 			it.EndedAt, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "AdminName":
+		case "adminName":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AdminName"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminName"))
 			it.AdminName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "AdminPhone":
+		case "adminPhone":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AdminPhone"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminPhone"))
 			it.AdminPhone, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "AdminPassword":
+		case "adminPassword":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AdminPassword"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminPassword"))
 			it.AdminPassword, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "AdminWechat":
+		case "adminWechat":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AdminWechat"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminWechat"))
 			it.AdminWechat, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "AdminAvatarFileId":
+		case "adminAvatarFileId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AdminAvatarFileId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminAvatarFileId"))
+			it.AdminAvatarFileID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputEditCompanyInput(ctx context.Context, obj interface{}) (model.EditCompanyInput, error) {
+	var it model.EditCompanyInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "pinYin":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pinYin"))
+			it.PinYin, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "symbol":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("symbol"))
+			it.Symbol, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "logoFileId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logoFileId"))
+			it.LogoFileID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "backgroundFileId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backgroundFileId"))
+			it.BackgroundFileID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isAble":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAble"))
+			it.IsAble, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "wechat":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wechat"))
+			it.Wechat, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "startedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startedAt"))
+			it.StartedAt, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "endedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endedAt"))
+			it.EndedAt, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "adminName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminName"))
+			it.AdminName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "adminPhone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminPhone"))
+			it.AdminPhone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "adminPassword":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminPassword"))
+			it.AdminPassword, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "adminWechat":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminWechat"))
+			it.AdminWechat, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "adminAvatarFileId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminAvatarFileId"))
 			it.AdminAvatarFileID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
@@ -2932,63 +3205,63 @@ func (ec *executionContext) _CreateCompanyRes(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Name":
-			out.Values[i] = ec._CreateCompanyRes_Name(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._CreateCompanyRes_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "PinYin":
-			out.Values[i] = ec._CreateCompanyRes_PinYin(ctx, field, obj)
+		case "pinYin":
+			out.Values[i] = ec._CreateCompanyRes_pinYin(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Symbol":
-			out.Values[i] = ec._CreateCompanyRes_Symbol(ctx, field, obj)
+		case "symbol":
+			out.Values[i] = ec._CreateCompanyRes_symbol(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "LogoFile":
-			out.Values[i] = ec._CreateCompanyRes_LogoFile(ctx, field, obj)
+		case "logoFile":
+			out.Values[i] = ec._CreateCompanyRes_logoFile(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "BackgroundFile":
-			out.Values[i] = ec._CreateCompanyRes_BackgroundFile(ctx, field, obj)
+		case "backgroundFile":
+			out.Values[i] = ec._CreateCompanyRes_backgroundFile(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "IsAble":
-			out.Values[i] = ec._CreateCompanyRes_IsAble(ctx, field, obj)
+		case "isAble":
+			out.Values[i] = ec._CreateCompanyRes_isAble(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Phone":
-			out.Values[i] = ec._CreateCompanyRes_Phone(ctx, field, obj)
+		case "phone":
+			out.Values[i] = ec._CreateCompanyRes_phone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Wechat":
-			out.Values[i] = ec._CreateCompanyRes_Wechat(ctx, field, obj)
+		case "wechat":
+			out.Values[i] = ec._CreateCompanyRes_wechat(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "StartedAt":
-			out.Values[i] = ec._CreateCompanyRes_StartedAt(ctx, field, obj)
+		case "startedAt":
+			out.Values[i] = ec._CreateCompanyRes_startedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "EndedAt":
-			out.Values[i] = ec._CreateCompanyRes_EndedAt(ctx, field, obj)
+		case "endedAt":
+			out.Values[i] = ec._CreateCompanyRes_endedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "AdminName":
-			out.Values[i] = ec._CreateCompanyRes_AdminName(ctx, field, obj)
+		case "adminName":
+			out.Values[i] = ec._CreateCompanyRes_adminName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "CreatedAt":
-			out.Values[i] = ec._CreateCompanyRes_CreatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._CreateCompanyRes_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3067,6 +3340,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createCompany":
 			out.Values[i] = ec._Mutation_createCompany(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editCompany":
+			out.Values[i] = ec._Mutation_editCompany(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3522,6 +3800,11 @@ func (ec *executionContext) marshalNCreateCompanyRes2ᚖhttpᚑapiᚋappᚋhttp�
 		return graphql.Null
 	}
 	return ec._CreateCompanyRes(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx context.Context, v interface{}) (model.EditCompanyInput, error) {
+	res, err := ec.unmarshalInputEditCompanyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

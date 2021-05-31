@@ -10,63 +10,99 @@ import (
 //  创建公司参数
 type CreateCompanyInput struct {
 	//  公司名
-	Name string `json:"Name"`
+	Name string `json:"name"`
 	//  公司名称拼写简写
-	PinYin string `json:"PinYin"`
+	PinYin string `json:"pinYin"`
 	//   宗旨
-	Symbol string `json:"Symbol"`
+	Symbol string `json:"symbol"`
 	//  logo 文件Id
-	LogoFileID int `json:"LogoFileId"`
+	LogoFileID int `json:"logoFileId"`
 	//  App 背景图片Id
-	BackgroundFileID int `json:"BackgroundFileId"`
+	BackgroundFileID int `json:"backgroundFileId"`
 	//  账号状态
-	IsAble bool `json:"IsAble"`
+	IsAble bool `json:"isAble"`
 	//  公司的电话
-	Phone string `json:"Phone"`
+	Phone string `json:"phone"`
 	//  公司的微信
-	Wechat string `json:"Wechat"`
+	Wechat string `json:"wechat"`
 	//  开始时间
-	StartedAt string `json:"StartedAt"`
+	StartedAt string `json:"startedAt"`
 	//  结束时间
-	EndedAt string `json:"EndedAt"`
+	EndedAt string `json:"endedAt"`
 	//  管理员名称
-	AdminName string `json:"AdminName"`
+	AdminName string `json:"adminName"`
 	//  管理员手机
-	AdminPhone string `json:"AdminPhone"`
+	AdminPhone string `json:"adminPhone"`
 	//  管理员密码
-	AdminPassword string `json:"AdminPassword"`
+	AdminPassword string `json:"adminPassword"`
 	//  管理员微信
-	AdminWechat string `json:"AdminWechat"`
+	AdminWechat string `json:"adminWechat"`
 	//  管理员头像Id
-	AdminAvatarFileID int `json:"AdminAvatarFileId"`
+	AdminAvatarFileID int `json:"adminAvatarFileId"`
 }
 
 type CreateCompanyRes struct {
 	ID int `json:"id"`
 	//  公司名
-	Name string `json:"Name"`
+	Name string `json:"name"`
 	//  用于型钢编码生成
-	PinYin string `json:"PinYin"`
+	PinYin string `json:"pinYin"`
 	//  APP 企业宗旨
-	Symbol string `json:"Symbol"`
+	Symbol string `json:"symbol"`
 	//  logo文件
-	LogoFile *SingleUploadRes `json:"LogoFile"`
+	LogoFile *SingleUploadRes `json:"logoFile"`
 	//  app背景文件
-	BackgroundFile *SingleUploadRes `json:"BackgroundFile"`
+	BackgroundFile *SingleUploadRes `json:"backgroundFile"`
 	//  账号状态
-	IsAble bool `json:"IsAble"`
+	IsAble bool `json:"isAble"`
 	//  公司的电话
-	Phone string `json:"Phone"`
+	Phone string `json:"phone"`
 	//  公司的微信
-	Wechat string `json:"Wechat"`
+	Wechat string `json:"wechat"`
 	//  开始时间
-	StartedAt time.Time `json:"StartedAt"`
+	StartedAt time.Time `json:"startedAt"`
 	//  结束时间
-	EndedAt time.Time `json:"EndedAt"`
+	EndedAt time.Time `json:"endedAt"`
 	//  管理员名称
-	AdminName string `json:"AdminName"`
+	AdminName string `json:"adminName"`
 	//  创建时间
-	CreatedAt time.Time `json:"CreatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+//  修改公司参数
+type EditCompanyInput struct {
+	//  公司ID
+	ID int `json:"id"`
+	//  公司名
+	Name string `json:"name"`
+	//  公司名称拼写简写
+	PinYin string `json:"pinYin"`
+	//   宗旨
+	Symbol string `json:"symbol"`
+	//  logo 文件Id
+	LogoFileID int `json:"logoFileId"`
+	//  App 背景图片Id
+	BackgroundFileID int `json:"backgroundFileId"`
+	//  账号状态
+	IsAble bool `json:"isAble"`
+	//  公司的电话
+	Phone string `json:"phone"`
+	//  公司的微信
+	Wechat string `json:"wechat"`
+	//  开始时间
+	StartedAt string `json:"startedAt"`
+	//  结束时间
+	EndedAt string `json:"endedAt"`
+	//  管理员名称
+	AdminName string `json:"adminName"`
+	//  管理员手机
+	AdminPhone string `json:"adminPhone"`
+	//  管理员密码
+	AdminPassword *string `json:"adminPassword"`
+	//  管理员微信
+	AdminWechat string `json:"adminWechat"`
+	//  管理员头像Id
+	AdminAvatarFileID int `json:"adminAvatarFileId"`
 }
 
 type LoginRes struct {

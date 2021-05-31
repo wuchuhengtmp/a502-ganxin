@@ -58,7 +58,6 @@ var router = mux.NewRouter().StrictSlash(true)
 func RunWeb (c *cli.Context)  {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
-	done := make(chan bool)
 	go http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
 	fmt.Printf(`
 		🚀 🚀 🚀 Server is running!
@@ -68,7 +67,7 @@ func RunWeb (c *cli.Context)  {
 
 		`,
 	pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"))
-	<-done
+	select{}
 }
 
 func RunMigrateSeed(c *cli.Context) {

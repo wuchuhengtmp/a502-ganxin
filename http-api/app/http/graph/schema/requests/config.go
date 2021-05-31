@@ -13,6 +13,7 @@ import (
 	"github.com/thedevsaddam/govalidator"
 	"http-api/app/http/graph/util/helper"
 	"http-api/app/models/files"
+	"http-api/app/models/users"
 	"regexp"
 )
 
@@ -47,6 +48,16 @@ func init()  {
 		}
 		if !file.IsExist() {
 			return fmt.Errorf("%s:%d 该文件不存在", field, id)
+		}
+
+		return nil
+	})
+
+	// 用户手机号不能存在
+	govalidator.AddCustomRule("not_user_phone_exists", func(field string, rule string, message string, value interface{}) error {
+		userModel := users.Users{}
+		if userModel.IsPhoneExists(value.(string)) {
+			return fmt.Errorf("%s:%d 手机号已存在", field)
 		}
 
 		return nil

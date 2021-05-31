@@ -21,7 +21,7 @@ type File struct {
 	gorm.Model
 }
 
-func (file *File)GetFileById(id int64) error {
+func (file *File)GetSelfById(id int64) error {
 	db := model.DB
 	return db.Model(file).Where("id = ?", id).First(file).Error
 }

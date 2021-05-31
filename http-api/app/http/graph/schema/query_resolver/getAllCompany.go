@@ -30,13 +30,13 @@ func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CreateCompa
 		signEl.PinYin = company.PinYin
 		signEl.Symbol = company.Symbol
 		logFile := files.File{ }
-		_ = logFile.GetFileById(company.LogoFileId)
+		_ = logFile.GetSelfById(company.LogoFileId)
 		signEl.LogoFile = &model.SingleUploadRes{
 			ID: int(logFile.ID),
 			URL: logFile.GetUrl(),
 		}
 		backgroundFile := files.File{}
-		_ = backgroundFile.GetFileById(company.BackgroundFileId)
+		_ = backgroundFile.GetSelfById(company.BackgroundFileId)
 		signEl.BackgroundFile = &model.SingleUploadRes{
 			ID: int(backgroundFile.ID),
 			URL: backgroundFile.GetUrl(),

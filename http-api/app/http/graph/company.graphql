@@ -2,69 +2,107 @@
 type CreateCompanyRes {
     id: Int!
     """ 公司名 """
-    Name:             String!
+    name:             String!
     """ 用于型钢编码生成 """
-    PinYin:           String!
+    pinYin:           String!
     """ APP 企业宗旨 """
-    Symbol:           String!
+    symbol:           String!
     """ logo文件 """
-    LogoFile:       SingleUploadRes!
+    logoFile:       SingleUploadRes!
     """ app背景文件 """
-    BackgroundFile: SingleUploadRes!
+    backgroundFile: SingleUploadRes!
     """ 账号状态 """
-    IsAble: Boolean!
+    isAble: Boolean!
     """ 公司的电话 """
-    Phone:            String!
+    phone:            String!
     """ 公司的微信 """
-    Wechat:           String!
+    wechat:           String!
     """ 开始时间 """
-    StartedAt: Time!
+    startedAt: Time!
     """ 结束时间 """
-    EndedAt: Time!
+    endedAt: Time!
     """ 管理员名称 """
-    AdminName: String!
+    adminName: String!
     """ 创建时间 """
-    CreatedAt: Time!
+    createdAt: Time!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {
     """ 公司名 """
-    Name: String!
+    name: String!
     """ 公司名称拼写简写 """
-    PinYin: String!
+    pinYin: String!
     """  宗旨 """
-    Symbol:           String!
+    symbol:           String!
     """ logo 文件Id """
-    LogoFileId:       Int!
+    logoFileId:       Int!
     """ App 背景图片Id """
-    BackgroundFileId: Int!
+    backgroundFileId: Int!
     """ 账号状态 """
-    IsAble: Boolean!
+    isAble: Boolean!
     """ 公司的电话 """
-    Phone:            String!
+    phone:            String!
     """ 公司的微信 """
-    Wechat:           String!
+    wechat:           String!
     """ 开始时间 """
-    StartedAt:        String!
+    startedAt:        String!
     """ 结束时间 """
-    EndedAt:          String!
+    endedAt:          String!
     """ 管理员名称 """
-    AdminName: String!
+    adminName: String!
     """ 管理员手机 """
-    AdminPhone: String!
+    adminPhone: String!
     """ 管理员密码 """
-    AdminPassword: String!
+    adminPassword: String!
     """ 管理员微信 """
-    AdminWechat: String!
+    adminWechat: String!
     """ 管理员头像Id """
-    AdminAvatarFileId: Int!
+    adminAvatarFileId: Int!
 }
+""" 修改公司参数 """
+input EditCompanyInput {
+    """ 公司ID """
+    id: Int!
+    """ 公司名 """
+    name: String!
+    """ 公司名称拼写简写 """
+    pinYin: String!
+    """  宗旨 """
+    symbol:           String!
+    """ logo 文件Id """
+    logoFileId:       Int!
+    """ App 背景图片Id """
+    backgroundFileId: Int!
+    """ 账号状态 """
+    isAble: Boolean!
+    """ 公司的电话 """
+    phone:            String!
+    """ 公司的微信 """
+    wechat:           String!
+    """ 开始时间 """
+    startedAt:        String!
+    """ 结束时间 """
+    endedAt:          String!
+    """ 管理员名称 """
+    adminName: String!
+    """ 管理员手机 """
+    adminPhone: String!
+    """ 管理员密码 """
+    adminPassword: String
+    """ 管理员微信 """
+    adminWechat: String!
+    """ 管理员头像Id """
+    adminAvatarFileId: Int!
+}
+
 extend type Mutation {
     """ 创建公司 """
     createCompany(input: CreateCompanyInput!): CreateCompanyRes! @hasRole(role: [admin])
+    """ 修改公司 """
+    editCompany(input: EditCompanyInput!): CreateCompanyRes! @hasRole(role: [admin, companyAdmin])
 }
 
 extend type Query {
     """ 获取公司列表 """
-    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin])
+    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }

@@ -41,6 +41,7 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		StartedAt:        startedAt,
 		EndedAt:          endedAt,
 	}
+	// todo 创建公司涉及2个表的写入，需要保存一致性，要加入会话
 	err = company.Create()
 	user := users.Users{
 		Name:         input.AdminName,
@@ -54,9 +55,9 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 	}
 	err = user.Create()
 	logoFile := files.File{}
-	logoFile.GetFileById(company.LogoFileId)
+	logoFile.GetSelfById(company.LogoFileId)
 	backgroundFile := files.File{}
-	backgroundFile.GetFileById(company.BackgroundFileId)
+	backgroundFile.GetSelfById(company.BackgroundFileId)
 	bf := model.SingleUploadRes{
 		ID: int(backgroundFile.ID),
 		URL: backgroundFile.GetUrl(),
