@@ -22,7 +22,7 @@ import (
 /**
  * 更新公司
  */
-func (*MutationResolver)EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CreateCompanyRes, error) {
+func (*MutationResolver)EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CompanyItemRes, error) {
 	editCompanyRequest := requests.EditCompanyRequest{}
 	err := editCompanyRequest.ValidateEditCompanyRequest(input)
 	if err !=  nil {
@@ -41,7 +41,7 @@ func (*MutationResolver)EditCompany(ctx context.Context, input model.EditCompany
 	endedAt, _ :=  helper.Str2Time(input.EndedAt)
 	startAt, _ :=  helper.Str2Time(input.StartedAt)
 	_ = companyModel.GetSelfById(int64(input.ID))
-	py := model.CreateCompanyRes{
+	py := model.CompanyItemRes{
 		Name: input.Name,
 		PinYin: input.PinYin,
 		Symbol: input.Symbol,

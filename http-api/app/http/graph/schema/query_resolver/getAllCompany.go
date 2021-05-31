@@ -20,11 +20,11 @@ type QueryResolver struct{}
 /**
  * 获取全部公司解析器
  */
-func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CreateCompanyRes, error) {
+func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error) {
 	companies := companiesModel.GetAll()
-	var res []*model.CreateCompanyRes
+	var res []*model.CompanyItemRes
 	for _, company := range companies {
-		signEl := model.CreateCompanyRes{}
+		signEl := model.CompanyItemRes{}
 		signEl.ID = int(company.ID)
 		signEl.Name = company.Name
 		signEl.PinYin = company.PinYin
@@ -47,8 +47,16 @@ func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CreateCompa
 		signEl.StartedAt = company.StartedAt
 		signEl.EndedAt = company.EndedAt
 		adminUser, _ := company.GetAdmin()
-		signEl.AdminName = adminUser.Name
 		signEl.CreatedAt = company.CreatedAt
+		signEl.AdminName = adminUser.Name
+		signEl.AdminPhone = adminUser.Phone
+		signEl.Wechat = adminUser.Wechat
+		adminAvatar := files.File{}
+		adminAvatar.GetSelfById(adminUser.ID)
+		signEl.AdminAvatar = &model.SingleUploadRes{
+			ID: int( adminAvatar.ID),
+			URL: adminAvatar.GetUrl(),
+		}
 		res = append(res, &signEl)
 	}
 

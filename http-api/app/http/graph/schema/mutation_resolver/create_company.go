@@ -21,7 +21,7 @@ import (
 	globalHelper "http-api/pkg/helper"
 )
 
-func (m *MutationResolver) CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CreateCompanyRes, error) {
+func (m *MutationResolver) CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CompanyItemRes, error) {
 	CreateCompanyRequest := requests.CreateCompanyRequest{}
 	err := CreateCompanyRequest.ValidateCreateCompanyRequest(input)
 	if err != nil {
@@ -62,9 +62,10 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		ID: int(backgroundFile.ID),
 		URL: backgroundFile.GetUrl(),
 	}
-
+	adminAvatar := files.File{}
+	_ = adminAvatar.GetSelfById(user.AvatarFileId)
 	// 响应数据
-	res := model.CreateCompanyRes{
+	res := model.CompanyItemRes{
 		ID:     int(company.ID),
 		Name:   company.Name,
 		PinYin: company.PinYin,
@@ -79,8 +80,14 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		Wechat:    company.Wechat,
 		StartedAt: company.StartedAt,
 		EndedAt:   company.EndedAt,
-		AdminName: user.Name,
 		CreatedAt: company.CreatedAt,
+		AdminName: user.Name,
+		AdminWechat: user.Wechat,
+		AdminPhone: user.Phone,
+		AdminAvatar: &model.SingleUploadRes{
+			ID: int( adminAvatar.ID),
+			URL: adminAvatar.GetUrl(),
+		},
 	}
 
 	return &res, nil

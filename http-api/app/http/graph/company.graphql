@@ -1,5 +1,5 @@
 # 公司相关的操作
-type CreateCompanyRes {
+type CompanyItemRes {
     id: Int!
     """ 公司名 """
     name:             String!
@@ -21,10 +21,16 @@ type CreateCompanyRes {
     startedAt: Time!
     """ 结束时间 """
     endedAt: Time!
-    """ 管理员名称 """
-    adminName: String!
     """ 创建时间 """
     createdAt: Time!
+    """ 管理员名称 """
+    adminName: String!
+    """ 管理员手机 """
+    adminPhone: String!
+    """ 管理员微信 """
+    adminWechat: String!
+    """ 管理员头像 """
+    adminAvatar: SingleUploadRes!
 }
 """ 创建公司参数 """
 input CreateCompanyInput {
@@ -97,12 +103,12 @@ input EditCompanyInput {
 
 extend type Mutation {
     """ 创建公司 """
-    createCompany(input: CreateCompanyInput!): CreateCompanyRes! @hasRole(role: [admin])
+    createCompany(input: CreateCompanyInput!): CompanyItemRes! @hasRole(role: [admin])
     """ 修改公司 """
-    editCompany(input: EditCompanyInput!): CreateCompanyRes! @hasRole(role: [admin, companyAdmin])
+    editCompany(input: EditCompanyInput!): CompanyItemRes! @hasRole(role: [admin, companyAdmin])
 }
 
 extend type Query {
     """ 获取公司列表 """
-    getAllCompany: [CreateCompanyRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
+    getAllCompany: [CompanyItemRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }
