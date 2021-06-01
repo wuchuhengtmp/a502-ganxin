@@ -53,5 +53,6 @@ admin-template/*.sw?
 sqlserver/data
 
 http-api/public/uploads
+http-api/tmp.go
 !http-api/public/uploads/.gitkeep
 !http-api/public/uploads/local/2021-5-28/1622171038-1622171009253.jpg

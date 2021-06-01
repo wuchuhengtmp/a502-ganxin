@@ -40,9 +40,9 @@ func (Users) IsPhoneExists(phone string) bool {
 	u := Users{}
 	err := db.Model(&Users{}).Where("phone = ?", phone).First(&u).Error
 	if err == nil {
-		return false
-	} else {
 		return true
+	} else {
+		return false
 	}
 }
 
