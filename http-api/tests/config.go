@@ -16,8 +16,9 @@ import (
 	"testing"
 )
 
+const bashUrl string = "http://localhost:9501/query"
 // graphql 请求客户端
-var client = graphql.NewClient("http://localhost:9501/query")
+var client = graphql.NewClient(bashUrl)
 /**
  * 断言错误并终止测试
  */
