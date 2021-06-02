@@ -106,6 +106,8 @@ extend type Mutation {
     createCompany(input: CreateCompanyInput!): CompanyItemRes! @hasRole(role: [admin])
     """ 修改公司 """
     editCompany(input: EditCompanyInput!): CompanyItemRes! @hasRole(role: [admin, companyAdmin])
+    """ 删除公司 """
+    deleteCompany(id: Int!): Boolean! @hasRole(role: [admin])
 }
 
 extend type Query {

@@ -90,3 +90,13 @@ func (c *Companies) GetSelfById(id int64) (err error) {
 	err = db.Model(c).Where("id = ?", id).First(c).Error
 	return err
 }
+
+/**
+ * 删除一家公司
+ */
+func (c *Companies) DeleteById(id int64) error {
+	db := sqlModel.DB
+	err := db.Delete(c, id).Error
+	return err
+}
+
