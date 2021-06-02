@@ -23,23 +23,6 @@ type Query {
   errorCodeDesc: GraphDesc!
 }
 
-enum Role {
-  """ 超级管理员 """
-  admin
-  """ 公司管理员 """
-  companyAdmin
-  """ 仓库管理员 """
-  repositoryAdmin
-  """ 项目管理员 """
-  projectAdmin
-  """ 维修管理员 """
-  maintenanceAdmin
-}
-# 角色鉴权
-directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
-# 公司数据作用域鉴权, 用户只能修改归属公司的数据
-directive @companyScopeAuth on FIELD_DEFINITION
-
 type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!

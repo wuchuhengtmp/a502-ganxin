@@ -11,6 +11,7 @@ package roles
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"http-api/pkg/model"
 	"io"
 	"strconv"
 )
@@ -20,6 +21,11 @@ type Role struct {
 	Name string      `json:"name" gorm:"comment:角色名"`
 	Tag  GraphqlRole `json:"tag" gorm:"comment:角色标识"`
 	gorm.Model
+}
+
+func (r *Role)GetSelfById(id int8) error {
+	db := model.DB
+	return db.Model(r).Where("id = ?", id).First(r).Error
 }
 
 type GraphqlRole string
@@ -75,5 +81,4 @@ func (e *GraphqlRole) UnmarshalGQL(v interface{}) error {
 
 func (e GraphqlRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
-
 }

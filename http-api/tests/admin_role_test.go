@@ -11,15 +11,23 @@ package tests
 import (
 	"fmt"
 	"http-api/app/models/roles"
+	"http-api/seeders"
 	"testing"
 	"time"
 )
 // 超级管理员测试上下文
-var superAdminTestCtx struct{
+var superAdminTestCtx = struct{
 	// token 用于角色鉴权
 	SuperAdminToken string
 	// 用于删除的公司id
 	DeleteCompanyId int64
+	// 账号
+	Username string
+	// 密码
+	Password string
+}{
+	Username: seeders.SuperAdmin.Username,
+	Password: seeders.SuperAdmin.Password,
 }
 
 /**
@@ -37,8 +45,8 @@ func TestSuperAdminRoleLogin(t *testing.T) {
 		}
 	`
 	variables :=  map[string]interface{} {
-		"phone": "13427969604",
-		"password": "12345678",
+		"phone": superAdminTestCtx.Username,
+		"password": superAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleAdmin)
 	hasError(t, err)
@@ -179,7 +187,7 @@ func TestAdminRoleEditCompany(t *testing.T) {
 			"logoFileId": 1,
 			"backgroundFileId": 2,
 			"isAble": true,
-			"phone": "13427969604",
+			"phone": "3427969604",
 			"wechat": "12345678",
 			"startedAt": "2021-12-31 00:00:00",
 			"endedAt": "2022-12-31 00:00:00",

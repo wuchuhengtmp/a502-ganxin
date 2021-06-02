@@ -1,0 +1,16 @@
+# 声明指令
+enum Role {
+    """ 超级管理员 """
+    admin
+    """ 公司管理员 """
+    companyAdmin
+    """ 仓库管理员 """
+    repositoryAdmin
+    """ 项目管理员 """
+    projectAdmin
+    """ 维修管理员 """
+    maintenanceAdmin
+}
+
+# 角色鉴权
+directive @hasRole(role: [Role!]!) on FIELD_DEFINITION

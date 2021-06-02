@@ -10,6 +10,7 @@ package query_resolver
 
 import (
 	"context"
+	auth2 "http-api/app/http/graph/auth"
 	"http-api/app/http/graph/model"
 	companiesModel "http-api/app/models/companies"
 	"http-api/app/models/files"
@@ -21,7 +22,8 @@ type QueryResolver struct{}
  * 获取全部公司解析器
  */
 func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error) {
-	companies := companiesModel.GetAll()
+	me := auth2.GetUser(ctx)
+	companies := companiesModel.GetAllByUid(me.ID)
 	var res []*model.CompanyItemRes
 	for _, company := range companies {
 		signEl := model.CompanyItemRes{}

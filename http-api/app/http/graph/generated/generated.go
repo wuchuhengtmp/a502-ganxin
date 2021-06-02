@@ -502,23 +502,6 @@ type Query {
   errorCodeDesc: GraphDesc!
 }
 
-enum Role {
-  """ 超级管理员 """
-  admin
-  """ 公司管理员 """
-  companyAdmin
-  """ 仓库管理员 """
-  repositoryAdmin
-  """ 项目管理员 """
-  projectAdmin
-  """ 维修管理员 """
-  maintenanceAdmin
-}
-# 角色鉴权
-directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
-# 公司数据作用域鉴权, 用户只能修改归属公司的数据
-directive @companyScopeAuth on FIELD_DEFINITION
-
 type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!
@@ -643,13 +626,32 @@ extend type Mutation {
     """ 修改公司 """
     editCompany(input: EditCompanyInput!): CompanyItemRes! @hasRole(role: [admin, companyAdmin])
     """ 删除公司 """
-    deleteCompany(id: Int!): Boolean!
+    deleteCompany(id: Int!): Boolean! @hasRole(role: [admin])
 }
 
 extend type Query {
     """ 获取公司列表 """
     getAllCompany: [CompanyItemRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }
+`, BuiltIn: false},
+	{Name: "../directive.graphql", Input: `# 声明指令
+enum Role {
+    """ 超级管理员 """
+    admin
+    """ 公司管理员 """
+    companyAdmin
+    """ 仓库管理员 """
+    repositoryAdmin
+    """ 项目管理员 """
+    projectAdmin
+    """ 维修管理员 """
+    maintenanceAdmin
+}
+
+# 角色鉴权
+directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
+# 公司数据作用域鉴权, 用户只能修改归属公司的数据
+directive @companyScopeAuth on FIELD_DEFINITION
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
@@ -1975,8 +1977,32 @@ func (ec *executionContext) _Mutation_deleteCompany(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteCompany(rctx, args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteCompany(rctx, args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

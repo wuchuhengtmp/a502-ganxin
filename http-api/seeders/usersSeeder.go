@@ -14,6 +14,19 @@ import (
 	"http-api/pkg/seed"
 )
 
+type AccountType struct {
+	Password string
+	Username string
+}
+var SuperAdmin = AccountType{
+	Password: "12345678",
+	Username: "13427969604",
+}
+var CompanyAdmin = AccountType{
+	Password: "12345678",
+	Username: "13427969605",
+}
+
 var UsersSeeders = []seed.Seed{
 	seed.Seed{
 		Name: "create user",
@@ -22,8 +35,8 @@ var UsersSeeders = []seed.Seed{
 				db,
 				1,
 				"吴楚衡",
-				helper.GetHashByStr("12345678"),
-				"13427969604",
+				helper.GetHashByStr(SuperAdmin.Password),
+				SuperAdmin.Username,
 				1,
 				1,
 				0,
@@ -37,8 +50,8 @@ var UsersSeeders = []seed.Seed{
 				db,
 				2,
 				"公司管理员1",
-				helper.GetHashByStr("12345678"),
-				"13427969600",
+				helper.GetHashByStr(CompanyAdmin.Password),
+				CompanyAdmin.Username,
 				2,
 				4,
 				2,

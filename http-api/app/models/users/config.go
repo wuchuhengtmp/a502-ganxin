@@ -97,3 +97,8 @@ func (Users) IsUniPhone(phone string) bool {
 		return true
 	}
 }
+
+func (u *Users)GetSelfById(uid int64) error {
+	db := sqlModel.DB
+	return db.Model(u).Where("id = ?", uid).First(u).Error
+}

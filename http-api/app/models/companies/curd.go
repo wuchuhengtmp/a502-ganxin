@@ -20,9 +20,19 @@ func (c *Companies)Create () error  {
 	return db.Model(c).Create(c).Error
 }
 
-func GetAll() (cs []Companies) {
+func GetAllByUid(uid int64) (cs []Companies) {
 	db := model.DB
-	db.Model(&Companies{}).Find(&cs)
+	me := users.Users{}
+	_ = me.GetSelfById(uid)
+	roleModel := roles.Role{}
+	_ = roleModel.GetSelfById(me.RoleId)
+	//  超级管理员能查看到的数据域--就是没限制
+	if roleModel.Tag == roles.RoleAdmin {
+		db.Model(&Companies{}).Find(&cs)
+	} else {
+		// 不是超级管员查看数据进行限制
+		db.Model(&Companies{}).Where("id = ?", me.CompanyId).Find(&cs)
+	}
 	// 公司状态根据有郊期期限修正
 	for i, company := range cs {
 		if company.IsAble == true && company.EndedAt.Unix() >= time.Now().Unix() {
