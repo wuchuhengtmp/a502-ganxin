@@ -43,8 +43,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	CompanyScopeAuth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	HasRole          func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.GraphqlRole) (res interface{}, err error)
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.GraphqlRole) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -649,10 +648,7 @@ enum Role {
 }
 
 # 角色鉴权
-directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
-# 公司数据作用域鉴权, 用户只能修改归属公司的数据
-directive @companyScopeAuth on FIELD_DEFINITION
-`, BuiltIn: false},
+directive @hasRole(role: [Role!]!) on FIELD_DEFINITION`, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
 type FileItem {

@@ -38,13 +38,19 @@ func graphReqClient(query string, variables map[string]interface{}, role roles.G
 	}
 	req.Header.Set("Cache-Control", "no-cache")
 	switch role {
-	// 登记超级管理员角色token用于鉴权接口使用
-	case roles.RoleAdmin:
-		if len(superAdminTestCtx.SuperAdminToken) > 0 {
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", superAdminTestCtx.SuperAdminToken))
-		}
-		break
+		// 登记超级管理员角色token用于鉴权接口使用
+		case roles.RoleAdmin:
+			if len(superAdminTestCtx.SuperAdminToken) > 0 {
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", superAdminTestCtx.SuperAdminToken))
+			}
+			break
+		case roles.RoleCompanyAdmin:
+			if len(companyAdminTestCtx.Token) > 0 {
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", companyAdminTestCtx.Token))
+			}
+			break
 	}
+
 	ctx := context.Background()
 	err = client.Run(ctx, req, &responseData)
 

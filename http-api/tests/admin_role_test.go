@@ -103,7 +103,7 @@ func TestSuperAdminRoleCreateCompany(t *testing.T) {
 			"wechat": "wc20030318",
 			"startedAt": "2021-12-18 18:00:00",
 			"endedAt": "2022-12-18 18:00:00",
-			"adminName": "公司管理员1",
+			"adminName": "公司管理员" + fmt.Sprintf("%d", time.Now().Unix())[4:],
 			"adminPassword": "12345678",
 			"adminPhone": "1342" + fmt.Sprintf("%d", time.Now().Unix())[3:], // mock phone number
 			"adminAvatarFileId": 4,
@@ -187,15 +187,15 @@ func TestAdminRoleEditCompany(t *testing.T) {
 			"logoFileId": 1,
 			"backgroundFileId": 2,
 			"isAble": true,
-			"phone": "3427969604",
+			"phone": seeders.CompanyAdmin.Username,
 			"wechat": "12345678",
 			"startedAt": "2021-12-31 00:00:00",
 			"endedAt": "2022-12-31 00:00:00",
-			"adminName": "5",
-			"adminPassword": "123456789",
+			"adminName": "username_change_test" + fmt.Sprintf("%d", time.Now().Unix())[6:],
+			"adminPassword": seeders.CompanyAdmin.Password,
 			"adminAvatarFileId": 4,
 			"adminPhone": "13427969604",
-			"adminWechat": "123456",
+			"adminWechat": "wc20030318_change_wechat_" + fmt.Sprintf("%d", time.Now().Unix())[6:],
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
