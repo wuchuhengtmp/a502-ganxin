@@ -14,12 +14,16 @@ import (
 	"testing"
 	"time"
 )
-
-// 管理员token
-var superAdminToken string
+// 超级管理员测试上下文
+var superAdminTestCtx struct{
+	// token 用于角色鉴权
+	SuperAdminToken string
+	// 用于删除的公司id
+	DeleteCompanyId int64
+}
 
 /**
- * 超级管理员角色登录集成测试
+ * 超级管理员登录集成测试
  */
 func TestSuperAdminRoleLogin(t *testing.T) {
 	query := `
@@ -41,11 +45,11 @@ func TestSuperAdminRoleLogin(t *testing.T) {
 	token := res["login"]
 	//["accessToken"]
 	tokenInfo := token.(map[string]interface{})
-	superAdminToken = tokenInfo["accessToken"].(string)
+	superAdminTestCtx.SuperAdminToken = tokenInfo["accessToken"].(string)
 }
 
 /**
- * 超级管理员角色创建公司集成测试
+ * 超级管理员创建公司集成测试
  */
 func TestSuperAdminRoleCreateCompany(t *testing.T) {
 	q := `
@@ -98,12 +102,15 @@ func TestSuperAdminRoleCreateCompany(t *testing.T) {
 			"adminWechat": "wc20030318",
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	res, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
+	createCompany, _ :=  res["createCompany"].(map[string]interface{})
+	id := createCompany["id"].(float64)
+	superAdminTestCtx.DeleteCompanyId = int64(id)
 }
 
 /**
- * 超级管理员角色获取全部公司列表集成测试
+ * 超级管理员获取全部公司列表集成测试
  */
 func TestSuperAdminRoleGetAllCompany(t *testing.T)  {
 	q := `query {
@@ -141,7 +148,7 @@ func TestSuperAdminRoleGetAllCompany(t *testing.T)  {
 }
 
 /**
- * 超级管理员角色修改公司集成测试
+ * 超级管理员修改公司集成测试
  */
 func TestAdminRoleEditCompany(t *testing.T) {
 	q := `
@@ -182,6 +189,22 @@ func TestAdminRoleEditCompany(t *testing.T) {
 			"adminPhone": "13427969604",
 			"adminWechat": "123456",
 		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 超级管理员删除公司集成测试
+ */
+func TestAdminRoleDeleteCompany(t *testing.T) {
+	q := `
+		mutation DeleteCompanyMutation($deleteCompanyId: Int!) {
+		  deleteCompany(id: $deleteCompanyId)
+		}
+	`
+	v := map[string]interface{}{
+		"deleteCompanyId": superAdminTestCtx.DeleteCompanyId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
