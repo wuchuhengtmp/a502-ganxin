@@ -99,8 +99,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ErrorCodeDesc func(childComplexity int) int
-		GetAllCompany func(childComplexity int) int
+		ErrorCodeDesc  func(childComplexity int) int
+		GetAllCompany  func(childComplexity int) int
+		GetCompanyUser func(childComplexity int) int
 	}
 
 	RoleItem struct {
@@ -135,6 +136,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error)
+	GetCompanyUser(ctx context.Context) ([]*model.UserItem, error)
 }
 
 type executableSchema struct {
@@ -426,6 +428,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetAllCompany(childComplexity), true
+
+	case "Query.getCompanyUser":
+		if e.complexity.Query.GetCompanyUser == nil {
+			break
+		}
+
+		return e.complexity.Query.GetCompanyUser(childComplexity), true
 
 	case "RoleItem.id":
 		if e.complexity.RoleItem.ID == nil {
@@ -725,7 +734,8 @@ extend type Query {
     getAllCompany: [CompanyItemRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }
 `, BuiltIn: false},
-	{Name: "../company_users.graphql", Input: `""" 角色 """
+	{Name: "../company_users.graphql", Input: `#公司人员
+""" 角色 """
 enum CreateInputUserRole {
     """ 仓库管理员 """
     repositoryAdmin
@@ -761,6 +771,11 @@ input CreateCompanyUserInput {
 extend type Mutation {
     """ 添加公司人员管理 """
     createCompanyUser(input: CreateCompanyUserInput!): UserItem! @hasRole(role: [companyAdmin])
+}
+
+extend type Query {
+    """ 获取公司人员 """
+    getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }`, BuiltIn: false},
 	{Name: "../directive.graphql", Input: `# 声明指令
 enum Role {
@@ -2359,6 +2374,65 @@ func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field grap
 	res := resTmp.([]*model.CompanyItemRes)
 	fc.Result = res
 	return ec.marshalNCompanyItemRes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetCompanyUser(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.UserItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/http/graph/model.UserItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.UserItem)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4588,6 +4662,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getCompanyUser":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getCompanyUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -5296,6 +5384,43 @@ func (ec *executionContext) marshalNUserItem2httpᚑapiᚋappᚋhttpᚋgraphᚋm
 	return ec._UserItem(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v []*model.UserItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalNUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v *model.UserItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5595,6 +5720,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) marshalOUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v *model.UserItem) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

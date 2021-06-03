@@ -1,3 +1,4 @@
+#公司人员
 """ 角色 """
 enum CreateInputUserRole {
     """ 仓库管理员 """
@@ -34,4 +35,9 @@ input CreateCompanyUserInput {
 extend type Mutation {
     """ 添加公司人员管理 """
     createCompanyUser(input: CreateCompanyUserInput!): UserItem! @hasRole(role: [companyAdmin])
+}
+
+extend type Query {
+    """ 获取公司人员 """
+    getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }

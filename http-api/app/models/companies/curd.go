@@ -306,4 +306,34 @@ func (Companies)CreateUser(ctx context.Context, input graphQL.CreateCompanyUserI
 	return &user, nil
 }
 
-
+/**
+ * 获取对应解析器的公司下的员工数据
+ */
+func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error){
+	var c []users.Users
+	db := sqlModel.DB
+	db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)
+	var v []*graphQL.UserItem
+	for _, i := range c {
+		var tmp graphQL.UserItem
+		tmp.ID = i.ID
+		role := roles.Role{}
+		_ = role.GetSelfById(i.RoleId)
+		tmp.Role = &graphQL.RoleItem{
+			ID: role.ID,
+			Name: role.Name,
+			Tag: role.Tag,
+		}
+		tmp.Phone = i.Phone
+		tmp.Wechat = i.Wechat
+		avatar := files.File{}
+		_ = avatar.GetSelfById(i.AvatarFileId)
+		tmp.Avatar = &graphQL.FileItem{
+			ID: avatar.ID,
+			URL: avatar.GetUrl(),
+		}
+		tmp.IsAble = i.IsAble
+		v = append(v, &tmp)
+	}
+	return v, nil
+}
