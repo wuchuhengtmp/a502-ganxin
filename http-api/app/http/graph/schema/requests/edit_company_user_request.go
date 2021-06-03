@@ -9,8 +9,10 @@
 package requests
 
 import (
+	"context"
 	"fmt"
 	"github.com/thedevsaddam/govalidator"
+	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/model"
 	"http-api/app/models/roles"
 	"http-api/app/models/users"
@@ -18,7 +20,7 @@ import (
 
 type EditCompanyUseRequest struct{}
 
-func (EditCompanyUseRequest) ValidateEditCompanyUserRequest(input *model.EditCompanyUserInput) error {
+func (EditCompanyUseRequest) ValidateEditCompanyUserRequest(ctx context.Context, input *model.EditCompanyUserInput) error {
 	rules := govalidator.MapData{
 		"phone": []string{"phone", "not_user_phone_exists"},
 	}
@@ -31,7 +33,6 @@ func (EditCompanyUseRequest) ValidateEditCompanyUserRequest(input *model.EditCom
 	if len(res) > 0 {
 		for _, fieldErrors := range res {
 			for _, err := range fieldErrors {
-
 				return fmt.Errorf("%s", err)
 			}
 		}
@@ -44,6 +45,13 @@ func (EditCompanyUseRequest) ValidateEditCompanyUserRequest(input *model.EditCom
 	userModel := users.Users{}
 	if userModel.GetSelfById(input.ID) != nil {
 		return fmt.Errorf("没有这个用户")
+	}
+	// 被修改的用户要求是跟管理员同一家公司的
+	me := auth.GetUser(ctx)
+	user := users.Users{}
+	_ = user.GetSelfById(input.ID)
+	if  me.CompanyId != user.CompanyId {
+		return fmt.Errorf("该用户:%d不归属于您公司名下，您无权修改", user.ID)
 	}
 
 	return nil

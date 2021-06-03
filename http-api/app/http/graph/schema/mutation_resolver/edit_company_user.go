@@ -18,7 +18,7 @@ import (
 
 func (m *MutationResolver)EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error) {
 	requestValidation := requests.EditCompanyUseRequest{}
-	err := requestValidation.ValidateEditCompanyUserRequest(input)
+	err := requestValidation.ValidateEditCompanyUserRequest(ctx, input)
 	if err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
