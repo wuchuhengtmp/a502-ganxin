@@ -90,3 +90,31 @@ func TestProjectAdminRoleGetAllCompany(t *testing.T)  {
 		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题") )
 	}
 }
+
+/**
+ * 项目管理员获取公司人员列表集成测试
+ */
+func TestProjectAdminRoleGetCompanyUsers(t *testing.T)  {
+	q := `
+		query getCompanyUserQuery {
+		  getCompanyUser{
+			id
+			role {
+			  id
+			  tag
+			  name
+			}
+			phone
+			wechat
+			avatar{
+			  id
+			  url
+			}
+			isAble
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	hasError(t, err)
+}

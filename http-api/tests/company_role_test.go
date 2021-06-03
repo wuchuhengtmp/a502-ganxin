@@ -180,3 +180,31 @@ func TestCompanyAdminRoleCreateCompanyUser(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 获取公司人员列表集成测试
+ */
+func TestCompanyAdminRoleGetCompanyUsers(t *testing.T)  {
+	q := `
+		query getCompanyUserQuery {
+		  getCompanyUser{
+			id
+			role {
+			  id
+			  tag
+			  name
+			}
+			phone
+			wechat
+			avatar{
+			  id
+			  url
+			}
+			isAble
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
