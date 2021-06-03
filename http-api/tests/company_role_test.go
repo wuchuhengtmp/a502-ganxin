@@ -13,6 +13,7 @@ import (
 	"http-api/app/models/roles"
 	"http-api/seeders"
 	"testing"
+	"time"
 )
 // 超级管理员测试上下文
 var companyAdminTestCtx = struct{
@@ -137,6 +138,43 @@ func TestCompanyAdminRoleEditCompany(t *testing.T) {
 			"adminAvatarFileId": 4,
 			"adminPhone": seeders.CompanyAdmin.Username,
 			"adminWechat": "admin_wechat_change_test_with_company_role",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 添加公司人员集成测试
+*/
+func TestCompanyAdminRoleCreateCompanyUser(t *testing.T)  {
+	q := `
+		mutation createUserMutation($input: CreateCompanyUserInput!){
+		  createCompanyUser(input: $input){
+			id
+			role {
+			  id
+			  name
+			  tag
+			}
+			phone
+			wechat
+			avatar{
+			  id
+			  url
+			}
+			isAble
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"name": "username _for_TesCreateCompanyUser",
+			"phone": fmt.Sprintf("1342%d", time.Now().Unix())[0:11] ,
+			"password": "12345678",
+			"avatarId": 1,
+			"role": "repositoryAdmin",
+			"wechat": "wechat_for_testCreateCompanyUser",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
