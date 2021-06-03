@@ -20,10 +20,11 @@ func (CreateCompanyUserRequest) ValidateCreateCompanyUserRequest(input model.Cre
 	rules := govalidator.MapData{
 		"phone":    []string{"phone", "not_user_phone_exists"},
 		"avatarId": []string{"fileExist"},
+		"password": []string{"min:6"},
 	}
 	opts := govalidator.Options{
-		Data: &input,
-		Rules: rules,
+		Data:          &input,
+		Rules:         rules,
 		TagIdentifier: "json",
 	}
 	res := govalidator.New(opts).ValidateStruct()
