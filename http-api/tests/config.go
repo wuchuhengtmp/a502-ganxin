@@ -49,6 +49,21 @@ func graphReqClient(query string, variables map[string]interface{}, role roles.G
 				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", companyAdminTestCtx.Token))
 			}
 			break
+	case roles.RoleRepositoryAdmin:
+		if len(repositoryAdminTestCtx.Token) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", repositoryAdminTestCtx.Token))
+		}
+		break
+	case roles.RoleProjectAdmin:
+		if len(projectAdminTestCtx.Token) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", projectAdminTestCtx.Token))
+		}
+		break
+	case roles.RoleMaintenanceAdmin:
+		if len(maintenanceAdminTestCtx.Token) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", maintenanceAdminTestCtx.Token))
+		}
+		break
 	}
 
 	ctx := context.Background()
