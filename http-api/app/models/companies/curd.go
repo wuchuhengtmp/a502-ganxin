@@ -131,8 +131,7 @@ func (Companies) HasCompanyId(cid int64) (*Companies, error) {
 /**
  *  更新公司
  */
-func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) bool {
-	// todo  这里涉及3个表的一致性操作，要用会话解决
+func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) (ok bool) {
 	startAt, _ := helper.Str2Time(input.StartedAt)
 	endAt, _ := helper.Str2Time(input.EndedAt)
 	c := Companies{
@@ -148,13 +147,20 @@ func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) boo
 		EndedAt:          endAt,
 	}
 	db := sqlModel.DB
-	err := db.Model(&Companies{}).Where("id = ?", input.ID).Updates(c).Error
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			ok = false
+		}
+	}()
+	err :=  tx.Model(&Companies{}).Where("id = ?", input.ID).Updates(c).Error
 	if err != nil {
-
+		return false
 	}
 	// 更新用户信息
 	u := users.Users{}
-	db.Model(&u).Where("company_id = ? AND role_id = ?", input.ID, roles.RoleCompanyAdminId).First(&u)
+	tx.Model(&u).Where("company_id = ? AND role_id = ?", input.ID, roles.RoleCompanyAdminId).First(&u)
 	u.Name = input.AdminName
 	u.Phone = input.Phone
 	u.Wechat = input.AdminWechat
@@ -162,7 +168,7 @@ func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) boo
 	if input.AdminPassword != nil {
 		u.Password = helper2.GetHashByStr(*input.AdminPassword)
 	}
-	err = db.Model(&u).Updates(users.Users{
+	err = tx.Model(&u).Updates(users.Users{
 		Name:         u.Name,
 		Password:     u.Password,
 		AvatarFileId: u.AvatarFileId,
@@ -170,6 +176,7 @@ func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) boo
 		Wechat:       u.Wechat,
 	}).Error
 	if err != nil {
+		tx.Rollback()
 		return false
 	}
 	// 添加一个操作日志
@@ -178,7 +185,14 @@ func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) boo
 	logsModel.Type = logs.UpdateActionType
 	logsModel.Uid = me.ID
 	logsModel.Content = fmt.Sprintf("修改公司，名称: %s, ID:%d", c.Name, input.ID)
-	_ = logsModel.CreateSelf()
+	if tx.Create(&logsModel).Error != nil {
+		tx.Rollback()
+		return false
+	}
+	//_ = logsModel.CreateSelf()
+	if tx.Commit().Error != nil {
+		return false
+	}
 
 	return true
 }
@@ -212,8 +226,12 @@ func GetCompanyAdminUserById(id int64) (*users.Users, error) {
 /**
  * 获取对应解析器的一项公司数据
  */
-func GetCompanyItemResById(id int64) (*graphQL.CompanyItemRes, error){
-	// todo  这里查询可能会出现异常
+func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("query failed")
+		}
+	}()
 	company := Companies{}
 	_ = company.GetSelfById(id)
 	logoFile := files.File{}

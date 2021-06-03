@@ -30,7 +30,10 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		return nil, errors.ServerErr(ctx, fmt.Errorf(errors.ServerErrorMsg))
 	}
 	// 获取解析器要的数据
-	res, _ := companies.GetCompanyItemResById(newCompany.ID)
+	res, err := companies.GetCompanyItemResById(newCompany.ID)
+	if err != nil {
+		return nil, errors.ServerErr(ctx, err)
+	}
 
 	return res, nil
 }

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	"http-api/pkg/logger"
 )
 
 const (
@@ -73,6 +74,7 @@ const (
  * 后台出现错误
  */
 func ServerErr(ctx context.Context, err error) error {
+	logger.LogError(err)
 	gqlErr := &gqlerror.Error{
 		Path:    graphql.GetPath(ctx),
 		Message: err.Error(),
