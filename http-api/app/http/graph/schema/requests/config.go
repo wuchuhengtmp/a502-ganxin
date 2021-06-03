@@ -42,7 +42,7 @@ func init()  {
 
 	// 是否存在这个文件验证规则
 	govalidator.AddCustomRule("fileExist", func(field string, rule string, message string, value interface{}) error {
-		id := int64(value.(int))
+		id := value.(int64)
 		file := files.File{
 			ID: id,
 		}

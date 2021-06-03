@@ -3,12 +3,15 @@
 package model
 
 import (
+	"fmt"
 	"http-api/app/models/roles"
+	"io"
+	"strconv"
 	"time"
 )
 
 type CompanyItemRes struct {
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 	//  公司名
 	Name string `json:"name"`
 	//  用于型钢编码生成
@@ -50,9 +53,9 @@ type CreateCompanyInput struct {
 	//   宗旨
 	Symbol string `json:"symbol"`
 	//  logo 文件Id
-	LogoFileID int `json:"logoFileId"`
+	LogoFileID int64 `json:"logoFileId"`
 	//  App 背景图片Id
-	BackgroundFileID int `json:"backgroundFileId"`
+	BackgroundFileID int64 `json:"backgroundFileId"`
 	//  账号状态
 	IsAble bool `json:"isAble"`
 	//  公司的电话
@@ -72,13 +75,23 @@ type CreateCompanyInput struct {
 	//  管理员微信
 	AdminWechat string `json:"adminWechat"`
 	//  管理员头像Id
-	AdminAvatarFileID int `json:"adminAvatarFileId"`
+	AdminAvatarFileID int64 `json:"adminAvatarFileId"`
+}
+
+//  添加用户信息需要的信息
+type CreateCompanyUserInput struct {
+	Name     string              `json:"name"`
+	Phone    string              `json:"phone"`
+	Role     CreateInputUserRole `json:"role"`
+	Wechat   string              `json:"wechat"`
+	AvatarID int64               `json:"avatarId"`
+	Password string              `json:"password"`
 }
 
 //  修改公司参数
 type EditCompanyInput struct {
 	//  公司ID
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 	//  公司名
 	Name string `json:"name"`
 	//  公司名称拼写简写
@@ -86,9 +99,9 @@ type EditCompanyInput struct {
 	//   宗旨
 	Symbol string `json:"symbol"`
 	//  logo 文件Id
-	LogoFileID int `json:"logoFileId"`
+	LogoFileID int64 `json:"logoFileId"`
 	//  App 背景图片Id
-	BackgroundFileID int `json:"backgroundFileId"`
+	BackgroundFileID int64 `json:"backgroundFileId"`
 	//  账号状态
 	IsAble bool `json:"isAble"`
 	//  公司的电话
@@ -108,19 +121,19 @@ type EditCompanyInput struct {
 	//  管理员微信
 	AdminWechat string `json:"adminWechat"`
 	//  管理员头像Id
-	AdminAvatarFileID int `json:"adminAvatarFileId"`
+	AdminAvatarFileID int64 `json:"adminAvatarFileId"`
 }
 
 type ErrCodes struct {
 	//  错误码编号
-	Code int `json:"code"`
+	Code int64 `json:"code"`
 	//  错误码用途说明
 	Desc string `json:"desc"`
 }
 
 type FileItem struct {
 	//  文件ID
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 	//  文访问链接
 	URL string `json:"url"`
 }
@@ -138,14 +151,78 @@ type LoginRes struct {
 	//  授权token
 	AccessToken string `json:"accessToken"`
 	//  过期时间戳(秒 7天)
-	Expired int `json:"expired"`
+	Expired int64 `json:"expired"`
 	//  角色标识
 	Role roles.GraphqlRole `json:"role"`
 	//  角色名
 	RoleName string `json:"roleName"`
 }
 
+//  角色信息
+type RoleItem struct {
+	ID   int64             `json:"id"`
+	Name string            `json:"name"`
+	Tag  roles.GraphqlRole `json:"tag"`
+}
+
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+//  用户信息
+type UserItem struct {
+	ID     int64     `json:"id"`
+	Role   *RoleItem `json:"role"`
+	Phone  string    `json:"phone"`
+	Wechat string    `json:"wechat"`
+	Avatar *FileItem `json:"avatar"`
+	IsAble bool      `json:"isAble"`
+}
+
+//  角色
+type CreateInputUserRole string
+
+const (
+	//  仓库管理员
+	CreateInputUserRoleRepositoryAdmin CreateInputUserRole = "repositoryAdmin"
+	//  项目管理员
+	CreateInputUserRoleProjectAdmin CreateInputUserRole = "projectAdmin"
+	//  维修管理员
+	CreateInputUserRoleMaintenanceAdmin CreateInputUserRole = "maintenanceAdmin"
+)
+
+var AllCreateInputUserRole = []CreateInputUserRole{
+	CreateInputUserRoleRepositoryAdmin,
+	CreateInputUserRoleProjectAdmin,
+	CreateInputUserRoleMaintenanceAdmin,
+}
+
+func (e CreateInputUserRole) IsValid() bool {
+	switch e {
+	case CreateInputUserRoleRepositoryAdmin, CreateInputUserRoleProjectAdmin, CreateInputUserRoleMaintenanceAdmin:
+		return true
+	}
+	return false
+}
+
+func (e CreateInputUserRole) String() string {
+	return string(e)
+}
+
+func (e *CreateInputUserRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateInputUserRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateInputUserRole", str)
+	}
+	return nil
+}
+
+func (e CreateInputUserRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

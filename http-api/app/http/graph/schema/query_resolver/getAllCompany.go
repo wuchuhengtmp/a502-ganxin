@@ -27,20 +27,20 @@ func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CompanyItem
 	var res []*model.CompanyItemRes
 	for _, company := range companies {
 		signEl := model.CompanyItemRes{}
-		signEl.ID = int(company.ID)
+		signEl.ID = company.ID
 		signEl.Name = company.Name
 		signEl.PinYin = company.PinYin
 		signEl.Symbol = company.Symbol
 		logFile := files.File{ }
 		_ = logFile.GetSelfById(company.LogoFileId)
 		signEl.LogoFile = &model.FileItem{
-			ID: int(logFile.ID),
+			ID: logFile.ID,
 			URL: logFile.GetUrl(),
 		}
 		backgroundFile := files.File{}
 		_ = backgroundFile.GetSelfById(company.BackgroundFileId)
 		signEl.BackgroundFile = &model.FileItem{
-			ID: int(backgroundFile.ID),
+			ID: backgroundFile.ID,
 			URL: backgroundFile.GetUrl(),
 		}
 		signEl.IsAble = company.IsAble
@@ -56,7 +56,7 @@ func (q *QueryResolver) GetAllCompany(ctx context.Context) ([]*model.CompanyItem
 		adminAvatar := files.File{}
 		adminAvatar.GetSelfById(adminUser.ID)
 		signEl.AdminAvatar = &model.FileItem{
-			ID: int( adminAvatar.ID),
+			ID:  adminAvatar.ID,
 			URL: adminAvatar.GetUrl(),
 		}
 		res = append(res, &signEl)

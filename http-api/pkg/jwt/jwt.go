@@ -35,8 +35,8 @@ func GenerateTokenByUID(uid int64, isDevice bool, mac string) (tokenStr string, 
 /**
  * jwt token 过期时间
  */
-func GetExpiredAt() int {
-	return int(time.Now().Unix() + config.GetInt64("jwt.expired"))
+func GetExpiredAt() int64 {
+	return time.Now().Unix() + config.GetInt64("jwt.expired")
 }
 
 // 解析token

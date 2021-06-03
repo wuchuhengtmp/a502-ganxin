@@ -239,19 +239,19 @@ func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
 	backgroundFile := files.File{}
 	_ = backgroundFile.GetSelfById(company.BackgroundFileId)
 	bf := graphQL.FileItem{
-		ID: int(backgroundFile.ID),
+		ID:backgroundFile.ID,
 		URL: backgroundFile.GetUrl(),
 	}
 	adminAvatar := files.File{}
 	user, _ := GetCompanyAdminUserById(id)
 	_ = adminAvatar.GetSelfById(user.AvatarFileId)
 	res := graphQL.CompanyItemRes{
-		ID:     int(company.ID),
+		ID:     company.ID,
 		Name:   company.Name,
 		PinYin: company.PinYin,
 		Symbol: company.Symbol,
 		LogoFile: &graphQL.FileItem{
-			ID: int( logoFile.ID),
+			ID:  logoFile.ID,
 			URL: logoFile.GetUrl(),
 		},
 		BackgroundFile: &bf,
@@ -265,11 +265,45 @@ func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
 		AdminWechat: user.Wechat,
 		AdminPhone: user.Phone,
 		AdminAvatar: &graphQL.FileItem{
-			ID: int( adminAvatar.ID),
+			ID:  adminAvatar.ID,
 			URL: adminAvatar.GetUrl(),
 		},
 	}
 
 	return &res, nil
 }
+
+/**
+ * 添加公司归属下的人员
+ */
+func (Companies)CreateUser(ctx context.Context, input graphQL.CreateCompanyUserInput) (*users.Users, error) {
+	tx := sqlModel.DB.Begin()
+	user := users.Users{}
+	user.Name = input.Name
+	user.Phone = input.Phone
+	user.Wechat = input.Wechat
+	user.Password = helper2.GetHashByStr(input.Password)
+	user.AvatarFileId = input.AvatarID
+	user.RoleId = roles.RoleTagMapId[input.Role.String()]
+	if err := tx.Create(&user).Error; err != nil {
+		return &user, err
+	}
+	log := logs.Logos{}
+	me := auth.GetUser(ctx)
+	log.Uid = me.ID
+	log.Content = fmt.Sprintf("添加 %s", roles.RoleTagMapName[input.Role.String()])
+	log.Type = logs.CreateActionType
+	log.Uid = me.ID
+	if err := tx.Create(&log).Error; err != nil {
+		tx.Rollback()
+		return &user, err
+	}
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 

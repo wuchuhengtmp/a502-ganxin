@@ -1,0 +1,37 @@
+""" 角色 """
+enum CreateInputUserRole {
+    """ 仓库管理员 """
+    repositoryAdmin
+    """ 项目管理员 """
+    projectAdmin
+    """ 维修管理员 """
+    maintenanceAdmin
+}
+""" 角色信息 """
+type RoleItem {
+    id: Int!
+    name: String!
+    tag: Role!
+}
+""" 用户信息 """
+type UserItem {
+    id: Int!
+    role: RoleItem!
+    phone: String!
+    wechat: String!
+    avatar: FileItem!
+    isAble: Boolean!
+}
+""" 添加用户信息需要的信息 """
+input CreateCompanyUserInput {
+    name: String!
+    phone: String!
+    role: CreateInputUserRole!
+    wechat: String!
+    avatarId: Int!
+    password: String!
+}
+extend type Mutation {
+    """ 添加公司人员管理 """
+    createCompanyUser(input: CreateCompanyUserInput!): UserItem! @hasRole(role: [companyAdmin])
+}

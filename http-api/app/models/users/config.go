@@ -15,15 +15,15 @@ import (
 )
 
 type Users struct {
-	ID           int64       `json:"id"`
-	Name         string      `json:"name" gorm:"comment:用户名"`
-	Password     string      `json:"password" gorm:"comment:密码"`
-	Phone        string      `json:"phone" gorm:"comment:手机号"`
-	RoleId       int8        `json:"roleId" gorm:"comment:角色id"`
-	Wechat       string      `json:"wechat" gorm:"comment:微信"`
-	CompanyId    int64       `json:"CompanyId" gorm:"comment:所属公司id"`
-	IsAble       bool        `json:"is_able" gorm:"comment:启用状态"`
-	AvatarFileId int64       `json:"avatar" gorm:"comment:头像文件id"`
+	ID           int64  `json:"id" sql:"unique_index"`
+	Name         string `json:"name" gorm:"comment:用户名"`
+	Password     string `json:"password" gorm:"comment:密码"`
+	Phone        string `json:"phone" gorm:"comment:手机号"`
+	RoleId       int64   `json:"roleId" gorm:"comment:角色id"`
+	Wechat       string `json:"wechat" gorm:"comment:微信"`
+	CompanyId    int64  `json:"CompanyId" gorm:"comment:所属公司id"`
+	IsAble       bool   `json:"is_able" gorm:"comment:启用状态"`
+	AvatarFileId int64  `json:"avatar" gorm:"comment:头像文件id"`
 	models.Base
 	gorm.Model
 }
@@ -52,7 +52,7 @@ func (Users) IsPhoneExists(phone string) bool {
 func (Users) HasUserById(id int64) (*Users, error) {
 	db := sqlModel.DB
 	u := Users{}
-	err := db.Model(&u).Where("id = ?",id).First(&u).Error
+	err := db.Model(&u).Where("id = ?", id).First(&u).Error
 	return &u, err
 }
 
@@ -98,7 +98,7 @@ func (Users) IsUniPhone(phone string) bool {
 	}
 }
 
-func (u *Users)GetSelfById(uid int64) error {
+func (u *Users) GetSelfById(uid int64) error {
 	db := sqlModel.DB
 	return db.Model(u).Where("id = ?", uid).First(u).Error
 }

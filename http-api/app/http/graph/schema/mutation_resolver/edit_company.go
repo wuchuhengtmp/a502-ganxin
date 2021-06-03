@@ -46,11 +46,11 @@ func (*MutationResolver)EditCompany(ctx context.Context, input model.EditCompany
 		PinYin: input.PinYin,
 		Symbol: input.Symbol,
 		LogoFile: &model.FileItem{
-			ID:  int(loginFile.ID),
+			ID:  loginFile.ID,
 			URL: loginFile.GetUrl(),
 		},
 		BackgroundFile: &model.FileItem{
-			ID:  int(backgroundFile.ID),
+			ID:  backgroundFile.ID,
 			URL: backgroundFile.GetUrl(),
 		},
 		IsAble: input.IsAble,

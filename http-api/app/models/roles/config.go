@@ -23,7 +23,7 @@ type Role struct {
 	gorm.Model
 }
 
-func (r *Role)GetSelfById(id int8) error {
+func (r *Role) GetSelfById(id int64) error {
 	db := model.DB
 	return db.Model(r).Where("id = ?", id).First(r).Error
 }
@@ -43,16 +43,34 @@ const (
 	RoleMaintenanceAdmin GraphqlRole = "maintenanceAdmin"
 
 	//  超级管理员Id
-	RoleAdminId int8 = 1
+	RoleAdminId int64 = 1
 	//  公司管理员Id
-	RoleCompanyAdminId int8 = 2
+	RoleCompanyAdminId int64 = 2
 	//  仓库管理员id
-	RoleRepositoryAdminId int8 = 3
+	RoleRepositoryAdminId int64 = 3
 	//  项目管理员id
-	RoleProjectAdminId int8 = 4
+	RoleProjectAdminId int64 = 4
 	//  维修管理员id
-	RoleMaintenanceAdminId int8 = 5
+	RoleMaintenanceAdminId int64 = 5
 )
+
+// 角色标识映射角色id
+var RoleTagMapId = map[string]int64{
+	RoleAdmin.String():            RoleAdminId,
+	RoleCompanyAdmin.String():     RoleCompanyAdminId,
+	RoleRepositoryAdmin.String():  RoleRepositoryAdminId,
+	RoleProjectAdmin.String():     RoleProjectAdminId,
+	RoleMaintenanceAdmin.String(): RoleMaintenanceAdminId,
+}
+
+// 角色标识映射角色名
+var RoleTagMapName = map[string]string{
+	RoleAdmin.String():            "超级管理员",
+	RoleCompanyAdmin.String():     "公司管理员",
+	RoleRepositoryAdmin.String():  "仓库管理员",
+	RoleProjectAdmin.String():     "项目管理员",
+	RoleMaintenanceAdmin.String(): "维修管理员",
+}
 
 func (e GraphqlRole) IsValid() bool {
 	switch e {

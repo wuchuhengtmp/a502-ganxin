@@ -16,7 +16,7 @@ import (
 	"http-api/app/models/companies"
 )
 
-func (m *MutationResolver)DeleteCompany(ctx context.Context, id int) (bool, error) {
+func (m *MutationResolver)DeleteCompany(ctx context.Context, id int64) (bool, error) {
 	requestValitation := requests.DeleteCompanyRequest{}
 	err := requestValitation.ValidateDeleteCompanyRequest(id)
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 type DeleteCompanyRequest struct { }
 
 
-func (data *DeleteCompanyRequest) ValidateDeleteCompanyRequest(companyId int) error {
+func (data *DeleteCompanyRequest) ValidateDeleteCompanyRequest(companyId int64) error {
 	companiesModel := companies.Companies{}
 	err := companiesModel.GetSelfById(int64(companyId))
 	if err != nil {

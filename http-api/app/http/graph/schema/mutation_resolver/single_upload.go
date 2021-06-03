@@ -32,7 +32,7 @@ func (m *MutationResolver)SingleUpload(ctx context.Context, file graphql.Upload)
 	}
 	newFile.CreateFile()
 	res := model.FileItem{}
-	res.ID =  int(newFile.ID)
+	res.ID =  newFile.ID
 	res.URL = newFile.GetUrl()
 
 	return &res, nil

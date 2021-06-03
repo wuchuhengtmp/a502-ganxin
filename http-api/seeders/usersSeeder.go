@@ -125,7 +125,7 @@ func CreateUser(
 	name string,
 	password string,
 	phone string,
-	roleId int8,
+	roleId int64,
 	avatarFileId int64,
 	companyId int64,
 ) error {

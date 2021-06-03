@@ -17,13 +17,13 @@ import (
 
 type CreateCompanyRequest struct {
 	Phone             string `valid:"Phone"`
-	LogoFileId        int    `valid:"LogoFileId"`
-	BackgroundFileId  int    `valid:"BackgroundFileId"`
+	LogoFileId        int64    `valid:"LogoFileId"`
+	BackgroundFileId  int64    `valid:"BackgroundFileId"`
 	EndedAt           string `valid:"EndedAt"`
 	StartedAt         string `valid:"StartedAt"`
 	AdminPhone        string `valid:"AdminPhone"`
 	AdminPassword     string `valid:"AdminPassword"`
-	AdminAvatarFileId int    `valid:"AdminAvatarFileId"`
+	AdminAvatarFileId int64    `valid:"AdminAvatarFileId"`
 }
 
 func (data *CreateCompanyRequest) ValidateCreateCompanyRequest(input model.CreateCompanyInput) error {
