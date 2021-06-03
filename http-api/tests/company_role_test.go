@@ -170,7 +170,7 @@ func TestCompanyAdminRoleCreateCompanyUser(t *testing.T)  {
 	v := map[string]interface{}{
 		"input": map[string]interface{} {
 			"name": "username _for_TesCreateCompanyUser",
-			"phone": fmt.Sprintf("1342%d", time.Now().Unix())[0:11] ,
+			"phone": fmt.Sprintf("1342%s",fmt.Sprintf("%d", time.Now().UnixNano())[8:15]),
 			"password": "12345678",
 			"avatarId": 1,
 			"role": "repositoryAdmin",
