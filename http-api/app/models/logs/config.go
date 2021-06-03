@@ -1,5 +1,5 @@
 /**
- * @Desc    The logs is part of http-api
+ * @Desc    日志模型
  * @Author  wuchuheng<wuchuheng@163.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
@@ -8,12 +8,33 @@
  */
 package logs
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"http-api/pkg/model"
+)
 
 type Logos struct {
 	ID      int64  `json:"id"`
-	Type    string `json:"type" gorm:"comment:操作类型增删改"`
+	Type    ActionType `json:"type" gorm:"comment:操作类型增删改"`
 	Content string `json:"content" gorm:"comment:操作内容"`
 	Uid     int64  `json:"uid" gorm:"comment:用户id"`
 	gorm.Model
 }
+type ActionType string
+
+const (
+	DeleteActionType ActionType = "DELETE"
+	UpdateActionType ActionType = "UPDATE"
+	CreateActionType ActionType = "CREATE"
+)
+
+/**
+ * 添加条新的记录
+ */
+func (l *Logos) CreateSelf () error {
+	db := model.DB
+	err := db.Create(l).Error
+
+	return err
+}
+

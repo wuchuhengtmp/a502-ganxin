@@ -42,7 +42,7 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input model.Create
 		EndedAt:          endedAt,
 	}
 	// todo 创建公司涉及2个表的写入，需要保存一致性，要加入会话
-	err = company.Create()
+	err = company.Create(ctx)
 	user := users.Users{
 		Name:         input.AdminName,
 		Password:     globalHelper.GetHashByStr(input.AdminPassword),

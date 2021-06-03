@@ -29,7 +29,7 @@ func (*MutationResolver)EditCompany(ctx context.Context, input model.EditCompany
 		return nil, errors.ValidateErr(ctx, err)
 	}
 	companyModel := companies.Companies{}
-	ok := companyModel.Update(input)
+	ok := companyModel.Update(ctx, input)
 	if !ok {
 		err = fmt.Errorf("操作失败, 请联系管理员")
 		return nil, errors.ServerErr(ctx, err)
