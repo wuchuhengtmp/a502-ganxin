@@ -66,6 +66,9 @@ func ValidateErr(ctx context.Context, err error) error {
 	return gqlErr
 }
 
+const (
+	ServerErrorMsg = "操作出错，请联系管理员"
+)
 /**
  * 后台出现错误
  */

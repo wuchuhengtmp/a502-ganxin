@@ -14,7 +14,7 @@ import (
 )
 
 type Companies struct {
-	ID               int64     `json:"id"`
+	ID               int64     `json:"id" sql:"unique_index"`
 	Name             string    `json:"name" gorm:"comment:公司名"`
 	PinYin           string    `json:"pinyin" gorm:"comment:用于型钢编码生成"`
 	Symbol           string    `json:"symbol" gorm:"comment:APP 企业宗旨"`
