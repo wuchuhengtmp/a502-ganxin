@@ -94,6 +94,7 @@ type ComplexityRoot struct {
 		CreateCompanyUser func(childComplexity int, input model.CreateCompanyUserInput) int
 		DeleteCompany     func(childComplexity int, id int64) int
 		EditCompany       func(childComplexity int, input model.EditCompanyInput) int
+		EditCompanyUser   func(childComplexity int, input *model.EditCompanyUserInput) int
 		Login             func(childComplexity int, phone string, password string, mac *string) int
 		SingleUpload      func(childComplexity int, file graphql.Upload) int
 	}
@@ -131,6 +132,7 @@ type MutationResolver interface {
 	EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CompanyItemRes, error)
 	DeleteCompany(ctx context.Context, id int64) (bool, error)
 	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*model.UserItem, error)
+	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
@@ -390,6 +392,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditCompany(childComplexity, args["input"].(model.EditCompanyInput)), true
+
+	case "Mutation.editCompanyUser":
+		if e.complexity.Mutation.EditCompanyUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editCompanyUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditCompanyUser(childComplexity, args["input"].(*model.EditCompanyUserInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -768,15 +782,29 @@ input CreateCompanyUserInput {
     avatarId: Int!
     password: String!
 }
+""" 编辑公司人员需要的数据 """
+input EditCompanyUserInput {
+    id: Int!
+    name: String!
+    phone: String!
+    roleId: Int!
+    """" 是否启用 """
+    isAble: Boolean!
+}
+
 extend type Mutation {
     """ 添加公司人员管理 """
     createCompanyUser(input: CreateCompanyUserInput!): UserItem! @hasRole(role: [companyAdmin])
+    """ 编辑公司人员 """
+    editCompanyUser(input: EditCompanyUserInput): UserItem! @hasRole(role: [companyAdmin])
+
 }
 
 extend type Query {
     """ 获取公司人员 """
     getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../directive.graphql", Input: `# 声明指令
 enum Role {
     """ 超级管理员 """
@@ -870,6 +898,21 @@ func (ec *executionContext) field_Mutation_deleteCompany_args(ctx context.Contex
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editCompanyUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.EditCompanyUserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOEditCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2201,6 +2244,72 @@ func (ec *executionContext) _Mutation_createCompanyUser(ctx context.Context, fie
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
 			return ec.resolvers.Mutation().CreateCompanyUser(rctx, args["input"].(model.CreateCompanyUserInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.UserItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.UserItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserItem)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_editCompanyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editCompanyUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditCompanyUser(rctx, args["input"].(*model.EditCompanyUserInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
@@ -4310,6 +4419,58 @@ func (ec *executionContext) unmarshalInputEditCompanyInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEditCompanyUserInput(ctx context.Context, obj interface{}) (model.EditCompanyUserInput, error) {
+	var it model.EditCompanyUserInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "roleId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleId"))
+			it.RoleID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isAble":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAble"))
+			it.IsAble, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4600,6 +4761,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createCompanyUser":
 			out.Values[i] = ec._Mutation_createCompanyUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editCompanyUser":
+			out.Values[i] = ec._Mutation_editCompanyUser(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -5689,6 +5855,14 @@ func (ec *executionContext) marshalOCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋ
 		return graphql.Null
 	}
 	return ec._CompanyItemRes(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEditCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyUserInput(ctx context.Context, v interface{}) (*model.EditCompanyUserInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEditCompanyUserInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOErrCodes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐErrCodes(ctx context.Context, sel ast.SelectionSet, v *model.ErrCodes) graphql.Marshaler {

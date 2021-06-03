@@ -56,7 +56,7 @@ func (Companies) Create(ctx context.Context, input graphQL.CreateCompanyInput) (
 		Wechat:       input.AdminWechat,
 		CompanyId:    company.ID,
 		IsAble:       true,
-		AvatarFileId: int64(input.AdminAvatarFileID),
+		AvatarFileId: input.AdminAvatarFileID,
 	}
 	tx := db.Begin()
 	defer func() {
@@ -309,7 +309,7 @@ func (Companies)CreateUser(ctx context.Context, input graphQL.CreateCompanyUserI
 /**
  * 获取对应解析器的公司下的员工数据
  */
-func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error){
+func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error) {
 	var c []users.Users
 	db := sqlModel.DB
 	db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)
@@ -335,5 +335,51 @@ func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error){
 		tmp.IsAble = i.IsAble
 		v = append(v, &tmp)
 	}
+
 	return v, nil
+}
+
+
+func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput) (*graphQL.UserItem, error) {
+	tx := model.DB.Begin()
+	user := users.Users{}
+	_ = user.GetSelfById(input.ID)
+	user.Phone = input.Phone
+	user.Name = input.Name
+	user.RoleId = input.RoleID
+	user.IsAble = input.IsAble
+	if err := tx.Model(&user).Updates(&user).Error; err != nil {
+		return nil, fmt.Errorf("update user failed")
+	}
+	log := logs.Logos{}
+	log.Type = logs.UpdateActionType
+	log.Content = fmt.Sprintf("编辑公司人员: 被更新的用户id为%d", user.ID)
+	me := auth.GetUser(ctx)
+	log.Uid = me.ID
+	tx.Create(&log)
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("execu the UpdateCompanyUser method was failed")
+	}
+	roleInfo := roles.Role{}
+	roleInfo.GetSelfById(user.RoleId)
+	avatarInfo := files.File{}
+	_ = avatarInfo.GetSelfById(user.AvatarFileId)
+	res := graphQL.UserItem{
+		ID: user.ID,
+		Role: &graphQL.RoleItem{
+			ID: roleInfo.ID,
+			Name: roleInfo.Name,
+			Tag: roleInfo.Tag,
+		},
+		Phone: user.Phone,
+		Wechat: user.Wechat,
+		Avatar: &graphQL.FileItem{
+			ID: avatarInfo.ID,
+			URL: avatarInfo.GetUrl(),
+		},
+		IsAble: user.IsAble,
+	}
+
+	return &res, nil
 }

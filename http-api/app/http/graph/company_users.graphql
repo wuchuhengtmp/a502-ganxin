@@ -32,9 +32,22 @@ input CreateCompanyUserInput {
     avatarId: Int!
     password: String!
 }
+""" 编辑公司人员需要的数据 """
+input EditCompanyUserInput {
+    id: Int!
+    name: String!
+    phone: String!
+    roleId: Int!
+    """" 是否启用 """
+    isAble: Boolean!
+}
+
 extend type Mutation {
     """ 添加公司人员管理 """
     createCompanyUser(input: CreateCompanyUserInput!): UserItem! @hasRole(role: [companyAdmin])
+    """ 编辑公司人员 """
+    editCompanyUser(input: EditCompanyUserInput): UserItem! @hasRole(role: [companyAdmin])
+
 }
 
 extend type Query {

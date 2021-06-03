@@ -19,7 +19,7 @@ type Users struct {
 	Name         string `json:"name" gorm:"comment:用户名"`
 	Password     string `json:"password" gorm:"comment:密码"`
 	Phone        string `json:"phone" gorm:"comment:手机号"`
-	RoleId       int64   `json:"roleId" gorm:"comment:角色id"`
+	RoleId       int64  `json:"roleId" gorm:"comment:角色id"`
 	Wechat       string `json:"wechat" gorm:"comment:微信"`
 	CompanyId    int64  `json:"CompanyId" gorm:"comment:所属公司id"`
 	IsAble       bool   `json:"is_able" gorm:"comment:启用状态"`

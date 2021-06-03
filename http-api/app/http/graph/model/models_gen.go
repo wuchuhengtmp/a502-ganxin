@@ -124,6 +124,16 @@ type EditCompanyInput struct {
 	AdminAvatarFileID int64 `json:"adminAvatarFileId"`
 }
 
+//  编辑公司人员需要的数据
+type EditCompanyUserInput struct {
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Phone  string `json:"phone"`
+	RoleID int64  `json:"roleId"`
+	// " 是否启用
+	IsAble bool `json:"isAble"`
+}
+
 type ErrCodes struct {
 	//  错误码编号
 	Code int64 `json:"code"`

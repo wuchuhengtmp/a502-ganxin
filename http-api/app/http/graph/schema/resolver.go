@@ -21,4 +21,3 @@ func Handler() *handler.Server {
 	conf.Directives.HasRole = directives.HasRole
 	return handler.NewDefaultServer( generated.NewExecutableSchema(conf))
 }
-
