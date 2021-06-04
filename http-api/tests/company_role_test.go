@@ -29,6 +29,7 @@ var companyAdminTestCtx = struct{
 	DeleteCompanyUserId int64
 	// 用于编辑的公司员工id
 	EditCompanyUserId int64
+	DeleteRepositoryId int64
 	}{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -298,8 +299,11 @@ func TestCompanyAdminRoleCreateRepository(t *testing.T) {
 			"pinYin": "pintYin_for_createTest",
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
+	r := res["createRepository"].(map[string]interface{})
+	id := r["id"].(float64)
+	companyAdminTestCtx.DeleteRepositoryId = int64(id)
 }
 
 /**
@@ -327,6 +331,22 @@ func TestCompanyAdminRoleGetRepository(t *testing.T) {
 	`
 	v := map[string]interface{}{
 		"input": map[string]interface{} {},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 公司管理员删除仓库集成测试
+ */
+func TestCompanyAdminRoleDeleteRepository(t *testing.T) {
+	q := `
+		mutation deleteRepositoryMutation ($id: Int!) {
+		  deleteRepository(repositoryId: $id)
+		}
+	`
+	v := map[string]interface{} {
+		"id": companyAdminTestCtx.DeleteRepositoryId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
