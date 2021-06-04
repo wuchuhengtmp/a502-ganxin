@@ -1,0 +1,4 @@
+extend type Query {
+    """ 获取角色列表 """
+    getRoleList: [RoleItem]!
+}

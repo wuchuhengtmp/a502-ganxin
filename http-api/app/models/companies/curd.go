@@ -320,7 +320,7 @@ func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error) {
 		tmp.ID = i.ID
 		role := roles.Role{}
 		_ = role.GetSelfById(i.RoleId)
-		tmp.Role = &graphQL.RoleItem{
+		tmp.Role = &roles.RoleItem{
 			ID: role.ID,
 			Name: role.Name,
 			Tag: role.Tag,
@@ -368,7 +368,7 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 	_ = avatarInfo.GetSelfById(user.AvatarFileId)
 	res := graphQL.UserItem{
 		ID: user.ID,
-		Role: &graphQL.RoleItem{
+		Role: &roles.RoleItem{
 			ID: roleInfo.ID,
 			Name: roleInfo.Name,
 			Tag: roleInfo.Tag,

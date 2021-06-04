@@ -168,13 +168,6 @@ type LoginRes struct {
 	RoleName string `json:"roleName"`
 }
 
-//  角色信息
-type RoleItem struct {
-	ID   int64             `json:"id"`
-	Name string            `json:"name"`
-	Tag  roles.GraphqlRole `json:"tag"`
-}
-
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -182,12 +175,12 @@ type User struct {
 
 //  用户信息
 type UserItem struct {
-	ID     int64     `json:"id"`
-	Role   *RoleItem `json:"role"`
-	Phone  string    `json:"phone"`
-	Wechat string    `json:"wechat"`
-	Avatar *FileItem `json:"avatar"`
-	IsAble bool      `json:"isAble"`
+	ID     int64           `json:"id"`
+	Role   *roles.RoleItem `json:"role"`
+	Phone  string          `json:"phone"`
+	Wechat string          `json:"wechat"`
+	Avatar *FileItem       `json:"avatar"`
+	IsAble bool            `json:"isAble"`
 }
 
 //  角色

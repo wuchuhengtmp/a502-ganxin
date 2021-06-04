@@ -55,3 +55,6 @@ models:
       - github.com/99designs/gqlgen/graphql.Int64
   Role:
     model: http-api/app/models/roles.GraphqlRole
+  RoleItem:
+    model: http-api/app/models/roles.RoleItem
+

@@ -72,6 +72,13 @@ var RoleTagMapName = map[string]string{
 	RoleMaintenanceAdmin.String(): "维修管理员",
 }
 
+//  角色信息
+type RoleItem struct {
+	ID   int64       `json:"id"`
+	Name string      `json:"name"`
+	Tag  GraphqlRole `json:"tag"`
+}
+
 func (e GraphqlRole) IsValid() bool {
 	switch e {
 	case RoleAdmin, RoleCompanyAdmin, RoleRepositoryAdmin, RoleProjectAdmin, RoleMaintenanceAdmin:
@@ -99,4 +106,25 @@ func (e *GraphqlRole) UnmarshalGQL(v interface{}) error {
 
 func (e GraphqlRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+/**
+ * 获取解决列表的解析器的响应数据列表
+ */
+func GetRolesGraphRes() ([]*RoleItem, error) {
+	db := model.DB
+	var res []*RoleItem
+	var roles []Role
+	if err := db.Model(&Role{}).Find(&roles).Error; err != nil {
+		return res, err
+	}
+	for _, role := range roles {
+		tmp := RoleItem{}
+		tmp.ID = role.ID
+		tmp.Name = role.Name
+		tmp.Tag =  role.Tag
+		res = append(res, &tmp)
+	}
+
+	return res, nil
 }

@@ -104,6 +104,7 @@ type ComplexityRoot struct {
 		ErrorCodeDesc  func(childComplexity int) int
 		GetAllCompany  func(childComplexity int) int
 		GetCompanyUser func(childComplexity int) int
+		GetRoleList    func(childComplexity int) int
 	}
 
 	RoleItem struct {
@@ -141,6 +142,7 @@ type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error)
 	GetCompanyUser(ctx context.Context) ([]*model.UserItem, error)
+	GetRoleList(ctx context.Context) ([]*roles.RoleItem, error)
 }
 
 type executableSchema struct {
@@ -463,6 +465,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetCompanyUser(childComplexity), true
+
+	case "Query.getRoleList":
+		if e.complexity.Query.GetRoleList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetRoleList(childComplexity), true
 
 	case "RoleItem.id":
 		if e.complexity.RoleItem.ID == nil {
@@ -836,6 +845,10 @@ enum Role {
 
 # 角色鉴权
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION`, BuiltIn: false},
+	{Name: "../roles.graphql", Input: `extend type Query {
+    """ 获取角色列表 """
+    getRoleList: [RoleItem]!
+}`, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
 type FileItem {
@@ -2640,6 +2653,41 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRoleList(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*roles.RoleItem)
+	fc.Result = res
+	return ec.marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2711,7 +2759,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.CollectedField, obj *model.RoleItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2746,7 +2794,7 @@ func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RoleItem_name(ctx context.Context, field graphql.CollectedField, obj *model.RoleItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleItem_name(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2781,7 +2829,7 @@ func (ec *executionContext) _RoleItem_name(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RoleItem_tag(ctx context.Context, field graphql.CollectedField, obj *model.RoleItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleItem_tag(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2951,9 +2999,9 @@ func (ec *executionContext) _UserItem_role(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.RoleItem)
+	res := resTmp.(*roles.RoleItem)
 	fc.Result = res
-	return ec.marshalNRoleItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐRoleItem(ctx, field.Selections, res)
+	return ec.marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserItem_phone(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
@@ -4943,6 +4991,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getRoleList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getRoleList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -4960,7 +5022,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var roleItemImplementors = []string{"RoleItem"}
 
-func (ec *executionContext) _RoleItem(ctx context.Context, sel ast.SelectionSet, obj *model.RoleItem) graphql.Marshaler {
+func (ec *executionContext) _RoleItem(ctx context.Context, sel ast.SelectionSet, obj *roles.RoleItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, roleItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5592,7 +5654,44 @@ func (ec *executionContext) marshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐ
 	return ret
 }
 
-func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v *model.RoleItem) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v []*roles.RoleItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v *roles.RoleItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -5971,6 +6070,13 @@ func (ec *executionContext) marshalOErrCodes2ᚖhttpᚑapiᚋappᚋhttpᚋgraph�
 		return graphql.Null
 	}
 	return ec._ErrCodes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v *roles.RoleItem) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RoleItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
