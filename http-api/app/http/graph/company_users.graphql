@@ -43,14 +43,15 @@ input EditCompanyUserInput {
 }
 
 extend type Mutation {
-    """ 添加公司人员管理 """
+    """ 添加公司人员管理 (auth: companyAdmin) """
     createCompanyUser(input: CreateCompanyUserInput!): UserItem! @hasRole(role: [companyAdmin])
-    """ 编辑公司人员 """
+    """ 编辑公司人员 (auth: companyAdmin) """
     editCompanyUser(input: EditCompanyUserInput): UserItem! @hasRole(role: [companyAdmin])
-
+    """ 删除公司人员 (auth: companyAdmin) """
+    deleteCompanyUser(uid: Int!): Boolean! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {
-    """ 获取公司人员 """
+    """ 获取公司人员 (aunth: companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin) """
     getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }

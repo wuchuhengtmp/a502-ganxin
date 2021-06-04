@@ -102,15 +102,15 @@ input EditCompanyInput {
 }
 
 extend type Mutation {
-    """ 创建公司 """
+    """ 创建公司 (auth: admin) """
     createCompany(input: CreateCompanyInput!): CompanyItemRes! @hasRole(role: [admin])
-    """ 修改公司 """
+    """ 修改公司 (auth: admin, companyAdmin) """
     editCompany(input: EditCompanyInput!): CompanyItemRes! @hasRole(role: [admin, companyAdmin])
-    """ 删除公司 """
+    """ 删除公司 (auth: admin) """
     deleteCompany(id: Int!): Boolean! @hasRole(role: [admin])
 }
 
 extend type Query {
-    """ 获取公司列表 """
+    """ 获取公司列表 (auth: admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ) """
     getAllCompany: [CompanyItemRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }

@@ -52,6 +52,17 @@ func init()  {
 
 		return nil
 	})
+	// 是否存在这个用户验证规则
+	govalidator.AddCustomRule("userExist", func(field string, rule string, message string, value interface{}) error {
+		uid := value.(int64)
+		user := users.Users{}
+		err := user.GetSelfById(uid)
+		if err != nil {
+			return fmt.Errorf("%s:%d 该用户不存在", field, uid)
+		}
+
+		return nil
+	})
 
 	// 用户手机号不能存在
 	govalidator.AddCustomRule("not_user_phone_exists", func(field string, rule string, message string, value interface{}) error {

@@ -384,3 +384,24 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 
 	return &res, nil
 }
+/**
+ *删除公司员工
+ */
+func DeleteCompanyUserByUid(ctx context.Context, uid int64) error {
+	tx := sqlModel.DB.Begin()
+	user := users.Users{}
+	_ = user.GetSelfById(uid)
+	tx.Model(&users.Users{}).Where("id = ?", uid).Delete(&users.Users{})
+	me := auth.GetUser(ctx)
+	log := logs.Logos{}
+	log.Uid = me.ID
+	log.Content = fmt.Sprintf("删除用户:用户id为 %d;用户名为 %s", user.ID, user.Name)
+	log.Type = logs.DeleteActionType
+	tx.Create(&log)
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}
