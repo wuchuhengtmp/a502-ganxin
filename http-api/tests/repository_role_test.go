@@ -117,3 +117,33 @@ func TestRepositoryAdminRoleGetCompanyUsers(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 仓库管理员获取仓库列表集成测试
+ */
+func TestRepositoryAdminRoleGetRepository(t *testing.T)  {
+	q := `
+		 query {
+		  getRepositoryList {
+			id
+			isAble
+			weight
+			adminName
+			adminWechat
+			adminPhone
+			address
+			total
+			isAble
+			remark
+			city
+			pinYin
+			name
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}

@@ -120,3 +120,33 @@ func TestMaintenanceAdminRoleGetCompanyUsers(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 维修管理员获取仓库列表集成测试
+ */
+func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
+	q := `
+		 query {
+		  getRepositoryList {
+			id
+			isAble
+			weight
+			adminName
+			adminWechat
+			adminPhone
+			address
+			total
+			isAble
+			remark
+			city
+			pinYin
+			name
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	hasError(t, err)
+}

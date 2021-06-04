@@ -301,3 +301,33 @@ func TestCompanyAdminRoleCreateRepository(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 公司管理员获取获取仓库列表集成测试
+ */
+func TestCompanyAdminRoleGetRepository(t *testing.T) {
+	q := `
+		 query {
+		  getRepositoryList {
+			id
+			isAble
+			weight
+			adminName
+			adminWechat
+			adminPhone
+			address
+			total
+			isAble
+			remark
+			city
+			pinYin
+			name
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
