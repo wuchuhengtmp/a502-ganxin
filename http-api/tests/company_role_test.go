@@ -265,3 +265,39 @@ func TestCompanyAdminRoleDeleteCompanyUser(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
+
+/**
+ *  公司管理员添加仓库集成测试
+ */
+func TestCompanyAdminRoleCreateRepository(t *testing.T) {
+	q := `
+		mutation createRepository($input: CreateRepositoryInput!) {
+		  createRepository(input: $input) {
+			id
+			weight
+			pinYin
+			address
+			total
+			weight
+			remark
+			isAble
+			adminName
+			total
+			adminWechat
+			adminPhone
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"name": "reposistory_name_for_test",
+			"remark": "",
+			"address": "address_for_createAddress",
+			"repositoryAdminId": 3,
+			"pinYin": "pintYin_for_createTest",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
