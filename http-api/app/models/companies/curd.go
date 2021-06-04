@@ -278,6 +278,7 @@ func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
  */
 func (Companies)CreateUser(ctx context.Context, input graphQL.CreateCompanyUserInput) (*users.Users, error) {
 	tx := sqlModel.DB.Begin()
+	me := auth.GetUser(ctx)
 	user := users.Users{}
 	user.Name = input.Name
 	user.Phone = input.Phone
@@ -285,11 +286,11 @@ func (Companies)CreateUser(ctx context.Context, input graphQL.CreateCompanyUserI
 	user.Password = helper2.GetHashByStr(input.Password)
 	user.AvatarFileId = input.AvatarID
 	user.RoleId = roles.RoleTagMapId[input.Role.String()]
+	user.CompanyId = me.CompanyId
 	if err := tx.Create(&user).Error; err != nil {
 		return &user, err
 	}
 	log := logs.Logos{}
-	me := auth.GetUser(ctx)
 	log.Uid = me.ID
 	log.Content = fmt.Sprintf("添加 %s", roles.RoleTagMapName[input.Role.String()])
 	log.Type = logs.CreateActionType
