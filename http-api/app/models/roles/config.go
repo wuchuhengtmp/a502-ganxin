@@ -115,7 +115,11 @@ func GetRolesGraphRes() ([]*RoleItem, error) {
 	db := model.DB
 	var res []*RoleItem
 	var roles []Role
-	if err := db.Model(&Role{}).Find(&roles).Error; err != nil {
+	err := db.
+		Model(&Role{}).
+		Where("tag In (?)", []GraphqlRole{RoleRepositoryAdmin, RoleProjectAdmin, RoleMaintenanceAdmin}).
+		Find(&roles).Error
+	if  err != nil {
 		return res, err
 	}
 	for _, role := range roles {
