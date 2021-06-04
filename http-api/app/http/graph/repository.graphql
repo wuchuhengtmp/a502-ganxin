@@ -28,4 +28,6 @@ input CreateRepositoryInput {
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
+    """ 删除仓库 """
+    deleteRepository(repositoryId: Int!): Boolean! @hasRole(role: [companyAdmin])
 }

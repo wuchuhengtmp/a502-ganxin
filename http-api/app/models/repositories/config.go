@@ -80,3 +80,24 @@ func (r *Repositories) GetAdminUser () (*users.Users, error) {
 
 	return &user, nil
 }
+
+/**
+ * 删除一个仓库
+ */
+func DeleteById(ctx context.Context, id int64) error {
+	tx := sqlModel.DB.Begin()
+	tx.Where("id = ?", id).Delete(&Repositories{ID: id})
+	me := auth.GetUser(ctx)
+	l := logs.Logos{
+		Uid: me.ID,
+		Content: fmt.Sprintf("删除仓库:仓库id为%d", id),
+		Type: logs.DeleteActionType,
+	}
+	tx.Create(&l)
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}

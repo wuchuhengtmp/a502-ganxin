@@ -97,6 +97,7 @@ type ComplexityRoot struct {
 		CreateRepository  func(childComplexity int, input model.CreateRepositoryInput) int
 		DeleteCompany     func(childComplexity int, id int64) int
 		DeleteCompanyUser func(childComplexity int, uid int64) int
+		DeleteRepository  func(childComplexity int, repositoryID int64) int
 		EditCompany       func(childComplexity int, input model.EditCompanyInput) int
 		EditCompanyUser   func(childComplexity int, input *model.EditCompanyUserInput) int
 		Login             func(childComplexity int, phone string, password string, mac *string) int
@@ -156,6 +157,7 @@ type MutationResolver interface {
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
+	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
@@ -434,6 +436,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteCompanyUser(childComplexity, args["uid"].(int64)), true
+
+	case "Mutation.deleteRepository":
+		if e.complexity.Mutation.DeleteRepository == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteRepository_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteRepository(childComplexity, args["repositoryId"].(int64)), true
 
 	case "Mutation.editCompany":
 		if e.complexity.Mutation.EditCompany == nil {
@@ -1004,7 +1018,10 @@ input CreateRepositoryInput {
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
-}`, BuiltIn: false},
+    """ 删除仓库 """
+    deleteRepository(repositoryId: Int!): Boolean! @hasRole(role: [companyAdmin])
+}
+`, BuiltIn: false},
 	{Name: "../roles.graphql", Input: `extend type Query {
     """ 获取角色列表 """
     getRoleList: [RoleItem]!
@@ -1116,6 +1133,21 @@ func (ec *executionContext) field_Mutation_deleteCompany_args(ctx context.Contex
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["repositoryId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryId"))
+		arg0, err = ec.unmarshalNInt2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["repositoryId"] = arg0
 	return args, nil
 }
 
@@ -2697,6 +2729,72 @@ func (ec *executionContext) _Mutation_createRepository(ctx context.Context, fiel
 	res := resTmp.(*repositories.Repositories)
 	fc.Result = res
 	return ec.marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteRepository_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteRepository(rctx, args["repositoryId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5692,6 +5790,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createRepository":
 			out.Values[i] = ec._Mutation_createRepository(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteRepository":
+			out.Values[i] = ec._Mutation_deleteRepository(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
