@@ -250,3 +250,18 @@ func TestCompanyAdminRoleEditCompanyUser(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 公司管理员删除公司人员集成测试
+ */
+func TestCompanyAdminRoleDeleteCompanyUser(t *testing.T) {
+	q := `mutation deleteCompanyUserMutation($uid: Int!){
+		  deleteCompanyUser(uid: $uid)
+		}
+	`
+	v := map[string]interface{}{
+		"uid": companyAdminTestCtx.DeleteCompanyUserId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
