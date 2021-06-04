@@ -46,6 +46,7 @@ func HasRole (ctx context.Context, obj interface{}, next graphql.Resolver, roles
 		for _, role := range roles {
 			errMsg = fmt.Sprintf("%s %s", errMsg, role)
 		}
+
 		return errors.AccessDenied(ctx, errMsg)
 	}
 }

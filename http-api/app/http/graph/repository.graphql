@@ -1,0 +1,31 @@
+""" 仓库信息 """
+type RepositoryItem {
+    id: Int!
+    name: String!
+    pinYin: String!
+    city: String!
+    address: String!
+    total: Int!
+    weight: Float!
+    remark: String!
+    isAble: Boolean!
+    adminName: String!
+    adminPhone: String!
+    adminWechat: String!
+}
+extend type Query {
+    """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
+    getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
+}
+"""  创建仓库需要提交的参数"""
+input CreateRepositoryInput {
+    name: String!
+    address: String!
+    repositoryAdminId: Int!
+    remark: String!
+    pinYin: String!
+}
+extend type Mutation {
+    """ 添加仓库 (auth: companyAdmin)"""
+    createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
+}

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"http-api/app/http/graph/model"
+	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"strconv"
 	"sync"
@@ -40,6 +41,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	RepositoryItem() RepositoryItemResolver
 }
 
 type DirectiveRoot struct {
@@ -92,6 +94,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateCompany     func(childComplexity int, input model.CreateCompanyInput) int
 		CreateCompanyUser func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateRepository  func(childComplexity int, input model.CreateRepositoryInput) int
 		DeleteCompany     func(childComplexity int, id int64) int
 		DeleteCompanyUser func(childComplexity int, uid int64) int
 		EditCompany       func(childComplexity int, input model.EditCompanyInput) int
@@ -101,10 +104,26 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ErrorCodeDesc  func(childComplexity int) int
-		GetAllCompany  func(childComplexity int) int
-		GetCompanyUser func(childComplexity int) int
-		GetRoleList    func(childComplexity int) int
+		ErrorCodeDesc     func(childComplexity int) int
+		GetAllCompany     func(childComplexity int) int
+		GetCompanyUser    func(childComplexity int) int
+		GetRepositoryList func(childComplexity int) int
+		GetRoleList       func(childComplexity int) int
+	}
+
+	RepositoryItem struct {
+		Address     func(childComplexity int) int
+		AdminName   func(childComplexity int) int
+		AdminPhone  func(childComplexity int) int
+		AdminWechat func(childComplexity int) int
+		City        func(childComplexity int) int
+		ID          func(childComplexity int) int
+		IsAble      func(childComplexity int) int
+		Name        func(childComplexity int) int
+		PinYin      func(childComplexity int) int
+		Remark      func(childComplexity int) int
+		Total       func(childComplexity int) int
+		Weight      func(childComplexity int) int
 	}
 
 	RoleItem struct {
@@ -136,13 +155,20 @@ type MutationResolver interface {
 	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*model.UserItem, error)
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
+	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error)
 	GetCompanyUser(ctx context.Context) ([]*model.UserItem, error)
+	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRoleList(ctx context.Context) ([]*roles.RoleItem, error)
+}
+type RepositoryItemResolver interface {
+	AdminName(ctx context.Context, obj *repositories.Repositories) (string, error)
+	AdminPhone(ctx context.Context, obj *repositories.Repositories) (string, error)
+	AdminWechat(ctx context.Context, obj *repositories.Repositories) (string, error)
 }
 
 type executableSchema struct {
@@ -373,6 +399,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateCompanyUser(childComplexity, args["input"].(model.CreateCompanyUserInput)), true
 
+	case "Mutation.createRepository":
+		if e.complexity.Mutation.CreateRepository == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createRepository_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateRepository(childComplexity, args["input"].(model.CreateRepositoryInput)), true
+
 	case "Mutation.deleteCompany":
 		if e.complexity.Mutation.DeleteCompany == nil {
 			break
@@ -466,12 +504,103 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetCompanyUser(childComplexity), true
 
+	case "Query.getRepositoryList":
+		if e.complexity.Query.GetRepositoryList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetRepositoryList(childComplexity), true
+
 	case "Query.getRoleList":
 		if e.complexity.Query.GetRoleList == nil {
 			break
 		}
 
 		return e.complexity.Query.GetRoleList(childComplexity), true
+
+	case "RepositoryItem.address":
+		if e.complexity.RepositoryItem.Address == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.Address(childComplexity), true
+
+	case "RepositoryItem.adminName":
+		if e.complexity.RepositoryItem.AdminName == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.AdminName(childComplexity), true
+
+	case "RepositoryItem.adminPhone":
+		if e.complexity.RepositoryItem.AdminPhone == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.AdminPhone(childComplexity), true
+
+	case "RepositoryItem.adminWechat":
+		if e.complexity.RepositoryItem.AdminWechat == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.AdminWechat(childComplexity), true
+
+	case "RepositoryItem.city":
+		if e.complexity.RepositoryItem.City == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.City(childComplexity), true
+
+	case "RepositoryItem.id":
+		if e.complexity.RepositoryItem.ID == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.ID(childComplexity), true
+
+	case "RepositoryItem.isAble":
+		if e.complexity.RepositoryItem.IsAble == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.IsAble(childComplexity), true
+
+	case "RepositoryItem.name":
+		if e.complexity.RepositoryItem.Name == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.Name(childComplexity), true
+
+	case "RepositoryItem.pinYin":
+		if e.complexity.RepositoryItem.PinYin == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.PinYin(childComplexity), true
+
+	case "RepositoryItem.remark":
+		if e.complexity.RepositoryItem.Remark == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.Remark(childComplexity), true
+
+	case "RepositoryItem.total":
+		if e.complexity.RepositoryItem.Total == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.Total(childComplexity), true
+
+	case "RepositoryItem.weight":
+		if e.complexity.RepositoryItem.Weight == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.Weight(childComplexity), true
 
 	case "RoleItem.id":
 		if e.complexity.RoleItem.ID == nil {
@@ -845,6 +974,37 @@ enum Role {
 
 # 角色鉴权
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION`, BuiltIn: false},
+	{Name: "../repository.graphql", Input: `""" 仓库信息 """
+type RepositoryItem {
+    id: Int!
+    name: String!
+    pinYin: String!
+    city: String!
+    address: String!
+    total: Int!
+    weight: Float!
+    remark: String!
+    isAble: Boolean!
+    adminName: String!
+    adminPhone: String!
+    adminWechat: String!
+}
+extend type Query {
+    """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
+    getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
+}
+"""  创建仓库需要提交的参数"""
+input CreateRepositoryInput {
+    name: String!
+    address: String!
+    repositoryAdminId: Int!
+    remark: String!
+    pinYin: String!
+}
+extend type Mutation {
+    """ 添加仓库 (auth: companyAdmin)"""
+    createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
+}`, BuiltIn: false},
 	{Name: "../roles.graphql", Input: `extend type Query {
     """ 获取角色列表 """
     getRoleList: [RoleItem]!
@@ -906,6 +1066,21 @@ func (ec *executionContext) field_Mutation_createCompany_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateRepositoryInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateRepositoryInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2458,6 +2633,72 @@ func (ec *executionContext) _Mutation_deleteCompanyUser(ctx context.Context, fie
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createRepository_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateRepository(rctx, args["input"].(model.CreateRepositoryInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*repositories.Repositories); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/repositories.Repositories`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repositories.Repositories)
+	fc.Result = res
+	return ec.marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2653,6 +2894,65 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetRepositoryList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin", "companyAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*repositories.Repositories); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/repositories.Repositories`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*repositories.Repositories)
+	fc.Result = res
+	return ec.marshalNRepositoryItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2757,6 +3057,426 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_id(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_name(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_pinYin(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PinYin, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_city(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.City, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_address(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Address, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_total(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_weight(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_remark(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Remark, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_isAble(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsAble, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_adminName(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RepositoryItem().AdminName(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_adminPhone(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RepositoryItem().AdminPhone(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryItem_adminWechat(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RepositoryItem().AdminWechat(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
@@ -4423,6 +5143,58 @@ func (ec *executionContext) unmarshalInputCreateCompanyUserInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateRepositoryInput(ctx context.Context, obj interface{}) (model.CreateRepositoryInput, error) {
+	var it model.CreateRepositoryInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "repositoryAdminId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryAdminId"))
+			it.RepositoryAdminID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "pinYin":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pinYin"))
+			it.PinYin, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditCompanyInput(ctx context.Context, obj interface{}) (model.EditCompanyInput, error) {
 	var it model.EditCompanyInput
 	var asMap = obj.(map[string]interface{})
@@ -4918,6 +5690,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createRepository":
+			out.Values[i] = ec._Mutation_createRepository(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "singleUpload":
 			out.Values[i] = ec._Mutation_singleUpload(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -4991,6 +5768,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getRepositoryList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getRepositoryList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRoleList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -5009,6 +5800,115 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var repositoryItemImplementors = []string{"RepositoryItem"}
+
+func (ec *executionContext) _RepositoryItem(ctx context.Context, sel ast.SelectionSet, obj *repositories.Repositories) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RepositoryItem")
+		case "id":
+			out.Values[i] = ec._RepositoryItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._RepositoryItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "pinYin":
+			out.Values[i] = ec._RepositoryItem_pinYin(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "city":
+			out.Values[i] = ec._RepositoryItem_city(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "address":
+			out.Values[i] = ec._RepositoryItem_address(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "total":
+			out.Values[i] = ec._RepositoryItem_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "weight":
+			out.Values[i] = ec._RepositoryItem_weight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "remark":
+			out.Values[i] = ec._RepositoryItem_remark(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "isAble":
+			out.Values[i] = ec._RepositoryItem_isAble(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "adminName":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RepositoryItem_adminName(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "adminPhone":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RepositoryItem_adminPhone(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "adminWechat":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RepositoryItem_adminWechat(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5472,6 +6372,11 @@ func (ec *executionContext) marshalNCreateInputUserRole2httpᚑapiᚋappᚋhttp�
 	return v
 }
 
+func (ec *executionContext) unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateRepositoryInput(ctx context.Context, v interface{}) (model.CreateRepositoryInput, error) {
+	res, err := ec.unmarshalInputCreateRepositoryInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx context.Context, v interface{}) (model.EditCompanyInput, error) {
 	res, err := ec.unmarshalInputEditCompanyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5526,6 +6431,21 @@ func (ec *executionContext) marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraph�
 		return graphql.Null
 	}
 	return ec._FileItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloat(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloat(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNGraphDesc2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGraphDesc(ctx context.Context, sel ast.SelectionSet, v model.GraphDesc) graphql.Marshaler {
@@ -5584,6 +6504,57 @@ func (ec *executionContext) marshalNLoginRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraph�
 		return graphql.Null
 	}
 	return ec._LoginRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRepositoryItem2httpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx context.Context, sel ast.SelectionSet, v repositories.Repositories) graphql.Marshaler {
+	return ec._RepositoryItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRepositoryItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx context.Context, sel ast.SelectionSet, v []*repositories.Repositories) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalORepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx context.Context, sel ast.SelectionSet, v *repositories.Repositories) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._RepositoryItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRole(ctx context.Context, v interface{}) (roles.GraphqlRole, error) {
@@ -6070,6 +7041,13 @@ func (ec *executionContext) marshalOErrCodes2ᚖhttpᚑapiᚋappᚋhttpᚋgraph�
 		return graphql.Null
 	}
 	return ec._ErrCodes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx context.Context, sel ast.SelectionSet, v *repositories.Repositories) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RepositoryItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v *roles.RoleItem) graphql.Marshaler {

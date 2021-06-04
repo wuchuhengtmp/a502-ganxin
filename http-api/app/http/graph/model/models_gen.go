@@ -88,6 +88,15 @@ type CreateCompanyUserInput struct {
 	Password string              `json:"password"`
 }
 
+//   创建仓库需要提交的参数
+type CreateRepositoryInput struct {
+	Name              string `json:"name"`
+	Address           string `json:"address"`
+	RepositoryAdminID int64  `json:"repositoryAdminId"`
+	Remark            string `json:"remark"`
+	PinYin            string `json:"pinYin"`
+}
+
 //  修改公司参数
 type EditCompanyInput struct {
 	//  公司ID

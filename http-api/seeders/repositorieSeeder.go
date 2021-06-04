@@ -62,7 +62,7 @@ func createRepository(
 	total int64,
 	weight float64,
 	remark string,
-	state bool,
+	isAble bool,
 	companyId int64,
 	) error {
 	return db.Create(&repositories.Repositories{
@@ -75,7 +75,7 @@ func createRepository(
 		Total:   total,
 		Weight:  weight,
 		Remark:  remark,
-		State:   state,
+		IsAble:   isAble,
 		CompanyId: companyId,
 	}).Error
 }
