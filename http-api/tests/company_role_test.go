@@ -25,7 +25,11 @@ var companyAdminTestCtx = struct{
 	Username string
 	// 密码
 	Password string
-}{
+	// 用于删除的公司员工id
+	DeleteCompanyUserId int64
+	// 用于编辑的公司员工id
+	EditCompanyUserId int64
+	}{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
 }
@@ -59,7 +63,7 @@ func TestCompanyAdminRoleLogin(t *testing.T) {
 /**
  * 公司管理员获取全部公司列表集成测试
  */
-func TestCompanyAdminRoleGetAllCompany(t *testing.T)  {
+func TestCompanyAdminRoleGetAllCompany(t *testing.T) {
 	q := `query {
 			  getAllCompany {
 				id
@@ -147,7 +151,7 @@ func TestCompanyAdminRoleEditCompany(t *testing.T) {
 /**
  * 添加公司人员集成测试
 */
-func TestCompanyAdminRoleCreateCompanyUser(t *testing.T)  {
+func TestCompanyAdminRoleCreateCompanyUser(t *testing.T) {
 	q := `
 		mutation createUserMutation($input: CreateCompanyUserInput!){
 		  createCompanyUser(input: $input){
@@ -177,14 +181,18 @@ func TestCompanyAdminRoleCreateCompanyUser(t *testing.T)  {
 			"wechat": "wechat_for_testCreateCompanyUser",
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
+	user := res["createCompanyUser"].(map[string]interface{})
+	id := user["id"].(float64)
+	companyAdminTestCtx.DeleteCompanyUserId = int64(id)
+	companyAdminTestCtx.EditCompanyUserId = int64(id)
 }
 
 /**
  * 获取公司人员列表集成测试
  */
-func TestCompanyAdminRoleGetCompanyUsers(t *testing.T)  {
+func TestCompanyAdminRoleGetCompanyUsers(t *testing.T) {
 	q := `
 		query getCompanyUserQuery {
 		  getCompanyUser{
@@ -205,6 +213,40 @@ func TestCompanyAdminRoleGetCompanyUsers(t *testing.T)  {
 		}
 	`
 	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+/**
+ * 公司管理员修改公司人员集成测试
+ */
+func TestCompanyAdminRoleEditCompanyUser(t *testing.T) {
+	q := `mutation editCompanyUserMutaion ($input: EditCompanyUserInput!){
+			editCompanyUser(input: $input) {
+			id
+			role {
+			  id
+				name
+			  tag
+			}
+			phone
+			wechat
+			avatar {
+			  id
+			  url
+			}
+			isAble
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"id": companyAdminTestCtx.EditCompanyUserId,
+			"name": "change_name_for_editCompanyUser",
+			"phone": fmt.Sprintf("1342%s",fmt.Sprintf("%d", time.Now().UnixNano())[8:15]),
+			"roleId": 2,
+			"isAble": true,
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
