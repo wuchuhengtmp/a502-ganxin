@@ -457,7 +457,7 @@ func TestCompanyAdminRoleDeleteSpecification(t *testing.T) {
 }
 
 /**
- * 公司管理员添加材料商成测试
+ * 公司管理员添加材料商集成测试
  */
 func TestCompanyAdminRoleCreatCodeInfo(t *testing.T) {
 	q := `
@@ -486,5 +486,23 @@ func TestCompanyAdminRoleCreatCodeInfo(t *testing.T) {
 		},
 	}
 	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 公司管理员获取材料商列表集成测试
+ */
+func TestCompanyAdminRoleGetMaterialManufacturers(t *testing.T) {
+	q := `
+		query  getMaterialManufacturersQuery {
+		  getMaterialManufacturers{
+			id
+			name
+			isDefault
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }

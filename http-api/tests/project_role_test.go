@@ -170,3 +170,21 @@ func TestProjectAdminRoleGetSpecification(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 项目管理员获取材料商列表集成测试
+ */
+func TestProjectAdminRoleGetMaterialManufacturers(t *testing.T) {
+	q := `
+		query  getMaterialManufacturersQuery {
+		  getMaterialManufacturers{
+			id
+			name
+			isDefault
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	hasError(t, err)
+}
