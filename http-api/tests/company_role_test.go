@@ -30,8 +30,11 @@ var companyAdminTestCtx = struct{
 	DeleteCompanyUserId int64
 	// 用于编辑的公司员工id
 	EditCompanyUserId int64
+	// 用于删除仓库测试
 	DeleteRepositoryId int64
-	}{
+	// 用户编辑规格
+	EditSpecificationId int64
+}{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
 }
@@ -354,7 +357,7 @@ func TestCompanyAdminRoleDeleteRepository(t *testing.T) {
 }
 
 /**
- * 公司管理员添加码表集成测试
+ * 公司管理员添加规格集成测试
  */
 func TestCompanyAdminRoleCreateSpecification(t *testing.T) {
 	q := `
@@ -378,12 +381,14 @@ func TestCompanyAdminRoleCreateSpecification(t *testing.T) {
 
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
+	data := res["createSpecification"].(map[string]interface{})
+	companyAdminTestCtx.EditSpecificationId = int64(data["id"].(float64))
 }
 
 /**
- * 公司管理员获取码表集成测试
+ * 公司管理员获取规格集成测试
  */
 func TestCompanyAdminRoleGetSpecification(t *testing.T) {
 	q := `
@@ -399,6 +404,35 @@ func TestCompanyAdminRoleGetSpecification(t *testing.T) {
 		}
 	`
 	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 公司管理员修改规格集成测试
+ */
+func TestCompanyAdminRoleEditSpecification(t *testing.T) {
+	q := `
+		mutation editSpecificationMutation($input: EditSpecificationInput !) {
+			editSpecification(input: $input) {
+				id
+				isDefault
+				specification
+				weight
+				length
+				type
+			}
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"id": companyAdminTestCtx.EditSpecificationId,
+			"weight": rand.Intn(100),
+			"length": rand.Float64(),
+			"type": "test_for_CompanyRole",
+			"isDefault": true,
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }

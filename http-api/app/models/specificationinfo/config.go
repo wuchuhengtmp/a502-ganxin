@@ -29,7 +29,7 @@ type SpecificationInfo struct {
 }
 
 /**
- * 添加一条新的码表记录
+ * 添加一条新的规格记录
  */
 func (s *SpecificationInfo) CreateSelf(ctx context.Context) error {
 	return sqlModel.DB.Transaction(func(tx *gorm.DB) error {
@@ -50,7 +50,7 @@ func (s *SpecificationInfo) CreateSelf(ctx context.Context) error {
 			}
 		}
 		l := logs.Logos{
-			Content: fmt.Sprintf("添加一条新的码表记录:id为%d", s.ID),
+			Content: fmt.Sprintf("添加一条新的规格记录:id为%d", s.ID),
 			Type:    logs.CreateActionType,
 			Uid:     me.ID,
 		}
@@ -68,14 +68,14 @@ func (s *SpecificationInfo) GetSelf() error {
 	return db.Model(s).Where("id = ?", s.ID).First(s).Error
 }
 
-// 如果没有默认码表，尝试指定一条为默认
+// 如果没有默认规格，尝试指定一条为默认
 func recoverDefaultByCompanyId(tx *gorm.DB, companyId int64) error {
 	var cs []*SpecificationInfo
 	tx.Model(&SpecificationInfo{}).Where("company_id = ?", companyId).Find(&cs)
 	if len(cs) > 0 {
 		var c SpecificationInfo
 		tx.Model(&SpecificationInfo{}).Where("company_id = ? AND is_default = ? ", companyId, true).First(&c)
-		// 没有公司的码表没有默认选项，则指定第一个为默认选项
+		// 没有公司的规格没有默认选项，则指定第一个为默认选项
 		if c.ID == 0 {
 			defaultCs := cs[0]
 			err := tx.Model(&SpecificationInfo{}).
@@ -91,7 +91,7 @@ func recoverDefaultByCompanyId(tx *gorm.DB, companyId int64) error {
 	return nil
 }
 
-// 编辑码表记录
+// 编辑规格记录
 func (s *SpecificationInfo) Edit(ctx context.Context, input model.EditSpecificationInput) error {
 	return sqlModel.DB.Transaction(func(tx *gorm.DB) error {
 		s.ID = input.ID
@@ -123,7 +123,7 @@ func (s *SpecificationInfo) Edit(ctx context.Context, input model.EditSpecificat
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
 			Type:    logs.UpdateActionType,
-			Content: fmt.Sprintf("编辑码表: 被修改的id为:%d", s.ID),
+			Content: fmt.Sprintf("编辑规格: 被修改的id为:%d", s.ID),
 			Uid:     me.ID,
 		}
 		if err := tx.Create(&l).Error; err != nil {

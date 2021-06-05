@@ -152,7 +152,7 @@ func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
 }
 
 /**
- * 维修项目员获取码表列表集成测试
+ * 维修项目员获取规格列表集成测试
  */
 func TestMaintenanceAdminRoleGetSpecification(t *testing.T) {
 	q := `

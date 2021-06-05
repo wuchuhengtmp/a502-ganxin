@@ -69,6 +69,5 @@ func graphReqClient(query string, variables map[string]interface{}, role roles.G
 	ctx := context.Background()
 	err = client.Run(ctx, req, &responseData)
 
-
 	return responseData, err
 }

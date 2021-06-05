@@ -1,5 +1,5 @@
 /**
- * @Desc    编辑码表请求验证器
+ * @Desc    编辑规格求验证器
  * @Author  wuchuheng<wuchuheng@163.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
@@ -43,7 +43,7 @@ func ValidateEditSpecificationRequest(ctx context.Context, input model.EditSpeci
 	}
 	_ = s.GetSelf()
 	if me.CompanyId != s.CompanyId {
-		return fmt.Errorf("当前码表记录与您不是归属于同一家公司，您无权操作")
+		return fmt.Errorf("当前规格记录与您不是归属于同一家公司，您无权操作")
 	}
 
 	return nil

@@ -97,7 +97,7 @@ type CreateRepositoryInput struct {
 	PinYin            string `json:"pinYin"`
 }
 
-//  创建码表需要提交的参数
+//  创建规格需要提交的参数
 type CreateSpecificationInput struct {
 	Type      string  `json:"type"`
 	Length    float64 `json:"length"`
@@ -151,7 +151,7 @@ type EditCompanyUserInput struct {
 	IsAble bool `json:"isAble"`
 }
 
-//  修改码表需要提交的参数
+//  修改规格需要提交的参数
 type EditSpecificationInput struct {
 	ID        int64   `json:"id"`
 	Type      string  `json:"type"`

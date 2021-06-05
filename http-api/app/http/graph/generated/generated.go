@@ -1119,15 +1119,15 @@ extend type Mutation {
     """ 获取角色列表 """
     getRoleList: [RoleItem]!
 }`, BuiltIn: false},
-	{Name: "../specification.graphql", Input: `# 码表相关的接口
-""" 创建码表需要提交的参数 """
+	{Name: "../specification.graphql", Input: `# 规格相关的接口
+""" 创建规格需要提交的参数 """
 input CreateSpecificationInput {
     type: String!
     length: Float!
     weight: Float!
     isDefault: Boolean!
 }
-""" 修改码表需要提交的参数 """
+""" 修改规格需要提交的参数 """
 input EditSpecificationInput {
     id: Int!
     type: String!
@@ -1144,13 +1144,13 @@ type SpecificationItem {
     specification: String!
 }
 extend type Query {
-    """ 获取公司码表 """
+    """ 获取公司规格列表 (auth:  companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
     getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 extend type Mutation {
-    """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
+    """ 创建规格 (auth:  companyAdmin, repositoryAdmin ) """
     createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
-    """ 修改码表 (auth:  companyAdmin, repositoryAdmin ) """
+    """ 修改规格 (auth:  companyAdmin, repositoryAdmin ) """
     editSpecification(input: EditSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
 }
 `, BuiltIn: false},

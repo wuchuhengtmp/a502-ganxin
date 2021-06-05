@@ -83,12 +83,12 @@ func init()  {
 		return nil
 	})
 
-	// 码表id是否存在
+	// 规格表的id是否存在
 	govalidator.AddCustomRule("isSpecificationId", func(field string, rule string, message string, value interface{}) error {
 		v := value.(int64)
 		s := specificationinfo.SpecificationInfo{ ID:  v }
 		if err := s.GetSelf(); err != nil {
-			return fmt.Errorf("%s:%d 没有这个码表记录", field, v)
+			return fmt.Errorf("%s:%d 没有这个规格记录", field, v)
 		}
 
 		return nil

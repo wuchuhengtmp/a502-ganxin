@@ -1,5 +1,5 @@
 /**
- * @Desc    编辑码表解析器
+ * @Desc    编辑规格解析器
  * @Author  wuchuheng<wuchuheng@163.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318

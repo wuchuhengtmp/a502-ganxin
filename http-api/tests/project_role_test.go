@@ -151,7 +151,7 @@ func TestProjectAdminRoleGetRepository(t *testing.T)  {
 }
 
 /**
- * 仓库项目员获取码表列表集成测试
+ * 仓库项目员获取规格列表集成测试
  */
 func TestProjectAdminRoleGetSpecification(t *testing.T) {
 	q := `

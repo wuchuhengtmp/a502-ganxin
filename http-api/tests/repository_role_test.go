@@ -21,6 +21,8 @@ var repositoryAdminTestCtx = struct {
 	Token string
 	Username string
 	Password string
+	// 用于个性规格记录
+	EditSpecificationId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -149,7 +151,7 @@ func TestRepositoryAdminRoleGetRepository(t *testing.T)  {
 	hasError(t, err)
 }
 /**
- * 仓库管理员创建码表集成测试
+ * 仓库管理员创建规格集成测试
  */
 func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
 	q := `
@@ -172,12 +174,14 @@ func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
 			"isDefault": false,
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
+	data := res["createSpecification"].(map[string]interface{})
+	repositoryAdminTestCtx.EditSpecificationId = int64(data["id"].(float64))
 }
 
 /**
- * 仓库管理员获取码表列表集成测试
+ * 仓库管理员获取规格列表集成测试
  */
 func TestRepositoryAdminRoleGetSpecification(t *testing.T) {
 	q := `
@@ -194,5 +198,34 @@ func TestRepositoryAdminRoleGetSpecification(t *testing.T) {
 	`
 	v := map[string]interface{} {}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}
+
+/**
+* 公司管理员修改规格集成测试
+*/
+func TestRepositoryAdminRoleEditSpecification(t *testing.T) {
+	q := `
+		mutation editSpecificationMutation($input: EditSpecificationInput !) {
+			editSpecification(input: $input) {
+				id
+				isDefault
+				specification
+				weight
+				length
+				type
+			}
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"id": repositoryAdminTestCtx.EditSpecificationId,
+			"weight": rand.Intn(100),
+			"length": rand.Float64(),
+			"type": "test_for_repositoryRole",
+			"isDefault": true,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
