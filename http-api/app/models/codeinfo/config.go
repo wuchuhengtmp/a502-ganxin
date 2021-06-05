@@ -10,8 +10,10 @@ package codeinfo
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
+	"http-api/app/models/logs"
 	"http-api/pkg/model"
 )
 
@@ -57,6 +59,14 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 			if err := TryManufactureDefault(ctx, tx); err != nil {
 				return err
 			}
+		}
+		l := logs.Logos{
+			Uid:  me.ID,
+			Content: fmt.Sprintf("添加材料商：id为%d", c.ID),
+			Type: logs.CreateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
 		}
 
 		return nil
