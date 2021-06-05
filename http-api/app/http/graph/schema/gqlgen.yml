@@ -61,4 +61,7 @@ models:
     model: http-api/app/models/repositories.Repositories
   SpecificationItem:
     model: http-api/app/models/specificationinfo.SpecificationInfo
+  MaterialManufacturerItem:
+    model: http-api/app/models/codeinfo.CodeInfo
+
 

@@ -88,6 +88,13 @@ type CreateCompanyUserInput struct {
 	Password string              `json:"password"`
 }
 
+//  添加材料商参数
+type CreateMaterialManufacturerInput struct {
+	Name      string `json:"name"`
+	Remark    string `json:"remark"`
+	IsDefault bool   `json:"isDefault"`
+}
+
 //   创建仓库需要提交的参数
 type CreateRepositoryInput struct {
 	Name              string `json:"name"`

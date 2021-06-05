@@ -1,0 +1,19 @@
+""" 添加材料商参数 """
+input CreateMaterialManufacturerInput {
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+"""" 材料商数据项 """
+type MaterialManufacturerItem {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+
+
+extend type Mutation {
+    """ 创建材料商 """
+    createMaterialManufacturer(input: CreateMaterialManufacturerInput!): MaterialManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+}
