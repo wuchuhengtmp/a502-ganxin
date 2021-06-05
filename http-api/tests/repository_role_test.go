@@ -248,3 +248,36 @@ func TestRepositoryAdminRoleDeleteSpecification(t *testing.T) {
 	hasError(t, err)
 }
 
+/**
+ * 仓库管理员创建材料商集成测试
+ */
+func TestRepositoryAdminRoleCreateCodeInfo(t *testing.T) {
+
+	q := `
+		mutation createMaterialManufacturerMutation ($input: CreateMaterialManufacturerInput!){
+		  createMaterialManufacturer(input: $input) {
+			id
+			name
+			
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"name": "name_test_for_repositoryRoleCreateInfoCode",
+			"remark": "remark_for_repositoryRoleCreateInfoTest",
+			"isDefault": true,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"name": "name_test_for_repositoryRoleCreateInfoCode",
+			"remark": "remark_for_repositoryRoleCreateInfoTest",
+			"isDefault": false,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}

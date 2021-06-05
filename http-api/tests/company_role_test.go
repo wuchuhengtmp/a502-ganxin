@@ -455,3 +455,36 @@ func TestCompanyAdminRoleDeleteSpecification(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 公司管理员添加材料商成测试
+ */
+func TestCompanyAdminRoleCreatCodeInfo(t *testing.T) {
+	q := `
+		mutation createMaterialManufacturerMutation ($input: CreateMaterialManufacturerInput!){
+		  createMaterialManufacturer(input: $input) {
+			id
+			name
+			
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"name": "name_test_for_companyRoleCreateInfoCode",
+			"remark": "remark_for_companyRoleCreateInfoTest",
+			"isDefault": true,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"name": "name_test_for_companyRoleCreateInfoCode",
+			"remark": "remark_for_companyRoleCreateInfoTest",
+			"isDefault": false,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
