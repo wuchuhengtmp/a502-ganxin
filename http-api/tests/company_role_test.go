@@ -32,8 +32,10 @@ var companyAdminTestCtx = struct{
 	EditCompanyUserId int64
 	// 用于删除仓库测试
 	DeleteRepositoryId int64
-	// 用户编辑规格
+	// 用于编辑规格
 	EditSpecificationId int64
+	// 用于删除规格
+	DeleteSpecificationId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -385,6 +387,7 @@ func TestCompanyAdminRoleCreateSpecification(t *testing.T) {
 	hasError(t, err)
 	data := res["createSpecification"].(map[string]interface{})
 	companyAdminTestCtx.EditSpecificationId = int64(data["id"].(float64))
+	companyAdminTestCtx.DeleteRepositoryId = int64(data["id"].(float64))
 }
 
 /**
@@ -432,6 +435,22 @@ func TestCompanyAdminRoleEditSpecification(t *testing.T) {
 			"type": "test_for_CompanyRole",
 			"isDefault": true,
 		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 公司管理员删除规格集成测试
+ */
+func TestCompanyAdminRoleDeleteSpecification(t *testing.T) {
+	q := `
+		mutation deleteSpecification($id: Int!) {
+			deleteSpecification(id: $id)
+		}
+	`
+	v := map[string]interface{} {
+		"id": companyAdminTestCtx.DeleteRepositoryId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)

@@ -23,6 +23,7 @@ var repositoryAdminTestCtx = struct {
 	Password string
 	// 用于个性规格记录
 	EditSpecificationId int64
+	DeleteSpecificationId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -178,6 +179,7 @@ func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
 	hasError(t, err)
 	data := res["createSpecification"].(map[string]interface{})
 	repositoryAdminTestCtx.EditSpecificationId = int64(data["id"].(float64))
+	repositoryAdminTestCtx.DeleteSpecificationId = int64(data["id"].(float64))
 }
 
 /**
@@ -202,7 +204,7 @@ func TestRepositoryAdminRoleGetSpecification(t *testing.T) {
 }
 
 /**
-* 公司管理员修改规格集成测试
+* 仓库管理员修改规格集成测试
 */
 func TestRepositoryAdminRoleEditSpecification(t *testing.T) {
 	q := `
@@ -226,6 +228,23 @@ func TestRepositoryAdminRoleEditSpecification(t *testing.T) {
 			"isDefault": true,
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 仓库管理员删除规格集成测试
+ */
+func TestRepositoryAdminRoleDeleteSpecification(t *testing.T) {
+	q := `
+		mutation deleteSpecification($id: Int!) {
+			deleteSpecification(id: $id)
+		}
+	`
+	v := map[string]interface{} {
+		"id":repositoryAdminTestCtx.DeleteSpecificationId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}
+
