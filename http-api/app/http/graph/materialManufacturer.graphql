@@ -11,11 +11,18 @@ type MaterialManufacturerItem {
     remark: String!
     isDefault: Boolean!
 }
-
-
+""" 编辑材料商需要的参数 """
+input EditMaterialManufacturerInput {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
 extend type Mutation {
     """ 创建材料商 (auth: companyAdmin, repositoryAdmin) """
     createMaterialManufacturer(input: CreateMaterialManufacturerInput!): MaterialManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+    """ 编辑材料商 (auth: companyAdmin, repositoryAdmin) """
+    editMaterialManufacturer(input: EditMaterialManufacturerInput!): MaterialManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
 extend type Query {

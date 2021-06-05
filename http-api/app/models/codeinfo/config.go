@@ -105,3 +105,41 @@ func (CodeInfo)GetMaterialManufacturers(ctx context.Context) (cs []*CodeInfo, er
 
 	return
 }
+
+func (c *CodeInfo)GetSelf() error {
+	db := model.DB
+
+	return db.Model(&CodeInfo{}).Where("id = ? ", c.ID).First(c).Error
+}
+
+func (c *CodeInfo)EditMaterialManufacturer(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		me := auth.GetUser(ctx)
+		c.CompanyId = me.CompanyId
+		if err := tx.Model(c).Where("id = ?", c.ID).Updates(c).Error; err != nil {
+			return err
+		}
+		if c.IsDefault {
+			err := tx.Model(c).Where("company_id = ? AND id != ? AND type = ?", me.CompanyId, c.ID, MaterialManufacturer).
+				Update("is_default", false).Error
+			if err != nil {
+				return err
+			}
+		} else {
+			if err := TryManufactureDefault(ctx, tx); err != nil {
+				return err
+			}
+		}
+
+		l := logs.Logos{
+			Uid: me.ID,
+			Content: fmt.Sprintf("编辑材料商:被修改id为%d", c.ID),
+			Type: logs.UpdateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}

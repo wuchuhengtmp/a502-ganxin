@@ -158,6 +158,14 @@ type EditCompanyUserInput struct {
 	IsAble bool `json:"isAble"`
 }
 
+//  编辑材料商需要的参数
+type EditMaterialManufacturerInput struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	Remark    string `json:"remark"`
+	IsDefault bool   `json:"isDefault"`
+}
+
 //  修改规格需要提交的参数
 type EditSpecificationInput struct {
 	ID        int64   `json:"id"`
