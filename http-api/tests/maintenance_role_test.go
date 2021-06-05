@@ -150,3 +150,24 @@ func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 维修项目员获取码表列表集成测试
+ */
+func TestMaintenanceAdminRoleGetSpecification(t *testing.T) {
+	q := `
+		query getSpecificationQuery {
+		  getSpecification {
+			id
+			type
+			specification
+			weight
+			isDefault
+			length
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	hasError(t, err)
+}

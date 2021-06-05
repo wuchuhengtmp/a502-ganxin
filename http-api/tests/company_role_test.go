@@ -381,3 +381,24 @@ func TestCompanyAdminRoleCreateSpecification(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 公司管理员获取码表集成测试
+ */
+func TestCompanyAdminRoleGetSpecification(t *testing.T) {
+	q := `
+		query getSpecificationQuery {
+		  getSpecification {
+			id
+			type
+			specification
+			weight
+			isDefault
+			length
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}

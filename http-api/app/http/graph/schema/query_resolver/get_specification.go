@@ -16,6 +16,7 @@ import (
 )
 
 type SpecificationItemResolver struct { }
+
 func (*QueryResolver)GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error) {
 	var ss  []*specificationinfo.SpecificationInfo
 	model.DB.Model(&specificationinfo.SpecificationInfo{}).Find(&ss)

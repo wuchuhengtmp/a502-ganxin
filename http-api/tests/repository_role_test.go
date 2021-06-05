@@ -148,7 +148,9 @@ func TestRepositoryAdminRoleGetRepository(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
-
+/**
+ * 仓库管理员创建码表集成测试
+ */
 func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
 	q := `
 		mutation createSpecificationMutation($input: CreateSpecificationInput!) {
@@ -170,6 +172,27 @@ func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
 			"isDefault": false,
 		},
 	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 仓库管理员获取码表列表集成测试
+ */
+func TestRepositoryAdminRoleGetSpecification(t *testing.T) {
+	q := `
+		query getSpecificationQuery {
+		  getSpecification {
+			id
+			type
+			specification
+			weight
+			isDefault
+			length
+		  }
+		}
+	`
+	v := map[string]interface{} {}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
