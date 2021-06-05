@@ -43,6 +43,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
 	RepositoryItem() RepositoryItemResolver
+	SpecificationItem() SpecificationItemResolver
 }
 
 type DirectiveRoot struct {
@@ -136,11 +137,12 @@ type ComplexityRoot struct {
 	}
 
 	SpecificationItem struct {
-		ID        func(childComplexity int) int
-		IsDefault func(childComplexity int) int
-		Length    func(childComplexity int) int
-		Type      func(childComplexity int) int
-		Weight    func(childComplexity int) int
+		ID            func(childComplexity int) int
+		IsDefault     func(childComplexity int) int
+		Length        func(childComplexity int) int
+		Specification func(childComplexity int) int
+		Type          func(childComplexity int) int
+		Weight        func(childComplexity int) int
 	}
 
 	User struct {
@@ -182,6 +184,9 @@ type RepositoryItemResolver interface {
 	AdminName(ctx context.Context, obj *repositories.Repositories) (string, error)
 	AdminPhone(ctx context.Context, obj *repositories.Repositories) (string, error)
 	AdminWechat(ctx context.Context, obj *repositories.Repositories) (string, error)
+}
+type SpecificationItemResolver interface {
+	Specification(ctx context.Context, obj *specificationinfo.SpecificationInfo) (string, error)
 }
 
 type executableSchema struct {
@@ -681,6 +686,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SpecificationItem.Length(childComplexity), true
 
+	case "SpecificationItem.specification":
+		if e.complexity.SpecificationItem.Specification == nil {
+			break
+		}
+
+		return e.complexity.SpecificationItem.Specification(childComplexity), true
+
 	case "SpecificationItem.type":
 		if e.complexity.SpecificationItem.Type == nil {
 			break
@@ -1098,6 +1110,7 @@ type SpecificationItem {
     length: Float!
     weight: Float!
     isDefault: Boolean!
+    specification: String!
 }
 extend type Mutation {
     """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
@@ -4016,6 +4029,41 @@ func (ec *executionContext) _SpecificationItem_isDefault(ctx context.Context, fi
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _SpecificationItem_specification(ctx context.Context, field graphql.CollectedField, obj *specificationinfo.SpecificationInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SpecificationItem().Specification(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6457,28 +6505,42 @@ func (ec *executionContext) _SpecificationItem(ctx context.Context, sel ast.Sele
 		case "id":
 			out.Values[i] = ec._SpecificationItem_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "type":
 			out.Values[i] = ec._SpecificationItem_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "length":
 			out.Values[i] = ec._SpecificationItem_length(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "weight":
 			out.Values[i] = ec._SpecificationItem_weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "isDefault":
 			out.Values[i] = ec._SpecificationItem_isDefault(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "specification":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SpecificationItem_specification(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

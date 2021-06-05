@@ -23,6 +23,10 @@ func (r *Resolver) RepositoryItem () generated.RepositoryItemResolver {
 	return query_resolver.RepositoryItemResolver{}
 }
 
+func (r *Resolver) SpecificationItem() generated.SpecificationItemResolver {
+	return query_resolver.SpecificationItemResolver{}
+}
+
 type mutationResolver struct{
 	*Resolver
 	*mutation_resolver.MutationResolver

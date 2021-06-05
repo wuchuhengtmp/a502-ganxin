@@ -12,6 +12,7 @@ type SpecificationItem {
     length: Float!
     weight: Float!
     isDefault: Boolean!
+    specification: String!
 }
 extend type Mutation {
     """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
