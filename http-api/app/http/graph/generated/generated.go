@@ -113,6 +113,7 @@ type ComplexityRoot struct {
 		GetCompanyUser    func(childComplexity int) int
 		GetRepositoryList func(childComplexity int) int
 		GetRoleList       func(childComplexity int) int
+		GetSpecification  func(childComplexity int) int
 	}
 
 	RepositoryItem struct {
@@ -179,6 +180,7 @@ type QueryResolver interface {
 	GetCompanyUser(ctx context.Context) ([]*model.UserItem, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRoleList(ctx context.Context) ([]*roles.RoleItem, error)
+	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 }
 type RepositoryItemResolver interface {
 	AdminName(ctx context.Context, obj *repositories.Repositories) (string, error)
@@ -559,6 +561,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetRoleList(childComplexity), true
+
+	case "Query.getSpecification":
+		if e.complexity.Query.GetSpecification == nil {
+			break
+		}
+
+		return e.complexity.Query.GetSpecification(childComplexity), true
 
 	case "RepositoryItem.address":
 		if e.complexity.RepositoryItem.Address == nil {
@@ -1111,6 +1120,10 @@ type SpecificationItem {
     weight: Float!
     isDefault: Boolean!
     specification: String!
+}
+extend type Query {
+    """ 获取公司码表 """
+    getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 extend type Mutation {
     """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
@@ -3256,6 +3269,65 @@ func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphq
 	res := resTmp.([]*roles.RoleItem)
 	fc.Result = res
 	return ec.marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetSpecification(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*specificationinfo.SpecificationInfo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/specificationinfo.SpecificationInfo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*specificationinfo.SpecificationInfo)
+	fc.Result = res
+	return ec.marshalNSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6330,6 +6402,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getSpecification":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSpecification(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -7276,6 +7362,43 @@ func (ec *executionContext) marshalNSpecificationItem2httpᚑapiᚋappᚋmodels�
 	return ec._SpecificationItem(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v []*specificationinfo.SpecificationInfo) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v *specificationinfo.SpecificationInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7669,6 +7792,13 @@ func (ec *executionContext) marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrole
 		return graphql.Null
 	}
 	return ec._RoleItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v *specificationinfo.SpecificationInfo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SpecificationItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

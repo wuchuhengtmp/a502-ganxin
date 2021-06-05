@@ -14,6 +14,10 @@ type SpecificationItem {
     isDefault: Boolean!
     specification: String!
 }
+extend type Query {
+    """ 获取公司码表 """
+    getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}
 extend type Mutation {
     """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
     createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])

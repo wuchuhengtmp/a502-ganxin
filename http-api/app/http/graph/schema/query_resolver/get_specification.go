@@ -1,5 +1,5 @@
 /**
- * @Desc    The query_resolver is part of http-api
+ * @Desc    获取码表解析器
  * @Author  wuchuheng<wuchuheng@163.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
@@ -12,9 +12,16 @@ import (
 	"context"
 	"fmt"
 	"http-api/app/models/specificationinfo"
+	"http-api/pkg/model"
 )
 
 type SpecificationItemResolver struct { }
+func (*QueryResolver)GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error) {
+	var ss  []*specificationinfo.SpecificationInfo
+	model.DB.Model(&specificationinfo.SpecificationInfo{}).Find(&ss)
+
+	return ss, nil
+}
 
 func (SpecificationItemResolver)Specification(ctx context.Context, obj *specificationinfo.SpecificationInfo) (string, error) {
 	return fmt.Sprintf("%sx%.2fx%.2f", obj.Type, obj.Length, obj.Weight), nil
