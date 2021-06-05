@@ -59,4 +59,6 @@ models:
     model: http-api/app/models/roles.RoleItem
   RepositoryItem:
     model: http-api/app/models/repositories.Repositories
+  SpecificationItem:
+    model: http-api/app/models/specificationinfo.SpecificationInfo
 

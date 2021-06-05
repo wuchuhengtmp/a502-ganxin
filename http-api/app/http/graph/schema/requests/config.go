@@ -63,12 +63,20 @@ func init()  {
 
 		return nil
 	})
-
 	// 用户手机号不能存在
 	govalidator.AddCustomRule("not_user_phone_exists", func(field string, rule string, message string, value interface{}) error {
 		userModel := users.Users{}
 		if userModel.IsPhoneExists(value.(string)) {
-			return fmt.Errorf("%s:%d 手机号已存在", field)
+			return fmt.Errorf("%s:%d 手机号已存在", field, value)
+		}
+
+		return nil
+	})
+	// 是否大于0
+	govalidator.AddCustomRule("isGreaterZero", func(field string, rule string, message string, value interface{}) error {
+		v := value.(float64)
+		if v <= 0 {
+			return fmt.Errorf("%s:%f 必须大于0", field, v)
 		}
 
 		return nil

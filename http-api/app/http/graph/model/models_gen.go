@@ -97,6 +97,14 @@ type CreateRepositoryInput struct {
 	PinYin            string `json:"pinYin"`
 }
 
+//  创建码表需要提交的参数
+type CreateSpecificationInput struct {
+	Type      string  `json:"type"`
+	Length    float64 `json:"length"`
+	Weight    float64 `json:"weight"`
+	IsDefault bool    `json:"isDefault"`
+}
+
 //  修改公司参数
 type EditCompanyInput struct {
 	//  公司ID

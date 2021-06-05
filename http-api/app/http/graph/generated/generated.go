@@ -10,6 +10,7 @@ import (
 	"http-api/app/http/graph/model"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
+	"http-api/app/models/specificationinfo"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -92,16 +93,17 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCompany     func(childComplexity int, input model.CreateCompanyInput) int
-		CreateCompanyUser func(childComplexity int, input model.CreateCompanyUserInput) int
-		CreateRepository  func(childComplexity int, input model.CreateRepositoryInput) int
-		DeleteCompany     func(childComplexity int, id int64) int
-		DeleteCompanyUser func(childComplexity int, uid int64) int
-		DeleteRepository  func(childComplexity int, repositoryID int64) int
-		EditCompany       func(childComplexity int, input model.EditCompanyInput) int
-		EditCompanyUser   func(childComplexity int, input *model.EditCompanyUserInput) int
-		Login             func(childComplexity int, phone string, password string, mac *string) int
-		SingleUpload      func(childComplexity int, file graphql.Upload) int
+		CreateCompany       func(childComplexity int, input model.CreateCompanyInput) int
+		CreateCompanyUser   func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateRepository    func(childComplexity int, input model.CreateRepositoryInput) int
+		CreateSpecification func(childComplexity int, input model.CreateSpecificationInput) int
+		DeleteCompany       func(childComplexity int, id int64) int
+		DeleteCompanyUser   func(childComplexity int, uid int64) int
+		DeleteRepository    func(childComplexity int, repositoryID int64) int
+		EditCompany         func(childComplexity int, input model.EditCompanyInput) int
+		EditCompanyUser     func(childComplexity int, input *model.EditCompanyUserInput) int
+		Login               func(childComplexity int, phone string, password string, mac *string) int
+		SingleUpload        func(childComplexity int, file graphql.Upload) int
 	}
 
 	Query struct {
@@ -133,6 +135,14 @@ type ComplexityRoot struct {
 		Tag  func(childComplexity int) int
 	}
 
+	SpecificationItem struct {
+		ID        func(childComplexity int) int
+		IsDefault func(childComplexity int) int
+		Length    func(childComplexity int) int
+		Type      func(childComplexity int) int
+		Weight    func(childComplexity int) int
+	}
+
 	User struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
@@ -158,6 +168,7 @@ type MutationResolver interface {
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
+	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
@@ -413,6 +424,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateRepository(childComplexity, args["input"].(model.CreateRepositoryInput)), true
 
+	case "Mutation.createSpecification":
+		if e.complexity.Mutation.CreateSpecification == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSpecification_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSpecification(childComplexity, args["input"].(model.CreateSpecificationInput)), true
+
 	case "Mutation.deleteCompany":
 		if e.complexity.Mutation.DeleteCompany == nil {
 			break
@@ -636,6 +659,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RoleItem.Tag(childComplexity), true
+
+	case "SpecificationItem.id":
+		if e.complexity.SpecificationItem.ID == nil {
+			break
+		}
+
+		return e.complexity.SpecificationItem.ID(childComplexity), true
+
+	case "SpecificationItem.isDefault":
+		if e.complexity.SpecificationItem.IsDefault == nil {
+			break
+		}
+
+		return e.complexity.SpecificationItem.IsDefault(childComplexity), true
+
+	case "SpecificationItem.length":
+		if e.complexity.SpecificationItem.Length == nil {
+			break
+		}
+
+		return e.complexity.SpecificationItem.Length(childComplexity), true
+
+	case "SpecificationItem.type":
+		if e.complexity.SpecificationItem.Type == nil {
+			break
+		}
+
+		return e.complexity.SpecificationItem.Type(childComplexity), true
+
+	case "SpecificationItem.weight":
+		if e.complexity.SpecificationItem.Weight == nil {
+			break
+		}
+
+		return e.complexity.SpecificationItem.Weight(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -1026,6 +1084,26 @@ extend type Mutation {
     """ 获取角色列表 """
     getRoleList: [RoleItem]!
 }`, BuiltIn: false},
+	{Name: "../specification.graphql", Input: `# 码表相关的接口
+""" 创建码表需要提交的参数 """
+input CreateSpecificationInput {
+    type: String!
+    length: Float!
+    weight: Float!
+    isDefault: Boolean!
+}
+type SpecificationItem {
+    id: Int!
+    type: String!
+    length: Float!
+    weight: Float!
+    isDefault: Boolean!
+}
+extend type Mutation {
+    """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
+    createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
+}
+`, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
 type FileItem {
@@ -1098,6 +1176,21 @@ func (ec *executionContext) field_Mutation_createRepository_args(ctx context.Con
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateRepositoryInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createSpecification_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateSpecificationInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSpecificationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2797,6 +2890,72 @@ func (ec *executionContext) _Mutation_deleteRepository(ctx context.Context, fiel
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createSpecification_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateSpecification(rctx, args["input"].(model.CreateSpecificationInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*specificationinfo.SpecificationInfo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/specificationinfo.SpecificationInfo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*specificationinfo.SpecificationInfo)
+	fc.Result = res
+	return ec.marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3680,6 +3839,181 @@ func (ec *executionContext) _RoleItem_tag(ctx context.Context, field graphql.Col
 	res := resTmp.(roles.GraphqlRole)
 	fc.Result = res
 	return ec.marshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SpecificationItem_id(ctx context.Context, field graphql.CollectedField, obj *specificationinfo.SpecificationInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SpecificationItem_type(ctx context.Context, field graphql.CollectedField, obj *specificationinfo.SpecificationInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SpecificationItem_length(ctx context.Context, field graphql.CollectedField, obj *specificationinfo.SpecificationInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Length, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SpecificationItem_weight(ctx context.Context, field graphql.CollectedField, obj *specificationinfo.SpecificationInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SpecificationItem_isDefault(ctx context.Context, field graphql.CollectedField, obj *specificationinfo.SpecificationInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsDefault, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -5293,6 +5627,50 @@ func (ec *executionContext) unmarshalInputCreateRepositoryInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateSpecificationInput(ctx context.Context, obj interface{}) (model.CreateSpecificationInput, error) {
+	var it model.CreateSpecificationInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "length":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("length"))
+			it.Length, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "weight":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
+			it.Weight, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isDefault":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDefault"))
+			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditCompanyInput(ctx context.Context, obj interface{}) (model.EditCompanyInput, error) {
 	var it model.EditCompanyInput
 	var asMap = obj.(map[string]interface{})
@@ -5798,6 +6176,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createSpecification":
+			out.Values[i] = ec._Mutation_createSpecification(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "singleUpload":
 			out.Values[i] = ec._Mutation_singleUpload(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -6046,6 +6429,53 @@ func (ec *executionContext) _RoleItem(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "tag":
 			out.Values[i] = ec._RoleItem_tag(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var specificationItemImplementors = []string{"SpecificationItem"}
+
+func (ec *executionContext) _SpecificationItem(ctx context.Context, sel ast.SelectionSet, obj *specificationinfo.SpecificationInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, specificationItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SpecificationItem")
+		case "id":
+			out.Values[i] = ec._SpecificationItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "type":
+			out.Values[i] = ec._SpecificationItem_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "length":
+			out.Values[i] = ec._SpecificationItem_length(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._SpecificationItem_weight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isDefault":
+			out.Values[i] = ec._SpecificationItem_isDefault(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -6480,6 +6910,11 @@ func (ec *executionContext) unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋh
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSpecificationInput(ctx context.Context, v interface{}) (model.CreateSpecificationInput, error) {
+	res, err := ec.unmarshalInputCreateSpecificationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx context.Context, v interface{}) (model.EditCompanyInput, error) {
 	res, err := ec.unmarshalInputEditCompanyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6773,6 +7208,20 @@ func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrole
 		return graphql.Null
 	}
 	return ec._RoleItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSpecificationItem2httpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v specificationinfo.SpecificationInfo) graphql.Marshaler {
+	return ec._SpecificationItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v *specificationinfo.SpecificationInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SpecificationItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
