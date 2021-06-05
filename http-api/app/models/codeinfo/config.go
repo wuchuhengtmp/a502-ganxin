@@ -11,6 +11,7 @@ package codeinfo
 import (
 	"context"
 	"gorm.io/gorm"
+	"http-api/app/http/graph/auth"
 	"http-api/pkg/model"
 )
 
@@ -78,6 +79,17 @@ func  TryManufactureDefault(tx *gorm.DB) (err error) {
 			}
 		}
 	}
+
+	return
+}
+
+/**
+ * 获取材料商列表
+ */
+func (CodeInfo)GetMaterialManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
+	db := model.DB
+	me := auth.GetUser(ctx)
+	err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error;
 
 	return
 }

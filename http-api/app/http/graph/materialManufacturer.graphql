@@ -14,6 +14,12 @@ type MaterialManufacturerItem {
 
 
 extend type Mutation {
-    """ 创建材料商 """
+    """ 创建材料商 (auth: companyAdmin, repositoryAdmin) """
     createMaterialManufacturer(input: CreateMaterialManufacturerInput!): MaterialManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
+
+extend type Query {
+    """ 获取材料商列表 (auth: companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ) """
+    getMaterialManufacturers: [MaterialManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ])
+}
+
