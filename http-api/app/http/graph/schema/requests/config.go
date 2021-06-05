@@ -13,6 +13,7 @@ import (
 	"github.com/thedevsaddam/govalidator"
 	"http-api/app/http/graph/util/helper"
 	"http-api/app/models/files"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
 	"regexp"
 )
@@ -77,6 +78,17 @@ func init()  {
 		v := value.(float64)
 		if v <= 0 {
 			return fmt.Errorf("%s:%f 必须大于0", field, v)
+		}
+
+		return nil
+	})
+
+	// 码表id是否存在
+	govalidator.AddCustomRule("isSpecificationId", func(field string, rule string, message string, value interface{}) error {
+		v := value.(int64)
+		s := specificationinfo.SpecificationInfo{ ID:  v }
+		if err := s.GetSelf(); err != nil {
+			return fmt.Errorf("%s:%d 没有这个码表记录", field, v)
 		}
 
 		return nil

@@ -6,6 +6,14 @@ input CreateSpecificationInput {
     weight: Float!
     isDefault: Boolean!
 }
+""" 修改码表需要提交的参数 """
+input EditSpecificationInput {
+    id: Int!
+    type: String!
+    length: Float!
+    weight: Float!
+    isDefault: Boolean!
+}
 type SpecificationItem {
     id: Int!
     type: String!
@@ -21,4 +29,6 @@ extend type Query {
 extend type Mutation {
     """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
     createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
+    """ 修改码表 (auth:  companyAdmin, repositoryAdmin ) """
+    editSpecification(input: EditSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
 }

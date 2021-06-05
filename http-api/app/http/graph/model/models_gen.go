@@ -151,6 +151,15 @@ type EditCompanyUserInput struct {
 	IsAble bool `json:"isAble"`
 }
 
+//  修改码表需要提交的参数
+type EditSpecificationInput struct {
+	ID        int64   `json:"id"`
+	Type      string  `json:"type"`
+	Length    float64 `json:"length"`
+	Weight    float64 `json:"weight"`
+	IsDefault bool    `json:"isDefault"`
+}
+
 type ErrCodes struct {
 	//  错误码编号
 	Code int64 `json:"code"`

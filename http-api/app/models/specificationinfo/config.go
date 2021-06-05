@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
+	"http-api/app/http/graph/model"
 	"http-api/app/models/logs"
 	sqlModel "http-api/pkg/model"
 )
@@ -61,6 +62,12 @@ func (s *SpecificationInfo) CreateSelf(ctx context.Context) error {
 	})
 }
 
+func (s *SpecificationInfo) GetSelf() error {
+	db := sqlModel.DB
+
+	return db.Model(s).Where("id = ?", s.ID).First(s).Error
+}
+
 // 如果没有默认码表，尝试指定一条为默认
 func recoverDefaultByCompanyId(tx *gorm.DB, companyId int64) error {
 	var cs []*SpecificationInfo
@@ -82,4 +89,47 @@ func recoverDefaultByCompanyId(tx *gorm.DB, companyId int64) error {
 	}
 
 	return nil
+}
+
+// 编辑码表记录
+func (s *SpecificationInfo) Edit(ctx context.Context, input model.EditSpecificationInput) error {
+	return sqlModel.DB.Transaction(func(tx *gorm.DB) error {
+		s.ID = input.ID
+		_ = s.GetSelf()
+		if err := tx.Model(&s).Where("id = ?", input.ID).First(&s).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&s).Updates(SpecificationInfo{
+			Type:      input.Type,
+			Length:    input.Length,
+			Weight:    input.Weight,
+			IsDefault: input.IsDefault,
+			CompanyId: s.CompanyId,
+		}).Error; err != nil {
+			return err
+		}
+		// 把其它标记为非默认
+		if input.IsDefault {
+			err := tx.Model(&SpecificationInfo{}).Where("company_id = ? AND id != ?", s.CompanyId, s.ID).Update("is_default", false).Error
+			if err != nil {
+				return err
+			}
+		} else {
+			// 尝试指定一个默认
+			if err := recoverDefaultByCompanyId(tx, s.CompanyId); err != nil {
+				return err
+			}
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Type:    logs.UpdateActionType,
+			Content: fmt.Sprintf("编辑码表: 被修改的id为:%d", s.ID),
+			Uid:     me.ID,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

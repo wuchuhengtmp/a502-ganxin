@@ -103,6 +103,7 @@ type ComplexityRoot struct {
 		DeleteRepository    func(childComplexity int, repositoryID int64) int
 		EditCompany         func(childComplexity int, input model.EditCompanyInput) int
 		EditCompanyUser     func(childComplexity int, input *model.EditCompanyUserInput) int
+		EditSpecification   func(childComplexity int, input model.EditSpecificationInput) int
 		Login               func(childComplexity int, phone string, password string, mac *string) int
 		SingleUpload        func(childComplexity int, file graphql.Upload) int
 	}
@@ -172,6 +173,7 @@ type MutationResolver interface {
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
+	EditSpecification(ctx context.Context, input model.EditSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
@@ -502,6 +504,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditCompanyUser(childComplexity, args["input"].(*model.EditCompanyUserInput)), true
+
+	case "Mutation.editSpecification":
+		if e.complexity.Mutation.EditSpecification == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editSpecification_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditSpecification(childComplexity, args["input"].(model.EditSpecificationInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -1113,6 +1127,14 @@ input CreateSpecificationInput {
     weight: Float!
     isDefault: Boolean!
 }
+""" 修改码表需要提交的参数 """
+input EditSpecificationInput {
+    id: Int!
+    type: String!
+    length: Float!
+    weight: Float!
+    isDefault: Boolean!
+}
 type SpecificationItem {
     id: Int!
     type: String!
@@ -1128,6 +1150,8 @@ extend type Query {
 extend type Mutation {
     """ 创建码表 (auth:  companyAdmin, repositoryAdmin ) """
     createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
+    """ 修改码表 (auth:  companyAdmin, repositoryAdmin ) """
+    editSpecification(input: EditSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
 }
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
@@ -1292,6 +1316,21 @@ func (ec *executionContext) field_Mutation_editCompany_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editSpecification_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.EditSpecificationInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEditSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditSpecificationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2943,6 +2982,72 @@ func (ec *executionContext) _Mutation_createSpecification(ctx context.Context, f
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
 			return ec.resolvers.Mutation().CreateSpecification(rctx, args["input"].(model.CreateSpecificationInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*specificationinfo.SpecificationInfo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/specificationinfo.SpecificationInfo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*specificationinfo.SpecificationInfo)
+	fc.Result = res
+	return ec.marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_editSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editSpecification_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditSpecification(rctx, args["input"].(model.EditSpecificationInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
@@ -5983,6 +6088,58 @@ func (ec *executionContext) unmarshalInputEditCompanyUserInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEditSpecificationInput(ctx context.Context, obj interface{}) (model.EditSpecificationInput, error) {
+	var it model.EditSpecificationInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "length":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("length"))
+			it.Length, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "weight":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
+			it.Weight, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isDefault":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDefault"))
+			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -6298,6 +6455,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createSpecification":
 			out.Values[i] = ec._Mutation_createSpecification(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editSpecification":
+			out.Values[i] = ec._Mutation_editSpecification(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -7065,6 +7227,11 @@ func (ec *executionContext) unmarshalNCreateSpecificationInput2httpᚑapiᚋapp�
 
 func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx context.Context, v interface{}) (model.EditCompanyInput, error) {
 	res, err := ec.unmarshalInputEditCompanyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNEditSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditSpecificationInput(ctx context.Context, v interface{}) (model.EditSpecificationInput, error) {
+	res, err := ec.unmarshalInputEditSpecificationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
