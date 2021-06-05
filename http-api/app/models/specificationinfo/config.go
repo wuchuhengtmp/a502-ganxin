@@ -133,3 +133,24 @@ func (s *SpecificationInfo) Edit(ctx context.Context, input model.EditSpecificat
 		return nil
 	})
 }
+
+// 删除一条规格记录
+func (s *SpecificationInfo)DeleteSelf(ctx context.Context) error {
+	return sqlModel.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(s).Where("id = ?", s.ID).Delete(&s).Error; err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Uid: me.ID,
+			Type: logs.CreateActionType,
+			Content: fmt.Sprintf("删除一条规格记录:id为%d", s.ID),
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+

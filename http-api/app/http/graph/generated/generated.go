@@ -101,6 +101,7 @@ type ComplexityRoot struct {
 		DeleteCompany       func(childComplexity int, id int64) int
 		DeleteCompanyUser   func(childComplexity int, uid int64) int
 		DeleteRepository    func(childComplexity int, repositoryID int64) int
+		DeleteSpecification func(childComplexity int, id int64) int
 		EditCompany         func(childComplexity int, input model.EditCompanyInput) int
 		EditCompanyUser     func(childComplexity int, input *model.EditCompanyUserInput) int
 		EditSpecification   func(childComplexity int, input model.EditSpecificationInput) int
@@ -174,6 +175,7 @@ type MutationResolver interface {
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	EditSpecification(ctx context.Context, input model.EditSpecificationInput) (*specificationinfo.SpecificationInfo, error)
+	DeleteSpecification(ctx context.Context, id int64) (bool, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
@@ -480,6 +482,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteRepository(childComplexity, args["repositoryId"].(int64)), true
+
+	case "Mutation.deleteSpecification":
+		if e.complexity.Mutation.DeleteSpecification == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteSpecification_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteSpecification(childComplexity, args["id"].(int64)), true
 
 	case "Mutation.editCompany":
 		if e.complexity.Mutation.EditCompany == nil {
@@ -1152,6 +1166,8 @@ extend type Mutation {
     createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
     """ 修改规格 (auth:  companyAdmin, repositoryAdmin ) """
     editSpecification(input: EditSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
+    """ 删除规格 (auth:  companyAdmin, repositoryAdmin ) """
+    deleteSpecification(id: Int!): Boolean! @hasRole(role: [ companyAdmin, repositoryAdmin ])
 }
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
@@ -1291,6 +1307,21 @@ func (ec *executionContext) field_Mutation_deleteRepository_args(ctx context.Con
 		}
 	}
 	args["repositoryId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteSpecification_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -3085,6 +3116,72 @@ func (ec *executionContext) _Mutation_editSpecification(ctx context.Context, fie
 	res := resTmp.(*specificationinfo.SpecificationInfo)
 	fc.Result = res
 	return ec.marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteSpecification_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteSpecification(rctx, args["id"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6460,6 +6557,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "editSpecification":
 			out.Values[i] = ec._Mutation_editSpecification(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteSpecification":
+			out.Values[i] = ec._Mutation_deleteSpecification(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

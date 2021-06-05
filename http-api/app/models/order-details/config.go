@@ -8,7 +8,10 @@
  */
 package order_details
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"http-api/pkg/model"
+)
 
 type OrderDetail struct {
 	Id              int64 `json:"id"`
@@ -16,4 +19,13 @@ type OrderDetail struct {
 	Total           int64 `json:"total" gorm:"总量"`
 	OrderId         int64 `json:"orderId" gorm:"comment:订单id"`
 	gorm.Model
+}
+
+func (*OrderDetail) GetOrderBySpecificationId(specificationId int64) (orderDetails []*OrderDetail, err error)  {
+	db := model.DB
+	if err := db.Model(&OrderDetail{}).Where("specification_id = ?", specificationId).Find(&orderDetails).Error; err != nil {
+		return orderDetails, err
+	}
+
+	return
 }

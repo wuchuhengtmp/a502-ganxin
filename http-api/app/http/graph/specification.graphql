@@ -31,4 +31,6 @@ extend type Mutation {
     createSpecification(input: CreateSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
     """ 修改规格 (auth:  companyAdmin, repositoryAdmin ) """
     editSpecification(input: EditSpecificationInput!): SpecificationItem! @hasRole(role: [ companyAdmin, repositoryAdmin ])
+    """ 删除规格 (auth:  companyAdmin, repositoryAdmin ) """
+    deleteSpecification(id: Int!): Boolean! @hasRole(role: [ companyAdmin, repositoryAdmin ])
 }
