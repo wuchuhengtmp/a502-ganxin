@@ -39,6 +39,7 @@ type CodeInfo struct {
  */
 func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 	c.Type = Manufacturer
+	me := auth.GetUser(ctx)
 	return model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(c).Error; err != nil {
 			return err
@@ -46,14 +47,14 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 		// 更新默认配置
 		if c.IsDefault {
 			err := tx.Model(&CodeInfo{}).
-				Where("id != ? AND type = ?", c.ID, Manufacturer).
+				Where("id != ? AND type = ? AND company_id = ?", c.ID, Manufacturer, me.CompanyId).
 				Update("is_default", false).Error
 			if err != nil {
 				return err
 			}
 		} else {
 			// 尝试指定默认选项
-			if err := TryManufactureDefault(tx); err != nil {
+			if err := TryManufactureDefault(ctx, tx); err != nil {
 				return err
 			}
 		}
@@ -65,14 +66,15 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 /**
  * 尝试设置材料商默认选项
  */
-func  TryManufactureDefault(tx *gorm.DB) (err error) {
+func  TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
 	var cs []*CodeInfo
-	if err = tx.Model(&CodeInfo{}).Where("type = ?", Manufacturer).Find(&cs).Error; err != nil {
+	me := auth.GetUser(ctx)
+	if err = tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error; err != nil {
 		return err
 	}
 	if len(cs) > 0 {
 		var c CodeInfo
-		tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ?", Manufacturer, true).Find(&c)
+		tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ? AND company_id = ?", Manufacturer, true, me.CompanyId).Find(&c)
 		if c.ID == 0 {
 			if err = tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Update("is_default", true).Error; err != nil {
 				return err
