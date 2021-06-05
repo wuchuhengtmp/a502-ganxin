@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"http-api/app/models/roles"
 	"http-api/seeders"
+	"math/rand"
 	"testing"
 	"time"
 )
@@ -347,6 +348,35 @@ func TestCompanyAdminRoleDeleteRepository(t *testing.T) {
 	`
 	v := map[string]interface{} {
 		"id": companyAdminTestCtx.DeleteRepositoryId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 公司管理员添加码表集成测试
+ */
+func TestCompanyAdminRoleCreateSpecification(t *testing.T) {
+	q := `
+		mutation createSpecificationMutation($input: CreateSpecificationInput!) {
+			createSpecification(input: $input) {
+			id
+			length
+			weight
+			type
+			isDefault
+			specification
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"length": rand.Intn(100),
+			"weight": rand.Intn(100),
+			"type": "type_test_for_companyAdminRole",
+			"isDefault": false,
+
+		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)

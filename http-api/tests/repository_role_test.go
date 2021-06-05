@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"http-api/app/models/roles"
 	"http-api/seeders"
+	"math/rand"
 	"testing"
 )
 
@@ -143,6 +144,31 @@ func TestRepositoryAdminRoleGetRepository(t *testing.T)  {
 	`
 	v := map[string]interface{}{
 		"input": map[string]interface{} {},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}
+
+func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
+	q := `
+		mutation createSpecificationMutation($input: CreateSpecificationInput!) {
+			createSpecification(input: $input) {
+			id
+			length
+			weight
+			type
+			isDefault
+			specification
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"length": rand.Intn(100),
+			"weight": rand.Intn(100),
+			"type": "type_test_for_repositoryRole",
+			"isDefault": false,
+		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
