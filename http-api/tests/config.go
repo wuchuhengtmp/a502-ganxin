@@ -13,12 +13,18 @@ import (
 	"fmt"
 	"github.com/machinebox/graphql"
 	"http-api/app/models/roles"
+	"http-api/pkg/config"
 	"testing"
 )
 
 const bashUrl string = "http://localhost:9501/query"
 // graphql 请求客户端
 var client = graphql.NewClient(bashUrl)
+
+func init() {
+	config.Viper.AddConfigPath("..")
+	_ = config.Viper.ReadInConfig()
+}
 /**
  * 断言错误并终止测试
  */
