@@ -26,6 +26,8 @@ var repositoryAdminTestCtx = struct {
 	DeleteSpecificationId int64
 	// 用于编辑的材料商家id
 	EditMaterialId int64
+	// 用于删除材料商家
+	DeleteMaterialId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -286,6 +288,18 @@ func TestRepositoryAdminRoleCreateCodeInfo(t *testing.T) {
 	data := res["createMaterialManufacturer"].(map[string]interface{})
 	id := data["id"].(float64)
 	repositoryAdminTestCtx.EditMaterialId = int64(id)
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      "name_test_for_repositoryRoleCreateInfoCode",
+			"remark":    "remark_for_repositoryRoleCreateInfoTest",
+			"isDefault": false,
+		},
+	}
+	res, err = graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+	data = res["createMaterialManufacturer"].(map[string]interface{})
+	id = data["id"].(float64)
+	repositoryAdminTestCtx.DeleteMaterialId = int64(id)
 }
 
 /**
@@ -337,5 +351,21 @@ func TestRepositoryAdminRoleEditMaterialManufacturers(t *testing.T) {
 		},
 	}
 	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 仓库管理员删除材料商集成测试
+ */
+func TestRepositoryAdminRoleDeleteMaterialManufacturers(t *testing.T) {
+	q := `
+		mutation deleteMaterialManufacturer($deleteId: Int!){
+		  deleteMaterialManufacturer(id: $deleteId)
+		}
+	`
+	v := map[string]interface{}{
+		"deleteId": repositoryAdminTestCtx.DeleteMaterialId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }

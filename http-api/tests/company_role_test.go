@@ -494,6 +494,18 @@ func TestCompanyAdminRoleCreatCodeInfo(t *testing.T) {
 	body := res["createMaterialManufacturer"].(map[string]interface{})
 	id := body["id"].(float64)
 	companyAdminTestCtx.EditMaterialId = int64(id)
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      "name_test_for_companyRoleCreateInfoCode",
+			"remark":    "remark_for_companyRoleCreateInfoTest",
+			"isDefault": false,
+		},
+	}
+	res, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+	body = res["createMaterialManufacturer"].(map[string]interface{})
+	id = body["id"].(float64)
+	companyAdminTestCtx.DeleteMaterialId = int64(id)
 }
 
 /**
@@ -515,36 +527,16 @@ func TestCompanyAdminRoleGetMaterialManufacturers(t *testing.T) {
 }
 
 /**
- * 公司管理员编辑材料商集成测试
+ * 公司管理员删除材料商集成测试
  */
-//func TestCompanyAdminRoleEditMaterialManufacturers(t *testing.T) {
-//	q := `mutation editMaterialManufacturerMutation($input: EditMaterialManufacturerInput!) {
-//		  editMaterialManufacturer(input: $input){
-//			id
-//			name
-//			remark
-//			isDefault
-//		  }
-//		}
-//	`
-//	v := map[string]interface{}{
-//		"input": map[string]interface{}{
-//			"id":        companyAdminTestCtx.EditMaterialId,
-//			"name":      "name_test_for_companyAdminRole",
-//			"remark":    "remark_test_for_companyAdminRole",
-//			"isDefault": true,
-//		},
-//	}
-//	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-//	hasError(t, err)
-//	v = map[string]interface{}{
-//		"input": map[string]interface{}{
-//			"id":        companyAdminTestCtx.EditMaterialId,
-//			"name":      "name_test_for_companyAdminRole",
-//			"remark":    "remark_test_for_companyAdminRole",
-//			"isDefault": false,
-//		},
-//	}
-//	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
-//	hasError(t, err)
-//}
+func TestCompanyAdminRoleDeleteMaterialManufacturers(t *testing.T) {
+	q := `mutation deleteMaterialManufacturer($deleteId: Int!){
+		  deleteMaterialManufacturer(id: $deleteId)
+		}
+	`
+	v := map[string]interface{}{
+		"deleteId": companyAdminTestCtx.DeleteMaterialId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
