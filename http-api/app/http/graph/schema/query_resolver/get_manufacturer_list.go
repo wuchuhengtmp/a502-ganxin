@@ -16,7 +16,7 @@ import (
 
 func (*QueryResolver) GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error) {
 	c := codeinfo.CodeInfo{}
-	cs, err := c.GetManufacturers()
+	cs, err := c.GetManufacturers(ctx)
 	if err != nil {
 		return cs, errors.ServerErr(ctx, err)
 	}

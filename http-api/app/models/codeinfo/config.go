@@ -229,8 +229,9 @@ func (c *CodeInfo) SetManufactureDefault(tx *gorm.DB) error {
 	return nil
 }
 
-func (c *CodeInfo) GetManufacturers() (cs []*CodeInfo, err error) {
-	err = model.DB.Model(&CodeInfo{}).Where("type = ?", Manufacturer).Find(&cs).Error
+func (c *CodeInfo) GetManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
+	me := auth.GetUser(ctx)
+	err = model.DB.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error
 
 	return cs, err
 }
