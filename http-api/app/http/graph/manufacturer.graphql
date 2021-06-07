@@ -12,24 +12,24 @@ type ManufacturerItem {
     remark: String!
     isDefault: Boolean!
 }
-#""" 编辑材料商需要的参数 """
-#input EditMaterialManufacturerInput {
-#    id: Int!
-#    name: String!
-#    remark: String!
-#    isDefault: Boolean!
-#}
+""" 编辑制作商需要的参数 """
+input EditManufacturerInput {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
 extend type Mutation {
     """ 创建制造商 (auth: companyAdmin, repositoryAdmin) """
     createManufacturer(input: CreateManufacturerInput!): ManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
-#    """ 编辑材料商 (auth: companyAdmin, repositoryAdmin) """
-#    editMaterialManufacturer(input: EditMaterialManufacturerInput!): MaterialManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+    #    """ 编辑材料商 (auth: companyAdmin, repositoryAdmin) """)
+#    editManufacturer(input: EditManufacturerInput!): ManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin]
 #    """ 删除材料商 (auth: companyAdmin, repositoryAdmin) """
 #    deleteMaterialManufacturer(id: Int!): Boolean! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
-#extend type Query {
-#    """ 获取材料商列表 (auth: companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ) """
-#    getMaterialManufacturers: [MaterialManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ])
-#}
+extend type Query {
+    """ 获取制造商列表 (auth: companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ) """
+    getManufacturers: [ManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ])
+}
 
