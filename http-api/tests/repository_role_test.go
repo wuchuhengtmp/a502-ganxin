@@ -18,11 +18,11 @@ import (
 
 // 仓库管理员测试上下文
 var repositoryAdminTestCtx = struct {
-	Token string
+	Token    string
 	Username string
 	Password string
 	// 用于个性规格记录
-	EditSpecificationId int64
+	EditSpecificationId   int64
 	DeleteSpecificationId int64
 	// 用于编辑的材料商家id
 	EditMaterialId int64
@@ -45,8 +45,8 @@ func TestRepositoryAdminRoleLogin(t *testing.T) {
 		  }
 		}
 	`
-	variables :=  map[string]interface{} {
-		"phone": repositoryAdminTestCtx.Username,
+	variables := map[string]interface{}{
+		"phone":    repositoryAdminTestCtx.Username,
 		"password": repositoryAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleRepositoryAdmin)
@@ -59,7 +59,7 @@ func TestRepositoryAdminRoleLogin(t *testing.T) {
 /**
  * 仓库管理员获取公司列表集成测试
  */
-func TestRepositoryAdminRoleGetAllCompany(t *testing.T)  {
+func TestRepositoryAdminRoleGetAllCompany(t *testing.T) {
 	q := `query {
 			  getAllCompany {
 				id
@@ -91,15 +91,16 @@ func TestRepositoryAdminRoleGetAllCompany(t *testing.T)  {
 	`
 	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
-	hasError(t, err )
+	hasError(t, err)
 	if len(res) != 1 {
-		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题") )
+		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题"))
 	}
 }
+
 /**
  * 仓库管理员获取公司人员列表集成测试
  */
-func TestRepositoryAdminRoleGetCompanyUsers(t *testing.T)  {
+func TestRepositoryAdminRoleGetCompanyUsers(t *testing.T) {
 	q := `
 		query getCompanyUserQuery {
 		  getCompanyUser{
@@ -127,7 +128,7 @@ func TestRepositoryAdminRoleGetCompanyUsers(t *testing.T)  {
 /**
  * 仓库管理员获取仓库列表集成测试
  */
-func TestRepositoryAdminRoleGetRepository(t *testing.T)  {
+func TestRepositoryAdminRoleGetRepository(t *testing.T) {
 	q := `
 		 query {
 		  getRepositoryList {
@@ -148,11 +149,12 @@ func TestRepositoryAdminRoleGetRepository(t *testing.T)  {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {},
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
+
 /**
  * 仓库管理员创建规格集成测试
  */
@@ -169,11 +171,11 @@ func TestRepositoryAdminRoleCreateSpecification(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"length": rand.Intn(100),
-			"weight": rand.Intn(100),
-			"type": "type_test_for_repositoryRole",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"length":    rand.Intn(100),
+			"weight":    rand.Intn(100),
+			"type":      "type_test_for_repositoryRole",
 			"isDefault": false,
 		},
 	}
@@ -200,14 +202,14 @@ func TestRepositoryAdminRoleGetSpecification(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
 
 /**
 * 仓库管理员修改规格集成测试
-*/
+ */
 func TestRepositoryAdminRoleEditSpecification(t *testing.T) {
 	q := `
 		mutation editSpecificationMutation($input: EditSpecificationInput !) {
@@ -221,12 +223,12 @@ func TestRepositoryAdminRoleEditSpecification(t *testing.T) {
 			}
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"id": repositoryAdminTestCtx.EditSpecificationId,
-			"weight": rand.Intn(100),
-			"length": rand.Float64(),
-			"type": "test_for_repositoryRole",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        repositoryAdminTestCtx.EditSpecificationId,
+			"weight":    rand.Intn(100),
+			"length":    rand.Float64(),
+			"type":      "test_for_repositoryRole",
 			"isDefault": true,
 		},
 	}
@@ -243,8 +245,8 @@ func TestRepositoryAdminRoleDeleteSpecification(t *testing.T) {
 			deleteSpecification(id: $id)
 		}
 	`
-	v := map[string]interface{} {
-		"id":repositoryAdminTestCtx.DeleteSpecificationId,
+	v := map[string]interface{}{
+		"id": repositoryAdminTestCtx.DeleteSpecificationId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
@@ -263,19 +265,19 @@ func TestRepositoryAdminRoleCreateCodeInfo(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": "name_test_for_repositoryRoleCreateInfoCode",
-			"remark": "remark_for_repositoryRoleCreateInfoTest",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      "name_test_for_repositoryRoleCreateInfoCode",
+			"remark":    "remark_for_repositoryRoleCreateInfoTest",
 			"isDefault": true,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": "name_test_for_repositoryRoleCreateInfoCode",
-			"remark": "remark_for_repositoryRoleCreateInfoTest",
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      "name_test_for_repositoryRoleCreateInfoCode",
+			"remark":    "remark_for_repositoryRoleCreateInfoTest",
 			"isDefault": false,
 		},
 	}
@@ -299,7 +301,7 @@ func TestRepositoryAdminRoleGetMaterialManufacturers(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
@@ -315,21 +317,24 @@ func TestRepositoryAdminRoleEditMaterialManufacturers(t *testing.T) {
 			remark
 			isDefault
 		  }
-		}
-	`
-	v := map[string]interface{} {
-		"id": repositoryAdminTestCtx.EditMaterialId,
-		"name": "name_for_repositoryRoleTest",
-		"remark": "remark_for_repositoryRoleTest",
-		"isDefault": true,
+		}`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        repositoryAdminTestCtx.EditMaterialId,
+			"name":      "name_for_repositoryRoleTest",
+			"remark":    "remark_for_repositoryRoleTest",
+			"isDefault": true,
+		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
-	v = map[string]interface{} {
-		"id": repositoryAdminTestCtx.EditMaterialId,
-		"name": "name_for_repositoryRoleTest",
-		"remark": "remark_for_repositoryRoleTest",
-		"isDefault": false,
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        repositoryAdminTestCtx.EditMaterialId,
+			"name":      "name_for_repositoryRoleTest",
+			"remark":    "remark_for_repositoryRoleTest",
+			"isDefault": false,
+		},
 	}
 	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)

@@ -16,8 +16,9 @@ import (
 	"testing"
 	"time"
 )
+
 // 超级管理员测试上下文
-var companyAdminTestCtx = struct{
+var companyAdminTestCtx = struct {
 	// token 用于角色鉴权
 	Token string
 	// 用于删除的公司id
@@ -57,8 +58,8 @@ func TestCompanyAdminRoleLogin(t *testing.T) {
 		  }
 		}
 	`
-	variables :=  map[string]interface{} {
-		"phone": companyAdminTestCtx.Username,
+	variables := map[string]interface{}{
+		"phone":    companyAdminTestCtx.Username,
 		"password": companyAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleCompanyAdmin)
@@ -104,9 +105,9 @@ func TestCompanyAdminRoleGetAllCompany(t *testing.T) {
 	`
 	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-	hasError(t, err )
+	hasError(t, err)
 	if len(res) != 1 {
-		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题") )
+		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题"))
 	}
 }
 
@@ -134,23 +135,23 @@ func TestCompanyAdminRoleEditCompany(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
-			"id": 2,
-			"name": "2",
-			"pinYin": "3",
-			"symbol": "4",
-			"logoFileId": 1,
-			"backgroundFileId": 2,
-			"isAble": true,
-			"phone": seeders.CompanyAdmin.Username,
-			"wechat": "12345678",
-			"startedAt": "2021-12-31 00:00:00",
-			"endedAt": "2022-12-31 00:00:00",
-			"adminName": "username_change_test_with_company_role",
-			"adminPassword": seeders.CompanyAdmin.Password,
+		"input": map[string]interface{}{
+			"id":                2,
+			"name":              "2",
+			"pinYin":            "3",
+			"symbol":            "4",
+			"logoFileId":        1,
+			"backgroundFileId":  2,
+			"isAble":            true,
+			"phone":             seeders.CompanyAdmin.Username,
+			"wechat":            "12345678",
+			"startedAt":         "2021-12-31 00:00:00",
+			"endedAt":           "2022-12-31 00:00:00",
+			"adminName":         "username_change_test_with_company_role",
+			"adminPassword":     seeders.CompanyAdmin.Password,
 			"adminAvatarFileId": 4,
-			"adminPhone": seeders.CompanyAdmin.Username,
-			"adminWechat": "admin_wechat_change_test_with_company_role",
+			"adminPhone":        seeders.CompanyAdmin.Username,
+			"adminWechat":       "admin_wechat_change_test_with_company_role",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -159,7 +160,7 @@ func TestCompanyAdminRoleEditCompany(t *testing.T) {
 
 /**
  * 添加公司人员集成测试
-*/
+ */
 func TestCompanyAdminRoleCreateCompanyUser(t *testing.T) {
 	q := `
 		mutation createUserMutation($input: CreateCompanyUserInput!){
@@ -181,13 +182,13 @@ func TestCompanyAdminRoleCreateCompanyUser(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
-			"name": "username _for_TesCreateCompanyUser",
-			"phone": fmt.Sprintf("1342%s",fmt.Sprintf("%d", time.Now().UnixNano())[8:15]),
+		"input": map[string]interface{}{
+			"name":     "username _for_TesCreateCompanyUser",
+			"phone":    fmt.Sprintf("1342%s", fmt.Sprintf("%d", time.Now().UnixNano())[8:15]),
 			"password": "12345678",
 			"avatarId": 1,
-			"role": "repositoryAdmin",
-			"wechat": "wechat_for_testCreateCompanyUser",
+			"role":     "repositoryAdmin",
+			"wechat":   "wechat_for_testCreateCompanyUser",
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -225,6 +226,7 @@ func TestCompanyAdminRoleGetCompanyUsers(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
+
 /**
  * 公司管理员修改公司人员集成测试
  */
@@ -248,10 +250,10 @@ func TestCompanyAdminRoleEditCompanyUser(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
-			"id": companyAdminTestCtx.EditCompanyUserId,
-			"name": "change_name_for_editCompanyUser",
-			"phone": fmt.Sprintf("1342%s",fmt.Sprintf("%d", time.Now().UnixNano())[8:15]),
+		"input": map[string]interface{}{
+			"id":     companyAdminTestCtx.EditCompanyUserId,
+			"name":   "change_name_for_editCompanyUser",
+			"phone":  fmt.Sprintf("1342%s", fmt.Sprintf("%d", time.Now().UnixNano())[8:15]),
 			"roleId": 2,
 			"isAble": true,
 		},
@@ -274,7 +276,6 @@ func TestCompanyAdminRoleDeleteCompanyUser(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
-
 
 /**
  *  公司管理员添加仓库集成测试
@@ -299,12 +300,12 @@ func TestCompanyAdminRoleCreateRepository(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
-			"name": "reposistory_name_for_test",
-			"remark": "",
-			"address": "address_for_createAddress",
+		"input": map[string]interface{}{
+			"name":              "reposistory_name_for_test",
+			"remark":            "",
+			"address":           "address_for_createAddress",
 			"repositoryAdminId": 3,
-			"pinYin": "pintYin_for_createTest",
+			"pinYin":            "pintYin_for_createTest",
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -338,7 +339,7 @@ func TestCompanyAdminRoleGetRepository(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {},
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
@@ -353,7 +354,7 @@ func TestCompanyAdminRoleDeleteRepository(t *testing.T) {
 		  deleteRepository(repositoryId: $id)
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"id": companyAdminTestCtx.DeleteRepositoryId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -376,13 +377,12 @@ func TestCompanyAdminRoleCreateSpecification(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"length": rand.Intn(100),
-			"weight": rand.Intn(100),
-			"type": "type_test_for_companyAdminRole",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"length":    rand.Intn(100),
+			"weight":    rand.Intn(100),
+			"type":      "type_test_for_companyAdminRole",
 			"isDefault": false,
-
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -408,7 +408,7 @@ func TestCompanyAdminRoleGetSpecification(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
@@ -429,12 +429,12 @@ func TestCompanyAdminRoleEditSpecification(t *testing.T) {
 			}
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"id": companyAdminTestCtx.EditSpecificationId,
-			"weight": rand.Intn(100),
-			"length": rand.Float64(),
-			"type": "test_for_CompanyRole",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        companyAdminTestCtx.EditSpecificationId,
+			"weight":    rand.Intn(100),
+			"length":    rand.Float64(),
+			"type":      "test_for_CompanyRole",
 			"isDefault": true,
 		},
 	}
@@ -451,7 +451,7 @@ func TestCompanyAdminRoleDeleteSpecification(t *testing.T) {
 			deleteSpecification(id: $id)
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"id": companyAdminTestCtx.DeleteRepositoryId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -471,19 +471,19 @@ func TestCompanyAdminRoleCreatCodeInfo(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": "name_test_for_companyRoleCreateInfoCode",
-			"remark": "remark_for_companyRoleCreateInfoTest",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      "name_test_for_companyRoleCreateInfoCode",
+			"remark":    "remark_for_companyRoleCreateInfoTest",
 			"isDefault": true,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": "name_test_for_companyRoleCreateInfoCode",
-			"remark": "remark_for_companyRoleCreateInfoTest",
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      "name_test_for_companyRoleCreateInfoCode",
+			"remark":    "remark_for_companyRoleCreateInfoTest",
 			"isDefault": false,
 		},
 	}
@@ -507,7 +507,7 @@ func TestCompanyAdminRoleGetMaterialManufacturers(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
@@ -515,7 +515,7 @@ func TestCompanyAdminRoleGetMaterialManufacturers(t *testing.T) {
 /**
  * 公司管理员编辑材料商集成测试
  */
-func  TestCompanyAdminRoleEditMaterialManufacturers(t *testing.T) {
+func TestCompanyAdminRoleEditMaterialManufacturers(t *testing.T) {
 	q := `mutation editMaterialManufacturerMutation($input: EditMaterialManufacturerInput!) {
 		  editMaterialManufacturer(input: $input){
 			id
@@ -525,21 +525,21 @@ func  TestCompanyAdminRoleEditMaterialManufacturers(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"id": companyAdminTestCtx.EditMaterialId,
-			"name": "name_test_for_companyAdminRole",
-			"remark": "remark_test_for_companyAdminRole",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        companyAdminTestCtx.EditMaterialId,
+			"name":      "name_test_for_companyAdminRole",
+			"remark":    "remark_test_for_companyAdminRole",
 			"isDefault": true,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
-			"id": companyAdminTestCtx.EditMaterialId,
-			"name": "name_test_for_companyAdminRole",
-			"remark": "remark_test_for_companyAdminRole",
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        companyAdminTestCtx.EditMaterialId,
+			"name":      "name_test_for_companyAdminRole",
+			"remark":    "remark_test_for_companyAdminRole",
 			"isDefault": false,
 		},
 	}
