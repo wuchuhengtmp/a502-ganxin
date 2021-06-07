@@ -40,7 +40,6 @@ type CodeInfo struct {
  * 添加一个新的材料商家
  */
 func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
-	c.Type = Manufacturer
 	me := auth.GetUser(ctx)
 	return model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(c).Error; err != nil {
@@ -49,7 +48,7 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 		// 更新默认配置
 		if c.IsDefault {
 			err := tx.Model(&CodeInfo{}).
-				Where("id != ? AND type = ? AND company_id = ?", c.ID, Manufacturer, me.CompanyId).
+				Where("id != ? AND type = ? AND company_id = ?", c.ID, MaterialManufacturer, me.CompanyId).
 				Update("is_default", false).Error
 			if err != nil {
 				return err
@@ -79,14 +78,13 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 func TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
 	var cs []*CodeInfo
 	me := auth.GetUser(ctx)
-	if err = tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ? AND is_default = ?", Manufacturer, me.CompanyId, false).Find(&cs).Error; err != nil {
+	if err = tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ? AND is_default = ?", MaterialManufacturer, me.CompanyId, false).Find(&cs).Error; err != nil {
 		return err
 	}
 	if len(cs) > 0 {
 		var c CodeInfo
-		tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ? AND company_id = ?", Manufacturer, true, me.CompanyId).First(&c)
-		fmt.Sprintln(c)
-		if c.ID == 0 {
+		err = tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ? AND company_id = ?", MaterialManufacturer, true, me.CompanyId).First(&c).Error
+		if err != nil {
 			if err = tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
 				return err
 			}
@@ -102,7 +100,7 @@ func TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
 func (CodeInfo) GetMaterialManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
 	db := model.DB
 	me := auth.GetUser(ctx)
-	err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error
+	err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", MaterialManufacturer, me.CompanyId).Find(&cs).Error
 
 	return
 }
@@ -114,14 +112,18 @@ func (c *CodeInfo) GetSelf() error {
 }
 
 func (c *CodeInfo) EditMaterialManufacturer(ctx context.Context) error {
+	me := auth.GetUser(ctx)
+	c.CompanyId = me.CompanyId
 	return model.DB.Transaction(func(tx *gorm.DB) error {
-		me := auth.GetUser(ctx)
-		c.CompanyId = me.CompanyId
+		fmt.Println(c)
 		if err := tx.Model(c).Where("id = ?", c.ID).Updates(c).Error; err != nil {
 			return err
 		}
+		if err := tx.Model(c).Where("id = ?", c.ID).Update("is_default", c.IsDefault).Error; err != nil {
+			return err
+		}
 		if c.IsDefault {
-			err := tx.Model(c).Where("company_id = ? AND id != ? AND type = ?", me.CompanyId, c.ID, MaterialManufacturer).
+			err := tx.Model(&CodeInfo{}).Where("company_id = ? AND id != ? AND type = ?", me.CompanyId, c.ID, MaterialManufacturer).
 				Update("is_default", false).Error
 			if err != nil {
 				return err
@@ -131,7 +133,6 @@ func (c *CodeInfo) EditMaterialManufacturer(ctx context.Context) error {
 				return err
 			}
 		}
-
 		l := logs.Logos{
 			Uid:     me.ID,
 			Content: fmt.Sprintf("编辑材料商:被修改id为%d", c.ID),

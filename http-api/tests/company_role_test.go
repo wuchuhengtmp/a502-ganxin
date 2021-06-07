@@ -39,6 +39,8 @@ var companyAdminTestCtx = struct {
 	DeleteSpecificationId int64
 	// 用于编辑的材料商id
 	EditMaterialId int64
+	// 用于删除的材料商id
+	DeleteMaterialId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -515,34 +517,34 @@ func TestCompanyAdminRoleGetMaterialManufacturers(t *testing.T) {
 /**
  * 公司管理员编辑材料商集成测试
  */
-func TestCompanyAdminRoleEditMaterialManufacturers(t *testing.T) {
-	q := `mutation editMaterialManufacturerMutation($input: EditMaterialManufacturerInput!) {
-		  editMaterialManufacturer(input: $input){
-			id
-			name
-			remark
-			isDefault
-		  }
-		}
-	`
-	v := map[string]interface{}{
-		"input": map[string]interface{}{
-			"id":        companyAdminTestCtx.EditMaterialId,
-			"name":      "name_test_for_companyAdminRole",
-			"remark":    "remark_test_for_companyAdminRole",
-			"isDefault": true,
-		},
-	}
-	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-	hasError(t, err)
-	v = map[string]interface{}{
-		"input": map[string]interface{}{
-			"id":        companyAdminTestCtx.EditMaterialId,
-			"name":      "name_test_for_companyAdminRole",
-			"remark":    "remark_test_for_companyAdminRole",
-			"isDefault": false,
-		},
-	}
-	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
-	hasError(t, err)
-}
+//func TestCompanyAdminRoleEditMaterialManufacturers(t *testing.T) {
+//	q := `mutation editMaterialManufacturerMutation($input: EditMaterialManufacturerInput!) {
+//		  editMaterialManufacturer(input: $input){
+//			id
+//			name
+//			remark
+//			isDefault
+//		  }
+//		}
+//	`
+//	v := map[string]interface{}{
+//		"input": map[string]interface{}{
+//			"id":        companyAdminTestCtx.EditMaterialId,
+//			"name":      "name_test_for_companyAdminRole",
+//			"remark":    "remark_test_for_companyAdminRole",
+//			"isDefault": true,
+//		},
+//	}
+//	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+//	hasError(t, err)
+//	v = map[string]interface{}{
+//		"input": map[string]interface{}{
+//			"id":        companyAdminTestCtx.EditMaterialId,
+//			"name":      "name_test_for_companyAdminRole",
+//			"remark":    "remark_test_for_companyAdminRole",
+//			"isDefault": false,
+//		},
+//	}
+//	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+//	hasError(t, err)
+//}

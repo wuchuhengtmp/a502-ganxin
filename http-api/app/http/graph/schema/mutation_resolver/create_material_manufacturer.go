@@ -24,7 +24,7 @@ func  (*MutationResolver)CreateMaterialManufacturer(ctx context.Context, input m
 	me := auth.GetUser(ctx)
 	c := codeinfo.CodeInfo{
 		Name: input.Name,
-		Type: codeinfo.Manufacturer,
+		Type: codeinfo.MaterialManufacturer,
 		IsDefault: input.IsDefault,
 		Remark: input.Remark,
 		CompanyId: me.CompanyId,
