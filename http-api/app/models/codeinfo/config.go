@@ -61,9 +61,9 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 			}
 		}
 		l := logs.Logos{
-			Uid:  me.ID,
+			Uid:     me.ID,
 			Content: fmt.Sprintf("添加材料商：id为%d", c.ID),
-			Type: logs.CreateActionType,
+			Type:    logs.CreateActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
@@ -74,19 +74,20 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 }
 
 /**
- * 尝试设置材料商默认选项
+ * 检验是否有默认材料商，否则尝试指定一个材料商作为默认选项
  */
-func  TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
+func TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
 	var cs []*CodeInfo
 	me := auth.GetUser(ctx)
-	if err = tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error; err != nil {
+	if err = tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ? AND is_default = ?", Manufacturer, me.CompanyId, false).Find(&cs).Error; err != nil {
 		return err
 	}
 	if len(cs) > 0 {
 		var c CodeInfo
-		tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ? AND company_id = ?", Manufacturer, true, me.CompanyId).Find(&c)
+		tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ? AND company_id = ?", Manufacturer, true, me.CompanyId).First(&c)
+		fmt.Sprintln(c)
 		if c.ID == 0 {
-			if err = tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Update("is_default", true).Error; err != nil {
+			if err = tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
 				return err
 			}
 		}
@@ -98,21 +99,21 @@ func  TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
 /**
  * 获取材料商列表
  */
-func (CodeInfo)GetMaterialManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
+func (CodeInfo) GetMaterialManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
 	db := model.DB
 	me := auth.GetUser(ctx)
-	err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error;
+	err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error
 
 	return
 }
 
-func (c *CodeInfo)GetSelf() error {
+func (c *CodeInfo) GetSelf() error {
 	db := model.DB
 
 	return db.Model(&CodeInfo{}).Where("id = ? ", c.ID).First(c).Error
 }
 
-func (c *CodeInfo)EditMaterialManufacturer(ctx context.Context) error {
+func (c *CodeInfo) EditMaterialManufacturer(ctx context.Context) error {
 	return model.DB.Transaction(func(tx *gorm.DB) error {
 		me := auth.GetUser(ctx)
 		c.CompanyId = me.CompanyId
@@ -132,12 +133,42 @@ func (c *CodeInfo)EditMaterialManufacturer(ctx context.Context) error {
 		}
 
 		l := logs.Logos{
-			Uid: me.ID,
+			Uid:     me.ID,
 			Content: fmt.Sprintf("编辑材料商:被修改id为%d", c.ID),
-			Type: logs.UpdateActionType,
+			Type:    logs.UpdateActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
+		}
+
+		return nil
+	})
+}
+
+// 删除材料商
+func (c *CodeInfo) DeleteMaterial(ctx context.Context) error {
+	if err := c.GetSelf(); err != nil {
+		return err
+	}
+
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(c).Where("id = ?", c.ID).Delete(c).Error; err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Uid:     me.ID,
+			Content: fmt.Sprintf("删除材料商:被删除id为 %d", c.ID),
+			Type:    logs.DeleteActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+		// 尝试设置一个默认项
+		if c.IsDefault {
+			if err := TryManufactureDefault(ctx, tx); err != nil {
+				return err
+			}
 		}
 
 		return nil

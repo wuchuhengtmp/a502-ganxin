@@ -23,7 +23,6 @@ type Steels struct {
 	CompanyId              int64     `json:"companyId" gorm:"comment:所属的公司id"`
 	RepositoryId           int64     `json:"repositoryId" gorm:"comment:当前存放的仓库id"`
 	MaterialManufacturerId int64     `json:"materialManufacturerId" gorm:"comment:code表的材料商类型id"`
-	ManufacturerId         int64     `json:"manufacturerId" gorm:"comment:code表的制造商类型id"`
 	Turnover               int64     `json:"turnover" gorm:"comment:周转次数"`
 	UsageYearRate          float64   `json:"usageYearRate" gorm:"comment:年使用率"`
 	TotalUsageRate         float64   `json:"totalUsageRate" gorm:"comment:总使用率"`
@@ -43,3 +42,14 @@ func (*Steels) GetSteelsBySpecificationId(specificationId int64) (res []*Steels,
 
 	return
 }
+
+/**
+ * 通过材料商家id获取数据
+ */
+func (s *Steels) GetListByMMID(MMID int64) (ss []*Steels, err error) {
+	 db := model.DB
+	 err = db.Model(s).Where("material_manufacturer_id = ?", MMID).Find(&ss).Error
+
+	 return ss, err
+}
+

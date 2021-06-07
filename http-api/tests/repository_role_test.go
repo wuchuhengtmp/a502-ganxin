@@ -332,7 +332,7 @@ func TestRepositoryAdminRoleEditMaterialManufacturers(t *testing.T) {
 		"input": map[string]interface{}{
 			"id":        repositoryAdminTestCtx.EditMaterialId,
 			"name":      "name_for_repositoryRoleTest",
-			"remark":    "remark_for_repositoryRoleTest",
+			"remark":    "remark_for_repositoryRoleTest1",
 			"isDefault": false,
 		},
 	}
