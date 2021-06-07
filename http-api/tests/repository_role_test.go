@@ -374,6 +374,9 @@ func TestRepositoryAdminRoleDeleteMaterialManufacturers(t *testing.T) {
 	hasError(t, err)
 }
 
+/**
+ * 仓库管理员创建制造商集成测试
+ */
 func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
 	var cs []*codeinfo.CodeInfo
@@ -422,5 +425,23 @@ func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 			Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.Manufacturer, true).
 			Find(&cs)
 		assert.Len(t,  cs, 1)
+	}
+}
+
+/**
+ * 仓库管理员获取制造商集成测试
+ */
+func TestCompanyRepositoryRoleGetManufacturer(t *testing.T) {
+	q := `query getManufacturersQuery{
+		getManufacturers{
+		id
+		isDefault
+		name
+		remark
+	  }
+	}`
+	v := map[string]interface{} {}
+	if _, err := graphReqClient(q, v, roles.RoleRepositoryAdmin); err != nil {
+		t.Fatal("failed:仓库管理员获取制造商集成测试")
 	}
 }

@@ -188,3 +188,21 @@ func TestProjectAdminRoleGetMaterialManufacturers(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 项目管理员获取制造商集成测试
+ */
+func TestProjectRoleGetManufacturer(t *testing.T) {
+	q := `query getManufacturersQuery{
+		getManufacturers{
+		id
+		isDefault
+		name
+		remark
+	  }
+	}`
+	v := map[string]interface{} {}
+	if _, err := graphReqClient(q, v, roles.RoleProjectAdmin); err != nil {
+		t.Fatal("failed:项目管理员获取制造商集成测试")
+	}
+}

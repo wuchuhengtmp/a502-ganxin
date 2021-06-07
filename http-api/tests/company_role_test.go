@@ -545,7 +545,7 @@ func TestCompanyAdminRoleDeleteMaterialManufacturers(t *testing.T) {
 }
 
 /**
- * 公司管理员添加制造商集成测
+ * 公司管理员添加制造商集成测试
  */
 func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 	me, _ := GetUserByToken(companyAdminTestCtx.Token)
@@ -563,7 +563,7 @@ func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 		}
 	`
 	name := fmt.Sprintf("name_for_createManufacturerTest_%s", fmt.Sprintf("%d", time.Now().UnixNano()))
-	remark := "remark_for_createManufacturerByCompanyRole"
+	remark := "remark_for_createManufacturerByCompanyRoleTest"
 	isDefault := false
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
@@ -589,5 +589,23 @@ func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 	}
 	if len(cs) == 0 {
 		assert.Equal(t, true, newCodeInfo.IsDefault)
+	}
+}
+
+/**
+ * 公司管理员获取制造商列表集成测试
+ */
+func TestCompanyAdminRoleGetManufacturers(t *testing.T) {
+	q := `query getManufacturersQuery{
+		getManufacturers{
+		id
+		isDefault
+		name
+		remark
+	  }
+	}`
+	v := map[string]interface{} {}
+	if _, err := graphReqClient(q, v, roles.RoleCompanyAdmin); err != nil {
+		t.Fatal("failed:公司管理员获取制造商列表集成测试")
 	}
 }
