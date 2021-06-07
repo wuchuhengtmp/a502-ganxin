@@ -15,11 +15,13 @@ import (
 	"time"
 )
 
+var CompanyId int64 = 2
+
 var companySeeders =  []seed.Seed{
 	seed.Seed{
 		Name: "create files",
 		Run: func(db *gorm.DB) error {
-			return CreateCompany( db, 2,
+			return CreateCompany( db, CompanyId,
 				"公司名1",
 				"GSM1",
 				"悦人达己 创新卓越",
