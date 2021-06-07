@@ -71,7 +71,7 @@ func (s *SpecificationInfo) GetSelf() error {
 // 如果没有默认规格，尝试指定一条为默认
 func recoverDefaultByCompanyId(tx *gorm.DB, companyId int64) error {
 	var cs []*SpecificationInfo
-	tx.Model(&SpecificationInfo{}).Where("company_id = ?", companyId).Find(&cs)
+	tx.Model(&SpecificationInfo{}).Where("company_id = ? AND is_default = ?", companyId, false).Find(&cs)
 	if len(cs) > 0 {
 		var c SpecificationInfo
 		tx.Model(&SpecificationInfo{}).Where("company_id = ? AND is_default = ? ", companyId, true).First(&c)
