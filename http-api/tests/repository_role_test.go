@@ -24,6 +24,8 @@ var repositoryAdminTestCtx = struct {
 	// 用于个性规格记录
 	EditSpecificationId int64
 	DeleteSpecificationId int64
+	// 用于编辑的材料商家id
+	EditMaterialId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -252,7 +254,6 @@ func TestRepositoryAdminRoleDeleteSpecification(t *testing.T) {
  * 仓库管理员创建材料商集成测试
  */
 func TestRepositoryAdminRoleCreateCodeInfo(t *testing.T) {
-
 	q := `
 		mutation createMaterialManufacturerMutation ($input: CreateMaterialManufacturerInput!){
 		  createMaterialManufacturer(input: $input) {
@@ -278,8 +279,11 @@ func TestRepositoryAdminRoleCreateCodeInfo(t *testing.T) {
 			"isDefault": false,
 		},
 	}
-	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
+	data := res["createMaterialManufacturer"].(map[string]interface{})
+	id := data["id"].(float64)
+	repositoryAdminTestCtx.EditMaterialId = int64(id)
 }
 
 /**
@@ -297,5 +301,36 @@ func TestRepositoryAdminRoleGetMaterialManufacturers(t *testing.T) {
 	`
 	v := map[string]interface{} {}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 仓库管理员编辑材料商集成测试
+ */
+func TestRepositoryAdminRoleEditMaterialManufacturers(t *testing.T) {
+	q := `mutation editMaterialManufacturerMutation($input: EditMaterialManufacturerInput!) {
+		  editMaterialManufacturer(input: $input){
+			id
+			name
+			remark
+			isDefault
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"id": repositoryAdminTestCtx.EditMaterialId,
+		"name": "name_for_repositoryRoleTest",
+		"remark": "remark_for_repositoryRoleTest",
+		"isDefault": true,
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+	v = map[string]interface{} {
+		"id": repositoryAdminTestCtx.EditMaterialId,
+		"name": "name_for_repositoryRoleTest",
+		"remark": "remark_for_repositoryRoleTest",
+		"isDefault": false,
+	}
+	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
