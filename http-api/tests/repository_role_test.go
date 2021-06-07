@@ -441,7 +441,9 @@ func TestCompanyRepositoryRoleGetManufacturer(t *testing.T) {
 	  }
 	}`
 	v := map[string]interface{} {}
-	if _, err := graphReqClient(q, v, roles.RoleRepositoryAdmin); err != nil {
+	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin);
+	if  err != nil {
 		t.Fatal("failed:仓库管理员获取制造商集成测试")
 	}
+	assertCompanyIdForGetManufacturers(t, res, repositoryAdminTestCtx.Token)
 }

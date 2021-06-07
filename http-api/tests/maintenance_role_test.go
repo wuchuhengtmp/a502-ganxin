@@ -203,7 +203,9 @@ func TestMaintenanceProjectRoleGetManufacturer(t *testing.T) {
 	  }
 	}`
 	v := map[string]interface{} {}
-	if _, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin); err != nil {
+	res, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	if err != nil {
 		t.Fatal("failed:维修管理员获取材料商列表集成测试")
 	}
+	assertCompanyIdForGetManufacturers(t, res, maintenanceAdminTestCtx.Token)
 }

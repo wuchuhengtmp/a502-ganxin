@@ -12,6 +12,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/machinebox/graphql"
+	"http-api/app/models/codeinfo"
 	"http-api/app/models/roles"
 	"http-api/app/models/users"
 	"http-api/bootstrap"
@@ -98,4 +99,21 @@ func GetUserByToken(token string) (*users.Users, error) {
 	}
 
 	return &u, nil
+}
+
+/**
+ * 断言获取制造商的响应数据必须归属于对应的公司id
+ */
+func assertCompanyIdForGetManufacturers(t *testing.T, res map[string]interface{}, token string)  {
+	me, _ := GetUserByToken(token)
+	items := res["getManufacturers"].([]interface{})
+	for _, item := range items {
+		tmp := item.(map[string]interface{})
+		id := tmp["id"].(float64)
+		c := codeinfo.CodeInfo{}
+		model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", int64(id)).First(&c)
+		if c.CompanyId != me.CompanyId {
+			t.Fatal("failed:当前数据项归属的公司与当前用户归属的公司不一致")
+		}
+	}
 }

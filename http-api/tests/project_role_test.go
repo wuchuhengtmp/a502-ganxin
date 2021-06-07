@@ -202,7 +202,9 @@ func TestProjectRoleGetManufacturer(t *testing.T) {
 	  }
 	}`
 	v := map[string]interface{} {}
-	if _, err := graphReqClient(q, v, roles.RoleProjectAdmin); err != nil {
+	res, err := graphReqClient(q, v, roles.RoleProjectAdmin);
+	if  err != nil {
 		t.Fatal("failed:项目管理员获取制造商集成测试")
 	}
+	assertCompanyIdForGetManufacturers(t, res, projectAdminTestCtx.Token)
 }

@@ -605,7 +605,11 @@ func TestCompanyAdminRoleGetManufacturers(t *testing.T) {
 	  }
 	}`
 	v := map[string]interface{} {}
-	if _, err := graphReqClient(q, v, roles.RoleCompanyAdmin); err != nil {
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin);
+	if  err != nil {
 		t.Fatal("failed:公司管理员获取制造商列表集成测试")
 	}
+	assertCompanyIdForGetManufacturers(t, res, companyAdminTestCtx.Token)
 }
+
+
