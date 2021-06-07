@@ -55,7 +55,7 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 			}
 		} else {
 			// 尝试指定默认选项
-			if err := TryManufactureDefault(ctx, tx); err != nil {
+			if err := TryMaterialManufactureDefault(ctx, tx); err != nil {
 				return err
 			}
 		}
@@ -75,7 +75,7 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 /**
  * 检验是否有默认材料商，否则尝试指定一个材料商作为默认选项
  */
-func TryManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
+func TryMaterialManufactureDefault(ctx context.Context, tx *gorm.DB) (err error) {
 	var cs []*CodeInfo
 	me := auth.GetUser(ctx)
 	if err = tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ? AND is_default = ?", MaterialManufacturer, me.CompanyId, false).Find(&cs).Error; err != nil {
@@ -129,7 +129,7 @@ func (c *CodeInfo) EditMaterialManufacturer(ctx context.Context) error {
 				return err
 			}
 		} else {
-			if err := TryManufactureDefault(ctx, tx); err != nil {
+			if err := TryMaterialManufactureDefault(ctx, tx); err != nil {
 				return err
 			}
 		}
@@ -167,11 +167,64 @@ func (c *CodeInfo) DeleteMaterial(ctx context.Context) error {
 		}
 		// 尝试设置一个默认项
 		if c.IsDefault {
-			if err := TryManufactureDefault(ctx, tx); err != nil {
+			if err := TryMaterialManufactureDefault(ctx, tx); err != nil {
 				return err
 			}
 		}
 
 		return nil
 	})
+}
+
+// 创建制造商
+func (c *CodeInfo) CreateManufacturerSelf(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(c).Error; err != nil {
+			return err
+		}
+		if err := c.SetManufactureDefault(tx); err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Uid:     me.ID,
+			Content: fmt.Sprintf("添加制造商:id为%d", c.ID),
+			Type:    logs.CreateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+// 设置制造商默认选项
+func (c *CodeInfo) SetManufactureDefault(tx *gorm.DB) error {
+	// 设置默认选项
+	if c.IsDefault {
+		err := tx.Model(&CodeInfo{}).Where("company_id = ? AND id != ? AND type = ?", c.CompanyId, c.ID, Manufacturer).Update("is_default", false).Error
+		if err != nil {
+			return err
+		}
+	} else {
+		hasDefault := CodeInfo{}
+		// 没有默认选项并且有多条数据，则指定一条为默认
+		if err := tx.Model(&CodeInfo{}).Where("company_id = ? AND type = ? AND is_default = ?", c.CompanyId, Manufacturer, true).First(&hasDefault).Error; err != nil {
+			var ms []*CodeInfo
+			tx.Model(&CodeInfo{}).Where("type = ? AND is_default = ? AND company_id = ?", Manufacturer, false, c.CompanyId).Find(&ms)
+			if len(ms) > 0 {
+				m := ms[0]
+				if m.ID == c.ID {
+					m = c
+				}
+				m.IsDefault = true
+				if err := tx.Model(&CodeInfo{}).Where("id = ?", m.ID).Update("is_default", m.IsDefault).Error; err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }

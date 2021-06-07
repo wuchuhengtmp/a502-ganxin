@@ -94,6 +94,13 @@ type ComplexityRoot struct {
 		RoleName    func(childComplexity int) int
 	}
 
+	ManufacturerItem struct {
+		ID        func(childComplexity int) int
+		IsDefault func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Remark    func(childComplexity int) int
+	}
+
 	MaterialManufacturerItem struct {
 		ID        func(childComplexity int) int
 		IsDefault func(childComplexity int) int
@@ -104,6 +111,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
 		CreateCompanyUser          func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateManufacturer         func(childComplexity int, input model.CreateManufacturerInput) int
 		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
 		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
 		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
@@ -183,6 +191,7 @@ type MutationResolver interface {
 	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*model.UserItem, error)
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
+	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	CreateMaterialManufacturer(ctx context.Context, input model.CreateMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditMaterialManufacturer(ctx context.Context, input model.EditMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
@@ -415,6 +424,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LoginRes.RoleName(childComplexity), true
 
+	case "ManufacturerItem.id":
+		if e.complexity.ManufacturerItem.ID == nil {
+			break
+		}
+
+		return e.complexity.ManufacturerItem.ID(childComplexity), true
+
+	case "ManufacturerItem.isDefault":
+		if e.complexity.ManufacturerItem.IsDefault == nil {
+			break
+		}
+
+		return e.complexity.ManufacturerItem.IsDefault(childComplexity), true
+
+	case "ManufacturerItem.name":
+		if e.complexity.ManufacturerItem.Name == nil {
+			break
+		}
+
+		return e.complexity.ManufacturerItem.Name(childComplexity), true
+
+	case "ManufacturerItem.remark":
+		if e.complexity.ManufacturerItem.Remark == nil {
+			break
+		}
+
+		return e.complexity.ManufacturerItem.Remark(childComplexity), true
+
 	case "MaterialManufacturerItem.id":
 		if e.complexity.MaterialManufacturerItem.ID == nil {
 			break
@@ -466,6 +503,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateCompanyUser(childComplexity, args["input"].(model.CreateCompanyUserInput)), true
+
+	case "Mutation.createManufacturer":
+		if e.complexity.Mutation.CreateManufacturer == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createManufacturer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateManufacturer(childComplexity, args["input"].(model.CreateManufacturerInput)), true
 
 	case "Mutation.createMaterialManufacturer":
 		if e.complexity.Mutation.CreateMaterialManufacturer == nil {
@@ -1182,6 +1231,42 @@ enum Role {
 
 # 角色鉴权
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION`, BuiltIn: false},
+	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
+""" 添加制造商参数 """
+input CreateManufacturerInput {
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+"""" 制造商数据项 """
+type ManufacturerItem {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+#""" 编辑材料商需要的参数 """
+#input EditMaterialManufacturerInput {
+#    id: Int!
+#    name: String!
+#    remark: String!
+#    isDefault: Boolean!
+#}
+extend type Mutation {
+    """ 创建制造商 (auth: companyAdmin, repositoryAdmin) """
+    createManufacturer(input: CreateManufacturerInput!): ManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+#    """ 编辑材料商 (auth: companyAdmin, repositoryAdmin) """
+#    editMaterialManufacturer(input: EditMaterialManufacturerInput!): MaterialManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+#    """ 删除材料商 (auth: companyAdmin, repositoryAdmin) """
+#    deleteMaterialManufacturer(id: Int!): Boolean! @hasRole(role: [companyAdmin, repositoryAdmin])
+}
+
+#extend type Query {
+#    """ 获取材料商列表 (auth: companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ) """
+#    getMaterialManufacturers: [MaterialManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ])
+#}
+
+`, BuiltIn: false},
 	{Name: "../materialManufacturer.graphql", Input: `""" 添加材料商参数 """
 input CreateMaterialManufacturerInput {
     name: String!
@@ -1349,6 +1434,21 @@ func (ec *executionContext) field_Mutation_createCompany_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createManufacturer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateManufacturerInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateManufacturerInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2583,6 +2683,146 @@ func (ec *executionContext) _LoginRes_roleName(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _ManufacturerItem_id(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ManufacturerItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ManufacturerItem_name(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ManufacturerItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ManufacturerItem_remark(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ManufacturerItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Remark, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ManufacturerItem_isDefault(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ManufacturerItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsDefault, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _MaterialManufacturerItem_id(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3159,6 +3399,72 @@ func (ec *executionContext) _Mutation_deleteCompanyUser(ctx context.Context, fie
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createManufacturer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createManufacturer_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateManufacturer(rctx, args["input"].(model.CreateManufacturerInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*codeinfo.CodeInfo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/codeinfo.CodeInfo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*codeinfo.CodeInfo)
+	fc.Result = res
+	return ec.marshalNManufacturerItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createMaterialManufacturer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6461,6 +6767,42 @@ func (ec *executionContext) unmarshalInputCreateCompanyUserInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateManufacturerInput(ctx context.Context, obj interface{}) (model.CreateManufacturerInput, error) {
+	var it model.CreateManufacturerInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isDefault":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDefault"))
+			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateMaterialManufacturerInput(ctx context.Context, obj interface{}) (model.CreateMaterialManufacturerInput, error) {
 	var it model.CreateMaterialManufacturerInput
 	var asMap = obj.(map[string]interface{})
@@ -7134,6 +7476,48 @@ func (ec *executionContext) _LoginRes(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var manufacturerItemImplementors = []string{"ManufacturerItem"}
+
+func (ec *executionContext) _ManufacturerItem(ctx context.Context, sel ast.SelectionSet, obj *codeinfo.CodeInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, manufacturerItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ManufacturerItem")
+		case "id":
+			out.Values[i] = ec._ManufacturerItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ManufacturerItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "remark":
+			out.Values[i] = ec._ManufacturerItem_remark(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isDefault":
+			out.Values[i] = ec._ManufacturerItem_isDefault(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var materialManufacturerItemImplementors = []string{"MaterialManufacturerItem"}
 
 func (ec *executionContext) _MaterialManufacturerItem(ctx context.Context, sel ast.SelectionSet, obj *codeinfo.CodeInfo) graphql.Marshaler {
@@ -7223,6 +7607,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteCompanyUser":
 			out.Values[i] = ec._Mutation_deleteCompanyUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createManufacturer":
+			out.Values[i] = ec._Mutation_createManufacturer(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -8032,6 +8421,11 @@ func (ec *executionContext) marshalNCreateInputUserRole2httpᚑapiᚋappᚋhttp�
 	return v
 }
 
+func (ec *executionContext) unmarshalNCreateManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateManufacturerInput(ctx context.Context, v interface{}) (model.CreateManufacturerInput, error) {
+	res, err := ec.unmarshalInputCreateManufacturerInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateMaterialManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateMaterialManufacturerInput(ctx context.Context, v interface{}) (model.CreateMaterialManufacturerInput, error) {
 	res, err := ec.unmarshalInputCreateMaterialManufacturerInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8184,6 +8578,20 @@ func (ec *executionContext) marshalNLoginRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraph�
 		return graphql.Null
 	}
 	return ec._LoginRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNManufacturerItem2httpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v codeinfo.CodeInfo) graphql.Marshaler {
+	return ec._ManufacturerItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNManufacturerItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v *codeinfo.CodeInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ManufacturerItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNMaterialManufacturerItem2httpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v codeinfo.CodeInfo) graphql.Marshaler {
