@@ -10,7 +10,10 @@ package tests
 
 import (
 	"fmt"
+	"github.com/magiconair/properties/assert"
+	"http-api/app/models/codeinfo"
 	"http-api/app/models/roles"
+	"http-api/pkg/model"
 	"http-api/seeders"
 	"math/rand"
 	"testing"
@@ -539,4 +542,52 @@ func TestCompanyAdminRoleDeleteMaterialManufacturers(t *testing.T) {
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
+}
+
+/**
+ * 公司管理员添加制造商集成测
+ */
+func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	var cs []*codeinfo.CodeInfo
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("type = ? AND company_id = ?", codeinfo.Manufacturer, me.CompanyId).
+		Find(&cs)
+	q := `
+		mutation createManufacturerMutation($input: CreateManufacturerInput!) {
+		  createManufacturer(input: $input) {
+			id
+			name
+			isDefault
+		  }
+		}
+	`
+	name := fmt.Sprintf("name_for_createManufacturerTest_%s", fmt.Sprintf("%d", time.Now().UnixNano()))
+	remark := "remark_for_createManufacturerByCompanyRole"
+	isDefault := false
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	if _, err := graphReqClient(q, v, roles.RoleCompanyAdmin); err != nil {
+		t.Fatal(err.Error())
+	}
+	newCodeInfo := codeinfo.CodeInfo{}
+	err := model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("name = ?", name).First(&newCodeInfo).
+		Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, name, newCodeInfo.Name)
+	assert.Equal(t, remark, newCodeInfo.Remark)
+	if len(cs) > 0 && newCodeInfo.IsDefault != isDefault {
+		assert.Equal(t, !isDefault, newCodeInfo.IsDefault)
+	}
+	if len(cs) == 0 {
+		assert.Equal(t, true, newCodeInfo.IsDefault)
+	}
 }

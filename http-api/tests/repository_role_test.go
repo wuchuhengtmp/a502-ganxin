@@ -10,10 +10,14 @@ package tests
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"http-api/app/models/codeinfo"
 	"http-api/app/models/roles"
+	"http-api/pkg/model"
 	"http-api/seeders"
 	"math/rand"
 	"testing"
+	"time"
 )
 
 // 仓库管理员测试上下文
@@ -368,4 +372,55 @@ func TestRepositoryAdminRoleDeleteMaterialManufacturers(t *testing.T) {
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
+}
+
+func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
+	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
+	var cs []*codeinfo.CodeInfo
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("type = ? AND company_id = ?", codeinfo.Manufacturer, me.CompanyId).
+		Find(&cs)
+	q := `
+		mutation createManufacturerMutation($input: CreateManufacturerInput!) {
+		  createManufacturer(input: $input) {
+			id
+			name
+			isDefault
+		  }
+		}
+	`
+	name := fmt.Sprintf("name_for_createManufacturerByRepositoryRole_%s", fmt.Sprintf("%d", time.Now().UnixNano()))
+	remark := "remark_for_createManufacturerTest"
+	isDefault := true
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	if _, err := graphReqClient(q, v, roles.RoleCompanyAdmin); err != nil {
+		t.Fatal(err.Error())
+	}
+	newCodeInfo := codeinfo.CodeInfo{}
+	err := model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("name = ?", name).First(&newCodeInfo).
+		Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, name, newCodeInfo.Name)
+	assert.Equal(t, remark, newCodeInfo.Remark)
+	if len(cs) > 0 && newCodeInfo.IsDefault != isDefault {
+		assert.Equal(t, !isDefault, newCodeInfo.IsDefault)
+	}
+	if len(cs) == 0 {
+		assert.Equal(t, true, newCodeInfo.IsDefault)
+	}
+	if len(cs) >= 2 {
+		model.DB.Model(&codeinfo.CodeInfo{}).
+			Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.Manufacturer, true).
+			Find(&cs)
+		assert.Len(t,  cs, 1)
+	}
 }

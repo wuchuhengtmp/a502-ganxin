@@ -13,24 +13,30 @@ import (
 	"fmt"
 	"github.com/machinebox/graphql"
 	"http-api/app/models/roles"
-	"http-api/pkg/config"
+	"http-api/app/models/users"
+	"http-api/bootstrap"
+	"http-api/config"
+	"http-api/pkg/jwt"
+	"http-api/pkg/model"
 	"testing"
 )
 
 const bashUrl string = "http://localhost:9501/query"
+
 // graphql 请求客户端
 var client = graphql.NewClient(bashUrl)
 
 func init() {
-	config.Viper.AddConfigPath("..")
-	_ = config.Viper.ReadInConfig()
+	config.Initialize()
+	bootstrap.SetupDB()
 }
+
 /**
  * 断言错误并终止测试
  */
 func hasError(t *testing.T, err error) {
 	if err != nil {
-		t.Fatal( err.Error())
+		t.Fatal(err.Error())
 	}
 }
 
@@ -39,22 +45,22 @@ func hasError(t *testing.T, err error) {
  */
 func graphReqClient(query string, variables map[string]interface{}, role roles.GraphqlRole) (responseData map[string]interface{}, err error) {
 	req := graphql.NewRequest(query)
-	for key,  variable := range variables {
+	for key, variable := range variables {
 		req.Var(key, variable)
 	}
 	req.Header.Set("Cache-Control", "no-cache")
 	switch role {
-		// 登记超级管理员角色token用于鉴权接口使用
-		case roles.RoleAdmin:
-			if len(superAdminTestCtx.SuperAdminToken) > 0 {
-				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", superAdminTestCtx.SuperAdminToken))
-			}
-			break
-		case roles.RoleCompanyAdmin:
-			if len(companyAdminTestCtx.Token) > 0 {
-				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", companyAdminTestCtx.Token))
-			}
-			break
+	// 登记超级管理员角色token用于鉴权接口使用
+	case roles.RoleAdmin:
+		if len(superAdminTestCtx.SuperAdminToken) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", superAdminTestCtx.SuperAdminToken))
+		}
+		break
+	case roles.RoleCompanyAdmin:
+		if len(companyAdminTestCtx.Token) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", companyAdminTestCtx.Token))
+		}
+		break
 	case roles.RoleRepositoryAdmin:
 		if len(repositoryAdminTestCtx.Token) > 0 {
 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", repositoryAdminTestCtx.Token))
@@ -76,4 +82,20 @@ func graphReqClient(query string, variables map[string]interface{}, role roles.G
 	err = client.Run(ctx, req, &responseData)
 
 	return responseData, err
+}
+
+/**
+ * 通过token用获取户信息
+ */
+func GetUserByToken(token string) (*users.Users, error) {
+	payload, _ := jwt.ParseByTokenStr(token)
+
+	u := users.Users{}
+	db := model.DB
+	fmt.Println(db)
+	if err := model.DB.Model(&users.Users{}).Where("id = ?", payload.Uid).First(&u).Error; err != nil {
+		return nil , err
+	}
+
+	return &u, nil
 }

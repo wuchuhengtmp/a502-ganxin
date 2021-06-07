@@ -18,6 +18,8 @@ func init() {
 	Viper.SetConfigType("env")
 	// 4. 环境变量配置文件查找的路径，相对于 main.go
 	Viper.AddConfigPath(".")
+	// xxx 这行代码是在测试环境的http-api/test包下才生效的，不是很好,应该测试环境才用，不是测试环境则不用
+	Viper.AddConfigPath("..")
 	// 5. 开始读根目录下的 .env 文件，读不到会报错
 	err := Viper.ReadInConfig()
 	logger.LogError(err)
