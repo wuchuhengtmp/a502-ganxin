@@ -272,7 +272,8 @@ func (c *CodeInfo) DeleteManufacturer(ctx context.Context) error {
 		// 尝试指定一个新的默认项
 		if c.IsDefault {
 			var cs []*CodeInfo
-			if err := tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, c.CompanyId).Find(&cs).Error; err == nil {
+			tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, c.CompanyId).Find(&cs)
+			if len(cs) > 0{
 				if err := tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
 					return err
 				}
