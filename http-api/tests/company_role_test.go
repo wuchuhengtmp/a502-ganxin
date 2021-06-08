@@ -48,6 +48,8 @@ var companyAdminTestCtx = struct {
 	EditManufacturerId int64
 	// 用于删除制造商家ID
 	DeleteManufacturerId int64
+	// 用于编辑物流公司ID
+	EditExpressId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -658,7 +660,7 @@ func TestCompanyAdminRoleEditManufacturers(t *testing.T) {
 	assert.Equal(t, isDefault, c.IsDefault)
 	assert.Equal(t, remark, c.Remark)
 	// 只能有一个默认选项
-	var cs  []*codeinfo.CodeInfo
+	var cs []*codeinfo.CodeInfo
 	me, _ := GetUserByToken(companyAdminTestCtx.Token)
 	model.DB.Model(&codeinfo.CodeInfo{}).
 		Where("type = ? AND company_id = ? AND is_default = ?", codeinfo.Manufacturer, me.CompanyId, true).
@@ -673,13 +675,13 @@ func TestCompanyAdminRoleEditManufacturers(t *testing.T) {
 /**
  * 公司管理员删除制造商集成测试
  */
-func TestCompanyAdminRoleDeleteManufacturers(t *testing.T)  {
+func TestCompanyAdminRoleDeleteManufacturers(t *testing.T) {
 	q := `
 		mutation deleteManufacturerMutation($id: Int!) {
 		  deleteManufacturer(id: $id) 
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"id": companyAdminTestCtx.DeleteManufacturerId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -688,12 +690,12 @@ func TestCompanyAdminRoleDeleteManufacturers(t *testing.T)  {
 	}
 	// 断言没有这条数据了
 	var cs []*codeinfo.CodeInfo
-	 model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", companyAdminTestCtx.DeleteManufacturerId).Find(&cs)
+	model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", companyAdminTestCtx.DeleteManufacturerId).Find(&cs)
 	assert.Len(t, cs, 0)
 	// 断言有新的默认制造商家了
 	me, _ := GetUserByToken(companyAdminTestCtx.Token)
 	model.DB.Model(&codeinfo.CodeInfo{}).Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.Manufacturer).Find(&cs)
-	if len(cs) > 0{
+	if len(cs) > 0 {
 		c := codeinfo.CodeInfo{}
 		err := model.DB.
 			Model(&codeinfo.CodeInfo{}).
@@ -722,10 +724,10 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 	name := "name_for_companyCreateExpress_" + fmt.Sprintf("%d", time.Now().UnixNano())
 	remark := "remark_for_companyCreateExpress"
 	isDefault := true
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": name,
-			"remark": remark,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      name,
+			"remark":    remark,
 			"isDefault": isDefault,
 		},
 	}
@@ -733,7 +735,7 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 	if err != nil {
 		t.Fatal("failed:创建物流公司集成测试失败")
 	}
-	c := codeinfo.CodeInfo{ }
+	c := codeinfo.CodeInfo{}
 	if err := model.DB.Model(&codeinfo.CodeInfo{}).Where("name = ?", name).First(&c).Error; err != nil {
 		t.Fatal("failed:创建物流公司集成测试失败")
 	}
@@ -742,7 +744,7 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 	assert.Equal(t, c.IsDefault, isDefault)
 	assert.Equal(t, c.Type, codeinfo.ExpressCompany)
 	assert.Equal(t, c.CompanyId, me.CompanyId)
-	var cs  []*codeinfo.CodeInfo
+	var cs []*codeinfo.CodeInfo
 	model.DB.Model(&codeinfo.CodeInfo{}).
 		Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
 		Find(&cs)
@@ -752,14 +754,14 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 	name = "name_for_companyCreateExpress_" + fmt.Sprintf("%d", time.Now().UnixNano())
 	remark = "remark_for_companyCreateExpress"
 	isDefault = false
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": name,
-			"remark": remark,
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      name,
+			"remark":    remark,
 			"isDefault": isDefault,
 		},
 	}
-	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	if err != nil {
 		t.Fatal("failed:创建物流公司集成测试失败")
 	}
@@ -775,6 +777,9 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 		Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
 		Find(&cs)
 	assert.Len(t, cs, 1)
+	data := res["createExpress"].(map[string]interface{})
+	id := data["id"].(float64)
+	companyAdminTestCtx.EditExpressId = int64(id)
 }
 
 /**
@@ -798,7 +803,7 @@ func TestCompanyAdminRoleGetExpressList(t *testing.T) {
 	}
 	me, _ := GetUserByToken(companyAdminTestCtx.Token)
 	items := res["getExpressList"].([]interface{})
-	for _,item := range items {
+	for _, item := range items {
 		express := item.(map[string]interface{})
 		id := express["id"].(float64)
 		record := codeinfo.CodeInfo{}
@@ -807,3 +812,75 @@ func TestCompanyAdminRoleGetExpressList(t *testing.T) {
 	}
 }
 
+/**
+ * 公司管理员编辑物流集成测试
+ */
+func TestCompanyAdminRoleEditExpress(t *testing.T) {
+	q := `
+		mutation editExpressMutation($input: EditExpressInput!) {
+		  editExpress(input: $input) {
+			id
+			isDefault
+			remark
+			name
+		  }
+		}
+	`
+	name := "name_for_companyRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	remark := "remark_for_companyRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	isDefault := true
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        companyAdminTestCtx.EditExpressId,
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员编辑物流集成测试")
+	}
+	record := codeinfo.CodeInfo{}
+	err = model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", companyAdminTestCtx.EditExpressId).First(&record).Error
+	if err != nil {
+		t.Fatal("failed:公司管理员编辑物流集成测试")
+	}
+	assert.Equal(t, record.IsDefault, isDefault)
+	assert.Equal(t, record.Name, name)
+	assert.Equal(t, record.Type, codeinfo.ExpressCompany)
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	assert.Equal(t, record.CompanyId, me.CompanyId)
+	assert.Equal(t, remark, record.Remark)
+	// 不是默认选项断言
+	name = "name_for_companyRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	remark = "remark_for_companyRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	isDefault = false
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        companyAdminTestCtx.EditExpressId,
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员编辑物流集成测试")
+	}
+	var cs []codeinfo.CodeInfo
+
+	model.
+		DB.
+		Model(&codeinfo.CodeInfo{}).
+		Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.ExpressCompany).
+		Find(&cs)
+	if len(cs) > 1 {
+		model.
+			DB.
+			Model(&codeinfo.CodeInfo{}).
+			Where("company_id = ? AND is_default = ? AND type = ?", me.CompanyId, true, codeinfo.ExpressCompany).
+			Find(&cs)
+		assert.Len(t, cs, 1)
+	}
+}

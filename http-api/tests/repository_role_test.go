@@ -36,6 +36,8 @@ var repositoryAdminTestCtx = struct {
 	EditManufacturerId int64
 	// 用于删除制造商家测试
 	DeleteManufacturerId int64
+	// 用于编辑物流公司
+	EditExpressId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -595,7 +597,7 @@ func TestRepositoryAdminRoleCreateExpress(t *testing.T) {
 			"isDefault": isDefault,
 		},
 	}
-	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	if err != nil {
 		t.Fatal("failed:创建物流公司集成测试失败")
 	}
@@ -611,6 +613,9 @@ func TestRepositoryAdminRoleCreateExpress(t *testing.T) {
 		Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
 		Find(&cs)
 	assert.Len(t, cs, 1)
+	data := res["createExpress"].(map[string]interface{})
+	id := data["id"].(float64)
+	repositoryAdminTestCtx.EditExpressId = int64(id)
 }
 
 /**
@@ -640,5 +645,78 @@ func TestRepositoryAdminRoleGetExpressList(t *testing.T) {
 		record := codeinfo.CodeInfo{}
 		model.DB.Model(&record).Where("id = ?", int64(id)).First(&record)
 		assert.Equal(t, record.CompanyId, me.CompanyId)
+	}
+}
+
+/**
+ * 仓库管理员编辑物流集成测试
+ */
+func TestRepositoryAdminRoleEditExpress(t *testing.T) {
+	q := `
+		mutation editExpressMutation($input: EditExpressInput!) {
+		  editExpress(input: $input) {
+			id
+			isDefault
+			remark
+			name
+		  }
+		}
+	`
+	name := "name_for_companyRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	remark := "remark_for_companyRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	isDefault := true
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id": repositoryAdminTestCtx.EditExpressId,
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("failed:仓库管理员编辑物流集成测试")
+	}
+	record := codeinfo.CodeInfo{}
+	err = model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", repositoryAdminTestCtx.EditExpressId).First(&record).Error
+	if err != nil {
+		t.Fatal("failed:仓库管理员编辑物流集成测试")
+	}
+	assert.Equal(t, record.IsDefault, isDefault)
+	assert.Equal(t, record.Name, name)
+	assert.Equal(t, record.Type, codeinfo.ExpressCompany)
+	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
+	assert.Equal(t, record.CompanyId, me.CompanyId)
+	assert.Equal(t, remark, record.Remark)
+	// 不是默认选项断言
+	name = "name_for_repositoryRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	remark = "remark_for_repositoryRoleEditTest" + fmt.Sprintf("%d", time.Now().UnixNano())
+	isDefault = false
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"id": repositoryAdminTestCtx.EditExpressId,
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:仓库管理员编辑物流集成测试")
+	}
+	var cs []codeinfo.CodeInfo
+
+	model.
+		DB.
+		Model(&codeinfo.CodeInfo{}).
+		Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.ExpressCompany).
+		Find(&cs)
+	if len(cs) > 1 {
+		model.
+			DB.
+			Model(&codeinfo.CodeInfo{}).
+			Where("company_id = ? AND is_default = ? AND type = ?", me.CompanyId, true, codeinfo.ExpressCompany).
+			Find(&cs)
+		assert.Len(t, cs, 1)
 	}
 }
