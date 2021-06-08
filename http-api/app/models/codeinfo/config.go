@@ -345,3 +345,15 @@ func (c *CodeInfo) SetDefaultExpress(tx *gorm.DB, ctx context.Context) error {
 
 	return nil
 }
+
+/**
+ * 获取物流列表
+ */
+func (c *CodeInfo) GetExpressList(ctx context.Context) (cs []*CodeInfo, err error) {
+	me := auth.GetUser(ctx)
+	model.DB.Model(&CodeInfo{}).
+		Where("company_id = ? AND type = ?", me.CompanyId, ExpressCompany).
+		Find(&cs)
+
+	return
+}

@@ -16,3 +16,8 @@ extend type Mutation {
     """ 创建物流商 """
     createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
+
+extend type Query {
+    """ 获取物流公司列表 """
+    getExpressList: [ExpressItem]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}
