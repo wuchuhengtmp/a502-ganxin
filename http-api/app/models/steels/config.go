@@ -18,11 +18,28 @@ type Steels struct {
 	ID                     int64     `json:"id"`
 	Identifier             string    `json:"identifier" gorm:"comment:识别码"`
 	CreatedUid             int64     `json:"createdUid" gorm:"comment:首次入库用户id"`
-	State                  int64     `json:"state" gorm:"comment:0已归库100项目-待使用101项目-使用中102项目-异常103项目—准备归库104项目—准备归库201维修-待维修202维修-维修中203维修-准备归库204维修-归库途中301废弃"`
+	State                  int64     `json:"state" gorm:"comment:
+100【仓库】-在库
+101【仓库】-运送至项目途中
+102【仓库】-运送至维修厂途中
+200【项目】-待使用
+201【项目】-使用中
+202【项目】-异常
+203【项目】-闲置
+204【项目】-准备归库
+205【项目】-归库途中
+300【维修】-待维修
+301【维修】-维修中
+302【维修】-准备归库
+303【维修】-归库途中
+400丢失
+500报废
+`
 	SpecificationId        int64     `json:"specificationId" gorm:"comment:规格表id"`
 	CompanyId              int64     `json:"companyId" gorm:"comment:所属的公司id"`
 	RepositoryId           int64     `json:"repositoryId" gorm:"comment:当前存放的仓库id"`
 	MaterialManufacturerId int64     `json:"materialManufacturerId" gorm:"comment:code表的材料商类型id"`
+	ManufacturerId         int64     `json:"manufacturerId" gorm:"comment:code表的制造商id"`
 	Turnover               int64     `json:"turnover" gorm:"comment:周转次数"`
 	UsageYearRate          float64   `json:"usageYearRate" gorm:"comment:年使用率"`
 	TotalUsageRate         float64   `json:"totalUsageRate" gorm:"comment:总使用率"`
@@ -47,9 +64,18 @@ func (*Steels) GetSteelsBySpecificationId(specificationId int64) (res []*Steels,
  * 通过材料商家id获取数据
  */
 func (s *Steels) GetListByMMID(MMID int64) (ss []*Steels, err error) {
-	 db := model.DB
-	 err = db.Model(s).Where("material_manufacturer_id = ?", MMID).Find(&ss).Error
+	db := model.DB
+	err = db.Model(s).Where("material_manufacturer_id = ?", MMID).Find(&ss).Error
 
-	 return ss, err
+	return ss, err
 }
 
+/**
+ * 通过制造商家id获取数据
+ */
+func (s *Steels) GetListByManufacturerId(manufacturerId int64) (ss []*Steels, err error) {
+	db := model.DB
+	err = db.Model(s).Where("manufacturer_id = ?", manufacturerId).Find(&ss).Error
+
+	return ss, err
+}

@@ -24,8 +24,8 @@ extend type Mutation {
     createManufacturer(input: CreateManufacturerInput!): ManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
     """ 编辑材料商 (auth: companyAdmin, repositoryAdmin) """
     editManufacturer(input: EditManufacturerInput!): ManufacturerItem! @hasRole(role: [companyAdmin, repositoryAdmin])
-#    """ 删除材料商 (auth: companyAdmin, repositoryAdmin) """
-#    deleteMaterialManufacturer(id: Int!): Boolean! @hasRole(role: [companyAdmin, repositoryAdmin])
+    """ 删除材料商 (auth: companyAdmin, repositoryAdmin) """
+    deleteManufacturer(id: Int!): Boolean! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
 extend type Query {

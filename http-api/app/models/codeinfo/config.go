@@ -258,3 +258,35 @@ func (c *CodeInfo)EditManufacturer(ctx context.Context) error {
 		return nil
 	})
 }
+
+/**
+ * 删除制造商
+ */
+func (c *CodeInfo)DeleteManufacturer(ctx context.Context) error {
+	_ = c.GetSelf()
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Delete(&CodeInfo{}).Error; err != nil {
+			return err
+		}
+		// 尝试指定一个新的默认项
+		if c.IsDefault {
+			var cs []*CodeInfo
+			if err := tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, c.CompanyId).Find(&cs).Error; err == nil {
+				if err := tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
+					return  err
+				}
+			}
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Uid: me.ID,
+			Content: fmt.Sprintf("删除制造商: id为%d", c.ID),
+			Type: logs.CreateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
