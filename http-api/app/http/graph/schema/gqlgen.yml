@@ -65,5 +65,7 @@ models:
     model: http-api/app/models/codeinfo.CodeInfo
   ManufacturerItem:
     model: http-api/app/models/codeinfo.CodeInfo
+  ExpressItem:
+    model: http-api/app/models/codeinfo.CodeInfo
 
 

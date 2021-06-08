@@ -1,0 +1,18 @@
+""" 添加物流商需要的参数 """
+input CreateExpressInput {
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+"""" 物流商数据项 """
+type ExpressItem {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+
+extend type Mutation {
+    """ 创建物流商 """
+    createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+}

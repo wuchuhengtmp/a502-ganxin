@@ -76,6 +76,13 @@ type ComplexityRoot struct {
 		Desc func(childComplexity int) int
 	}
 
+	ExpressItem struct {
+		ID        func(childComplexity int) int
+		IsDefault func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Remark    func(childComplexity int) int
+	}
+
 	FileItem struct {
 		ID  func(childComplexity int) int
 		URL func(childComplexity int) int
@@ -111,6 +118,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
 		CreateCompanyUser          func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateExpress              func(childComplexity int, input model.CreateExpressInput) int
 		CreateManufacturer         func(childComplexity int, input model.CreateManufacturerInput) int
 		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
 		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
@@ -194,6 +202,7 @@ type MutationResolver interface {
 	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*model.UserItem, error)
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
+	CreateExpress(ctx context.Context, input model.CreateExpressInput) (*codeinfo.CodeInfo, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -367,6 +376,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ErrCodes.Desc(childComplexity), true
 
+	case "ExpressItem.id":
+		if e.complexity.ExpressItem.ID == nil {
+			break
+		}
+
+		return e.complexity.ExpressItem.ID(childComplexity), true
+
+	case "ExpressItem.isDefault":
+		if e.complexity.ExpressItem.IsDefault == nil {
+			break
+		}
+
+		return e.complexity.ExpressItem.IsDefault(childComplexity), true
+
+	case "ExpressItem.name":
+		if e.complexity.ExpressItem.Name == nil {
+			break
+		}
+
+		return e.complexity.ExpressItem.Name(childComplexity), true
+
+	case "ExpressItem.remark":
+		if e.complexity.ExpressItem.Remark == nil {
+			break
+		}
+
+		return e.complexity.ExpressItem.Remark(childComplexity), true
+
 	case "FileItem.id":
 		if e.complexity.FileItem.ID == nil {
 			break
@@ -509,6 +546,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateCompanyUser(childComplexity, args["input"].(model.CreateCompanyUserInput)), true
+
+	case "Mutation.createExpress":
+		if e.complexity.Mutation.CreateExpress == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createExpress_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateExpress(childComplexity, args["input"].(model.CreateExpressInput)), true
 
 	case "Mutation.createManufacturer":
 		if e.complexity.Mutation.CreateManufacturer == nil {
@@ -1268,6 +1317,25 @@ enum Role {
 
 # 角色鉴权
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION`, BuiltIn: false},
+	{Name: "../express.graphql", Input: `""" 添加物流商需要的参数 """
+input CreateExpressInput {
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+"""" 物流商数据项 """
+type ExpressItem {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
+
+extend type Mutation {
+    """ 创建物流商 """
+    createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+}
+`, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
 """ 添加制造商参数 """
 input CreateManufacturerInput {
@@ -1471,6 +1539,21 @@ func (ec *executionContext) field_Mutation_createCompany_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createExpress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateExpressInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateExpressInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2433,6 +2516,146 @@ func (ec *executionContext) _ErrCodes_desc(ctx context.Context, field graphql.Co
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressItem_id(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressItem_name(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressItem_remark(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Remark, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressItem_isDefault(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsDefault, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _FileItem_id(ctx context.Context, field graphql.CollectedField, obj *model.FileItem) (ret graphql.Marshaler) {
@@ -3466,6 +3689,72 @@ func (ec *executionContext) _Mutation_deleteCompanyUser(ctx context.Context, fie
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createExpress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createExpress_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateExpress(rctx, args["input"].(model.CreateExpressInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*codeinfo.CodeInfo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/codeinfo.CodeInfo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*codeinfo.CodeInfo)
+	fc.Result = res
+	return ec.marshalNExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createManufacturer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -7025,6 +7314,42 @@ func (ec *executionContext) unmarshalInputCreateCompanyUserInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateExpressInput(ctx context.Context, obj interface{}) (model.CreateExpressInput, error) {
+	var it model.CreateExpressInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isDefault":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDefault"))
+			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateManufacturerInput(ctx context.Context, obj interface{}) (model.CreateManufacturerInput, error) {
 	var it model.CreateManufacturerInput
 	var asMap = obj.(map[string]interface{})
@@ -7667,6 +7992,48 @@ func (ec *executionContext) _ErrCodes(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var expressItemImplementors = []string{"ExpressItem"}
+
+func (ec *executionContext) _ExpressItem(ctx context.Context, sel ast.SelectionSet, obj *codeinfo.CodeInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, expressItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExpressItem")
+		case "id":
+			out.Values[i] = ec._ExpressItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ExpressItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "remark":
+			out.Values[i] = ec._ExpressItem_remark(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isDefault":
+			out.Values[i] = ec._ExpressItem_isDefault(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var fileItemImplementors = []string{"FileItem"}
 
 func (ec *executionContext) _FileItem(ctx context.Context, sel ast.SelectionSet, obj *model.FileItem) graphql.Marshaler {
@@ -7909,6 +8276,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteCompanyUser":
 			out.Values[i] = ec._Mutation_deleteCompanyUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createExpress":
+			out.Values[i] = ec._Mutation_createExpress(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -8737,6 +9109,11 @@ func (ec *executionContext) unmarshalNCreateCompanyUserInput2httpᚑapiᚋappᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateExpressInput(ctx context.Context, v interface{}) (model.CreateExpressInput, error) {
+	res, err := ec.unmarshalInputCreateExpressInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateInputUserRole2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateInputUserRole(ctx context.Context, v interface{}) (model.CreateInputUserRole, error) {
 	var res model.CreateInputUserRole
 	err := res.UnmarshalGQL(v)
@@ -8822,6 +9199,20 @@ func (ec *executionContext) marshalNErrCodes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgra
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) marshalNExpressItem2httpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v codeinfo.CodeInfo) graphql.Marshaler {
+	return ec._ExpressItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v *codeinfo.CodeInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ExpressItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNFileItem2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx context.Context, sel ast.SelectionSet, v model.FileItem) graphql.Marshaler {

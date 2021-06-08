@@ -234,10 +234,11 @@ func (c *CodeInfo) GetManufacturers(ctx context.Context) (cs []*CodeInfo, err er
 
 	return cs, err
 }
+
 /**
  *  编辑制造商
  */
-func (c *CodeInfo)EditManufacturer(ctx context.Context) error {
+func (c *CodeInfo) EditManufacturer(ctx context.Context) error {
 	return model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(c).Where("id = ?", c.ID).Updates(c).Error; err != nil {
 			return err
@@ -247,9 +248,9 @@ func (c *CodeInfo)EditManufacturer(ctx context.Context) error {
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid:me.ID,
+			Uid:     me.ID,
 			Content: fmt.Sprintf("编辑制作商:修改的id为%d", c.ID),
-			Type: logs.UpdateActionType,
+			Type:    logs.UpdateActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
@@ -262,7 +263,7 @@ func (c *CodeInfo)EditManufacturer(ctx context.Context) error {
 /**
  * 删除制造商
  */
-func (c *CodeInfo)DeleteManufacturer(ctx context.Context) error {
+func (c *CodeInfo) DeleteManufacturer(ctx context.Context) error {
 	_ = c.GetSelf()
 	return model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Delete(&CodeInfo{}).Error; err != nil {
@@ -273,15 +274,15 @@ func (c *CodeInfo)DeleteManufacturer(ctx context.Context) error {
 			var cs []*CodeInfo
 			if err := tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, c.CompanyId).Find(&cs).Error; err == nil {
 				if err := tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
-					return  err
+					return err
 				}
 			}
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid: me.ID,
+			Uid:     me.ID,
 			Content: fmt.Sprintf("删除制造商: id为%d", c.ID),
-			Type: logs.CreateActionType,
+			Type:    logs.CreateActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
@@ -289,4 +290,57 @@ func (c *CodeInfo)DeleteManufacturer(ctx context.Context) error {
 
 		return nil
 	})
+}
+
+/**
+ * 创建新的物流商
+ */
+func (c *CodeInfo) CreateExpress(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		me := auth.GetUser(ctx)
+		c.CompanyId = me.CompanyId
+		c.Type = ExpressCompany
+		if err := tx.Create(c).Error; err != nil {
+			return err
+		}
+		if err := c.SetDefaultExpress(tx, ctx); err != nil {
+			return err
+		}
+		l := logs.Logos{
+			Uid:     me.ID,
+			Content: fmt.Sprintf("创建物流公司:id为%d", c.ID),
+			Type:    logs.CreateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (c *CodeInfo) SetDefaultExpress(tx *gorm.DB, ctx context.Context) error {
+	me := auth.GetUser(ctx)
+	if c.IsDefault {
+		tx.Model(&CodeInfo{}).
+			Where("type = ? AND company_id = ? AND id != ?", ExpressCompany, me.CompanyId, c.ID).
+			Update("is_default", false)
+	} else {
+		// 没有默认就指定一个默认的
+		hasDefault := CodeInfo{}
+		err := tx.Model(&CodeInfo{}).
+			Where("type = ? AND company_id = ? AND is_default = ?", ExpressCompany, me.CompanyId, true).
+			First(&hasDefault).Error
+		if err != nil {
+			var cs []*CodeInfo
+			tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", ExpressCompany, me.CompanyId).Find(&cs)
+			if len(cs) > 0 {
+				if err := tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }

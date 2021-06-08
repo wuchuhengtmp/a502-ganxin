@@ -88,6 +88,13 @@ type CreateCompanyUserInput struct {
 	Password string              `json:"password"`
 }
 
+//  添加物流商需要的参数
+type CreateExpressInput struct {
+	Name      string `json:"name"`
+	Remark    string `json:"remark"`
+	IsDefault bool   `json:"isDefault"`
+}
+
 //  添加制造商参数
 type CreateManufacturerInput struct {
 	Name      string `json:"name"`
