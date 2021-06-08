@@ -10,7 +10,7 @@ package tests
 
 import (
 	"fmt"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/roles"
 	"http-api/pkg/model"
@@ -44,6 +44,8 @@ var companyAdminTestCtx = struct {
 	EditMaterialId int64
 	// 用于删除的材料商id
 	DeleteMaterialId int64
+	// 用于编辑制造商ID
+	EditManufacturerId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -572,11 +574,12 @@ func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 			"isDefault": isDefault,
 		},
 	}
-	if _, err := graphReqClient(q, v, roles.RoleCompanyAdmin); err != nil {
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
 		t.Fatal(err.Error())
 	}
 	newCodeInfo := codeinfo.CodeInfo{}
-	err := model.DB.Model(&codeinfo.CodeInfo{}).
+	err = model.DB.Model(&codeinfo.CodeInfo{}).
 		Where("name = ?", name).First(&newCodeInfo).
 		Error
 	if err != nil {
@@ -590,6 +593,9 @@ func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 	if len(cs) == 0 {
 		assert.Equal(t, true, newCodeInfo.IsDefault)
 	}
+	data := res["createManufacturer"].(map[string]interface{})
+	id := data["id"].(float64)
+	companyAdminTestCtx.EditManufacturerId = int64(id)
 }
 
 /**
@@ -604,12 +610,59 @@ func TestCompanyAdminRoleGetManufacturers(t *testing.T) {
 		remark
 	  }
 	}`
-	v := map[string]interface{} {}
-	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin);
-	if  err != nil {
+	v := map[string]interface{}{}
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
 		t.Fatal("failed:公司管理员获取制造商列表集成测试")
 	}
 	assertCompanyIdForGetManufacturers(t, res, companyAdminTestCtx.Token)
 }
 
-
+/**
+ * 公司管理员编辑制造商集成测试
+ */
+func TestCompanyAdminRoleEditManufacturers(t *testing.T) {
+	q := `
+		mutation editManufacturerMutation($input: EditManufacturerInput! ){
+		  editManufacturer(input: $input) {
+			id
+			name
+			isDefault
+			remark
+		  }
+		}
+	`
+	name := "name_for_companyRoleTest"
+	remark := "remark_form_CompanyRoleTest"
+	isDefault := true
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":        companyAdminTestCtx.EditManufacturerId,
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员编辑制造商集成测试")
+	}
+	c := codeinfo.CodeInfo{
+		ID: companyAdminTestCtx.EditManufacturerId,
+	}
+	_ = c.GetSelf()
+	assert.Equal(t, name, c.Name)
+	assert.Equal(t, isDefault, c.IsDefault)
+	assert.Equal(t, remark, c.Remark)
+	// 只能有一个默认选项
+	var cs  []*codeinfo.CodeInfo
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("type = ? AND company_id = ? AND is_default = ?", codeinfo.Manufacturer, me.CompanyId, true).
+		Find(&cs)
+	assert.Len(t, cs, 1)
+	c = *cs[0]
+	assert.Equal(t, name, c.Name)
+	assert.Equal(t, isDefault, c.IsDefault)
+	assert.Equal(t, remark, c.Remark)
+}

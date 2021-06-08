@@ -32,6 +32,8 @@ var repositoryAdminTestCtx = struct {
 	EditMaterialId int64
 	// 用于删除材料商家
 	DeleteMaterialId int64
+	// 用于编辑制造商家
+	EditManufacturerId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -402,11 +404,12 @@ func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 			"isDefault": isDefault,
 		},
 	}
-	if _, err := graphReqClient(q, v, roles.RoleCompanyAdmin); err != nil {
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin);
+	if  err != nil {
 		t.Fatal(err.Error())
 	}
 	newCodeInfo := codeinfo.CodeInfo{}
-	err := model.DB.Model(&codeinfo.CodeInfo{}).
+	err = model.DB.Model(&codeinfo.CodeInfo{}).
 		Where("name = ?", name).First(&newCodeInfo).
 		Error
 	if err != nil {
@@ -426,6 +429,10 @@ func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 			Find(&cs)
 		assert.Len(t,  cs, 1)
 	}
+	// 保存id用于编辑制造商测试
+	data := res["createManufacturer"].(map[string]interface{})
+	id := data["id"].(float64)
+	repositoryAdminTestCtx.EditManufacturerId = int64(id)
 }
 
 /**
@@ -446,4 +453,52 @@ func TestCompanyRepositoryRoleGetManufacturer(t *testing.T) {
 		t.Fatal("failed:仓库管理员获取制造商集成测试")
 	}
 	assertCompanyIdForGetManufacturers(t, res, repositoryAdminTestCtx.Token)
+}
+/**
+ * 仓库管理员编辑制造商集成测试
+ */
+func TestRepositoryAdminRoleEditManufacturers(t *testing.T) {
+	q := `
+		mutation editManufacturerMutation($input: EditManufacturerInput! ){
+		  editManufacturer(input: $input) {
+			id
+			name
+			isDefault
+			remark
+		  }
+		}
+	`
+	name := "name_for_repositoryRoleTest"
+	remark := "remark_form_repositoryRoleTest"
+	isDefault := true
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id": repositoryAdminTestCtx.EditManufacturerId,
+			"name":      name,
+			"remark":    remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("failed:公司仓库管理员编辑制造商集成测试")
+	}
+	c := codeinfo.CodeInfo{
+		ID:repositoryAdminTestCtx.EditManufacturerId,
+	}
+	_ = c.GetSelf()
+	assert.Equal(t, name, c.Name)
+	assert.Equal(t, isDefault, c.IsDefault)
+	assert.Equal(t, remark, c.Remark)
+	// 只能有一个默认选项
+	var cs  []*codeinfo.CodeInfo
+	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("type = ? AND company_id = ? AND is_default = ?", codeinfo.Manufacturer, me.CompanyId, true).
+		Find(&cs)
+	assert.Len(t, cs, 1)
+	c = *cs[0]
+	assert.Equal(t, name, c.Name)
+	assert.Equal(t, isDefault, c.IsDefault)
+	assert.Equal(t, remark, c.Remark)
 }

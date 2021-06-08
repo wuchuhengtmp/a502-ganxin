@@ -238,7 +238,6 @@ func (c *CodeInfo) GetManufacturers(ctx context.Context) (cs []*CodeInfo, err er
  *  编辑制造商
  */
 func (c *CodeInfo)EditManufacturer(ctx context.Context) error {
-	_ = c.GetSelf()
 	return model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(c).Where("id = ?", c.ID).Updates(c).Error; err != nil {
 			return err
