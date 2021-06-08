@@ -34,6 +34,8 @@ var repositoryAdminTestCtx = struct {
 	DeleteMaterialId int64
 	// 用于编辑制造商家
 	EditManufacturerId int64
+	// 用于删除制造商家测试
+	DeleteManufacturerId int64
 }{
 	Username: seeders.RepositoryAdmin.Username,
 	Password: seeders.RepositoryAdmin.Password,
@@ -433,6 +435,7 @@ func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 	data := res["createManufacturer"].(map[string]interface{})
 	id := data["id"].(float64)
 	repositoryAdminTestCtx.EditManufacturerId = int64(id)
+	repositoryAdminTestCtx.DeleteManufacturerId = int64(id)
 }
 
 /**
@@ -501,4 +504,39 @@ func TestRepositoryAdminRoleEditManufacturers(t *testing.T) {
 	assert.Equal(t, name, c.Name)
 	assert.Equal(t, isDefault, c.IsDefault)
 	assert.Equal(t, remark, c.Remark)
+}
+
+
+/**
+ * 仓库管理员删除制造商集成测试
+ */
+func TestRepositoyAdminRoleDeleteManufacturers(t *testing.T)  {
+	q := `
+		mutation deleteManufacturerMutation($id: Int!) {
+		  deleteManufacturer(id: $id) 
+		}
+	`
+	v := map[string]interface{} {
+		"id": repositoryAdminTestCtx.DeleteManufacturerId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("failed:仓库管理员删除制造商集成测试")
+	}
+	// 断言没有这条数据了
+	var cs []*codeinfo.CodeInfo
+	model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?",repositoryAdminTestCtx.DeleteManufacturerId).Find(&cs)
+	assert.Len(t, cs, 0)
+	// 断言有新的默认制造商家了
+	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
+	model.DB.Model(&codeinfo.CodeInfo{}).Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.Manufacturer).Find(&cs)
+	if len(cs) > 0{
+		c := codeinfo.CodeInfo{}
+		err := model.DB.
+			Model(&codeinfo.CodeInfo{}).
+			Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.Manufacturer, true).
+			First(&c).
+			Error
+		assert.NoError(t, err)
+	}
 }

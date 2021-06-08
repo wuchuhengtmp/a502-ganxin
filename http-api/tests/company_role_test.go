@@ -46,6 +46,8 @@ var companyAdminTestCtx = struct {
 	DeleteMaterialId int64
 	// 用于编辑制造商ID
 	EditManufacturerId int64
+	// 用于删除制造商家ID
+	DeleteManufacturerId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -571,7 +573,7 @@ func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 		"input": map[string]interface{}{
 			"name":      name,
 			"remark":    remark,
-			"isDefault": isDefault,
+			"isDefault": rand.Intn(2) == 1,
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -596,6 +598,7 @@ func TestCompanyAdminRoleCreateManufacturer(t *testing.T) {
 	data := res["createManufacturer"].(map[string]interface{})
 	id := data["id"].(float64)
 	companyAdminTestCtx.EditManufacturerId = int64(id)
+	companyAdminTestCtx.DeleteManufacturerId = int64(id)
 }
 
 /**
@@ -665,4 +668,38 @@ func TestCompanyAdminRoleEditManufacturers(t *testing.T) {
 	assert.Equal(t, name, c.Name)
 	assert.Equal(t, isDefault, c.IsDefault)
 	assert.Equal(t, remark, c.Remark)
+}
+
+/**
+ * 公司管理员删除制造商集成测试
+ */
+func TestCompanyAdminRoleDeleteManufacturers(t *testing.T)  {
+	q := `
+		mutation deleteManufacturerMutation($id: Int!) {
+		  deleteManufacturer(id: $id) 
+		}
+	`
+	v := map[string]interface{} {
+		"id": companyAdminTestCtx.DeleteManufacturerId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员删除制造商集成测试")
+	}
+	// 断言没有这条数据了
+	var cs []*codeinfo.CodeInfo
+	 model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", companyAdminTestCtx.DeleteManufacturerId).Find(&cs)
+	assert.Len(t, cs, 0)
+	// 断言有新的默认制造商家了
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	model.DB.Model(&codeinfo.CodeInfo{}).Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.Manufacturer).Find(&cs)
+	if len(cs) > 0{
+		c := codeinfo.CodeInfo{}
+		err := model.DB.
+			Model(&codeinfo.CodeInfo{}).
+			Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.Manufacturer, true).
+			First(&c).
+			Error
+		assert.NoError(t, err)
+	}
 }
