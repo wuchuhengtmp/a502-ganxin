@@ -703,3 +703,76 @@ func TestCompanyAdminRoleDeleteManufacturers(t *testing.T)  {
 		assert.NoError(t, err)
 	}
 }
+
+/**
+ * 公司管理员创建物流商集成测试
+ */
+func TestCompanyAdminRoleCreateExpress(t *testing.T) {
+	q := `
+		mutation createExpressMutation($input: CreateExpressInput!) {
+		  createExpress(input: $input) {
+			id
+			name
+			remark
+			isDefault
+		  }
+		}
+	`
+	// 默认断言
+	name := "name_for_companyCreateExpress_" + fmt.Sprintf("%d", time.Now().UnixNano())
+	remark := "remark_for_companyCreateExpress"
+	isDefault := true
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"name": name,
+			"remark": remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:创建物流公司集成测试失败")
+	}
+	c := codeinfo.CodeInfo{ }
+	if err := model.DB.Model(&codeinfo.CodeInfo{}).Where("name = ?", name).First(&c).Error; err != nil {
+		t.Fatal("failed:创建物流公司集成测试失败")
+	}
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	assert.Equal(t, c.Name, name)
+	assert.Equal(t, c.IsDefault, isDefault)
+	assert.Equal(t, c.Type, codeinfo.ExpressCompany)
+	assert.Equal(t, c.CompanyId, me.CompanyId)
+	var cs  []*codeinfo.CodeInfo
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
+		Find(&cs)
+	assert.Len(t, cs, 1)
+	assert.Equal(t, cs[0].ID, c.ID)
+	// 非默认断言
+	name = "name_for_companyCreateExpress_" + fmt.Sprintf("%d", time.Now().UnixNano())
+	remark = "remark_for_companyCreateExpress"
+	isDefault = false
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"name": name,
+			"remark": remark,
+			"isDefault": isDefault,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:创建物流公司集成测试失败")
+	}
+	c = codeinfo.CodeInfo{}
+	if err := model.DB.Model(&codeinfo.CodeInfo{}).Where("name = ?", name).First(&c).Error; err != nil {
+		t.Fatal("failed:创建物流公司集成测试失败")
+	}
+	assert.Equal(t, c.Name, name)
+	assert.Equal(t, c.IsDefault, isDefault)
+	assert.Equal(t, c.Type, codeinfo.ExpressCompany)
+	assert.Equal(t, c.CompanyId, me.CompanyId)
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
+		Find(&cs)
+	assert.Len(t, cs, 1)
+}
