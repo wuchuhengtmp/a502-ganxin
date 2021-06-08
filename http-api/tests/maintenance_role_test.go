@@ -10,7 +10,10 @@ package tests
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"http-api/app/models/codeinfo"
 	"http-api/app/models/roles"
+	"http-api/pkg/model"
 	"http-api/seeders"
 	"testing"
 )
@@ -208,4 +211,34 @@ func TestMaintenanceProjectRoleGetManufacturer(t *testing.T) {
 		t.Fatal("failed:维修管理员获取材料商列表集成测试")
 	}
 	assertCompanyIdForGetManufacturers(t, res, maintenanceAdminTestCtx.Token)
+}
+
+/**
+ * 维修管理员获取物流列表集成测试
+ */
+func TestMaintenanceAdminRoleGetExpressList(t *testing.T) {
+	q := `
+		query getExpressListQuery {
+		  getExpressList{
+			id
+			name
+			isDefault
+			remark
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	res, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	if err != nil {
+		t.Fatal("failed:项目管理员获取物流列表集成测试")
+	}
+	me, _ := GetUserByToken(maintenanceAdminTestCtx.Token)
+	items := res["getExpressList"].([]interface{})
+	for _,item := range items {
+		express := item.(map[string]interface{})
+		id := express["id"].(float64)
+		record := codeinfo.CodeInfo{}
+		model.DB.Model(&record).Where("id = ?", int64(id)).First(&record)
+		assert.Equal(t, record.CompanyId, me.CompanyId)
+	}
 }

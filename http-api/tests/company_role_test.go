@@ -776,3 +776,34 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 		Find(&cs)
 	assert.Len(t, cs, 1)
 }
+
+/**
+ * 公司管理员获取物流列表集成测试
+ */
+func TestCompanyAdminRoleGetExpressList(t *testing.T) {
+	q := `
+		query getExpressListQuery {
+		  getExpressList{
+			id
+			name
+			isDefault
+			remark
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员获取物流列表集成测试")
+	}
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	items := res["getExpressList"].([]interface{})
+	for _,item := range items {
+		express := item.(map[string]interface{})
+		id := express["id"].(float64)
+		record := codeinfo.CodeInfo{}
+		model.DB.Model(&record).Where("id = ?", int64(id)).First(&record)
+		assert.Equal(t, record.CompanyId, me.CompanyId)
+	}
+}
+
