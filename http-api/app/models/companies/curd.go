@@ -47,10 +47,9 @@ func (Companies) Create(ctx context.Context, input graphQL.CreateCompanyInput) (
 	logsModel := logs.Logos{}
 	logsModel.Type = logs.CreateActionType
 	logsModel.Uid = me.ID
-	logsModel.Content = fmt.Sprintf("添加公司,名称:%s,ID: %d", company.Name, company.ID)
 	user := users.Users{
 		Name:         input.AdminName,
-		Password: 	  helper2.GetHashByStr(input.AdminPassword),
+		Password:     helper2.GetHashByStr(input.AdminPassword),
 		Phone:        input.AdminPhone,
 		RoleId:       roles.RoleCompanyAdminId,
 		Wechat:       input.AdminWechat,
@@ -60,7 +59,7 @@ func (Companies) Create(ctx context.Context, input graphQL.CreateCompanyInput) (
 	}
 	tx := db.Begin()
 	defer func() {
-		if  r := recover(); r != nil {
+		if r := recover(); r != nil {
 			tx.Rollback()
 			if err == nil {
 				// 事件失败错误
@@ -68,18 +67,19 @@ func (Companies) Create(ctx context.Context, input graphQL.CreateCompanyInput) (
 			}
 		}
 	}()
-	 if err := tx.Create(&company).Error; err != nil {
-		 panic(err)
-	 }
+	if err := tx.Create(&company).Error; err != nil {
+		panic(err)
+	}
+	logsModel.Content = fmt.Sprintf("添加公司,名称:%s,ID: %d", company.Name, company.ID)
 	if err := tx.Create(&logsModel).Error; err != nil {
 		panic(err)
-	 }
-	 if err := tx.Create(&user).Error; err != nil {
-		 panic(err)
-	 }
-	 tx.Commit()
+	}
+	if err := tx.Create(&user).Error; err != nil {
+		panic(err)
+	}
+	tx.Commit()
 
-	 return &company, nil
+	return &company, nil
 }
 
 func GetAllByUid(uid int64) (cs []Companies) {
@@ -154,7 +154,7 @@ func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) (ok
 			ok = false
 		}
 	}()
-	err :=  tx.Model(&Companies{}).Where("id = ?", input.ID).Updates(c).Error
+	err := tx.Model(&Companies{}).Where("id = ?", input.ID).Updates(c).Error
 	if err != nil {
 		return false
 	}
@@ -226,7 +226,7 @@ func GetCompanyAdminUserById(id int64) (*users.Users, error) {
 /**
  * 获取对应解析器的一项公司数据
  */
-func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
+func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("query failed")
@@ -239,7 +239,7 @@ func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
 	backgroundFile := files.File{}
 	_ = backgroundFile.GetSelfById(company.BackgroundFileId)
 	bf := graphQL.FileItem{
-		ID:backgroundFile.ID,
+		ID:  backgroundFile.ID,
 		URL: backgroundFile.GetUrl(),
 	}
 	adminAvatar := files.File{}
@@ -255,15 +255,15 @@ func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
 			URL: logoFile.GetUrl(),
 		},
 		BackgroundFile: &bf,
-		IsAble:    company.IsAble,
-		Phone:     company.Phone,
-		Wechat:    company.Wechat,
-		StartedAt: company.StartedAt,
-		EndedAt:   company.EndedAt,
-		CreatedAt: company.CreatedAt,
-		AdminName: user.Name,
-		AdminWechat: user.Wechat,
-		AdminPhone: user.Phone,
+		IsAble:         company.IsAble,
+		Phone:          company.Phone,
+		Wechat:         company.Wechat,
+		StartedAt:      company.StartedAt,
+		EndedAt:        company.EndedAt,
+		CreatedAt:      company.CreatedAt,
+		AdminName:      user.Name,
+		AdminWechat:    user.Wechat,
+		AdminPhone:     user.Phone,
 		AdminAvatar: &graphQL.FileItem{
 			ID:  adminAvatar.ID,
 			URL: adminAvatar.GetUrl(),
@@ -276,7 +276,7 @@ func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error){
 /**
  * 添加公司归属下的人员
  */
-func (Companies)CreateUser(ctx context.Context, input graphQL.CreateCompanyUserInput) (*users.Users, error) {
+func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUserInput) (*users.Users, error) {
 	tx := sqlModel.DB.Begin()
 	me := auth.GetUser(ctx)
 	user := users.Users{}
@@ -321,16 +321,16 @@ func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error) {
 		role := roles.Role{}
 		_ = role.GetSelfById(i.RoleId)
 		tmp.Role = &roles.RoleItem{
-			ID: role.ID,
+			ID:   role.ID,
 			Name: role.Name,
-			Tag: role.Tag,
+			Tag:  role.Tag,
 		}
 		tmp.Phone = i.Phone
 		tmp.Wechat = i.Wechat
 		avatar := files.File{}
 		_ = avatar.GetSelfById(i.AvatarFileId)
 		tmp.Avatar = &graphQL.FileItem{
-			ID: avatar.ID,
+			ID:  avatar.ID,
 			URL: avatar.GetUrl(),
 		}
 		tmp.IsAble = i.IsAble
@@ -339,7 +339,6 @@ func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error) {
 
 	return v, nil
 }
-
 
 func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput) (*graphQL.UserItem, error) {
 	tx := model.DB.Begin()
@@ -369,14 +368,14 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 	res := graphQL.UserItem{
 		ID: user.ID,
 		Role: &roles.RoleItem{
-			ID: roleInfo.ID,
+			ID:   roleInfo.ID,
 			Name: roleInfo.Name,
-			Tag: roleInfo.Tag,
+			Tag:  roleInfo.Tag,
 		},
-		Phone: user.Phone,
+		Phone:  user.Phone,
 		Wechat: user.Wechat,
 		Avatar: &graphQL.FileItem{
-			ID: avatarInfo.ID,
+			ID:  avatarInfo.ID,
 			URL: avatarInfo.GetUrl(),
 		},
 		IsAble: user.IsAble,
@@ -384,6 +383,7 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 
 	return &res, nil
 }
+
 /**
  *删除公司员工
  */
