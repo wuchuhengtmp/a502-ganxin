@@ -92,8 +92,6 @@ func GetUserByToken(token string) (*users.Users, error) {
 	payload, _ := jwt.ParseByTokenStr(token)
 
 	u := users.Users{}
-	db := model.DB
-	fmt.Println(db)
 	if err := model.DB.Model(&users.Users{}).Where("id = ?", payload.Uid).First(&u).Error; err != nil {
 		return nil , err
 	}

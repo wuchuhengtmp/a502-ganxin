@@ -115,7 +115,6 @@ func (c *CodeInfo) EditMaterialManufacturer(ctx context.Context) error {
 	me := auth.GetUser(ctx)
 	c.CompanyId = me.CompanyId
 	return model.DB.Transaction(func(tx *gorm.DB) error {
-		fmt.Println(c)
 		if err := tx.Model(c).Where("id = ?", c.ID).Updates(c).Error; err != nil {
 			return err
 		}
@@ -234,4 +233,29 @@ func (c *CodeInfo) GetManufacturers(ctx context.Context) (cs []*CodeInfo, err er
 	err = model.DB.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error
 
 	return cs, err
+}
+/**
+ *  编辑制造商
+ */
+func (c *CodeInfo)EditManufacturer(ctx context.Context) error {
+	_ = c.GetSelf()
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(c).Where("id = ?", c.ID).Updates(c).Error; err != nil {
+			return err
+		}
+		if err := c.SetManufactureDefault(tx); err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Uid:me.ID,
+			Content: fmt.Sprintf("编辑制作商:修改的id为%d", c.ID),
+			Type: logs.UpdateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
