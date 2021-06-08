@@ -357,3 +357,36 @@ func (c *CodeInfo) GetExpressList(ctx context.Context) (cs []*CodeInfo, err erro
 
 	return
 }
+
+/**
+ * 编辑物流公司
+ */
+func (c *CodeInfo) EditExpress(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		me := auth.GetUser(ctx)
+		c.CompanyId = me.CompanyId
+		copayCodeInfo := CodeInfo{
+			Type: c.Type,
+			Name      : c.Name,
+			IsDefault : c.IsDefault,
+			Remark: c.Remark,
+			CompanyId: c.CompanyId,
+		}
+		if err := tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Updates(&copayCodeInfo).Error; err != nil {
+			return err
+		}
+		if err := c.SetDefaultExpress(tx, ctx); err != nil {
+			return nil
+		}
+		l := logs.Logos{
+			Uid: me.ID,
+			Content: fmt.Sprintf("编辑物流公司:id为%d", c.ID),
+			Type: logs.UpdateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}

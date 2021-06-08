@@ -4,6 +4,13 @@ input CreateExpressInput {
     remark: String!
     isDefault: Boolean!
 }
+""" 编辑物流商需要的参数 """
+input EditExpressInput {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
 """" 物流商数据项 """
 type ExpressItem {
     id: Int!
@@ -13,11 +20,13 @@ type ExpressItem {
 }
 
 extend type Mutation {
-    """ 创建物流商 """
+    """ 创建物流商 (auth: companyAdmin, repositoryAdmin) """
     createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+    """ 编辑物流 (auth: companyAdmin, repositoryAdmin) """
+    editExpress(input: EditExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
 extend type Query {
-    """ 获取物流公司列表 """
+    """ 获取物流公司列表 (auth:  admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
     getExpressList: [ExpressItem]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }

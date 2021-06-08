@@ -131,6 +131,7 @@ type ComplexityRoot struct {
 		DeleteSpecification        func(childComplexity int, id int64) int
 		EditCompany                func(childComplexity int, input model.EditCompanyInput) int
 		EditCompanyUser            func(childComplexity int, input *model.EditCompanyUserInput) int
+		EditExpress                func(childComplexity int, input model.EditExpressInput) int
 		EditManufacturer           func(childComplexity int, input model.EditManufacturerInput) int
 		EditMaterialManufacturer   func(childComplexity int, input model.EditMaterialManufacturerInput) int
 		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
@@ -204,6 +205,7 @@ type MutationResolver interface {
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
 	CreateExpress(ctx context.Context, input model.CreateExpressInput) (*codeinfo.CodeInfo, error)
+	EditExpress(ctx context.Context, input model.EditExpressInput) (*codeinfo.CodeInfo, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -704,6 +706,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditCompanyUser(childComplexity, args["input"].(*model.EditCompanyUserInput)), true
+
+	case "Mutation.editExpress":
+		if e.complexity.Mutation.EditExpress == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editExpress_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditExpress(childComplexity, args["input"].(model.EditExpressInput)), true
 
 	case "Mutation.editManufacturer":
 		if e.complexity.Mutation.EditManufacturer == nil {
@@ -1332,6 +1346,13 @@ input CreateExpressInput {
     remark: String!
     isDefault: Boolean!
 }
+""" 编辑物流商需要的参数 """
+input EditExpressInput {
+    id: Int!
+    name: String!
+    remark: String!
+    isDefault: Boolean!
+}
 """" 物流商数据项 """
 type ExpressItem {
     id: Int!
@@ -1341,12 +1362,14 @@ type ExpressItem {
 }
 
 extend type Mutation {
-    """ 创建物流商 """
+    """ 创建物流商 (auth: companyAdmin, repositoryAdmin) """
     createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+    """ 编辑物流 (auth: companyAdmin, repositoryAdmin) """
+    editExpress(input: EditExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
 extend type Query {
-    """ 获取物流公司列表 """
+    """ 获取物流公司列表 (auth:  admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
     getExpressList: [ExpressItem]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 `, BuiltIn: false},
@@ -1748,6 +1771,21 @@ func (ec *executionContext) field_Mutation_editCompany_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editExpress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.EditExpressInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEditExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditExpressInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3732,6 +3770,72 @@ func (ec *executionContext) _Mutation_createExpress(ctx context.Context, field g
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
 			return ec.resolvers.Mutation().CreateExpress(rctx, args["input"].(model.CreateExpressInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*codeinfo.CodeInfo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/codeinfo.CodeInfo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*codeinfo.CodeInfo)
+	fc.Result = res
+	return ec.marshalNExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_editExpress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editExpress_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditExpress(rctx, args["input"].(model.EditExpressInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
@@ -7783,6 +7887,50 @@ func (ec *executionContext) unmarshalInputEditCompanyUserInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEditExpressInput(ctx context.Context, obj interface{}) (model.EditExpressInput, error) {
+	var it model.EditExpressInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isDefault":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDefault"))
+			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditManufacturerInput(ctx context.Context, obj interface{}) (model.EditManufacturerInput, error) {
 	var it model.EditManufacturerInput
 	var asMap = obj.(map[string]interface{})
@@ -8354,6 +8502,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createExpress":
 			out.Values[i] = ec._Mutation_createExpress(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editExpress":
+			out.Values[i] = ec._Mutation_editExpress(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -9233,6 +9386,11 @@ func (ec *executionContext) unmarshalNCreateSpecificationInput2httpᚑapiᚋapp�
 
 func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx context.Context, v interface{}) (model.EditCompanyInput, error) {
 	res, err := ec.unmarshalInputEditCompanyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNEditExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditExpressInput(ctx context.Context, v interface{}) (model.EditExpressInput, error) {
+	res, err := ec.unmarshalInputEditExpressInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

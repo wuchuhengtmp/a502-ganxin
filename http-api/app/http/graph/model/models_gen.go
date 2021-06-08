@@ -172,6 +172,14 @@ type EditCompanyUserInput struct {
 	IsAble bool `json:"isAble"`
 }
 
+//  编辑物流商需要的参数
+type EditExpressInput struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	Remark    string `json:"remark"`
+	IsDefault bool   `json:"isDefault"`
+}
+
 //  编辑制作商需要的参数
 type EditManufacturerInput struct {
 	ID        int64  `json:"id"`
