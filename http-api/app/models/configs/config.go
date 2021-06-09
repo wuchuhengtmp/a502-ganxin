@@ -63,7 +63,7 @@ func (c *Configs) EditPrice(ctx context.Context) error {
 		}
 		l := logs.Logos{
 			Uid: me.ID,
-			Content: fmt.Sprintf("修改价格: %f -> %s", oldPrice, c.Name),
+			Content: fmt.Sprintf("修改价格: %.4f -> %s", oldPrice, c.Value),
 			Type: logs.UpdateActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {

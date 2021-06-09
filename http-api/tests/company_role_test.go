@@ -899,7 +899,7 @@ func TestCompanyAdminRoleDeleteExpress(t *testing.T) {
 			deleteExpress(id: $id)
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"id": companyAdminTestCtx.DeleteExpressId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -934,7 +934,7 @@ func TestCompanyAdminRoleGetPrice(t *testing.T) {
 		  getPrice
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	if err != nil {
 		t.Fatal("failed:公司管理员获取集成测试")
@@ -951,7 +951,7 @@ func TestCompanyAdminRoleEditPrice(t *testing.T) {
 		}
 	`
 	price := 134.4578
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"price": price,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -963,7 +963,6 @@ func TestCompanyAdminRoleEditPrice(t *testing.T) {
 	model.DB.Model(&configs.Configs{}).
 		Where("name = ? AND company_id = ?", configs.PRICE_NAME, me.CompanyId).
 		First(&c)
-	expectPrice, _  := strconv.ParseFloat(c.Value, 64)
+	expectPrice, _ := strconv.ParseFloat(c.Value, 64)
 	assert.Equal(t, expectPrice, price)
-
 }
