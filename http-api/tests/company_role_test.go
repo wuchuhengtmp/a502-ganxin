@@ -12,10 +12,12 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/configs"
 	"http-api/app/models/roles"
 	"http-api/pkg/model"
 	"http-api/seeders"
 	"math/rand"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -888,7 +890,6 @@ func TestCompanyAdminRoleEditExpress(t *testing.T) {
 	}
 }
 
-
 /**
  * 公司管理员编辑物流集成测试
  */
@@ -938,4 +939,31 @@ func TestCompanyAdminRoleGetPrice(t *testing.T) {
 	if err != nil {
 		t.Fatal("failed:公司管理员获取集成测试")
 	}
+}
+
+/**
+ * 公司管理员编辑价格集成测试
+ */
+func TestCompanyAdminRoleEditPrice(t *testing.T) {
+	q := `
+		mutation editPriceMutation($price: Float!){
+		  editPrice(price: $price) 
+		}
+	`
+	price := 134.4578
+	v := map[string]interface{} {
+		"price": price,
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员获取集成测试")
+	}
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	c := configs.Configs{}
+	model.DB.Model(&configs.Configs{}).
+		Where("name = ? AND company_id = ?", configs.PRICE_NAME, me.CompanyId).
+		First(&c)
+	expectPrice, _  := strconv.ParseFloat(c.Value, 64)
+	assert.Equal(t, expectPrice, price)
+
 }

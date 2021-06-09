@@ -1,5 +1,5 @@
 /**
- * @Desc    The mutation_resolver is part of http-api
+ * @Desc    编辑价格解析器
  * @Author  wuchuheng<wuchuheng@163.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
