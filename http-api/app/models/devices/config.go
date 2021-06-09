@@ -8,7 +8,10 @@
  */
 package devices
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"http-api/pkg/model"
+)
 
 type Devices struct {
 	ID     int64  `json:"id"`
@@ -16,4 +19,19 @@ type Devices struct {
 	Uid    int64  `json:"uid" gorm:"comment:用户id"`
 	IsAble bool   `json:"is_abl" gorm:"comment:是否启用"`
 	gorm.Model
+}
+
+func (d *Devices) GetDeviceSelf() (*Devices, error) {
+	err := model.DB.Model(&Devices{}).
+		Where("uid = ? AND mac = ?", d.Uid, d.Mac).
+		First(d).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
+}
+
+func (d *Devices) CreateSelf() error {
+	return model.DB.Create(d).Error
 }

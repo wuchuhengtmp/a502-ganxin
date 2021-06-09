@@ -19,6 +19,7 @@ type AccountType struct {
 	Password string
 	Username string
 }
+
 var SuperAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969604",
@@ -39,7 +40,6 @@ var MaintenanceAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969608",
 }
-
 
 var UsersSeeders = []seed.Seed{
 	seed.Seed{
@@ -137,5 +137,6 @@ func CreateUser(
 		RoleId:       roleId,
 		AvatarFileId: avatarFileId,
 		CompanyId:    companyId,
+		IsAble:       true,
 	}).Error
 }
