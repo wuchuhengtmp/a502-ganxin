@@ -242,3 +242,18 @@ func TestMaintenanceAdminRoleGetExpressList(t *testing.T) {
 		assert.Equal(t, record.CompanyId, me.CompanyId)
 	}
 }
+/**
+ * 维修管理员获取价格集成测试
+ */
+func TestMaintenanceAdminRoleGetPrice(t *testing.T) {
+	q := `
+		 query getPriceQuery {
+		  getPrice
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	if err != nil {
+		t.Fatal("failed:维修管理员获取集成测试")
+	}
+}

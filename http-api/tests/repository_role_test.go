@@ -756,3 +756,19 @@ func TestRepositoryAdminRoleDeleteExpress(t *testing.T)  {
 		assert.NoError(t, err)
 	}
 }
+
+/**
+ * 仓库管理员获取价格集成测试
+ */
+func TestRepositoryAdminRoleGetPrice(t *testing.T) {
+	q := `
+		 query getPriceQuery {
+		  getPrice
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("failed:仓库管理员获取集成测试")
+	}
+}
