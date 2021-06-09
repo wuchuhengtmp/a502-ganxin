@@ -2,3 +2,8 @@ extend type Query {
     """  获取价格 """
     getPrice: Float!
 }
+
+extend type Mutation {
+    """ 编辑价格 (auth:  companyadmin )"""
+    editPrice(price: Float!): Float! @hasRole(role: [companyAdmin])
+}

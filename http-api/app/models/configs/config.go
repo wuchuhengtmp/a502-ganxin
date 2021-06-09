@@ -10,8 +10,10 @@ package configs
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
+	"http-api/app/models/logs"
 	"http-api/pkg/logger"
 	"http-api/pkg/model"
 	"strconv"
@@ -27,8 +29,6 @@ type Configs struct {
 }
 
 const (
-	APP_ICON   = "APP_ICON"
-	APP_NAME   = "APP_NAME"
 	PRICE_NAME = "PRICE"
 )
 
@@ -47,4 +47,29 @@ func (c *Configs) GetPrice(ctx context.Context) float64 {
 	s, _ := strconv.ParseFloat(v, 64)
 
 	return s
+}
+
+/**
+ * 编辑价格
+ */
+func (c *Configs) EditPrice(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		oldPrice := c.GetPrice(ctx)
+		me := auth.GetUser(ctx)
+		if err := tx.Model(&Configs{}).
+			Where("name = ? AND company_id = ?", PRICE_NAME, me.CompanyId).
+			Update("value", c.Value).Error; err != nil {
+			return err
+		}
+		l := logs.Logos{
+			Uid: me.ID,
+			Content: fmt.Sprintf("修改价格: %f -> %s", oldPrice, c.Name),
+			Type: logs.UpdateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

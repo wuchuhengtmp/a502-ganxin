@@ -135,6 +135,7 @@ type ComplexityRoot struct {
 		EditExpress                func(childComplexity int, input model.EditExpressInput) int
 		EditManufacturer           func(childComplexity int, input model.EditManufacturerInput) int
 		EditMaterialManufacturer   func(childComplexity int, input model.EditMaterialManufacturerInput) int
+		EditPrice                  func(childComplexity int, price float64) int
 		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
 		Login                      func(childComplexity int, phone string, password string, mac *string) int
 		SingleUpload               func(childComplexity int, file graphql.Upload) int
@@ -215,6 +216,7 @@ type MutationResolver interface {
 	CreateMaterialManufacturer(ctx context.Context, input model.CreateMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditMaterialManufacturer(ctx context.Context, input model.EditMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
+	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
@@ -758,6 +760,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditMaterialManufacturer(childComplexity, args["input"].(model.EditMaterialManufacturerInput)), true
+
+	case "Mutation.editPrice":
+		if e.complexity.Mutation.EditPrice == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editPrice_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditPrice(childComplexity, args["price"].(float64)), true
 
 	case "Mutation.editSpecification":
 		if e.complexity.Mutation.EditSpecification == nil {
@@ -1472,7 +1486,13 @@ extend type Query {
 	{Name: "../price.graphql", Input: `extend type Query {
     """  获取价格 """
     getPrice: Float!
-}`, BuiltIn: false},
+}
+
+extend type Mutation {
+    """ 编辑价格 (auth:  companyadmin )"""
+    editPrice(price: Float!): Float! @hasRole(role: [companyAdmin])
+}
+`, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `""" 仓库信息 """
 type RepositoryItem {
     id: Int!
@@ -1865,6 +1885,21 @@ func (ec *executionContext) field_Mutation_editMaterialManufacturer_args(ctx con
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editPrice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 float64
+	if tmp, ok := rawArgs["price"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["price"] = arg0
 	return args, nil
 }
 
@@ -4379,6 +4414,72 @@ func (ec *executionContext) _Mutation_deleteMaterialManufacturer(ctx context.Con
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_editPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editPrice_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditPrice(rctx, args["price"].(float64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(float64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be float64`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -8687,6 +8788,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteMaterialManufacturer":
 			out.Values[i] = ec._Mutation_deleteMaterialManufacturer(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editPrice":
+			out.Values[i] = ec._Mutation_editPrice(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
