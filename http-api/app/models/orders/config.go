@@ -10,6 +10,7 @@ package orders
 
 import (
 	"gorm.io/gorm"
+	"http-api/pkg/model"
 	"time"
 )
 
@@ -28,4 +29,13 @@ type Order struct {
 	ExpressNo        int64     `json:"expressNo" gorm:"comment:物流号"`
 	Remark           string    `json:"remark" gorm:"comment:备注"`
 	gorm.Model
+}
+
+/**
+ * 根据物流公司获取订单列表
+ */
+func (*Order) GetOrdersByExpressId(expressId int64) (os []*Order, err error) {
+	err = model.DB.Model(&Order{}).Where("express_company_id = ?", expressId).Find(&os).Error
+
+	return
 }

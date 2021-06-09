@@ -273,7 +273,7 @@ func (c *CodeInfo) DeleteManufacturer(ctx context.Context) error {
 		if c.IsDefault {
 			var cs []*CodeInfo
 			tx.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, c.CompanyId).Find(&cs)
-			if len(cs) > 0{
+			if len(cs) > 0 {
 				if err := tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error; err != nil {
 					return err
 				}
@@ -366,10 +366,10 @@ func (c *CodeInfo) EditExpress(ctx context.Context) error {
 		me := auth.GetUser(ctx)
 		c.CompanyId = me.CompanyId
 		copayCodeInfo := CodeInfo{
-			Type: c.Type,
-			Name      : c.Name,
-			IsDefault : c.IsDefault,
-			Remark: c.Remark,
+			Type:      c.Type,
+			Name:      c.Name,
+			IsDefault: c.IsDefault,
+			Remark:    c.Remark,
 			CompanyId: c.CompanyId,
 		}
 		if err := tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Updates(&copayCodeInfo).Error; err != nil {
@@ -379,9 +379,41 @@ func (c *CodeInfo) EditExpress(ctx context.Context) error {
 			return nil
 		}
 		l := logs.Logos{
-			Uid: me.ID,
+			Uid:     me.ID,
 			Content: fmt.Sprintf("编辑物流公司:id为%d", c.ID),
-			Type: logs.UpdateActionType,
+			Type:    logs.UpdateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (c *CodeInfo) DeleteExpress(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Delete(c).Error; err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		// 指定一个新的默认
+		if c.IsDefault {
+			var cs []*CodeInfo
+			tx.Model(&CodeInfo{}).
+				Where("company_id = ? AND type = ? AND id != ?", me.CompanyId, ExpressCompany, c.ID).
+				Find(&cs)
+			if len(cs) > 0 {
+				err := tx.Model(&CodeInfo{}).Where("id = ?", cs[0].ID).Update("is_default", true).Error
+				if err != nil {
+					return err
+				}
+			}
+		}
+		l := logs.Logos{
+			Uid:     me.ID,
+			Content: fmt.Sprintf("删除物流商:id为:%d", c.ID),
+			Type:    logs.DeleteActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err

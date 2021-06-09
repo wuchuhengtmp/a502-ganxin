@@ -125,6 +125,7 @@ type ComplexityRoot struct {
 		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
 		DeleteCompany              func(childComplexity int, id int64) int
 		DeleteCompanyUser          func(childComplexity int, uid int64) int
+		DeleteExpress              func(childComplexity int, id int64) int
 		DeleteManufacturer         func(childComplexity int, id int64) int
 		DeleteMaterialManufacturer func(childComplexity int, id int64) int
 		DeleteRepository           func(childComplexity int, repositoryID int64) int
@@ -206,6 +207,7 @@ type MutationResolver interface {
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
 	CreateExpress(ctx context.Context, input model.CreateExpressInput) (*codeinfo.CodeInfo, error)
 	EditExpress(ctx context.Context, input model.EditExpressInput) (*codeinfo.CodeInfo, error)
+	DeleteExpress(ctx context.Context, id int64) (bool, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -634,6 +636,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteCompanyUser(childComplexity, args["uid"].(int64)), true
+
+	case "Mutation.deleteExpress":
+		if e.complexity.Mutation.DeleteExpress == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteExpress_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteExpress(childComplexity, args["id"].(int64)), true
 
 	case "Mutation.deleteManufacturer":
 		if e.complexity.Mutation.DeleteManufacturer == nil {
@@ -1366,6 +1380,8 @@ extend type Mutation {
     createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
     """ 编辑物流 (auth: companyAdmin, repositoryAdmin) """
     editExpress(input: EditExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+    """ 删除物流 (auth: companyAdmin, repositoryAdmin)"""
+    deleteExpress(id: Int!): Boolean! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
 extend type Query {
@@ -1675,6 +1691,21 @@ func (ec *executionContext) field_Mutation_deleteCompanyUser_args(ctx context.Co
 }
 
 func (ec *executionContext) field_Mutation_deleteCompany_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteExpress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int64
@@ -3873,6 +3904,72 @@ func (ec *executionContext) _Mutation_editExpress(ctx context.Context, field gra
 	res := resTmp.(*codeinfo.CodeInfo)
 	fc.Result = res
 	return ec.marshalNExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteExpress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteExpress_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteExpress(rctx, args["id"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createManufacturer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -8507,6 +8604,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "editExpress":
 			out.Values[i] = ec._Mutation_editExpress(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteExpress":
+			out.Values[i] = ec._Mutation_deleteExpress(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

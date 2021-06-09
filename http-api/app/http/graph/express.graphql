@@ -24,6 +24,8 @@ extend type Mutation {
     createExpress(input: CreateExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
     """ 编辑物流 (auth: companyAdmin, repositoryAdmin) """
     editExpress(input: EditExpressInput!): ExpressItem! @hasRole(role: [companyAdmin, repositoryAdmin])
+    """ 删除物流 (auth: companyAdmin, repositoryAdmin)"""
+    deleteExpress(id: Int!): Boolean! @hasRole(role: [companyAdmin, repositoryAdmin])
 }
 
 extend type Query {
