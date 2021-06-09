@@ -6,11 +6,3 @@
  * @Listen  MIT
  */
 package configs
-
-func GetAppName() string {
-	return getVal(APP_NAME)
-}
-
-func GetAppIcon() string {
-	return getVal(APP_ICON)
-}

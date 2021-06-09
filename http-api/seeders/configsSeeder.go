@@ -17,11 +17,11 @@ var configsSeeders =  []seed.Seed{
 	seed.Seed{
 		Name: "create config",
 		Run: func(db *gorm.DB) error {
-			return CreateConfig(db, 1, "PRICE", "1", "型钢单价")
+			return CreateConfig(db, 1, "PRICE", "1", "型钢单价", CompanyId)
 		},
 	},
 }
 
-func CreateConfig(db *gorm.DB, id int64,  name string, value string, remark string)  error {
-	return db.Create(&configs.Configs{ID: id, Name: name, Value: value, Remark: remark}).Error
+func CreateConfig(db *gorm.DB, id int64,  name string, value string, remark string, companyId int64)  error {
+	return db.Create(&configs.Configs{ID: id, Name: name, Value: value, Remark: remark, CompanyId: companyId}).Error
 }

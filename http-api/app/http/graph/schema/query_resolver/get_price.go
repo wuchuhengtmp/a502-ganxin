@@ -16,5 +16,5 @@ import (
 func (*QueryResolver) GetPrice(ctx context.Context) (float64, error) {
 	cf := configs.Configs{}
 
-	return cf.GetPrice(), nil
+	return cf.GetPrice(ctx), nil
 }

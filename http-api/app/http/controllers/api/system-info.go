@@ -8,7 +8,6 @@
 package api
 
 import (
-	"http-api/app/models/configs"
 	"http-api/pkg/response"
 	"net/http"
 )
@@ -20,8 +19,6 @@ type SystemInfo struct {
 
 func (*SystemInfo) Show (w http.ResponseWriter, r *http.Request)  {
 	sysInfo := SystemInfo{
-		AppName: configs.GetAppName(),
-		AppIcon: configs.GetAppIcon(),
 	}
 	response.SuccessResponse(sysInfo, w)
 }
