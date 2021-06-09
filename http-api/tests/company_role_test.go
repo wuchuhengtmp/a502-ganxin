@@ -50,6 +50,8 @@ var companyAdminTestCtx = struct {
 	DeleteManufacturerId int64
 	// 用于编辑物流公司ID
 	EditExpressId int64
+	// 删除物流公司ID
+	DeleteExpressId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -780,6 +782,7 @@ func TestCompanyAdminRoleCreateExpress(t *testing.T) {
 	data := res["createExpress"].(map[string]interface{})
 	id := data["id"].(float64)
 	companyAdminTestCtx.EditExpressId = int64(id)
+	companyAdminTestCtx.DeleteExpressId = int64(id)
 }
 
 /**
@@ -882,5 +885,41 @@ func TestCompanyAdminRoleEditExpress(t *testing.T) {
 			Where("company_id = ? AND is_default = ? AND type = ?", me.CompanyId, true, codeinfo.ExpressCompany).
 			Find(&cs)
 		assert.Len(t, cs, 1)
+	}
+}
+
+
+/**
+ * 公司管理员编辑物流集成测试
+ */
+func TestCompanyAdminRoleDeleteExpress(t *testing.T) {
+	q := `
+		mutation deleteExpressMutation($id: Int!){
+			deleteExpress(id: $id)
+		}
+	`
+	v := map[string]interface{} {
+		"id": companyAdminTestCtx.DeleteExpressId,
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed: 公司管理员编辑物流集成测试")
+	}
+	// 断言已删除
+	c := codeinfo.CodeInfo{}
+	err = model.DB.Model(&c).Where("id = ?", companyAdminTestCtx.DeleteExpressId).First(&c).Error
+	assert.Error(t, err)
+	var cs []codeinfo.CodeInfo
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.ExpressCompany).
+		Find(&cs)
+	if len(cs) > 0 {
+		// 断言有指定新的默认
+		err := model.DB.Model(&codeinfo.CodeInfo{}).
+			Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
+			First(&c).
+			Error
+		assert.NoError(t, err)
 	}
 }
