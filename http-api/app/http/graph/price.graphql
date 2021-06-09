@@ -1,0 +1,4 @@
+extend type Query {
+    """  获取价格 """
+    getPrice: Float!
+}

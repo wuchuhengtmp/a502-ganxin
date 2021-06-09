@@ -147,6 +147,7 @@ type ComplexityRoot struct {
 		GetExpressList           func(childComplexity int) int
 		GetManufacturers         func(childComplexity int) int
 		GetMaterialManufacturers func(childComplexity int) int
+		GetPrice                 func(childComplexity int) int
 		GetRepositoryList        func(childComplexity int) int
 		GetRoleList              func(childComplexity int) int
 		GetSpecification         func(childComplexity int) int
@@ -228,6 +229,7 @@ type QueryResolver interface {
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
+	GetPrice(ctx context.Context) (float64, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRoleList(ctx context.Context) ([]*roles.RoleItem, error)
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
@@ -834,6 +836,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMaterialManufacturers(childComplexity), true
+
+	case "Query.getPrice":
+		if e.complexity.Query.GetPrice == nil {
+			break
+		}
+
+		return e.complexity.Query.GetPrice(childComplexity), true
 
 	case "Query.getRepositoryList":
 		if e.complexity.Query.GetRepositoryList == nil {
@@ -1460,6 +1469,10 @@ extend type Query {
 }
 
 `, BuiltIn: false},
+	{Name: "../price.graphql", Input: `extend type Query {
+    """  获取价格 """
+    getPrice: Float!
+}`, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `""" 仓库信息 """
 type RepositoryItem {
     id: Int!
@@ -5068,6 +5081,41 @@ func (ec *executionContext) _Query_getMaterialManufacturers(ctx context.Context,
 	res := resTmp.([]*codeinfo.CodeInfo)
 	fc.Result = res
 	return ec.marshalNMaterialManufacturerItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetPrice(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -8777,6 +8825,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getMaterialManufacturers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getPrice":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getPrice(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

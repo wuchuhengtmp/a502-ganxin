@@ -14,11 +14,3 @@ func GetAppName() string {
 func GetAppIcon() string {
 	return getVal(APP_ICON)
 }
-
-func GetMiniWechatAppId() string  {
-	return getVal(MINI_WECHAT_APP_ID)
-}
-
-func GetMiniWechatAppSecret() string {
-	return getVal(MINI_WECHAT_APP_SECRET)
-}

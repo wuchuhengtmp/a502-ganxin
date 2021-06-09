@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"http-api/pkg/logger"
 	"http-api/pkg/model"
+	"strconv"
 )
 
 type Configs struct {
@@ -22,25 +23,24 @@ type Configs struct {
 	gorm.Model
 }
 
-var AboutKey = "about"
+const (
+	APP_ICON   = "APP_ICON"
+	APP_NAME   = "APP_NAME"
+	PRICE_NAME = "PRICE"
+)
 
-const APP_NAME = "APP_NAME"
-
-const APP_ICON = "APP_ICON"
-
-/**
- * 小程序 appId配置key
- */
-const MINI_WECHAT_APP_ID = "MINI_WECHAT_APP_ID"
-
-/**
- * 小程序 appSecret配置key
- */
-const MINI_WECHAT_APP_SECRET = "MINI_WECHAT_APP_SECRET"
-
-func getVal(key string) string  {
+func getVal(key string) string {
 	var about Configs
 	err := model.DB.Model(&Configs{}).Where("name", key).First(&about).Error
-	if err != nil { logger.LogError(err) }
+	if err != nil {
+		logger.LogError(err)
+	}
 	return about.Value
+}
+
+func (c *Configs)GetPrice() float64 {
+	v := getVal(PRICE_NAME)
+	s, _ := strconv.ParseFloat(v, 64)
+
+	return s
 }
