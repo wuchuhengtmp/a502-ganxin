@@ -393,6 +393,7 @@ func (c *CodeInfo) EditExpress(ctx context.Context) error {
 
 func (c *CodeInfo) DeleteExpress(ctx context.Context) error {
 	return model.DB.Transaction(func(tx *gorm.DB) error {
+		_ = c.GetSelf()
 		if err := tx.Model(&CodeInfo{}).Where("id = ?", c.ID).Delete(c).Error; err != nil {
 			return err
 		}
