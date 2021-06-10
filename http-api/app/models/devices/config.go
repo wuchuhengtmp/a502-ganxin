@@ -34,6 +34,10 @@ func (d *Device) GetUser() (*users.Users, error) {
 	return &u, err
 }
 
+func (d *Device) GetDeviceSelfById(id int64) error {
+	return model.DB.Model(&Device{}).Where("id = ?", id).First(d).Error
+}
+
 func (d *Device) GetDeviceSelf() (*Device, error) {
 	err := model.DB.Model(&Device{}).
 		Where("uid = ? AND mac = ?", d.Uid, d.Mac).

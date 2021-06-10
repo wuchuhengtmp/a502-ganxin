@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/configs"
+	"http-api/app/models/devices"
 	"http-api/app/models/roles"
 	"http-api/pkg/model"
 	"http-api/seeders"
@@ -965,4 +966,41 @@ func TestCompanyAdminRoleEditPrice(t *testing.T) {
 		First(&c)
 	expectPrice, _ := strconv.ParseFloat(c.Value, 64)
 	assert.Equal(t, expectPrice, price)
+}
+
+/**
+ * 公司管理员获取设备列表集成测试
+ */
+func TestCompanyAdmingetDeviceList(t *testing.T) {
+	q := `
+		query getDeviceListQuery {
+		  getDeviceList{
+			id
+			userInfo{
+			  id
+			  name
+			}
+			mac
+			isAble
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员获取设备列表集成测试")
+	}
+	// 断言响应的数据就是用户的公司名下的
+	me, _ := GetUserByToken(companyAdminTestCtx.Token)
+	items := res["getDeviceList"].([]interface{})
+	for _, item := range items {
+		cItem := item.(map[string]interface{})
+		id := cItem["id"].(float64)
+		d := devices.Device{}
+		err := d.GetDeviceSelfById(int64(id))
+		assert.NoError(t, err)
+		u, err := d.GetUser()
+		assert.NoError(t, err)
+		assert.Equal(t, u.CompanyId, me.CompanyId)
+	}
 }

@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/devices"
 	"http-api/app/models/roles"
 	"http-api/pkg/model"
 	"http-api/seeders"
@@ -279,5 +280,41 @@ func TestMaintenanceAdminRoleLoginDevice(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("failed:维修管理员登录设备集成测试")
+	}
+}
+/**
+ * 维修管理员获取设备列表集成测试
+ */
+func TestMaintenanceAdminGetDeviceList(t *testing.T) {
+	q := `
+		query getDeviceListQuery {
+		  getDeviceList{
+			id
+			userInfo{
+			  id
+			  name
+			}
+			mac
+			isAble
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	res, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	if err != nil {
+		t.Fatal("failed:维修管理员获取设备列表集成测试")
+	}
+	// 断言响应的数据就是用户的项目名下的
+	me, _ := GetUserByToken(maintenanceAdminTestCtx.Token)
+	items := res["getDeviceList"].([]interface{})
+	for _, item := range items {
+		cItem := item.(map[string]interface{})
+		id := cItem["id"].(float64)
+		d := devices.Device{}
+		err := d.GetDeviceSelfById(int64(id))
+		assert.NoError(t, err)
+		u, err := d.GetUser()
+		assert.NoError(t, err)
+		assert.Equal(t, u.CompanyId, me.CompanyId)
 	}
 }
