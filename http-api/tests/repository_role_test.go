@@ -772,3 +772,28 @@ func TestRepositoryAdminRoleGetPrice(t *testing.T) {
 		t.Fatal("failed:仓库管理员获取集成测试")
 	}
 }
+
+/**
+ * 仓库管理员设备登录集成测试
+ */
+func TestRepositoryAdminRoleLoginDevice(t *testing.T) {
+	q := `
+		mutation login($phone: String!, $password: String!, $mac: String!) {
+		  login(phone: $phone, password: $password, mac: $mac) {
+			accessToken
+			expired
+			role
+			roleName
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"phone": "13427969606",
+		"password": "12345678",
+		"mac": "123:1242:1242:12412",
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		 t.Fatal("failed:仓库管理员设备登录集成测试")
+	}
+}

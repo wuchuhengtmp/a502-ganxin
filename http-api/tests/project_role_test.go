@@ -241,6 +241,7 @@ func TestProjectAdminRoleGetExpressList(t *testing.T) {
 		assert.Equal(t, record.CompanyId, me.CompanyId)
 	}
 }
+
 /**
  * 项目管理员获取价格集成测试
  */
@@ -254,5 +255,30 @@ func TestProjectAdminRoleGetPrice(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("failed:项目管理员获取集成测试")
+	}
+}
+
+/**
+ * 项目管理员登录设备集成测试
+ */
+func TestProjectAdminRoleLoginDevice(t *testing.T) {
+	q := `
+		mutation login($phone: String!, $password: String!, $mac: String!) {
+		  login(phone: $phone, password: $password, mac: $mac) {
+			accessToken
+			expired
+			role
+			roleName
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"phone": "13427969607",
+		"password": "12345678",
+		"mac": "123:1242:1242:12412",
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	if err != nil {
+		t.Fatal("failed:项目管理员登录设备集成测试")
 	}
 }
