@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"http-api/app/http/graph/model"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/devices"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
@@ -42,6 +43,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	DeviceItem() DeviceItemResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	RepositoryItem() RepositoryItemResolver
@@ -71,6 +73,13 @@ type ComplexityRoot struct {
 		StartedAt      func(childComplexity int) int
 		Symbol         func(childComplexity int) int
 		Wechat         func(childComplexity int) int
+	}
+
+	DeviceItem struct {
+		ID       func(childComplexity int) int
+		IsAble   func(childComplexity int) int
+		Mac      func(childComplexity int) int
+		UserInfo func(childComplexity int) int
 	}
 
 	ErrCodes struct {
@@ -147,6 +156,7 @@ type ComplexityRoot struct {
 		ErrorCodeDesc            func(childComplexity int) int
 		GetAllCompany            func(childComplexity int) int
 		GetCompanyUser           func(childComplexity int) int
+		GetDeviceList            func(childComplexity int) int
 		GetExpressList           func(childComplexity int) int
 		GetManufacturers         func(childComplexity int) int
 		GetMaterialManufacturers func(childComplexity int) int
@@ -195,12 +205,16 @@ type ComplexityRoot struct {
 		Avatar func(childComplexity int) int
 		ID     func(childComplexity int) int
 		IsAble func(childComplexity int) int
+		Name   func(childComplexity int) int
 		Phone  func(childComplexity int) int
 		Role   func(childComplexity int) int
 		Wechat func(childComplexity int) int
 	}
 }
 
+type DeviceItemResolver interface {
+	UserInfo(ctx context.Context, obj *devices.Device) (*users.Users, error)
+}
 type MutationResolver interface {
 	Login(ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)
 	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CompanyItemRes, error)
@@ -230,6 +244,7 @@ type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error)
 	GetCompanyUser(ctx context.Context) ([]*users.Users, error)
+	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
@@ -378,6 +393,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CompanyItemRes.Wechat(childComplexity), true
+
+	case "DeviceItem.id":
+		if e.complexity.DeviceItem.ID == nil {
+			break
+		}
+
+		return e.complexity.DeviceItem.ID(childComplexity), true
+
+	case "DeviceItem.isAble":
+		if e.complexity.DeviceItem.IsAble == nil {
+			break
+		}
+
+		return e.complexity.DeviceItem.IsAble(childComplexity), true
+
+	case "DeviceItem.mac":
+		if e.complexity.DeviceItem.Mac == nil {
+			break
+		}
+
+		return e.complexity.DeviceItem.Mac(childComplexity), true
+
+	case "DeviceItem.userInfo":
+		if e.complexity.DeviceItem.UserInfo == nil {
+			break
+		}
+
+		return e.complexity.DeviceItem.UserInfo(childComplexity), true
 
 	case "ErrCodes.code":
 		if e.complexity.ErrCodes.Code == nil {
@@ -837,6 +880,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetCompanyUser(childComplexity), true
 
+	case "Query.getDeviceList":
+		if e.complexity.Query.GetDeviceList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetDeviceList(childComplexity), true
+
 	case "Query.getExpressList":
 		if e.complexity.Query.GetExpressList == nil {
 			break
@@ -1067,6 +1117,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserItem.IsAble(childComplexity), true
+
+	case "UserItem.name":
+		if e.complexity.UserItem.Name == nil {
+			break
+		}
+
+		return e.complexity.UserItem.Name(childComplexity), true
 
 	case "UserItem.phone":
 		if e.complexity.UserItem.Phone == nil {
@@ -1330,6 +1387,7 @@ type RoleItem {
 type UserItem {
     id: Int!
     role: RoleItem!
+    name: String!
     phone: String!
     wechat: String!
     avatar: FileItem!
@@ -1368,17 +1426,17 @@ extend type Query {
     getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }
 `, BuiltIn: false},
-	{Name: "../devices.graphql", Input: `#type DeviceItem {
-#    id: Int!
-#    mac: String!
-#    userInfo: UserItem!
-#    isAble: Boolean!
-#}
-#extend type Query
-#{
-#    """ 获取设备列表 """
-#    getDeviceList: [DeviceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
-#}`, BuiltIn: false},
+	{Name: "../devices.graphql", Input: `type DeviceItem {
+    id: Int!
+    mac: String!
+    userInfo: UserItem!
+    isAble: Boolean!
+}
+extend type Query
+{
+    """ 获取设备列表 """
+    getDeviceList: [DeviceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}`, BuiltIn: false},
 	{Name: "../directive.graphql", Input: `# 声明指令
 enum Role {
     """ 超级管理员 """
@@ -2595,6 +2653,146 @@ func (ec *executionContext) _CompanyItemRes_adminAvatar(ctx context.Context, fie
 	res := resTmp.(*model.FileItem)
 	fc.Result = res
 	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DeviceItem_id(ctx context.Context, field graphql.CollectedField, obj *devices.Device) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "DeviceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DeviceItem_mac(ctx context.Context, field graphql.CollectedField, obj *devices.Device) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "DeviceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Mac, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DeviceItem_userInfo(ctx context.Context, field graphql.CollectedField, obj *devices.Device) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "DeviceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.DeviceItem().UserInfo(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _DeviceItem_isAble(ctx context.Context, field graphql.CollectedField, obj *devices.Device) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "DeviceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsAble, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ErrCodes_code(ctx context.Context, field graphql.CollectedField, obj *model.ErrCodes) (ret graphql.Marshaler) {
@@ -5025,6 +5223,65 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getDeviceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetDeviceList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*devices.Device); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/devices.Device`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*devices.Device)
+	fc.Result = res
+	return ec.marshalNDeviceItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋdevicesᚐDevice(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getExpressList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6334,6 +6591,41 @@ func (ec *executionContext) _UserItem_role(ctx context.Context, field graphql.Co
 	res := resTmp.(*roles.Role)
 	fc.Result = res
 	return ec.marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserItem_name(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserItem_phone(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
@@ -8445,6 +8737,57 @@ func (ec *executionContext) _CompanyItemRes(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var deviceItemImplementors = []string{"DeviceItem"}
+
+func (ec *executionContext) _DeviceItem(ctx context.Context, sel ast.SelectionSet, obj *devices.Device) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deviceItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeviceItem")
+		case "id":
+			out.Values[i] = ec._DeviceItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "mac":
+			out.Values[i] = ec._DeviceItem_mac(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "userInfo":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DeviceItem_userInfo(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "isAble":
+			out.Values[i] = ec._DeviceItem_isAble(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var errCodesImplementors = []string{"ErrCodes"}
 
 func (ec *executionContext) _ErrCodes(ctx context.Context, sel ast.SelectionSet, obj *model.ErrCodes) graphql.Marshaler {
@@ -8912,6 +9255,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getDeviceList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getDeviceList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getExpressList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -9294,6 +9651,11 @@ func (ec *executionContext) _UserItem(ctx context.Context, sel ast.SelectionSet,
 				}
 				return res
 			})
+		case "name":
+			out.Values[i] = ec._UserItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "phone":
 			out.Values[i] = ec._UserItem_phone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -9688,6 +10050,43 @@ func (ec *executionContext) unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋh
 func (ec *executionContext) unmarshalNCreateSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSpecificationInput(ctx context.Context, v interface{}) (model.CreateSpecificationInput, error) {
 	res, err := ec.unmarshalInputCreateSpecificationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeviceItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋdevicesᚐDevice(ctx context.Context, sel ast.SelectionSet, v []*devices.Device) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalODeviceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋdevicesᚐDevice(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) unmarshalNEditCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyInput(ctx context.Context, v interface{}) (model.EditCompanyInput, error) {
@@ -10567,6 +10966,13 @@ func (ec *executionContext) marshalOCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋ
 		return graphql.Null
 	}
 	return ec._CompanyItemRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeviceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋdevicesᚐDevice(ctx context.Context, sel ast.SelectionSet, v *devices.Device) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeviceItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOEditCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditCompanyUserInput(ctx context.Context, v interface{}) (*model.EditCompanyUserInput, error) {

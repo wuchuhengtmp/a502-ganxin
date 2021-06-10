@@ -26,9 +26,9 @@ func (r *Resolver) RepositoryItem () generated.RepositoryItemResolver {
 func (r *Resolver) SpecificationItem() generated.SpecificationItemResolver {
 	return query_resolver.SpecificationItemResolver{}
 }
-//func (r *Resolver)DeviceItem() generated.DeviceItemResolver {
-//	return query_resolver.DeviceItemResolver{}
-//}
+func (r *Resolver)DeviceItem() generated.DeviceItemResolver {
+	return query_resolver.DeviceItemResolver{}
+}
 
 func (r *Resolver) UserItem() generated.UserItemResolver {
 	return query_resolver.UserItemResolver{}

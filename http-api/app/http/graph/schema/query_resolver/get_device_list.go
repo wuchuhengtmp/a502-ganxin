@@ -11,18 +11,20 @@ package query_resolver
 import (
 	"context"
 	"http-api/app/models/devices"
+	"http-api/app/models/users"
 )
 
 func (*QueryResolver) GetDeviceList(ctx context.Context) ([]*devices.Device, error) {
-	var ds  []*devices.Device
+	d := devices.Device{}
 
-	return ds, nil
+	return d.GetAll(ctx)
 }
 
-type DeviceItemResolver struct { }
+type DeviceItemResolver struct{}
 
-//func (DeviceItemResolver)UserInfo(ctx context.Context, obj *devices.Device) (*model.UserItem, error) {
-//
-//}
-
-
+/**
+ * 用户字段解析
+ */
+func (DeviceItemResolver) UserInfo(ctx context.Context, obj *devices.Device) (*users.Users, error) {
+	return obj.GetUser()
+}

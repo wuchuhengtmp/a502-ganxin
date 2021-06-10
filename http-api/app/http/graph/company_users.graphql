@@ -18,6 +18,7 @@ type RoleItem {
 type UserItem {
     id: Int!
     role: RoleItem!
+    name: String!
     phone: String!
     wechat: String!
     avatar: FileItem!

@@ -9,7 +9,10 @@
 package devices
 
 import (
+	"context"
 	"gorm.io/gorm"
+	"http-api/app/http/graph/auth"
+	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
 
@@ -19,6 +22,16 @@ type Device struct {
 	Uid    int64  `json:"uid" gorm:"comment:用户id"`
 	IsAble bool   `json:"is_abl" gorm:"comment:是否启用"`
 	gorm.Model
+}
+
+/**
+ * 获取用户信息
+ */
+func (d *Device) GetUser() (*users.Users, error) {
+	u := users.Users{ID: d.Uid}
+	err := u.GetSelfById(u.ID)
+
+	return &u, err
 }
 
 func (d *Device) GetDeviceSelf() (*Device, error) {
@@ -34,4 +47,22 @@ func (d *Device) GetDeviceSelf() (*Device, error) {
 
 func (d *Device) CreateSelf() error {
 	return model.DB.Create(d).Error
+}
+
+/**
+ * 获取公司的手持设备列表
+ */
+func (Device) GetAll(ctx context.Context) (ds []*Device, err error) {
+	me := auth.GetUser(ctx)
+	err = model.DB.Raw(`
+		SELECT
+			devices.* 
+		FROM
+			devices
+			JOIN users ON users.id = devices.uid 
+		WHERE
+			users.company_id = ?
+	`, me.CompanyId).Scan(&ds).Error
+
+	return
 }
