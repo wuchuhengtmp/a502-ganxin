@@ -12,6 +12,7 @@ import (
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/users"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -45,6 +46,7 @@ type ResolverRoot interface {
 	Query() QueryResolver
 	RepositoryItem() RepositoryItemResolver
 	SpecificationItem() SpecificationItemResolver
+	UserItem() UserItemResolver
 }
 
 type DirectiveRoot struct {
@@ -204,8 +206,8 @@ type MutationResolver interface {
 	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CompanyItemRes, error)
 	EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CompanyItemRes, error)
 	DeleteCompany(ctx context.Context, id int64) (bool, error)
-	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*model.UserItem, error)
-	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error)
+	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*users.Users, error)
+	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*users.Users, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
 	CreateExpress(ctx context.Context, input model.CreateExpressInput) (*codeinfo.CodeInfo, error)
 	EditExpress(ctx context.Context, input model.EditExpressInput) (*codeinfo.CodeInfo, error)
@@ -227,13 +229,13 @@ type MutationResolver interface {
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error)
-	GetCompanyUser(ctx context.Context) ([]*model.UserItem, error)
+	GetCompanyUser(ctx context.Context) ([]*users.Users, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
-	GetRoleList(ctx context.Context) ([]*roles.RoleItem, error)
+	GetRoleList(ctx context.Context) ([]*roles.Role, error)
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 }
 type RepositoryItemResolver interface {
@@ -243,6 +245,11 @@ type RepositoryItemResolver interface {
 }
 type SpecificationItemResolver interface {
 	Specification(ctx context.Context, obj *specificationinfo.SpecificationInfo) (string, error)
+}
+type UserItemResolver interface {
+	Role(ctx context.Context, obj *users.Users) (*roles.Role, error)
+
+	Avatar(ctx context.Context, obj *users.Users) (*model.FileItem, error)
 }
 
 type executableSchema struct {
@@ -1361,6 +1368,17 @@ extend type Query {
     getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }
 `, BuiltIn: false},
+	{Name: "../devices.graphql", Input: `#type DeviceItem {
+#    id: Int!
+#    mac: String!
+#    userInfo: UserItem!
+#    isAble: Boolean!
+#}
+#extend type Query
+#{
+#    """ 获取设备列表 """
+#    getDeviceList: [DeviceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+#}`, BuiltIn: false},
 	{Name: "../directive.graphql", Input: `# 声明指令
 enum Role {
     """ 超级管理员 """
@@ -3670,10 +3688,10 @@ func (ec *executionContext) _Mutation_createCompanyUser(ctx context.Context, fie
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.UserItem); ok {
+		if data, ok := tmp.(*users.Users); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.UserItem`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/users.Users`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3685,9 +3703,9 @@ func (ec *executionContext) _Mutation_createCompanyUser(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.UserItem)
+	res := resTmp.(*users.Users)
 	fc.Result = res
-	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_editCompanyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3736,10 +3754,10 @@ func (ec *executionContext) _Mutation_editCompanyUser(ctx context.Context, field
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.UserItem); ok {
+		if data, ok := tmp.(*users.Users); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.UserItem`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/users.Users`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3751,9 +3769,9 @@ func (ec *executionContext) _Mutation_editCompanyUser(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.UserItem)
+	res := resTmp.(*users.Users)
 	fc.Result = res
-	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteCompanyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4987,10 +5005,10 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.UserItem); ok {
+		if data, ok := tmp.([]*users.Users); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/http/graph/model.UserItem`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/users.Users`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5002,9 +5020,9 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.UserItem)
+	res := resTmp.([]*users.Users)
 	fc.Result = res
-	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, field.Selections, res)
+	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getExpressList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5308,9 +5326,9 @@ func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*roles.RoleItem)
+	res := resTmp.([]*roles.Role)
 	fc.Result = res
-	return ec.marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, field.Selections, res)
+	return ec.marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5863,7 +5881,7 @@ func (ec *executionContext) _RepositoryItem_adminWechat(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.CollectedField, obj *roles.Role) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -5898,7 +5916,7 @@ func (ec *executionContext) _RoleItem_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RoleItem_name(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleItem_name(ctx context.Context, field graphql.CollectedField, obj *roles.Role) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -5933,7 +5951,7 @@ func (ec *executionContext) _RoleItem_name(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RoleItem_tag(ctx context.Context, field graphql.CollectedField, obj *roles.RoleItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleItem_tag(ctx context.Context, field graphql.CollectedField, obj *roles.Role) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6248,7 +6266,7 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserItem_id(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserItem_id(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6283,7 +6301,7 @@ func (ec *executionContext) _UserItem_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserItem_role(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserItem_role(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6294,14 +6312,14 @@ func (ec *executionContext) _UserItem_role(ctx context.Context, field graphql.Co
 		Object:     "UserItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Role, nil
+		return ec.resolvers.UserItem().Role(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6313,12 +6331,12 @@ func (ec *executionContext) _UserItem_role(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*roles.RoleItem)
+	res := resTmp.(*roles.Role)
 	fc.Result = res
-	return ec.marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, field.Selections, res)
+	return ec.marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserItem_phone(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserItem_phone(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6353,7 +6371,7 @@ func (ec *executionContext) _UserItem_phone(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserItem_wechat(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserItem_wechat(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6388,7 +6406,7 @@ func (ec *executionContext) _UserItem_wechat(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserItem_avatar(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserItem_avatar(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6399,14 +6417,14 @@ func (ec *executionContext) _UserItem_avatar(ctx context.Context, field graphql.
 		Object:     "UserItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Avatar, nil
+		return ec.resolvers.UserItem().Avatar(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6423,7 +6441,7 @@ func (ec *executionContext) _UserItem_avatar(ctx context.Context, field graphql.
 	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserItem_isAble(ctx context.Context, field graphql.CollectedField, obj *model.UserItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserItem_isAble(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -9118,7 +9136,7 @@ func (ec *executionContext) _RepositoryItem(ctx context.Context, sel ast.Selecti
 
 var roleItemImplementors = []string{"RoleItem"}
 
-func (ec *executionContext) _RoleItem(ctx context.Context, sel ast.SelectionSet, obj *roles.RoleItem) graphql.Marshaler {
+func (ec *executionContext) _RoleItem(ctx context.Context, sel ast.SelectionSet, obj *roles.Role) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, roleItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9248,7 +9266,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 var userItemImplementors = []string{"UserItem"}
 
-func (ec *executionContext) _UserItem(ctx context.Context, sel ast.SelectionSet, obj *model.UserItem) graphql.Marshaler {
+func (ec *executionContext) _UserItem(ctx context.Context, sel ast.SelectionSet, obj *users.Users) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9260,32 +9278,50 @@ func (ec *executionContext) _UserItem(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._UserItem_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "role":
-			out.Values[i] = ec._UserItem_role(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserItem_role(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "phone":
 			out.Values[i] = ec._UserItem_phone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "wechat":
 			out.Values[i] = ec._UserItem_wechat(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "avatar":
-			out.Values[i] = ec._UserItem_avatar(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserItem_avatar(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "isAble":
 			out.Values[i] = ec._UserItem_isAble(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -10075,7 +10111,11 @@ func (ec *executionContext) marshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐ
 	return ret
 }
 
-func (ec *executionContext) marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v []*roles.RoleItem) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleItem2httpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx context.Context, sel ast.SelectionSet, v roles.Role) graphql.Marshaler {
+	return ec._RoleItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx context.Context, sel ast.SelectionSet, v []*roles.Role) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10099,7 +10139,7 @@ func (ec *executionContext) marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋr
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx, sel, v[i])
+			ret[i] = ec.marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10112,7 +10152,7 @@ func (ec *executionContext) marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋr
 	return ret
 }
 
-func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v *roles.RoleItem) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx context.Context, sel ast.SelectionSet, v *roles.Role) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -10218,11 +10258,11 @@ func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋg
 	return res
 }
 
-func (ec *executionContext) marshalNUserItem2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v model.UserItem) graphql.Marshaler {
+func (ec *executionContext) marshalNUserItem2httpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx context.Context, sel ast.SelectionSet, v users.Users) graphql.Marshaler {
 	return ec._UserItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v []*model.UserItem) graphql.Marshaler {
+func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx context.Context, sel ast.SelectionSet, v []*users.Users) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10246,7 +10286,7 @@ func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgra
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10259,7 +10299,7 @@ func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgra
 	return ret
 }
 
-func (ec *executionContext) marshalNUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v *model.UserItem) graphql.Marshaler {
+func (ec *executionContext) marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx context.Context, sel ast.SelectionSet, v *users.Users) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -10572,7 +10612,7 @@ func (ec *executionContext) marshalORepositoryItem2ᚖhttpᚑapiᚋappᚋmodels�
 	return ec._RepositoryItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRoleItem(ctx context.Context, sel ast.SelectionSet, v *roles.RoleItem) graphql.Marshaler {
+func (ec *executionContext) marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx context.Context, sel ast.SelectionSet, v *roles.Role) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -10610,7 +10650,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return graphql.MarshalString(*v)
 }
 
-func (ec *executionContext) marshalOUserItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐUserItem(ctx context.Context, sel ast.SelectionSet, v *model.UserItem) graphql.Marshaler {
+func (ec *executionContext) marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx context.Context, sel ast.SelectionSet, v *users.Users) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

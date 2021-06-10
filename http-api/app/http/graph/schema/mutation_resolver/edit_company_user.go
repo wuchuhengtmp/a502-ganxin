@@ -14,9 +14,10 @@ import (
 	"http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/models/companies"
+	"http-api/app/models/users"
 )
 
-func (m *MutationResolver)EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*model.UserItem, error) {
+func (m *MutationResolver)EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*users.Users, error) {
 	requestValidation := requests.EditCompanyUseRequest{}
 	err := requestValidation.ValidateEditCompanyUserRequest(ctx, input)
 	if err != nil {

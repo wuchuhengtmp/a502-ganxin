@@ -310,29 +310,29 @@ func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUser
 /**
  * 获取对应解析器的公司下的员工数据
  */
-func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error) {
+func GetCompanyItemsResById(companyId int64) ([]*users.Users, error) {
 	var c []users.Users
 	db := sqlModel.DB
 	db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)
-	var v []*graphQL.UserItem
+	var v []*users.Users
 	for _, i := range c {
-		var tmp graphQL.UserItem
+		var tmp users.Users
 		tmp.ID = i.ID
 		role := roles.Role{}
 		_ = role.GetSelfById(i.RoleId)
-		tmp.Role = &roles.RoleItem{
-			ID:   role.ID,
-			Name: role.Name,
-			Tag:  role.Tag,
-		}
+		//tmp.Role = &roles.RoleItem{
+		//	ID:   role.ID,
+		//	Name: role.Name,
+		//	Tag:  role.Tag,
+		//}
 		tmp.Phone = i.Phone
 		tmp.Wechat = i.Wechat
 		avatar := files.File{}
 		_ = avatar.GetSelfById(i.AvatarFileId)
-		tmp.Avatar = &graphQL.FileItem{
-			ID:  avatar.ID,
-			URL: avatar.GetUrl(),
-		}
+		//tmp.Avatar = &graphQL.FileItem{
+		//	ID:  avatar.ID,
+		//	URL: avatar.GetUrl(),
+		//}
 		tmp.IsAble = i.IsAble
 		v = append(v, &tmp)
 	}
@@ -340,7 +340,7 @@ func GetCompanyItemsResById(companyId int64) ([]*graphQL.UserItem, error) {
 	return v, nil
 }
 
-func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput) (*graphQL.UserItem, error) {
+func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput) (*users.Users, error) {
 	tx := model.DB.Begin()
 	user := users.Users{}
 	_ = user.GetSelfById(input.ID)
@@ -365,19 +365,19 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 	roleInfo.GetSelfById(user.RoleId)
 	avatarInfo := files.File{}
 	_ = avatarInfo.GetSelfById(user.AvatarFileId)
-	res := graphQL.UserItem{
+	res := users.Users{
 		ID: user.ID,
-		Role: &roles.RoleItem{
-			ID:   roleInfo.ID,
-			Name: roleInfo.Name,
-			Tag:  roleInfo.Tag,
-		},
+		//Role: &roles.RoleItem{
+		//	ID:   roleInfo.ID,
+		//	Name: roleInfo.Name,
+		//	Tag:  roleInfo.Tag,
+		//},
 		Phone:  user.Phone,
 		Wechat: user.Wechat,
-		Avatar: &graphQL.FileItem{
-			ID:  avatarInfo.ID,
-			URL: avatarInfo.GetUrl(),
-		},
+		//Avatar: &graphQL.FileItem{
+		//	ID:  avatarInfo.ID,
+		//	URL: avatarInfo.GetUrl(),
+		//},
 		IsAble: user.IsAble,
 	}
 

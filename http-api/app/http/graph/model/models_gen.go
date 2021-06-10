@@ -244,16 +244,6 @@ type User struct {
 	Name string `json:"name"`
 }
 
-//  用户信息
-type UserItem struct {
-	ID     int64           `json:"id"`
-	Role   *roles.RoleItem `json:"role"`
-	Phone  string          `json:"phone"`
-	Wechat string          `json:"wechat"`
-	Avatar *FileItem       `json:"avatar"`
-	IsAble bool            `json:"isAble"`
-}
-
 //  角色
 type CreateInputUserRole string
 

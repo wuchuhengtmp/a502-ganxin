@@ -55,7 +55,7 @@ func SetupDB() {
 		codeinfo.CodeInfo{},
 		files.File{},
 		repositories.Repositories{},
-		devices.Devices{},
+		devices.Device{},
 		companies.Companies{},
 		logs.Logos{},
 		steels.Steels{},

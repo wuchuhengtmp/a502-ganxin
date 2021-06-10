@@ -1,0 +1,11 @@
+#type DeviceItem {
+#    id: Int!
+#    mac: String!
+#    userInfo: UserItem!
+#    isAble: Boolean!
+#}
+#extend type Query
+#{
+#    """ 获取设备列表 """
+#    getDeviceList: [DeviceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+#}

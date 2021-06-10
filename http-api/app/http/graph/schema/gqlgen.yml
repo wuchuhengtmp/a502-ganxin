@@ -56,7 +56,7 @@ models:
   Role:
     model: http-api/app/models/roles.GraphqlRole
   RoleItem:
-    model: http-api/app/models/roles.RoleItem
+    model: http-api/app/models/roles.Role
   RepositoryItem:
     model: http-api/app/models/repositories.Repositories
   SpecificationItem:
@@ -67,5 +67,7 @@ models:
     model: http-api/app/models/codeinfo.CodeInfo
   ExpressItem:
     model: http-api/app/models/codeinfo.CodeInfo
-
-
+  DeviceItem:
+    model: http-api/app/models/devices.Device
+  UserItem:
+    model: http-api/app/models/users.Users

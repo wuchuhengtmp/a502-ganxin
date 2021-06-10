@@ -72,12 +72,6 @@ var RoleTagMapName = map[string]string{
 	RoleMaintenanceAdmin.String(): "维修管理员",
 }
 
-//  角色信息
-type RoleItem struct {
-	ID   int64       `json:"id"`
-	Name string      `json:"name"`
-	Tag  GraphqlRole `json:"tag"`
-}
 
 func (e GraphqlRole) IsValid() bool {
 	switch e {
@@ -111,9 +105,9 @@ func (e GraphqlRole) MarshalGQL(w io.Writer) {
 /**
  * 获取解决列表的解析器的响应数据列表
  */
-func GetRolesGraphRes() ([]*RoleItem, error) {
+func GetRolesGraphRes() ([]*Role, error) {
 	db := model.DB
-	var res []*RoleItem
+	var res []*Role
 	var roles []Role
 	err := db.
 		Model(&Role{}).
@@ -123,7 +117,7 @@ func GetRolesGraphRes() ([]*RoleItem, error) {
 		return res, err
 	}
 	for _, role := range roles {
-		tmp := RoleItem{}
+		tmp := Role{}
 		tmp.ID = role.ID
 		tmp.Name = role.Name
 		tmp.Tag =  role.Tag

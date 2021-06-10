@@ -16,9 +16,10 @@ import (
 	"http-api/app/models/companies"
 	"http-api/app/models/files"
 	"http-api/app/models/roles"
+	"http-api/app/models/users"
 )
 
-func (m *MutationResolver) CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*model.UserItem, error) {
+func (m *MutationResolver) CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*users.Users, error) {
 	validate := requests.CreateCompanyUserRequest{}
 	err := validate.ValidateCreateCompanyUserRequest(input)
 	if err != nil {
@@ -33,19 +34,19 @@ func (m *MutationResolver) CreateCompanyUser(ctx context.Context, input model.Cr
 	_ = role.GetSelfById(newUser.RoleId)
 	avatar := files.File{}
 	_ = avatar.GetSelfById(newUser.AvatarFileId)
-	userItem := model.UserItem{
+	userItem := users.Users{
 		ID: newUser.ID,
-		Role: &roles.RoleItem{
-			ID: role.ID,
-			Tag: role.Tag,
-			Name: role.Name,
-		},
+		//Role: &roles.RoleItem{
+		//	ID: role.ID,
+		//	Tag: role.Tag,
+		//	Name: role.Name,
+		//},
 		Phone: newUser.Phone,
 		Wechat: newUser.Wechat,
-		Avatar: &model.FileItem {
-			ID: avatar.ID,
-			URL: avatar.GetUrl(),
-		},
+		//Avatar: &model.FileItem {
+		//	ID: avatar.ID,
+		//	URL: avatar.GetUrl(),
+		//},
 		IsAble: newUser.IsAble,
 	}
 

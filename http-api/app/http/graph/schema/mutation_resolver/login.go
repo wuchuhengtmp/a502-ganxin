@@ -35,7 +35,7 @@ func (r *MutationResolver) Login(ctx context.Context, phone string, password str
 	if mac != nil && len(*mac) > 0 {
 		macAddres = *mac
 		isDevice = true
-		d := devices.Devices{Uid: user.ID, Mac: *mac}
+		d := devices.Device{Uid: user.ID, Mac: *mac}
 		_, err := d.GetDeviceSelf()
 		if err != nil {
 			d.IsAble = true

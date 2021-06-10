@@ -13,7 +13,7 @@ import (
 	"http-api/pkg/model"
 )
 
-type Devices struct {
+type Device struct {
 	ID     int64  `json:"id"`
 	Mac    string `json:"mac" gorm:"comment:mac地址"`
 	Uid    int64  `json:"uid" gorm:"comment:用户id"`
@@ -21,8 +21,8 @@ type Devices struct {
 	gorm.Model
 }
 
-func (d *Devices) GetDeviceSelf() (*Devices, error) {
-	err := model.DB.Model(&Devices{}).
+func (d *Device) GetDeviceSelf() (*Device, error) {
+	err := model.DB.Model(&Device{}).
 		Where("uid = ? AND mac = ?", d.Uid, d.Mac).
 		First(d).Error
 	if err != nil {
@@ -32,6 +32,6 @@ func (d *Devices) GetDeviceSelf() (*Devices, error) {
 	return d, nil
 }
 
-func (d *Devices) CreateSelf() error {
+func (d *Device) CreateSelf() error {
 	return model.DB.Create(d).Error
 }

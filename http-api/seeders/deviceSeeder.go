@@ -30,7 +30,7 @@ var deviceSeeders =  []seed.Seed{
 }
 
 func createDevice(db *gorm.DB, id int64, mac string, uid int64, isAble bool)  error {
-	return db.Create(&devices.Devices{
+	return db.Create(&devices.Device{
 		ID: id,
 		Mac: mac,
 		Uid: uid,

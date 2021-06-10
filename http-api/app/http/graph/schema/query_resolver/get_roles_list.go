@@ -14,7 +14,7 @@ import (
 	"http-api/app/models/roles"
 )
 
-func (*QueryResolver)GetRoleList(ctx context.Context) ([]*roles.RoleItem, error) {
+func (*QueryResolver)GetRoleList(ctx context.Context) ([]*roles.Role, error) {
 	res, err := roles.GetRolesGraphRes()
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
