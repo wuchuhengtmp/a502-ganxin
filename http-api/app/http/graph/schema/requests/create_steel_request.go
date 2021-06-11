@@ -16,6 +16,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/steels"
 )
 
 func ValidateCreateSteelRequest(ctx context.Context, input model.CreateSteelInput) error {
@@ -53,6 +54,11 @@ func ValidateCreateSteelRequest(ctx context.Context, input model.CreateSteelInpu
 	 }
 	 if mf.CompanyId != me.CompanyId {
 		 return fmt.Errorf("制作商与你不是同一家公司的归属，你无权操作")
+	 }
+	 for _, identifier := range input.IdentifierList {
+		if steels.IsExistIdentifier(ctx, identifier) {
+			return fmt.Errorf("标识码:%s 已被使用,不能再次使用在新的型钢上", identifier)
+		}
 	 }
 
 	return nil

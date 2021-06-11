@@ -132,3 +132,14 @@ func (s *Steels) CreateMultipleSteel(ctx context.Context, steels []*Steels) erro
 		return nil
 	})
 }
+
+func IsExistIdentifier(ctx context.Context, identifier string) bool {
+	me := auth.GetUser(ctx)
+	var ss Steels
+	model.DB.Model(&Steels{}).Where("identifier = ? AND company_id = ? ", identifier, me.CompanyId).Find(&ss)
+	if ss.ID == 0 {
+		return false
+	} else {
+		return true
+	}
+}
