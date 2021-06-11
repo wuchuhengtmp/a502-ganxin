@@ -13,6 +13,7 @@ import (
 	"github.com/thedevsaddam/govalidator"
 	"http-api/app/http/graph/util/helper"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/devices"
 	"http-api/app/models/files"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
@@ -101,6 +102,17 @@ func init()  {
 		c := codeinfo.CodeInfo{ID: v}
 		if err := c.GetSelf(); err != nil {
 			return fmt.Errorf("%s:%d 没有这个码表记录", field, v)
+		}
+
+		return nil
+	})
+
+	// 设备的id是否存在
+	govalidator.AddCustomRule("isDeviceId", func(field string, rule string, message string, value interface{}) error {
+		v := value.(int64)
+		c := devices.Device{ID: v}
+		if err := c.GetDeviceSelfById(v); err != nil {
+			return fmt.Errorf("%s:%d 没有这个设备记录", field, v)
 		}
 
 		return nil

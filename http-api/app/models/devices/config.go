@@ -10,8 +10,10 @@ package devices
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
+	"http-api/app/models/logs"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
@@ -69,4 +71,30 @@ func (Device) GetAll(ctx context.Context) (ds []*Device, err error) {
 	`, me.CompanyId).Scan(&ds).Error
 
 	return
+}
+
+/**
+ * 编辑设备
+ */
+func (d *Device) EditSelf(ctx context.Context) error {
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&Device{}).Where("id = ?", d.ID).Updates(&Device{
+			Mac:    d.Mac,
+			Uid:    d.Uid,
+			IsAble: d.IsAble,
+		}).Error; err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		l := logs.Logos{
+			Uid:     me.ID,
+			Content: fmt.Sprintf("编辑设备: 设备id为%d", d.ID),
+			Type:    logs.UpdateActionType,
+		}
+		if err := tx.Create(&l).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

@@ -9,3 +9,12 @@ extend type Query
     """ 获取设备列表 """
     getDeviceList: [DeviceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
+
+input EditDeviceInput {
+    id: Int!
+    isAble: Boolean!
+}
+extend type Mutation {
+    """ 修改设备状态 """
+    editDevice(input: EditDeviceInput!): Boolean! @hasRole(role: [companyAdmin])
+}
