@@ -155,9 +155,9 @@ func TestCompanyAdminRoleEditCompany(t *testing.T) {
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
 			"id":                2,
-			"name":              "2",
-			"pinYin":            "3",
-			"symbol":            "4",
+			"name":              "name_for_companyRoleEditTest",
+			"pinYin":            "GMSP",
+			"symbol":            "企业宗旨修改测试_companyRoleEditTest",
 			"logoFileId":        1,
 			"backgroundFileId":  2,
 			"isAble":            true,

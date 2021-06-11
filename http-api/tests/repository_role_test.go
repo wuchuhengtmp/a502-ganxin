@@ -411,8 +411,8 @@ func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 			"isDefault": isDefault,
 		},
 	}
-	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin);
-	if  err != nil {
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
 		t.Fatal(err.Error())
 	}
 	newCodeInfo := codeinfo.CodeInfo{}
@@ -434,7 +434,7 @@ func TestCompanyRepositoryRoleCreateManufacturer(t *testing.T) {
 		model.DB.Model(&codeinfo.CodeInfo{}).
 			Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.Manufacturer, true).
 			Find(&cs)
-		assert.Len(t,  cs, 1)
+		assert.Len(t, cs, 1)
 	}
 	// 保存id用于编辑制造商测试
 	data := res["createManufacturer"].(map[string]interface{})
@@ -455,13 +455,14 @@ func TestCompanyRepositoryRoleGetManufacturer(t *testing.T) {
 		remark
 	  }
 	}`
-	v := map[string]interface{} {}
-	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin);
-	if  err != nil {
+	v := map[string]interface{}{}
+	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
 		t.Fatal("failed:仓库管理员获取制造商集成测试")
 	}
 	assertCompanyIdForGetManufacturers(t, res, repositoryAdminTestCtx.Token)
 }
+
 /**
  * 仓库管理员编辑制造商集成测试
  */
@@ -481,7 +482,7 @@ func TestRepositoryAdminRoleEditManufacturers(t *testing.T) {
 	isDefault := true
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
-			"id": repositoryAdminTestCtx.EditManufacturerId,
+			"id":        repositoryAdminTestCtx.EditManufacturerId,
 			"name":      name,
 			"remark":    remark,
 			"isDefault": isDefault,
@@ -492,14 +493,14 @@ func TestRepositoryAdminRoleEditManufacturers(t *testing.T) {
 		t.Fatal("failed:公司仓库管理员编辑制造商集成测试")
 	}
 	c := codeinfo.CodeInfo{
-		ID:repositoryAdminTestCtx.EditManufacturerId,
+		ID: repositoryAdminTestCtx.EditManufacturerId,
 	}
 	_ = c.GetSelf()
 	assert.Equal(t, name, c.Name)
 	assert.Equal(t, isDefault, c.IsDefault)
 	assert.Equal(t, remark, c.Remark)
 	// 只能有一个默认选项
-	var cs  []*codeinfo.CodeInfo
+	var cs []*codeinfo.CodeInfo
 	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
 	model.DB.Model(&codeinfo.CodeInfo{}).
 		Where("type = ? AND company_id = ? AND is_default = ?", codeinfo.Manufacturer, me.CompanyId, true).
@@ -511,17 +512,16 @@ func TestRepositoryAdminRoleEditManufacturers(t *testing.T) {
 	assert.Equal(t, remark, c.Remark)
 }
 
-
 /**
  * 仓库管理员删除制造商集成测试
  */
-func TestRepositoyAdminRoleDeleteManufacturers(t *testing.T)  {
+func TestRepositoyAdminRoleDeleteManufacturers(t *testing.T) {
 	q := `
 		mutation deleteManufacturerMutation($id: Int!) {
 		  deleteManufacturer(id: $id) 
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"id": repositoryAdminTestCtx.DeleteManufacturerId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
@@ -530,12 +530,12 @@ func TestRepositoyAdminRoleDeleteManufacturers(t *testing.T)  {
 	}
 	// 断言没有这条数据了
 	var cs []*codeinfo.CodeInfo
-	model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?",repositoryAdminTestCtx.DeleteManufacturerId).Find(&cs)
+	model.DB.Model(&codeinfo.CodeInfo{}).Where("id = ?", repositoryAdminTestCtx.DeleteManufacturerId).Find(&cs)
 	assert.Len(t, cs, 0)
 	// 断言有新的默认制造商家了
 	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
 	model.DB.Model(&codeinfo.CodeInfo{}).Where("company_id = ? AND type = ?", me.CompanyId, codeinfo.Manufacturer).Find(&cs)
-	if len(cs) > 0{
+	if len(cs) > 0 {
 		c := codeinfo.CodeInfo{}
 		err := model.DB.
 			Model(&codeinfo.CodeInfo{}).
@@ -545,6 +545,7 @@ func TestRepositoyAdminRoleDeleteManufacturers(t *testing.T)  {
 		assert.NoError(t, err)
 	}
 }
+
 /**
  * 仓库管理员创建物流商集成测试
  */
@@ -563,10 +564,10 @@ func TestRepositoryAdminRoleCreateExpress(t *testing.T) {
 	name := "name_for_repositoryCreateExpress_" + fmt.Sprintf("%d", time.Now().UnixNano())
 	remark := "remark_for_repositoryCreateExpress"
 	isDefault := true
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": name,
-			"remark": remark,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      name,
+			"remark":    remark,
 			"isDefault": isDefault,
 		},
 	}
@@ -574,7 +575,7 @@ func TestRepositoryAdminRoleCreateExpress(t *testing.T) {
 	if err != nil {
 		t.Fatal("failed:创建物流公司集成测试失败")
 	}
-	c := codeinfo.CodeInfo{ }
+	c := codeinfo.CodeInfo{}
 	if err := model.DB.Model(&codeinfo.CodeInfo{}).Where("name = ?", name).First(&c).Error; err != nil {
 		t.Fatal("failed:创建物流公司集成测试失败")
 	}
@@ -583,7 +584,7 @@ func TestRepositoryAdminRoleCreateExpress(t *testing.T) {
 	assert.Equal(t, c.IsDefault, isDefault)
 	assert.Equal(t, c.Type, codeinfo.ExpressCompany)
 	assert.Equal(t, c.CompanyId, me.CompanyId)
-	var cs  []*codeinfo.CodeInfo
+	var cs []*codeinfo.CodeInfo
 	model.DB.Model(&codeinfo.CodeInfo{}).
 		Where("company_id = ? AND type = ? AND is_default = ?", me.CompanyId, codeinfo.ExpressCompany, true).
 		Find(&cs)
@@ -593,10 +594,10 @@ func TestRepositoryAdminRoleCreateExpress(t *testing.T) {
 	name = "name_for_repositoryCreateExpress_" + fmt.Sprintf("%d", time.Now().UnixNano())
 	remark = "remark_for_repositoryCreateExpress"
 	isDefault = false
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
-			"name": name,
-			"remark": remark,
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"name":      name,
+			"remark":    remark,
 			"isDefault": isDefault,
 		},
 	}
@@ -643,7 +644,7 @@ func TestRepositoryAdminRoleGetExpressList(t *testing.T) {
 	}
 	me, _ := GetUserByToken(repositoryAdminTestCtx.Token)
 	items := res["getExpressList"].([]interface{})
-	for _,item := range items {
+	for _, item := range items {
 		express := item.(map[string]interface{})
 		id := express["id"].(float64)
 		record := codeinfo.CodeInfo{}
@@ -671,7 +672,7 @@ func TestRepositoryAdminRoleEditExpress(t *testing.T) {
 	isDefault := true
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
-			"id": repositoryAdminTestCtx.EditExpressId,
+			"id":        repositoryAdminTestCtx.EditExpressId,
 			"name":      name,
 			"remark":    remark,
 			"isDefault": isDefault,
@@ -698,7 +699,7 @@ func TestRepositoryAdminRoleEditExpress(t *testing.T) {
 	isDefault = false
 	v = map[string]interface{}{
 		"input": map[string]interface{}{
-			"id": repositoryAdminTestCtx.EditExpressId,
+			"id":        repositoryAdminTestCtx.EditExpressId,
 			"name":      name,
 			"remark":    remark,
 			"isDefault": isDefault,
@@ -725,15 +726,14 @@ func TestRepositoryAdminRoleEditExpress(t *testing.T) {
 	}
 }
 
-
-func TestRepositoryAdminRoleDeleteExpress(t *testing.T)  {
+func TestRepositoryAdminRoleDeleteExpress(t *testing.T) {
 	q := `
 		mutation deleteExpressMutation($id: Int!){
 			deleteExpress(id: $id)
 		}
 	`
-	v := map[string]interface{} {
-		"id":repositoryAdminTestCtx.DeleteExpressId,
+	v := map[string]interface{}{
+		"id": repositoryAdminTestCtx.DeleteExpressId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
@@ -767,7 +767,7 @@ func TestRepositoryAdminRoleGetPrice(t *testing.T) {
 		  getPrice
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
 		t.Fatal("failed:仓库管理员获取集成测试")
@@ -788,16 +788,17 @@ func TestRepositoryAdminRoleLoginDevice(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"phone": "13427969606",
+	v := map[string]interface{}{
+		"phone":    "13427969606",
 		"password": "12345678",
-		"mac": "123:1242:1242:12412",
+		"mac":      "123:1242:1242:12412",
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
-		 t.Fatal("failed:仓库管理员设备登录集成测试")
+		t.Fatal("failed:仓库管理员设备登录集成测试")
 	}
 }
+
 /**
  * 仓库管理员获取设备列表集成测试
  */
@@ -815,7 +816,7 @@ func TestRepositoryAdminGetDeviceList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
 		t.Fatal("failed:仓库管理员获取设备列表集成测试")
@@ -832,5 +833,38 @@ func TestRepositoryAdminGetDeviceList(t *testing.T) {
 		u, err := d.GetUser()
 		assert.NoError(t, err)
 		assert.Equal(t, u.CompanyId, me.CompanyId)
+	}
+}
+
+/**
+ * 仓库管理员入库型钢集成测试
+ */
+func TestRepositoryAdminCreateSteel(t *testing.T) {
+	q := `
+		mutation createSteelMutation($input: CreateSteelInput! ){
+		  createSteel(input: $input) {
+			id
+			state
+			specificationId
+			turnover
+			producedDate
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifierList": []interface{}{
+				"1", "2", "3",
+			},
+			"repositoryId": 1,
+			"specificationId": 1,
+			"manufacturerId":  4,
+			"materialManufacturerId": 1,
+			"producedDate": "2021-06-11T10:08:42+08:00",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
