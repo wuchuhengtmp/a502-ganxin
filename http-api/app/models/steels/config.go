@@ -53,6 +53,12 @@ type Steels struct {
 	gorm.Model
 }
 
+// 获取型钢的响应格式
+type GetSteelListRes struct {
+	Total int64     `json:"total"`
+	List  []*Steels `json:"list"`
+}
+
 // 状态码声明
 const (
 	StateInStore                    = 100 //【仓库】-在库
@@ -143,3 +149,22 @@ func IsExistIdentifier(ctx context.Context, identifier string) bool {
 		return true
 	}
 }
+
+func (Steels) GetPagination(ctx context.Context, page int64, pageSize int64) (ss []*Steels, err error){
+	offset := 0
+	if pageSize > 1 {
+		offset = int((page - 1) * pageSize)
+	}
+	me := auth.GetUser(ctx)
+	err = model.DB.Model(&Steels{}).Where("company_id = ?", me.CompanyId).Offset(offset).Limit(int(pageSize)).Find(&ss).Error
+
+	return
+}
+
+func (Steels)GetTotal(ctx context.Context) (total int64) {
+	me := auth.GetUser(ctx)
+	model.DB.Model(&Steels{}).Where("company_id = ?",  me.CompanyId).Count(&total)
+
+	return
+}
+

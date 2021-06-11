@@ -58,7 +58,10 @@ var router = mux.NewRouter().StrictSlash(true)
 func RunWeb (c *cli.Context)  {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
-	go http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
+	go func() {
+		// :xxx 这里可能有个端口占用的异常，要捕获后，进行更友好的提示
+		http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
+	}()
 	fmt.Printf(`
 		🚀 🚀 🚀 Server is running!
 		Listening on port %s
@@ -66,7 +69,7 @@ func RunWeb (c *cli.Context)  {
 		Explore graphql at http://localhost:%s/graphql
 
 		`,
-	pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"))
+		pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"), pkgC.GetString("APP_PORT"))
 	select{}
 }
 
