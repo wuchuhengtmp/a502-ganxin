@@ -73,3 +73,6 @@ models:
     model: http-api/app/models/users.Users
   SteelItem:
     model: http-api/app/models/steels.Steels
+  CompanyItem:
+    model: http-api/app/models/companies.Companies
+

@@ -37,7 +37,7 @@ func init() {
  */
 func hasError(t *testing.T, err error) {
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
 }
 

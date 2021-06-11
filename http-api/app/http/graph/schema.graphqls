@@ -22,7 +22,13 @@ type Query {
   """ 接口错码说明 """
   errorCodeDesc: GraphDesc!
 }
-
+""" 分页参数  """
+input PaginationInput {
+  """ 每页数量 """
+  pageSize: Int! = 10
+  """ 指定哪个分页 """
+  page: Int! = 12
+}
 type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!

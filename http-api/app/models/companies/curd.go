@@ -11,6 +11,7 @@ package companies
 import (
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
 	graphQL "http-api/app/http/graph/model"
 	"http-api/app/http/graph/util/helper"
@@ -27,59 +28,47 @@ import (
 /**
  * 添加一家公司
  */
-func (Companies) Create(ctx context.Context, input graphQL.CreateCompanyInput) (newCompany *Companies, err error) {
+func (c *Companies) CreateSelf(ctx context.Context, input graphQL.CreateCompanyInput) (err error) {
 	startedAt, _ := helper.Str2Time(input.StartedAt)
 	endedAt, _ := helper.Str2Time(input.EndedAt)
-	company := Companies{
-		Name:             input.Name,
-		PinYin:           input.PinYin,
-		Symbol:           input.Symbol,
-		LogoFileId:       int64(input.LogoFileID),
-		BackgroundFileId: int64(input.BackgroundFileID),
-		IsAble:           input.IsAble,
-		Phone:            input.Phone,
-		Wechat:           input.Wechat,
-		StartedAt:        startedAt,
-		EndedAt:          endedAt,
-	}
-	db := model.DB
-	me := auth.GetUser(ctx)
-	logsModel := logs.Logos{}
-	logsModel.Type = logs.CreateActionType
-	logsModel.Uid = me.ID
-	user := users.Users{
-		Name:         input.AdminName,
-		Password:     helper2.GetHashByStr(input.AdminPassword),
-		Phone:        input.AdminPhone,
-		RoleId:       roles.RoleCompanyAdminId,
-		Wechat:       input.AdminWechat,
-		CompanyId:    company.ID,
-		IsAble:       true,
-		AvatarFileId: input.AdminAvatarFileID,
-	}
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-			if err == nil {
-				// 事件失败错误
-				err = fmt.Errorf("transactions fail")
-			}
+	c.Name = input.Name
+	c.PinYin = input.PinYin
+	c.Symbol = input.Symbol
+	c.LogoFileId = int64(input.LogoFileID)
+	c.BackgroundFileId = int64(input.BackgroundFileID)
+	c.IsAble = input.IsAble
+	c.Phone = input.Phone
+	c.Wechat = input.Wechat
+	c.StartedAt = startedAt
+	c.EndedAt = endedAt
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&c).Error; err != nil {
+			return err
 		}
-	}()
-	if err := tx.Create(&company).Error; err != nil {
-		panic(err)
-	}
-	logsModel.Content = fmt.Sprintf("添加公司,名称:%s,ID: %d", company.Name, company.ID)
-	if err := tx.Create(&logsModel).Error; err != nil {
-		panic(err)
-	}
-	if err := tx.Create(&user).Error; err != nil {
-		panic(err)
-	}
-	tx.Commit()
+		me := auth.GetUser(ctx)
+		logsModel := logs.Logos{}
+		logsModel.Type = logs.CreateActionType
+		logsModel.Uid = me.ID
+		user := users.Users{
+			Name:         input.AdminName,
+			Password:     helper2.GetHashByStr(input.AdminPassword),
+			Phone:        input.AdminPhone,
+			RoleId:       roles.RoleCompanyAdminId,
+			Wechat:       input.AdminWechat,
+			CompanyId:    c.ID,
+			IsAble:       true,
+			AvatarFileId: input.AdminAvatarFileID,
+		}
+		logsModel.Content = fmt.Sprintf("添加公司,名称:%s,ID: %d", c.Name, c.ID)
+		if err := tx.Create(&logsModel).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
 
-	return &company, nil
+		return nil
+	})
 }
 
 func GetAllByUid(uid int64) (cs []Companies) {
@@ -131,70 +120,61 @@ func (Companies) HasCompanyId(cid int64) (*Companies, error) {
 /**
  *  更新公司
  */
-func (Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) (ok bool) {
+func (c *Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) error {
 	startAt, _ := helper.Str2Time(input.StartedAt)
 	endAt, _ := helper.Str2Time(input.EndedAt)
-	c := Companies{
-		Name:             input.Name,
-		PinYin:           input.PinYin,
-		Symbol:           input.Symbol,
-		LogoFileId:       int64(input.LogoFileID),
-		BackgroundFileId: int64(input.BackgroundFileID),
-		IsAble:           input.IsAble,
-		Phone:            input.Phone,
-		Wechat:           input.Wechat,
-		StartedAt:        startAt,
-		EndedAt:          endAt,
-	}
-	db := sqlModel.DB
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-			ok = false
+	c.ID = input.ID
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&Companies{}).Where("id = ?", input.ID).Updates(&Companies{
+			Name:             input.Name,
+			PinYin:           input.PinYin,
+			Symbol:           input.Symbol,
+			LogoFileId:       int64(input.LogoFileID),
+			BackgroundFileId: int64(input.BackgroundFileID),
+			IsAble:           input.IsAble,
+			Phone:            input.Phone,
+			Wechat:           input.Wechat,
+			StartedAt:        startAt,
+			EndedAt:          endAt,
+		}).Error
+		if err != nil {
+			return err
 		}
-	}()
-	err := tx.Model(&Companies{}).Where("id = ?", input.ID).Updates(c).Error
-	if err != nil {
-		return false
-	}
-	// 更新用户信息
-	u := users.Users{}
-	tx.Model(&u).Where("company_id = ? AND role_id = ?", input.ID, roles.RoleCompanyAdminId).First(&u)
-	u.Name = input.AdminName
-	u.Phone = input.Phone
-	u.Wechat = input.AdminWechat
-	u.AvatarFileId = int64(input.AdminAvatarFileID)
-	if input.AdminPassword != nil {
-		u.Password = helper2.GetHashByStr(*input.AdminPassword)
-	}
-	err = tx.Model(&u).Updates(users.Users{
-		Name:         u.Name,
-		Password:     u.Password,
-		AvatarFileId: u.AvatarFileId,
-		Phone:        u.Phone,
-		Wechat:       u.Wechat,
-	}).Error
-	if err != nil {
-		tx.Rollback()
-		return false
-	}
-	// 添加一个操作日志
-	me := auth.GetUser(ctx)
-	logsModel := logs.Logos{}
-	logsModel.Type = logs.UpdateActionType
-	logsModel.Uid = me.ID
-	logsModel.Content = fmt.Sprintf("修改公司，名称: %s, ID:%d", c.Name, input.ID)
-	if tx.Create(&logsModel).Error != nil {
-		tx.Rollback()
-		return false
-	}
-	//_ = logsModel.CreateSelf()
-	if tx.Commit().Error != nil {
-		return false
-	}
+		if err := tx.Model(&Companies{}).Where("id = ?", c.ID).First(&c).Error; err != nil {
+			return err
+		}
+		// 更新用户信息
+		u := users.Users{}
+		tx.Model(&u).Where("company_id = ? AND role_id = ?", input.ID, roles.RoleCompanyAdminId).First(&u)
+		u.Name = input.AdminName
+		u.Phone = input.Phone
+		u.Wechat = input.AdminWechat
+		u.AvatarFileId = int64(input.AdminAvatarFileID)
+		if input.AdminPassword != nil {
+			u.Password = helper2.GetHashByStr(*input.AdminPassword)
+		}
+		err = tx.Model(&u).Updates(users.Users{
+			Name:         u.Name,
+			Password:     u.Password,
+			AvatarFileId: u.AvatarFileId,
+			Phone:        u.Phone,
+			Wechat:       u.Wechat,
+		}).Error
+		if err != nil {
+			return err
+		}
+		// 添加一个操作日志
+		me := auth.GetUser(ctx)
+		logsModel := logs.Logos{}
+		logsModel.Type = logs.UpdateActionType
+		logsModel.Uid = me.ID
+		logsModel.Content = fmt.Sprintf("修改公司，名称: %s, ID:%d", c.Name, input.ID)
+		if tx.Create(&logsModel).Error != nil {
+			return err
+		}
 
-	return true
+		return nil
+	})
 }
 
 /**
@@ -226,52 +206,52 @@ func GetCompanyAdminUserById(id int64) (*users.Users, error) {
 /**
  * 获取对应解析器的一项公司数据
  */
-func GetCompanyItemResById(id int64) (c *graphQL.CompanyItemRes, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("query failed")
-		}
-	}()
-	company := Companies{}
-	_ = company.GetSelfById(id)
-	logoFile := files.File{}
-	_ = logoFile.GetSelfById(company.LogoFileId)
-	backgroundFile := files.File{}
-	_ = backgroundFile.GetSelfById(company.BackgroundFileId)
-	bf := graphQL.FileItem{
-		ID:  backgroundFile.ID,
-		URL: backgroundFile.GetUrl(),
-	}
-	adminAvatar := files.File{}
-	user, _ := GetCompanyAdminUserById(id)
-	_ = adminAvatar.GetSelfById(user.AvatarFileId)
-	res := graphQL.CompanyItemRes{
-		ID:     company.ID,
-		Name:   company.Name,
-		PinYin: company.PinYin,
-		Symbol: company.Symbol,
-		LogoFile: &graphQL.FileItem{
-			ID:  logoFile.ID,
-			URL: logoFile.GetUrl(),
-		},
-		BackgroundFile: &bf,
-		IsAble:         company.IsAble,
-		Phone:          company.Phone,
-		Wechat:         company.Wechat,
-		StartedAt:      company.StartedAt,
-		EndedAt:        company.EndedAt,
-		CreatedAt:      company.CreatedAt,
-		AdminName:      user.Name,
-		AdminWechat:    user.Wechat,
-		AdminPhone:     user.Phone,
-		AdminAvatar: &graphQL.FileItem{
-			ID:  adminAvatar.ID,
-			URL: adminAvatar.GetUrl(),
-		},
-	}
-
-	return &res, nil
-}
+//func GetCompanyItemResById(id int64) (c []*Companies, err error) {
+//	defer func() {
+//		if r := recover(); r != nil {
+//			err = fmt.Errorf("query failed")
+//		}
+//	}()
+//	company := Companies{}
+//	_ = company.GetSelfById(id)
+//	logoFile := files.File{}
+//	_ = logoFile.GetSelfById(company.LogoFileId)
+//	backgroundFile := files.File{}
+//	_ = backgroundFile.GetSelfById(company.BackgroundFileId)
+//	bf := graphQL.FileItem{
+//		ID:  backgroundFile.ID,
+//		URL: backgroundFile.GetUrl(),
+//	}
+//	adminAvatar := files.File{}
+//	user, _ := GetCompanyAdminUserById(id)
+//	_ = adminAvatar.GetSelfById(user.AvatarFileId)
+//	res := graphQL.CompanyItemRes{
+//		ID:     company.ID,
+//		Name:   company.Name,
+//		PinYin: company.PinYin,
+//		Symbol: company.Symbol,
+//		LogoFile: &graphQL.FileItem{
+//			ID:  logoFile.ID,
+//			URL: logoFile.GetUrl(),
+//		},
+//		BackgroundFile: &bf,
+//		IsAble:         company.IsAble,
+//		Phone:          company.Phone,
+//		Wechat:         company.Wechat,
+//		StartedAt:      company.StartedAt,
+//		EndedAt:        company.EndedAt,
+//		CreatedAt:      company.CreatedAt,
+//		AdminName:      user.Name,
+//		AdminWechat:    user.Wechat,
+//		AdminPhone:     user.Phone,
+//		AdminAvatar: &graphQL.FileItem{
+//			ID:  adminAvatar.ID,
+//			URL: adminAvatar.GetUrl(),
+//		},
+//	}
+//
+//	return &res, nil
+//}
 
 /**
  * 添加公司归属下的人员

@@ -111,7 +111,9 @@ func TestSuperAdminRoleCreateCompany(t *testing.T) {
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleAdmin)
-	hasError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	createCompany, _ :=  res["createCompany"].(map[string]interface{})
 	id := createCompany["id"].(float64)
 	superAdminTestCtx.DeleteCompanyId = int64(id)
@@ -199,7 +201,9 @@ func TestAdminRoleEditCompany(t *testing.T) {
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
-	hasError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 /**

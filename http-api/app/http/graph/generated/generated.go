@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"http-api/app/http/graph/model"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/companies"
 	"http-api/app/models/devices"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
@@ -44,6 +45,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	CompanyItem() CompanyItemResolver
 	DeviceItem() DeviceItemResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
@@ -57,7 +59,7 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	CompanyItemRes struct {
+	CompanyItem struct {
 		AdminAvatar    func(childComplexity int) int
 		AdminName      func(childComplexity int) int
 		AdminPhone     func(childComplexity int) int
@@ -231,13 +233,22 @@ type ComplexityRoot struct {
 	}
 }
 
+type CompanyItemResolver interface {
+	LogoFile(ctx context.Context, obj *companies.Companies) (*model.FileItem, error)
+	BackgroundFile(ctx context.Context, obj *companies.Companies) (*model.FileItem, error)
+
+	AdminName(ctx context.Context, obj *companies.Companies) (string, error)
+	AdminPhone(ctx context.Context, obj *companies.Companies) (string, error)
+	AdminWechat(ctx context.Context, obj *companies.Companies) (string, error)
+	AdminAvatar(ctx context.Context, obj *companies.Companies) (*model.FileItem, error)
+}
 type DeviceItemResolver interface {
 	UserInfo(ctx context.Context, obj *devices.Device) (*users.Users, error)
 }
 type MutationResolver interface {
 	Login(ctx context.Context, phone string, password string, mac *string) (*model.LoginRes, error)
-	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CompanyItemRes, error)
-	EditCompany(ctx context.Context, input model.EditCompanyInput) (*model.CompanyItemRes, error)
+	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*companies.Companies, error)
+	EditCompany(ctx context.Context, input model.EditCompanyInput) (*companies.Companies, error)
 	DeleteCompany(ctx context.Context, id int64) (bool, error)
 	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*users.Users, error)
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*users.Users, error)
@@ -263,7 +274,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
-	GetAllCompany(ctx context.Context) ([]*model.CompanyItemRes, error)
+	GetAllCompany(ctx context.Context) ([]*companies.Companies, error)
 	GetCompanyUser(ctx context.Context) ([]*users.Users, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
@@ -303,117 +314,117 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "CompanyItemRes.adminAvatar":
-		if e.complexity.CompanyItemRes.AdminAvatar == nil {
+	case "CompanyItem.adminAvatar":
+		if e.complexity.CompanyItem.AdminAvatar == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.AdminAvatar(childComplexity), true
+		return e.complexity.CompanyItem.AdminAvatar(childComplexity), true
 
-	case "CompanyItemRes.adminName":
-		if e.complexity.CompanyItemRes.AdminName == nil {
+	case "CompanyItem.adminName":
+		if e.complexity.CompanyItem.AdminName == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.AdminName(childComplexity), true
+		return e.complexity.CompanyItem.AdminName(childComplexity), true
 
-	case "CompanyItemRes.adminPhone":
-		if e.complexity.CompanyItemRes.AdminPhone == nil {
+	case "CompanyItem.adminPhone":
+		if e.complexity.CompanyItem.AdminPhone == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.AdminPhone(childComplexity), true
+		return e.complexity.CompanyItem.AdminPhone(childComplexity), true
 
-	case "CompanyItemRes.adminWechat":
-		if e.complexity.CompanyItemRes.AdminWechat == nil {
+	case "CompanyItem.adminWechat":
+		if e.complexity.CompanyItem.AdminWechat == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.AdminWechat(childComplexity), true
+		return e.complexity.CompanyItem.AdminWechat(childComplexity), true
 
-	case "CompanyItemRes.backgroundFile":
-		if e.complexity.CompanyItemRes.BackgroundFile == nil {
+	case "CompanyItem.backgroundFile":
+		if e.complexity.CompanyItem.BackgroundFile == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.BackgroundFile(childComplexity), true
+		return e.complexity.CompanyItem.BackgroundFile(childComplexity), true
 
-	case "CompanyItemRes.createdAt":
-		if e.complexity.CompanyItemRes.CreatedAt == nil {
+	case "CompanyItem.createdAt":
+		if e.complexity.CompanyItem.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.CreatedAt(childComplexity), true
+		return e.complexity.CompanyItem.CreatedAt(childComplexity), true
 
-	case "CompanyItemRes.endedAt":
-		if e.complexity.CompanyItemRes.EndedAt == nil {
+	case "CompanyItem.endedAt":
+		if e.complexity.CompanyItem.EndedAt == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.EndedAt(childComplexity), true
+		return e.complexity.CompanyItem.EndedAt(childComplexity), true
 
-	case "CompanyItemRes.id":
-		if e.complexity.CompanyItemRes.ID == nil {
+	case "CompanyItem.id":
+		if e.complexity.CompanyItem.ID == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.ID(childComplexity), true
+		return e.complexity.CompanyItem.ID(childComplexity), true
 
-	case "CompanyItemRes.isAble":
-		if e.complexity.CompanyItemRes.IsAble == nil {
+	case "CompanyItem.isAble":
+		if e.complexity.CompanyItem.IsAble == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.IsAble(childComplexity), true
+		return e.complexity.CompanyItem.IsAble(childComplexity), true
 
-	case "CompanyItemRes.logoFile":
-		if e.complexity.CompanyItemRes.LogoFile == nil {
+	case "CompanyItem.logoFile":
+		if e.complexity.CompanyItem.LogoFile == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.LogoFile(childComplexity), true
+		return e.complexity.CompanyItem.LogoFile(childComplexity), true
 
-	case "CompanyItemRes.name":
-		if e.complexity.CompanyItemRes.Name == nil {
+	case "CompanyItem.name":
+		if e.complexity.CompanyItem.Name == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.Name(childComplexity), true
+		return e.complexity.CompanyItem.Name(childComplexity), true
 
-	case "CompanyItemRes.phone":
-		if e.complexity.CompanyItemRes.Phone == nil {
+	case "CompanyItem.phone":
+		if e.complexity.CompanyItem.Phone == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.Phone(childComplexity), true
+		return e.complexity.CompanyItem.Phone(childComplexity), true
 
-	case "CompanyItemRes.pinYin":
-		if e.complexity.CompanyItemRes.PinYin == nil {
+	case "CompanyItem.pinYin":
+		if e.complexity.CompanyItem.PinYin == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.PinYin(childComplexity), true
+		return e.complexity.CompanyItem.PinYin(childComplexity), true
 
-	case "CompanyItemRes.startedAt":
-		if e.complexity.CompanyItemRes.StartedAt == nil {
+	case "CompanyItem.startedAt":
+		if e.complexity.CompanyItem.StartedAt == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.StartedAt(childComplexity), true
+		return e.complexity.CompanyItem.StartedAt(childComplexity), true
 
-	case "CompanyItemRes.symbol":
-		if e.complexity.CompanyItemRes.Symbol == nil {
+	case "CompanyItem.symbol":
+		if e.complexity.CompanyItem.Symbol == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.Symbol(childComplexity), true
+		return e.complexity.CompanyItem.Symbol(childComplexity), true
 
-	case "CompanyItemRes.wechat":
-		if e.complexity.CompanyItemRes.Wechat == nil {
+	case "CompanyItem.wechat":
+		if e.complexity.CompanyItem.Wechat == nil {
 			break
 		}
 
-		return e.complexity.CompanyItemRes.Wechat(childComplexity), true
+		return e.complexity.CompanyItem.Wechat(childComplexity), true
 
 	case "DeviceItem.id":
 		if e.complexity.DeviceItem.ID == nil {
@@ -1370,7 +1381,13 @@ type Query {
   """ 接口错码说明 """
   errorCodeDesc: GraphDesc!
 }
-
+""" 分页参数  """
+input PaginationInput {
+  """ 每页数量 """
+  pageSize: Int! = 10
+  """ 指定哪个分页 """
+  page: Int! = 12
+}
 type LoginRes {
   """ 授权token """    accessToken: String!
   """ 过期时间戳(秒 7天) """  expired: Int!
@@ -1387,7 +1404,7 @@ schema {
   mutation: Mutation
 }`, BuiltIn: false},
 	{Name: "../company.graphql", Input: `# 公司相关的操作
-type CompanyItemRes {
+type CompanyItem {
     id: Int!
     """ 公司名 """
     name:             String!
@@ -1491,16 +1508,16 @@ input EditCompanyInput {
 
 extend type Mutation {
     """ 创建公司 (auth: admin) """
-    createCompany(input: CreateCompanyInput!): CompanyItemRes! @hasRole(role: [admin])
+    createCompany(input: CreateCompanyInput!): CompanyItem! @hasRole(role: [admin])
     """ 修改公司 (auth: admin, companyAdmin) """
-    editCompany(input: EditCompanyInput!): CompanyItemRes! @hasRole(role: [admin, companyAdmin])
+    editCompany(input: EditCompanyInput!): CompanyItem! @hasRole(role: [admin, companyAdmin])
     """ 删除公司 (auth: admin) """
     deleteCompany(id: Int!): Boolean! @hasRole(role: [admin])
 }
 
 extend type Query {
     """ 获取公司列表 (auth: admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ) """
-    getAllCompany: [CompanyItemRes]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
+    getAllCompany: [CompanyItem]! @hasRole(role: [admin, companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin ])
 }
 `, BuiltIn: false},
 	{Name: "../company_users.graphql", Input: `#公司人员
@@ -1853,6 +1870,14 @@ extend type Mutation {
     """ 型钢入库 """
     createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
 }
+#type GetSteelListRes {
+#    total: Int!
+#    list: [SteelItem]!
+#}
+#extend type Query {
+#    """ 获取型钢列表 """
+#    getSteelList(input: PaginationInput!):GetSteelListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+#}
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
@@ -2335,7 +2360,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CompanyItemRes_id(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_id(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2343,7 +2368,7 @@ func (ec *executionContext) _CompanyItemRes_id(ctx context.Context, field graphq
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2370,7 +2395,7 @@ func (ec *executionContext) _CompanyItemRes_id(ctx context.Context, field graphq
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_name(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_name(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2378,7 +2403,7 @@ func (ec *executionContext) _CompanyItemRes_name(ctx context.Context, field grap
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2405,7 +2430,7 @@ func (ec *executionContext) _CompanyItemRes_name(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_pinYin(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_pinYin(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2413,7 +2438,7 @@ func (ec *executionContext) _CompanyItemRes_pinYin(ctx context.Context, field gr
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2440,7 +2465,7 @@ func (ec *executionContext) _CompanyItemRes_pinYin(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_symbol(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_symbol(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2448,7 +2473,7 @@ func (ec *executionContext) _CompanyItemRes_symbol(ctx context.Context, field gr
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2475,7 +2500,7 @@ func (ec *executionContext) _CompanyItemRes_symbol(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_logoFile(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_logoFile(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2483,17 +2508,17 @@ func (ec *executionContext) _CompanyItemRes_logoFile(ctx context.Context, field 
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.LogoFile, nil
+		return ec.resolvers.CompanyItem().LogoFile(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2510,7 +2535,7 @@ func (ec *executionContext) _CompanyItemRes_logoFile(ctx context.Context, field 
 	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_backgroundFile(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_backgroundFile(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2518,17 +2543,17 @@ func (ec *executionContext) _CompanyItemRes_backgroundFile(ctx context.Context, 
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.BackgroundFile, nil
+		return ec.resolvers.CompanyItem().BackgroundFile(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2545,7 +2570,7 @@ func (ec *executionContext) _CompanyItemRes_backgroundFile(ctx context.Context, 
 	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_isAble(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_isAble(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2553,7 +2578,7 @@ func (ec *executionContext) _CompanyItemRes_isAble(ctx context.Context, field gr
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2580,7 +2605,7 @@ func (ec *executionContext) _CompanyItemRes_isAble(ctx context.Context, field gr
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_phone(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_phone(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2588,7 +2613,7 @@ func (ec *executionContext) _CompanyItemRes_phone(ctx context.Context, field gra
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2615,7 +2640,7 @@ func (ec *executionContext) _CompanyItemRes_phone(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_wechat(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_wechat(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2623,7 +2648,7 @@ func (ec *executionContext) _CompanyItemRes_wechat(ctx context.Context, field gr
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2650,7 +2675,7 @@ func (ec *executionContext) _CompanyItemRes_wechat(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_startedAt(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2658,7 +2683,7 @@ func (ec *executionContext) _CompanyItemRes_startedAt(ctx context.Context, field
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2685,7 +2710,7 @@ func (ec *executionContext) _CompanyItemRes_startedAt(ctx context.Context, field
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_endedAt(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_endedAt(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2693,7 +2718,7 @@ func (ec *executionContext) _CompanyItemRes_endedAt(ctx context.Context, field g
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2720,7 +2745,7 @@ func (ec *executionContext) _CompanyItemRes_endedAt(ctx context.Context, field g
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2728,7 +2753,7 @@ func (ec *executionContext) _CompanyItemRes_createdAt(ctx context.Context, field
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -2755,7 +2780,7 @@ func (ec *executionContext) _CompanyItemRes_createdAt(ctx context.Context, field
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_adminName(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_adminName(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2763,17 +2788,17 @@ func (ec *executionContext) _CompanyItemRes_adminName(ctx context.Context, field
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AdminName, nil
+		return ec.resolvers.CompanyItem().AdminName(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2790,7 +2815,7 @@ func (ec *executionContext) _CompanyItemRes_adminName(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_adminPhone(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_adminPhone(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2798,17 +2823,17 @@ func (ec *executionContext) _CompanyItemRes_adminPhone(ctx context.Context, fiel
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AdminPhone, nil
+		return ec.resolvers.CompanyItem().AdminPhone(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2825,7 +2850,7 @@ func (ec *executionContext) _CompanyItemRes_adminPhone(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_adminWechat(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_adminWechat(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2833,17 +2858,17 @@ func (ec *executionContext) _CompanyItemRes_adminWechat(ctx context.Context, fie
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AdminWechat, nil
+		return ec.resolvers.CompanyItem().AdminWechat(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2860,7 +2885,7 @@ func (ec *executionContext) _CompanyItemRes_adminWechat(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CompanyItemRes_adminAvatar(ctx context.Context, field graphql.CollectedField, obj *model.CompanyItemRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _CompanyItem_adminAvatar(ctx context.Context, field graphql.CollectedField, obj *companies.Companies) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2868,17 +2893,17 @@ func (ec *executionContext) _CompanyItemRes_adminAvatar(ctx context.Context, fie
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "CompanyItemRes",
+		Object:     "CompanyItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AdminAvatar, nil
+		return ec.resolvers.CompanyItem().AdminAvatar(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3928,10 +3953,10 @@ func (ec *executionContext) _Mutation_createCompany(ctx context.Context, field g
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.CompanyItemRes); ok {
+		if data, ok := tmp.(*companies.Companies); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.CompanyItemRes`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/companies.Companies`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3943,9 +3968,9 @@ func (ec *executionContext) _Mutation_createCompany(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CompanyItemRes)
+	res := resTmp.(*companies.Companies)
 	fc.Result = res
-	return ec.marshalNCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx, field.Selections, res)
+	return ec.marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_editCompany(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3994,10 +4019,10 @@ func (ec *executionContext) _Mutation_editCompany(ctx context.Context, field gra
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.CompanyItemRes); ok {
+		if data, ok := tmp.(*companies.Companies); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.CompanyItemRes`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/companies.Companies`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4009,9 +4034,9 @@ func (ec *executionContext) _Mutation_editCompany(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CompanyItemRes)
+	res := resTmp.(*companies.Companies)
 	fc.Result = res
-	return ec.marshalNCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx, field.Selections, res)
+	return ec.marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteCompany(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5516,10 +5541,10 @@ func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field grap
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.CompanyItemRes); ok {
+		if data, ok := tmp.([]*companies.Companies); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/http/graph/model.CompanyItemRes`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/companies.Companies`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5531,9 +5556,9 @@ func (ec *executionContext) _Query_getAllCompany(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CompanyItemRes)
+	res := resTmp.([]*companies.Companies)
 	fc.Result = res
-	return ec.marshalNCompanyItemRes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx, field.Selections, res)
+	return ec.marshalNCompanyItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -9542,6 +9567,41 @@ func (ec *executionContext) unmarshalInputEditSpecificationInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (model.PaginationInput, error) {
+	var it model.PaginationInput
+	var asMap = obj.(map[string]interface{})
+
+	if _, present := asMap["pageSize"]; !present {
+		asMap["pageSize"] = 10
+	}
+	if _, present := asMap["page"]; !present {
+		asMap["page"] = 12
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "pageSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+			it.PageSize, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "page":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			it.Page, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -9550,97 +9610,151 @@ func (ec *executionContext) unmarshalInputEditSpecificationInput(ctx context.Con
 
 // region    **************************** object.gotpl ****************************
 
-var companyItemResImplementors = []string{"CompanyItemRes"}
+var companyItemImplementors = []string{"CompanyItem"}
 
-func (ec *executionContext) _CompanyItemRes(ctx context.Context, sel ast.SelectionSet, obj *model.CompanyItemRes) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companyItemResImplementors)
+func (ec *executionContext) _CompanyItem(ctx context.Context, sel ast.SelectionSet, obj *companies.Companies) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, companyItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CompanyItemRes")
+			out.Values[i] = graphql.MarshalString("CompanyItem")
 		case "id":
-			out.Values[i] = ec._CompanyItemRes_id(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._CompanyItemRes_name(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "pinYin":
-			out.Values[i] = ec._CompanyItemRes_pinYin(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_pinYin(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "symbol":
-			out.Values[i] = ec._CompanyItemRes_symbol(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_symbol(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "logoFile":
-			out.Values[i] = ec._CompanyItemRes_logoFile(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CompanyItem_logoFile(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "backgroundFile":
-			out.Values[i] = ec._CompanyItemRes_backgroundFile(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CompanyItem_backgroundFile(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "isAble":
-			out.Values[i] = ec._CompanyItemRes_isAble(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_isAble(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "phone":
-			out.Values[i] = ec._CompanyItemRes_phone(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_phone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "wechat":
-			out.Values[i] = ec._CompanyItemRes_wechat(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_wechat(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "startedAt":
-			out.Values[i] = ec._CompanyItemRes_startedAt(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_startedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "endedAt":
-			out.Values[i] = ec._CompanyItemRes_endedAt(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_endedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "createdAt":
-			out.Values[i] = ec._CompanyItemRes_createdAt(ctx, field, obj)
+			out.Values[i] = ec._CompanyItem_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "adminName":
-			out.Values[i] = ec._CompanyItemRes_adminName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CompanyItem_adminName(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "adminPhone":
-			out.Values[i] = ec._CompanyItemRes_adminPhone(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CompanyItem_adminPhone(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "adminWechat":
-			out.Values[i] = ec._CompanyItemRes_adminWechat(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CompanyItem_adminWechat(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "adminAvatar":
-			out.Values[i] = ec._CompanyItemRes_adminAvatar(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CompanyItem_adminAvatar(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10968,11 +11082,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCompanyItemRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx context.Context, sel ast.SelectionSet, v model.CompanyItemRes) graphql.Marshaler {
-	return ec._CompanyItemRes(ctx, sel, &v)
+func (ec *executionContext) marshalNCompanyItem2httpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx context.Context, sel ast.SelectionSet, v companies.Companies) graphql.Marshaler {
+	return ec._CompanyItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCompanyItemRes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx context.Context, sel ast.SelectionSet, v []*model.CompanyItemRes) graphql.Marshaler {
+func (ec *executionContext) marshalNCompanyItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx context.Context, sel ast.SelectionSet, v []*companies.Companies) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10996,7 +11110,7 @@ func (ec *executionContext) marshalNCompanyItemRes2ᚕᚖhttpᚑapiᚋappᚋhttp
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx, sel, v[i])
+			ret[i] = ec.marshalOCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11009,14 +11123,14 @@ func (ec *executionContext) marshalNCompanyItemRes2ᚕᚖhttpᚑapiᚋappᚋhttp
 	return ret
 }
 
-func (ec *executionContext) marshalNCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx context.Context, sel ast.SelectionSet, v *model.CompanyItemRes) graphql.Marshaler {
+func (ec *executionContext) marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx context.Context, sel ast.SelectionSet, v *companies.Companies) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
 		}
 		return graphql.Null
 	}
-	return ec._CompanyItemRes(ctx, sel, v)
+	return ec._CompanyItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyInput(ctx context.Context, v interface{}) (model.CreateCompanyInput, error) {
@@ -12060,11 +12174,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) marshalOCompanyItemRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCompanyItemRes(ctx context.Context, sel ast.SelectionSet, v *model.CompanyItemRes) graphql.Marshaler {
+func (ec *executionContext) marshalOCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx context.Context, sel ast.SelectionSet, v *companies.Companies) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._CompanyItemRes(ctx, sel, v)
+	return ec._CompanyItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeviceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋdevicesᚐDevice(ctx context.Context, sel ast.SelectionSet, v *devices.Device) graphql.Marshaler {

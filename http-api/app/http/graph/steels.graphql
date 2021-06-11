@@ -62,3 +62,11 @@ extend type Mutation {
     """ 型钢入库 """
     createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
 }
+#type GetSteelListRes {
+#    total: Int!
+#    list: [SteelItem]!
+#}
+#extend type Query {
+#    """ 获取型钢列表 """
+#    getSteelList(input: PaginationInput!):GetSteelListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+#}

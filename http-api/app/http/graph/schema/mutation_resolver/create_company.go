@@ -17,23 +17,17 @@ import (
 	"http-api/app/models/companies"
 )
 
-func (m *MutationResolver) CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*model.CompanyItemRes, error) {
+func (m *MutationResolver) CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*companies.Companies, error) {
 	CreateCompanyRequest := requests.CreateCompanyRequest{}
 	err := CreateCompanyRequest.ValidateCreateCompanyRequest(input)
 	if err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
-	companyModel := companies.Companies{}
+	c := companies.Companies{}
 	//添加公司
-	newCompany, err := companyModel.Create(ctx, input)
-	if err != nil {
+	if err := c.CreateSelf(ctx, input);err != nil {
 		return nil, errors.ServerErr(ctx, fmt.Errorf(errors.ServerErrorMsg))
 	}
-	// 获取解析器要的数据
-	res, err := companies.GetCompanyItemResById(newCompany.ID)
-	if err != nil {
-		return nil, errors.ServerErr(ctx, err)
-	}
 
-	return res, nil
+	return &c,nil
 }

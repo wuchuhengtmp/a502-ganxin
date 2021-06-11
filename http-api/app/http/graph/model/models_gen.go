@@ -10,40 +10,6 @@ import (
 	"time"
 )
 
-type CompanyItemRes struct {
-	ID int64 `json:"id"`
-	//  公司名
-	Name string `json:"name"`
-	//  用于型钢编码生成
-	PinYin string `json:"pinYin"`
-	//  APP 企业宗旨
-	Symbol string `json:"symbol"`
-	//  logo文件
-	LogoFile *FileItem `json:"logoFile"`
-	//  app背景文件
-	BackgroundFile *FileItem `json:"backgroundFile"`
-	//  账号状态
-	IsAble bool `json:"isAble"`
-	//  公司的电话
-	Phone string `json:"phone"`
-	//  公司的微信
-	Wechat string `json:"wechat"`
-	//  开始时间
-	StartedAt time.Time `json:"startedAt"`
-	//  结束时间
-	EndedAt time.Time `json:"endedAt"`
-	//  创建时间
-	CreatedAt time.Time `json:"createdAt"`
-	//  管理员名称
-	AdminName string `json:"adminName"`
-	//  管理员手机
-	AdminPhone string `json:"adminPhone"`
-	//  管理员微信
-	AdminWechat string `json:"adminWechat"`
-	//  管理员头像
-	AdminAvatar *FileItem `json:"adminAvatar"`
-}
-
 //  创建公司参数
 type CreateCompanyInput struct {
 	//  公司名
@@ -258,6 +224,14 @@ type LoginRes struct {
 	Role roles.GraphqlRole `json:"role"`
 	//  角色名
 	RoleName string `json:"roleName"`
+}
+
+//  分页参数
+type PaginationInput struct {
+	//  每页数量
+	PageSize int64 `json:"pageSize"`
+	//  指定哪个分页
+	Page int64 `json:"page"`
 }
 
 type User struct {

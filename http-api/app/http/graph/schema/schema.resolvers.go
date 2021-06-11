@@ -33,6 +33,9 @@ func (r *Resolver)DeviceItem() generated.DeviceItemResolver {
 func (r *Resolver) UserItem() generated.UserItemResolver {
 	return query_resolver.UserItemResolver{}
 }
+func (c *Resolver)CompanyItem() generated.CompanyItemResolver {
+	return query_resolver.CompanyItemResolver{}
+}
 
 type mutationResolver struct{
 	*Resolver

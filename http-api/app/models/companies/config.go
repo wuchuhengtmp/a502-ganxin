@@ -10,6 +10,7 @@ package companies
 
 import (
 	"gorm.io/gorm"
+	"http-api/pkg/model"
 	"time"
 )
 
@@ -26,4 +27,10 @@ type Companies struct {
 	StartedAt        time.Time `json:"startedAt" gorm:"comment:开始时间"`
 	EndedAt          time.Time `json:"ended_at" gorm:"comment:结束时间"`
 	gorm.Model
+}
+
+func (Companies)GetAll() (cs []*Companies, err error) {
+	err = model.DB.Model(&Companies{}).Find(&cs).Error
+
+	return
 }
