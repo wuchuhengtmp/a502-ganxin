@@ -126,6 +126,22 @@ type CreateSpecificationInput struct {
 	IsDefault bool    `json:"isDefault"`
 }
 
+//  型钢入库需要的参数
+type CreateSteelInput struct {
+	//  识别码
+	IdentifierList []string `json:"identifierList"`
+	//  当前存放的仓库id
+	RepositoryID int64 `json:"repositoryId"`
+	//  规格表id
+	SpecificationID int64 `json:"specificationId"`
+	//  料商类型id
+	MaterialManufacturerID int64 `json:"materialManufacturerId"`
+	//  制造商(生产商)id
+	ManufacturerID int64 `json:"manufacturerId"`
+	//  生产时间
+	ProducedDate time.Time `json:"producedDate"`
+}
+
 //  修改公司参数
 type EditCompanyInput struct {
 	//  公司ID

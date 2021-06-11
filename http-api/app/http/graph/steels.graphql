@@ -1,0 +1,64 @@
+""" 型钢数据项 """
+type SteelItem {
+    id: Int!
+    """ 识别码列表 """
+    identifier: String!
+    """首次入库用户id """
+    createdUid: Int!
+    """
+    100【仓库】-在库
+    101【仓库】-运送至项目途中
+    102【仓库】-运送至维修厂途中
+    200【项目】-待使用
+    201【项目】-使用中
+    202【项目】-异常
+    203【项目】-闲置
+    204【项目】-准备归库
+    205【项目】-归库途中
+    300【维修】-待维修
+    301【维修】-维修中
+    302【维修】-准备归库
+    303【维修】-归库途中
+    400丢失
+    500报废
+    """
+    state: Int!
+    """ 规格表id """
+    specificationId: Int!
+    """ 所属的公司id """
+    companyId: Int!
+    """ 当前存放的仓库id """
+    repositoryId: Int!
+    """ 材料商类型id """
+    materialManufacturerId: Int!
+    """ 制造商(生产商)id """
+    manufacturerId: Int!
+    """ 周转次数 """
+    turnover: Int!
+    """ 年使用率 """
+    usageYearRate:Float!
+    """ 总使用率 """
+    totalUsageRate:Float!
+    """ 生产时间 """
+    producedDate: Time!
+}
+
+""" 型钢入库需要的参数 """
+input CreateSteelInput {
+    """ 识别码 """
+    identifierList: [String!]!
+    """ 当前存放的仓库id """
+    repositoryId: Int!
+    """ 规格表id """
+    specificationId: Int!
+    """ 料商类型id """
+    materialManufacturerId: Int!
+    """ 制造商(生产商)id """
+    manufacturerId: Int!
+    """ 生产时间 """
+    producedDate: Time!
+}
+extend type Mutation {
+    """ 型钢入库 """
+    createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
+}

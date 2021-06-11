@@ -18,23 +18,24 @@ var specificationinfoSeeds =  []seed.Seed{
 	seed.Seed{
 		Name: "create specificationinfo",
 		Run: func(db *gorm.DB) error {
-			return createSpecificationInfo(db, 1, "2H500×200×10×16", 0.1, 0.016, true)
+			return createSpecificationInfo(db, 1, "2H500×200×10×16", 0.1, 0.016, true, CompanyId)
 		},
 	},
 	seed.Seed{
 		Name: "create specificationinfo",
 		Run: func(db *gorm.DB) error {
-			return createSpecificationInfo(db, 2, "2H500×200×10×16", 0.1, 0.016, false)
+			return createSpecificationInfo(db, 2, "2H500×200×10×16", 0.1, 0.016, false, CompanyId)
 		},
 	},
 }
 
-func createSpecificationInfo(db *gorm.DB, id int64, codeType string, weight float64, length float64, isDefault bool)  error {
+func createSpecificationInfo(db *gorm.DB, id int64, codeType string, weight float64, length float64, isDefault bool, companyId int64)  error {
 	return db.Create(&specificationinfo.SpecificationInfo{
 		ID:        id,
 		Type:      codeType,
 		Length:    length,
 		Weight:    weight,
 		IsDefault: isDefault,
+		CompanyId: companyId,
 	}).Error
 }

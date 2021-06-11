@@ -9,16 +9,21 @@
 package steels
 
 import (
+	"context"
+	"fmt"
 	"gorm.io/gorm"
+	"http-api/app/http/graph/auth"
+	"http-api/app/models/companies"
+	"http-api/app/models/repositories"
 	"http-api/pkg/model"
 	"time"
 )
 
 type Steels struct {
-	ID                     int64     `json:"id"`
-	Identifier             string    `json:"identifier" gorm:"comment:识别码"`
-	CreatedUid             int64     `json:"createdUid" gorm:"comment:首次入库用户id"`
-	State                  int64     `json:"state" gorm:"comment:
+	ID         int64  `json:"id"`
+	Identifier string `json:"identifier" gorm:"comment:识别码"`
+	CreatedUid int64  `json:"createdUid" gorm:"comment:首次入库用户id"`
+	State int64 `json:"state" gorm:"comment:
 100【仓库】-在库
 101【仓库】-运送至项目途中
 102【仓库】-运送至维修厂途中
@@ -43,9 +48,29 @@ type Steels struct {
 	Turnover               int64     `json:"turnover" gorm:"comment:周转次数"`
 	UsageYearRate          float64   `json:"usageYearRate" gorm:"comment:年使用率"`
 	TotalUsageRate         float64   `json:"totalUsageRate" gorm:"comment:总使用率"`
+	Code                   string    `json:"code gorm:comment:编码"`
 	ProducedDate           time.Time `json:"producedDate" gorm:"comment:生产时间"`
 	gorm.Model
 }
+
+// 状态码声明
+const (
+	StateInStore                    = 100 //【仓库】-在库
+	StateRepository2Project         = 101 //【仓库】-运送至项目途中
+	StateRepository2Maintainer      = 102 //【仓库】-运送至维修厂途中
+	StateProjectWillBeUsed          = 200 //【项目】-待使用
+	StateProjectInUse               = 201 //【项目】-使用中
+	StateProjectException           = 202 //【项目】-异常
+	StateProjectIdle                = 203 //【项目】-闲置
+	StateProjectWillBeStore         = 204 //【项目】-准备归库
+	StateProjectOnTheStoreWay       = 205 //【项目】-归库途中
+	StateMaintainerWillBeMaintained = 300 //【维修】-待维修
+	StateMaintainerBeMaintaining    = 301 //【维修】-维修中
+	StateMaintainerWillBeStore      = 302 //【维修】-准备归库
+	StateMaintainerOnTheStoreWay    = 303 //【维修】-归库途中
+	StateLost                       = 400 //丢失
+	StateScrap                      = 500 //报废
+)
 
 /**
  * 根据规格id获取型钢
@@ -78,4 +103,32 @@ func (s *Steels) GetListByManufacturerId(manufacturerId int64) (ss []*Steels, er
 	err = db.Model(s).Where("manufacturer_id = ?", manufacturerId).Find(&ss).Error
 
 	return ss, err
+}
+
+/**
+ * 批量入库
+ */
+func (s *Steels) CreateMultipleSteel(ctx context.Context, steels []*Steels) error {
+	me := auth.GetUser(ctx)
+	c := companies.Companies{}
+	if err := c.GetSelfById(me.CompanyId); err != nil {
+		return err
+	}
+	r := repositories.Repositories{ID: steels[0].RepositoryId}
+	if err := r.GetSelf(); err != nil {
+		return err
+	}
+	return model.DB.Transaction(func(tx *gorm.DB) error {
+		for _, steel := range steels {
+			if err := tx.Create(&steel).Error; err != nil {
+				return nil
+			}
+			code := fmt.Sprintf("%s-%s%.2d-%.6d", c.PinYin, r.PinYin, r.ID, steel.ID)
+			if err := tx.Model(&Steels{}).Where("id = ?", steel.ID).Update("code", code).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }

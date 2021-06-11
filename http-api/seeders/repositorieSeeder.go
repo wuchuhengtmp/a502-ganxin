@@ -28,7 +28,7 @@ var repositorySeeder = []seed.Seed{
 				5322.6,
 				"",
 				true,
-				1,
+				CompanyId,
 				)
 		},
 	},

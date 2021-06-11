@@ -13,6 +13,7 @@ import (
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"strconv"
 	"sync"
@@ -134,6 +135,7 @@ type ComplexityRoot struct {
 		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
 		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
 		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
+		CreateSteel                func(childComplexity int, input model.CreateSteelInput) int
 		DeleteCompany              func(childComplexity int, id int64) int
 		DeleteCompanyUser          func(childComplexity int, uid int64) int
 		DeleteExpress              func(childComplexity int, id int64) int
@@ -197,6 +199,22 @@ type ComplexityRoot struct {
 		Weight        func(childComplexity int) int
 	}
 
+	SteelItem struct {
+		CompanyId              func(childComplexity int) int
+		CreatedUid             func(childComplexity int) int
+		ID                     func(childComplexity int) int
+		Identifier             func(childComplexity int) int
+		ManufacturerId         func(childComplexity int) int
+		MaterialManufacturerId func(childComplexity int) int
+		ProducedDate           func(childComplexity int) int
+		RepositoryId           func(childComplexity int) int
+		SpecificationId        func(childComplexity int) int
+		State                  func(childComplexity int) int
+		TotalUsageRate         func(childComplexity int) int
+		Turnover               func(childComplexity int) int
+		UsageYearRate          func(childComplexity int) int
+	}
+
 	User struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
@@ -240,6 +258,7 @@ type MutationResolver interface {
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	EditSpecification(ctx context.Context, input model.EditSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	DeleteSpecification(ctx context.Context, id int64) (bool, error)
+	CreateSteel(ctx context.Context, input model.CreateSteelInput) ([]*steels.Steels, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
 type QueryResolver interface {
@@ -669,6 +688,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateSpecification(childComplexity, args["input"].(model.CreateSpecificationInput)), true
 
+	case "Mutation.createSteel":
+		if e.complexity.Mutation.CreateSteel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSteel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSteel(childComplexity, args["input"].(model.CreateSteelInput)), true
+
 	case "Mutation.deleteCompany":
 		if e.complexity.Mutation.DeleteCompany == nil {
 			break
@@ -1097,6 +1128,97 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SpecificationItem.Weight(childComplexity), true
 
+	case "SteelItem.companyId":
+		if e.complexity.SteelItem.CompanyId == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.CompanyId(childComplexity), true
+
+	case "SteelItem.createdUid":
+		if e.complexity.SteelItem.CreatedUid == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.CreatedUid(childComplexity), true
+
+	case "SteelItem.id":
+		if e.complexity.SteelItem.ID == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.ID(childComplexity), true
+
+	case "SteelItem.identifier":
+		if e.complexity.SteelItem.Identifier == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.Identifier(childComplexity), true
+
+	case "SteelItem.manufacturerId":
+		if e.complexity.SteelItem.ManufacturerId == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.ManufacturerId(childComplexity), true
+
+	case "SteelItem.materialManufacturerId":
+		if e.complexity.SteelItem.MaterialManufacturerId == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.MaterialManufacturerId(childComplexity), true
+
+	case "SteelItem.producedDate":
+		if e.complexity.SteelItem.ProducedDate == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.ProducedDate(childComplexity), true
+
+	case "SteelItem.repositoryId":
+		if e.complexity.SteelItem.RepositoryId == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.RepositoryId(childComplexity), true
+
+	case "SteelItem.specificationId":
+		if e.complexity.SteelItem.SpecificationId == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.SpecificationId(childComplexity), true
+
+	case "SteelItem.state":
+		if e.complexity.SteelItem.State == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.State(childComplexity), true
+
+	case "SteelItem.totalUsageRate":
+		if e.complexity.SteelItem.TotalUsageRate == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.TotalUsageRate(childComplexity), true
+
+	case "SteelItem.turnover":
+		if e.complexity.SteelItem.Turnover == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.Turnover(childComplexity), true
+
+	case "SteelItem.usageYearRate":
+		if e.complexity.SteelItem.UsageYearRate == nil {
+			break
+		}
+
+		return e.complexity.SteelItem.UsageYearRate(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -1457,7 +1579,7 @@ input EditDeviceInput {
     isAble: Boolean!
 }
 extend type Mutation {
-    """ 修改设备状态 """
+    """ 修改设备状态 (auth: companyAdmin)"""
     editDevice(input: EditDeviceInput!): Boolean! @hasRole(role: [companyAdmin])
 }`, BuiltIn: false},
 	{Name: "../directive.graphql", Input: `# 声明指令
@@ -1667,6 +1789,71 @@ extend type Mutation {
     deleteSpecification(id: Int!): Boolean! @hasRole(role: [ companyAdmin, repositoryAdmin ])
 }
 `, BuiltIn: false},
+	{Name: "../steels.graphql", Input: `""" 型钢数据项 """
+type SteelItem {
+    id: Int!
+    """ 识别码列表 """
+    identifier: String!
+    """首次入库用户id """
+    createdUid: Int!
+    """
+    100【仓库】-在库
+    101【仓库】-运送至项目途中
+    102【仓库】-运送至维修厂途中
+    200【项目】-待使用
+    201【项目】-使用中
+    202【项目】-异常
+    203【项目】-闲置
+    204【项目】-准备归库
+    205【项目】-归库途中
+    300【维修】-待维修
+    301【维修】-维修中
+    302【维修】-准备归库
+    303【维修】-归库途中
+    400丢失
+    500报废
+    """
+    state: Int!
+    """ 规格表id """
+    specificationId: Int!
+    """ 所属的公司id """
+    companyId: Int!
+    """ 当前存放的仓库id """
+    repositoryId: Int!
+    """ 材料商类型id """
+    materialManufacturerId: Int!
+    """ 制造商(生产商)id """
+    manufacturerId: Int!
+    """ 周转次数 """
+    turnover: Int!
+    """ 年使用率 """
+    usageYearRate:Float!
+    """ 总使用率 """
+    totalUsageRate:Float!
+    """ 生产时间 """
+    producedDate: Time!
+}
+
+""" 型钢入库需要的参数 """
+input CreateSteelInput {
+    """ 识别码 """
+    identifierList: [String!]!
+    """ 当前存放的仓库id """
+    repositoryId: Int!
+    """ 规格表id """
+    specificationId: Int!
+    """ 料商类型id """
+    materialManufacturerId: Int!
+    """ 制造商(生产商)id """
+    manufacturerId: Int!
+    """ 生产时间 """
+    producedDate: Time!
+}
+extend type Mutation {
+    """ 型钢入库 """
+    createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
+}
+`, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
 
 type FileItem {
@@ -1799,6 +1986,21 @@ func (ec *executionContext) field_Mutation_createSpecification_args(ctx context.
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSpecificationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createSteel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateSteelInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSteelInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5132,6 +5334,72 @@ func (ec *executionContext) _Mutation_deleteSpecification(ctx context.Context, f
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createSteel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createSteel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateSteel(rctx, args["input"].(model.CreateSteelInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.Steels); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.Steels`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6555,6 +6823,461 @@ func (ec *executionContext) _SpecificationItem_specification(ctx context.Context
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_id(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_identifier(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Identifier, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_createdUid(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedUid, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_state(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_specificationId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SpecificationId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_companyId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompanyId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_repositoryId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RepositoryId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_materialManufacturerId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaterialManufacturerId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_manufacturerId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ManufacturerId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_turnover(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Turnover, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_usageYearRate(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UsageYearRate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_totalUsageRate(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalUsageRate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_producedDate(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProducedDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -8355,6 +9078,66 @@ func (ec *executionContext) unmarshalInputCreateSpecificationInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateSteelInput(ctx context.Context, obj interface{}) (model.CreateSteelInput, error) {
+	var it model.CreateSteelInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "repositoryId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryId"))
+			it.RepositoryID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "materialManufacturerId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("materialManufacturerId"))
+			it.MaterialManufacturerID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "manufacturerId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("manufacturerId"))
+			it.ManufacturerID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "producedDate":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("producedDate"))
+			it.ProducedDate, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditCompanyInput(ctx context.Context, obj interface{}) (model.EditCompanyInput, error) {
 	var it model.EditCompanyInput
 	var asMap = obj.(map[string]interface{})
@@ -9319,6 +10102,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createSteel":
+			out.Values[i] = ec._Mutation_createSteel(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "singleUpload":
 			out.Values[i] = ec._Mutation_singleUpload(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -9715,6 +10503,93 @@ func (ec *executionContext) _SpecificationItem(ctx context.Context, sel ast.Sele
 				}
 				return res
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var steelItemImplementors = []string{"SteelItem"}
+
+func (ec *executionContext) _SteelItem(ctx context.Context, sel ast.SelectionSet, obj *steels.Steels) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, steelItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SteelItem")
+		case "id":
+			out.Values[i] = ec._SteelItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "identifier":
+			out.Values[i] = ec._SteelItem_identifier(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdUid":
+			out.Values[i] = ec._SteelItem_createdUid(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "state":
+			out.Values[i] = ec._SteelItem_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "specificationId":
+			out.Values[i] = ec._SteelItem_specificationId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "companyId":
+			out.Values[i] = ec._SteelItem_companyId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "repositoryId":
+			out.Values[i] = ec._SteelItem_repositoryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "materialManufacturerId":
+			out.Values[i] = ec._SteelItem_materialManufacturerId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "manufacturerId":
+			out.Values[i] = ec._SteelItem_manufacturerId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "turnover":
+			out.Values[i] = ec._SteelItem_turnover(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "usageYearRate":
+			out.Values[i] = ec._SteelItem_usageYearRate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "totalUsageRate":
+			out.Values[i] = ec._SteelItem_totalUsageRate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "producedDate":
+			out.Values[i] = ec._SteelItem_producedDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10186,6 +11061,11 @@ func (ec *executionContext) unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋh
 
 func (ec *executionContext) unmarshalNCreateSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSpecificationInput(ctx context.Context, v interface{}) (model.CreateSpecificationInput, error) {
 	res, err := ec.unmarshalInputCreateSpecificationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateSteelInput(ctx context.Context, v interface{}) (model.CreateSteelInput, error) {
+	res, err := ec.unmarshalInputCreateSteelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -10754,6 +11634,53 @@ func (ec *executionContext) marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmode
 	return ec._SpecificationItem(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx context.Context, sel ast.SelectionSet, v []*steels.Steels) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx context.Context, sel ast.SelectionSet, v *steels.Steels) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SteelItem(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10767,6 +11694,36 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {

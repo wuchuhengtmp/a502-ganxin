@@ -71,3 +71,5 @@ models:
     model: http-api/app/models/devices.Device
   UserItem:
     model: http-api/app/models/users.Users
+  SteelItem:
+    model: http-api/app/models/steels.Steels
