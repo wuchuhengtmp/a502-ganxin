@@ -55,6 +55,8 @@ var companyAdminTestCtx = struct {
 	EditExpressId int64
 	// 删除物流公司ID
 	DeleteExpressId int64
+	// 编辑设备id
+	EditDeviceId int64
 }{
 	Username: seeders.CompanyAdmin.Username,
 	Password: seeders.CompanyAdmin.Password,
@@ -971,7 +973,7 @@ func TestCompanyAdminRoleEditPrice(t *testing.T) {
 /**
  * 公司管理员获取设备列表集成测试
  */
-func TestCompanyAdmingetDeviceList(t *testing.T) {
+func TestCompanyAdminGetDeviceList(t *testing.T) {
 	q := `
 		query getDeviceListQuery {
 		  getDeviceList{
@@ -985,7 +987,7 @@ func TestCompanyAdmingetDeviceList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	if err != nil {
 		t.Fatal("failed:公司管理员获取设备列表集成测试")
@@ -1002,5 +1004,46 @@ func TestCompanyAdmingetDeviceList(t *testing.T) {
 		u, err := d.GetUser()
 		assert.NoError(t, err)
 		assert.Equal(t, u.CompanyId, me.CompanyId)
+		// 用于编辑设备测试
+		companyAdminTestCtx.EditDeviceId = int64(id)
 	}
+}
+
+/**
+ * 公司管理员编辑设备集成测试
+ */
+func TestCompanyAdminEditDevice(t *testing.T) {
+	q := `
+		mutation editDeviceMutation($input: EditDeviceInput!){
+		  editDevice(input: $input) 
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":     companyAdminTestCtx.EditDeviceId,
+			"isAble": false,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员编辑设备集成测试")
+	}
+	d := devices.Device{}
+	err = d.GetDeviceSelfById(companyAdminTestCtx.EditDeviceId)
+	assert.NoError(t, err)
+	assert.False(t, d.IsAble)
+
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":     companyAdminTestCtx.EditDeviceId,
+			"isAble": true,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("failed:公司管理员编辑设备集成测试")
+	}
+	err = d.GetDeviceSelfById(companyAdminTestCtx.EditDeviceId)
+	assert.NoError(t, err)
+	assert.True(t, d.IsAble)
 }

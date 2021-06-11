@@ -22,7 +22,7 @@ type Device struct {
 	ID     int64  `json:"id"`
 	Mac    string `json:"mac" gorm:"comment:mac地址"`
 	Uid    int64  `json:"uid" gorm:"comment:用户id"`
-	IsAble bool   `json:"is_abl" gorm:"comment:是否启用"`
+	IsAble bool   `json:"is_able" gorm:"comment:是否启用"`
 	gorm.Model
 }
 
@@ -78,13 +78,14 @@ func (Device) GetAll(ctx context.Context) (ds []*Device, err error) {
  */
 func (d *Device) EditSelf(ctx context.Context) error {
 	return model.DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&Device{}).Where("id = ?", d.ID).Updates(&Device{
-			Mac:    d.Mac,
-			Uid:    d.Uid,
-			IsAble: d.IsAble,
-		}).Error; err != nil {
+		// :xxx 不知道为什么这里把isAble 修改为false就是不行,也不报错
+		if err := tx.Updates(d).Error; err != nil {
 			return err
 		}
+		if err := tx.Model(&Device{}).Where("id = ?", d.ID).Update("is_able", d.IsAble).Error; err != nil {
+			return err
+		}
+
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
 			Uid:     me.ID,

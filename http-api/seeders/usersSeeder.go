@@ -18,27 +18,33 @@ import (
 type AccountType struct {
 	Password string
 	Username string
+	Id int64
 }
 
 var SuperAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969604",
+	Id: 1,
 }
 var CompanyAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969605",
+	Id: 2,
 }
 var RepositoryAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969606",
+	Id: 3,
 }
 var ProjectAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969607",
+	Id: 4,
 }
 var MaintenanceAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969608",
+	Id: 5,
 }
 
 var UsersSeeders = []seed.Seed{
@@ -47,7 +53,7 @@ var UsersSeeders = []seed.Seed{
 		Run: func(db *gorm.DB) error {
 			return CreateUser(
 				db,
-				1,
+				SuperAdmin.Id,
 				"吴楚衡",
 				helper.GetHashByStr(SuperAdmin.Password),
 				SuperAdmin.Username,
@@ -62,7 +68,7 @@ var UsersSeeders = []seed.Seed{
 		Run: func(db *gorm.DB) error {
 			return CreateUser(
 				db,
-				2,
+				CompanyAdmin.Id,
 				"公司管理员1",
 				helper.GetHashByStr(CompanyAdmin.Password),
 				CompanyAdmin.Username,
@@ -77,7 +83,7 @@ var UsersSeeders = []seed.Seed{
 		Run: func(db *gorm.DB) error {
 			return CreateUser(
 				db,
-				3,
+				RepositoryAdmin.Id,
 				"仓库管理员1",
 				helper.GetHashByStr(RepositoryAdmin.Password),
 				RepositoryAdmin.Username,
@@ -92,7 +98,7 @@ var UsersSeeders = []seed.Seed{
 		Run: func(db *gorm.DB) error {
 			return CreateUser(
 				db,
-				4,
+				ProjectAdmin.Id,
 				"项目管理员1",
 				helper.GetHashByStr(ProjectAdmin.Password),
 				ProjectAdmin.Username,
@@ -107,7 +113,7 @@ var UsersSeeders = []seed.Seed{
 		Run: func(db *gorm.DB) error {
 			return CreateUser(
 				db,
-				5,
+				MaintenanceAdmin.Id,
 				"维修管理员1",
 				helper.GetHashByStr(MaintenanceAdmin.Password),
 				MaintenanceAdmin.Username,

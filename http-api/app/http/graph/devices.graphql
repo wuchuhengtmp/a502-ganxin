@@ -15,6 +15,6 @@ input EditDeviceInput {
     isAble: Boolean!
 }
 extend type Mutation {
-    """ 修改设备状态 """
+    """ 修改设备状态 (auth: companyAdmin)"""
     editDevice(input: EditDeviceInput!): Boolean! @hasRole(role: [companyAdmin])
 }

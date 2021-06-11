@@ -22,6 +22,7 @@ func (*MutationResolver) EditDevice(ctx context.Context, input model.EditDeviceI
 	}
 	d := devices.Device{}
 	_ = d.GetDeviceSelfById(input.ID)
+	d.IsAble = input.IsAble
 	if err := d.EditSelf(ctx); err != nil {
 		return false, errors.ServerErr(ctx, err)
 	}

@@ -27,6 +27,12 @@ var deviceSeeders =  []seed.Seed{
 			return createDevice(db, 2, "20:82:c0:2d:a5:d6", 1, false)
 		},
 	},
+	seed.Seed{
+		Name: "create device",
+		Run: func(db *gorm.DB) error {
+			return createDevice(db, 3, "20:82:c0:2d:a5:d6", ProjectAdmin.Id, false)
+		},
+	},
 }
 
 func createDevice(db *gorm.DB, id int64, mac string, uid int64, isAble bool)  error {
