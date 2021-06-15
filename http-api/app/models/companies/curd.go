@@ -241,24 +241,11 @@ func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUser
  * 获取对应解析器的公司下的员工数据
  */
 func GetCompanyItemsResById(companyId int64) ([]*users.Users, error) {
-	var c []users.Users
+	var c []*users.Users
 	db := sqlModel.DB
 	db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)
-	var v []*users.Users
-	for _, i := range c {
-		var tmp users.Users
-		tmp.ID = i.ID
-		role := roles.Role{}
-		_ = role.GetSelfById(i.RoleId)
-		tmp.Phone = i.Phone
-		tmp.Wechat = i.Wechat
-		avatar := files.File{}
-		_ = avatar.GetSelfById(i.AvatarFileId)
-		tmp.IsAble = i.IsAble
-		v = append(v, &tmp)
-	}
 
-	return v, nil
+	return c, nil
 }
 
 func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput) (*users.Users, error) {
