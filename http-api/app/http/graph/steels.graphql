@@ -23,16 +23,14 @@ type SteelItem {
     500报废
     """
     state: Int!
-    """ 规格表id """
-    specificationId: Int!
     """ 所属的公司id """
     companyId: Int!
-    """ 当前存放的仓库id """
-    repositoryId: Int!
-    """ 材料商类型id """
-    materialManufacturerId: Int!
-    """ 制造商(生产商)id """
-    manufacturerId: Int!
+    """ 当前存放的仓库 """
+    repository: RepositoryItem!
+    """ 材料商 """
+    materialManufacturer: MaterialManufacturerItem!
+    """ 制造商(生产商) """
+    manufacturer: ManufacturerItem!
     """ 周转次数 """
     turnover: Int!
     """ 年使用率 """
@@ -41,6 +39,8 @@ type SteelItem {
     totalUsageRate:Float!
     """ 生产时间 """
     producedDate: Time!
+    """ 规格参数 """
+    specifcation: SpecificationItem!
 }
 
 """ 型钢入库需要的参数 """

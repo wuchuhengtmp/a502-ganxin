@@ -51,6 +51,7 @@ type ResolverRoot interface {
 	Query() QueryResolver
 	RepositoryItem() RepositoryItemResolver
 	SpecificationItem() SpecificationItemResolver
+	SteelItem() SteelItemResolver
 	UserItem() UserItemResolver
 }
 
@@ -208,19 +209,19 @@ type ComplexityRoot struct {
 	}
 
 	SteelItem struct {
-		CompanyId              func(childComplexity int) int
-		CreatedUid             func(childComplexity int) int
-		ID                     func(childComplexity int) int
-		Identifier             func(childComplexity int) int
-		ManufacturerId         func(childComplexity int) int
-		MaterialManufacturerId func(childComplexity int) int
-		ProducedDate           func(childComplexity int) int
-		RepositoryId           func(childComplexity int) int
-		SpecificationId        func(childComplexity int) int
-		State                  func(childComplexity int) int
-		TotalUsageRate         func(childComplexity int) int
-		Turnover               func(childComplexity int) int
-		UsageYearRate          func(childComplexity int) int
+		CompanyId            func(childComplexity int) int
+		CreatedUid           func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		Identifier           func(childComplexity int) int
+		Manufacturer         func(childComplexity int) int
+		MaterialManufacturer func(childComplexity int) int
+		ProducedDate         func(childComplexity int) int
+		Repository           func(childComplexity int) int
+		Specifcation         func(childComplexity int) int
+		State                func(childComplexity int) int
+		TotalUsageRate       func(childComplexity int) int
+		Turnover             func(childComplexity int) int
+		UsageYearRate        func(childComplexity int) int
 	}
 
 	User struct {
@@ -299,6 +300,13 @@ type RepositoryItemResolver interface {
 }
 type SpecificationItemResolver interface {
 	Specification(ctx context.Context, obj *specificationinfo.SpecificationInfo) (string, error)
+}
+type SteelItemResolver interface {
+	Repository(ctx context.Context, obj *steels.Steels) (*repositories.Repositories, error)
+	MaterialManufacturer(ctx context.Context, obj *steels.Steels) (*codeinfo.CodeInfo, error)
+	Manufacturer(ctx context.Context, obj *steels.Steels) (*codeinfo.CodeInfo, error)
+
+	Specifcation(ctx context.Context, obj *steels.Steels) (*specificationinfo.SpecificationInfo, error)
 }
 type UserItemResolver interface {
 	Role(ctx context.Context, obj *users.Users) (*roles.Role, error)
@@ -1200,19 +1208,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SteelItem.Identifier(childComplexity), true
 
-	case "SteelItem.manufacturerId":
-		if e.complexity.SteelItem.ManufacturerId == nil {
+	case "SteelItem.manufacturer":
+		if e.complexity.SteelItem.Manufacturer == nil {
 			break
 		}
 
-		return e.complexity.SteelItem.ManufacturerId(childComplexity), true
+		return e.complexity.SteelItem.Manufacturer(childComplexity), true
 
-	case "SteelItem.materialManufacturerId":
-		if e.complexity.SteelItem.MaterialManufacturerId == nil {
+	case "SteelItem.materialManufacturer":
+		if e.complexity.SteelItem.MaterialManufacturer == nil {
 			break
 		}
 
-		return e.complexity.SteelItem.MaterialManufacturerId(childComplexity), true
+		return e.complexity.SteelItem.MaterialManufacturer(childComplexity), true
 
 	case "SteelItem.producedDate":
 		if e.complexity.SteelItem.ProducedDate == nil {
@@ -1221,19 +1229,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SteelItem.ProducedDate(childComplexity), true
 
-	case "SteelItem.repositoryId":
-		if e.complexity.SteelItem.RepositoryId == nil {
+	case "SteelItem.repository":
+		if e.complexity.SteelItem.Repository == nil {
 			break
 		}
 
-		return e.complexity.SteelItem.RepositoryId(childComplexity), true
+		return e.complexity.SteelItem.Repository(childComplexity), true
 
-	case "SteelItem.specificationId":
-		if e.complexity.SteelItem.SpecificationId == nil {
+	case "SteelItem.specifcation":
+		if e.complexity.SteelItem.Specifcation == nil {
 			break
 		}
 
-		return e.complexity.SteelItem.SpecificationId(childComplexity), true
+		return e.complexity.SteelItem.Specifcation(childComplexity), true
 
 	case "SteelItem.state":
 		if e.complexity.SteelItem.State == nil {
@@ -1864,16 +1872,14 @@ type SteelItem {
     500报废
     """
     state: Int!
-    """ 规格表id """
-    specificationId: Int!
     """ 所属的公司id """
     companyId: Int!
-    """ 当前存放的仓库id """
-    repositoryId: Int!
-    """ 材料商类型id """
-    materialManufacturerId: Int!
-    """ 制造商(生产商)id """
-    manufacturerId: Int!
+    """ 当前存放的仓库 """
+    repository: RepositoryItem!
+    """ 材料商 """
+    materialManufacturer: MaterialManufacturerItem!
+    """ 制造商(生产商) """
+    manufacturer: ManufacturerItem!
     """ 周转次数 """
     turnover: Int!
     """ 年使用率 """
@@ -1882,6 +1888,8 @@ type SteelItem {
     totalUsageRate:Float!
     """ 生产时间 """
     producedDate: Time!
+    """ 规格参数 """
+    specifcation: SpecificationItem!
 }
 
 """ 型钢入库需要的参数 """
@@ -7174,41 +7182,6 @@ func (ec *executionContext) _SteelItem_state(ctx context.Context, field graphql.
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _SteelItem_specificationId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "SteelItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SpecificationId, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int64)
-	fc.Result = res
-	return ec.marshalNInt2int64(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _SteelItem_companyId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7244,7 +7217,7 @@ func (ec *executionContext) _SteelItem_companyId(ctx context.Context, field grap
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _SteelItem_repositoryId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+func (ec *executionContext) _SteelItem_repository(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -7255,14 +7228,14 @@ func (ec *executionContext) _SteelItem_repositoryId(ctx context.Context, field g
 		Object:     "SteelItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.RepositoryId, nil
+		return ec.resolvers.SteelItem().Repository(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7274,12 +7247,12 @@ func (ec *executionContext) _SteelItem_repositoryId(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(*repositories.Repositories)
 	fc.Result = res
-	return ec.marshalNInt2int64(ctx, field.Selections, res)
+	return ec.marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _SteelItem_materialManufacturerId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+func (ec *executionContext) _SteelItem_materialManufacturer(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -7290,14 +7263,14 @@ func (ec *executionContext) _SteelItem_materialManufacturerId(ctx context.Contex
 		Object:     "SteelItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.MaterialManufacturerId, nil
+		return ec.resolvers.SteelItem().MaterialManufacturer(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7309,12 +7282,12 @@ func (ec *executionContext) _SteelItem_materialManufacturerId(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(*codeinfo.CodeInfo)
 	fc.Result = res
-	return ec.marshalNInt2int64(ctx, field.Selections, res)
+	return ec.marshalNMaterialManufacturerItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _SteelItem_manufacturerId(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+func (ec *executionContext) _SteelItem_manufacturer(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -7325,14 +7298,14 @@ func (ec *executionContext) _SteelItem_manufacturerId(ctx context.Context, field
 		Object:     "SteelItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ManufacturerId, nil
+		return ec.resolvers.SteelItem().Manufacturer(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7344,9 +7317,9 @@ func (ec *executionContext) _SteelItem_manufacturerId(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(*codeinfo.CodeInfo)
 	fc.Result = res
-	return ec.marshalNInt2int64(ctx, field.Selections, res)
+	return ec.marshalNManufacturerItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SteelItem_turnover(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
@@ -7487,6 +7460,41 @@ func (ec *executionContext) _SteelItem_producedDate(ctx context.Context, field g
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SteelItem_specifcation(ctx context.Context, field graphql.CollectedField, obj *steels.Steels) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SteelItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SteelItem().Specifcation(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*specificationinfo.SpecificationInfo)
+	fc.Result = res
+	return ec.marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -10872,68 +10880,104 @@ func (ec *executionContext) _SteelItem(ctx context.Context, sel ast.SelectionSet
 		case "id":
 			out.Values[i] = ec._SteelItem_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "identifier":
 			out.Values[i] = ec._SteelItem_identifier(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "createdUid":
 			out.Values[i] = ec._SteelItem_createdUid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "state":
 			out.Values[i] = ec._SteelItem_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "specificationId":
-			out.Values[i] = ec._SteelItem_specificationId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "companyId":
 			out.Values[i] = ec._SteelItem_companyId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
-		case "repositoryId":
-			out.Values[i] = ec._SteelItem_repositoryId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "materialManufacturerId":
-			out.Values[i] = ec._SteelItem_materialManufacturerId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "manufacturerId":
-			out.Values[i] = ec._SteelItem_manufacturerId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+		case "repository":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SteelItem_repository(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "materialManufacturer":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SteelItem_materialManufacturer(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "manufacturer":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SteelItem_manufacturer(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "turnover":
 			out.Values[i] = ec._SteelItem_turnover(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "usageYearRate":
 			out.Values[i] = ec._SteelItem_usageYearRate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "totalUsageRate":
 			out.Values[i] = ec._SteelItem_totalUsageRate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "producedDate":
 			out.Values[i] = ec._SteelItem_producedDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "specifcation":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SteelItem_specifcation(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -13,8 +13,10 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
+	"http-api/app/models/codeinfo"
 	"http-api/app/models/companies"
 	"http-api/app/models/repositories"
+	"http-api/app/models/specificationinfo"
 	"http-api/pkg/model"
 	"time"
 )
@@ -150,7 +152,7 @@ func IsExistIdentifier(ctx context.Context, identifier string) bool {
 	}
 }
 
-func (Steels) GetPagination(ctx context.Context, page int64, pageSize int64) (ss []*Steels, err error){
+func (Steels) GetPagination(ctx context.Context, page int64, pageSize int64) (ss []*Steels, err error) {
 	offset := 0
 	if pageSize > 1 {
 		offset = int((page - 1) * pageSize)
@@ -161,10 +163,46 @@ func (Steels) GetPagination(ctx context.Context, page int64, pageSize int64) (ss
 	return
 }
 
-func (Steels)GetTotal(ctx context.Context) (total int64) {
+func (Steels) GetTotal(ctx context.Context) (total int64) {
 	me := auth.GetUser(ctx)
-	model.DB.Model(&Steels{}).Where("company_id = ?",  me.CompanyId).Count(&total)
+	model.DB.Model(&Steels{}).Where("company_id = ?", me.CompanyId).Count(&total)
 
 	return
 }
+func (s *Steels) GetSpecification() (*specificationinfo.SpecificationInfo, error) {
+	sp := specificationinfo.SpecificationInfo{}
+	err := model.DB.
+		Model(&specificationinfo.SpecificationInfo{}).
+		Where("id = ?", s.SpecificationId).
+		First(&sp).Error
+	if err != nil {
+		return nil, err
+	}
 
+	return &sp, nil
+}
+func (s *Steels) GetMaterialManufacturer() (*codeinfo.CodeInfo, error) {
+	c := codeinfo.CodeInfo{}
+	err := model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("type = ? AND id = ?", codeinfo.MaterialManufacturer, s.MaterialManufacturerId).
+		First(&c).Error
+
+	return &c, err
+}
+
+func (s *Steels) GetManufacturer() (*codeinfo.CodeInfo, error) {
+	c := codeinfo.CodeInfo{}
+	err := model.DB.Model(&codeinfo.CodeInfo{}).
+		Where("type = ? AND id = ?", codeinfo.Manufacturer, s.ManufacturerId).
+		First(&c).Error
+
+	return &c, err
+}
+
+func (s Steels)GetRepository() (*repositories.Repositories, error) {
+	r := repositories.Repositories{}
+	err := model.DB.Model(repositories.Repositories{}).Where("id = ?", s.RepositoryId).
+	First(&r).Error
+
+	return &r, err
+}

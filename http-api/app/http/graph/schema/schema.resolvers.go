@@ -37,9 +37,9 @@ func (c *Resolver)CompanyItem() generated.CompanyItemResolver {
 	return query_resolver.CompanyItemResolver{}
 }
 
-//func (c *Resolver)GetSteelListRes() generated.GetSteelListResResolver {
-//	 return query_resolver.GetSteelListResResolver{}
-//}
+func (c *Resolver)SteelItem() generated.SteelItemResolver {
+	return query_resolver.SteelItemResolver{}
+}
 
 type mutationResolver struct{
 	*Resolver
