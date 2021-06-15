@@ -206,6 +206,11 @@ type FileItem struct {
 	URL string `json:"url"`
 }
 
+type GetCompanyUserInput struct {
+	//  角色id
+	RoleID *int64 `json:"roleId"`
+}
+
 type GraphDesc struct {
 	//  接口错码说明
 	Title string `json:"title"`

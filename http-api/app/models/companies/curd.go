@@ -240,10 +240,14 @@ func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUser
 /**
  * 获取对应解析器的公司下的员工数据
  */
-func GetCompanyItemsResById(companyId int64) ([]*users.Users, error) {
+func GetCompanyItems(companyId int64, input *graphQL.GetCompanyUserInput) ([]*users.Users, error) {
 	var c []*users.Users
 	db := sqlModel.DB
-	db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)
+	if input.RoleID != nil {
+		db.Model(&users.Users{}).Where("company_id = ? AND role_id = ?", companyId, input.RoleID).Find(&c)
+	} else {
+		db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)
+	}
 
 	return c, nil
 }

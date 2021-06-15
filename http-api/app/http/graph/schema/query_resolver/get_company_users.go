@@ -20,9 +20,9 @@ import (
 	model2 "http-api/pkg/model"
 )
 
-func (q *QueryResolver) GetCompanyUser(ctx context.Context) ([]*users.Users, error) {
+func (q *QueryResolver) GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error) {
 	me := auth.GetUser(ctx)
-	res, err := companies.GetCompanyItemsResById(me.CompanyId)
+	res, err := companies.GetCompanyItems(me.CompanyId, input)
 
 	return res, err
 }

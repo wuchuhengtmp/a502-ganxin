@@ -52,8 +52,11 @@ extend type Mutation {
     """ 删除公司人员 (auth: companyAdmin) """
     deleteCompanyUser(uid: Int!): Boolean! @hasRole(role: [companyAdmin])
 }
-
+input GetCompanyUserInput {
+    """ 角色id """
+    roleId: Int
+}
 extend type Query {
     """ 获取公司人员 (aunth: companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin) """
-    getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
+    getCompanyUser(input: GetCompanyUserInput): [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }

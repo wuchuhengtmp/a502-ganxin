@@ -167,7 +167,7 @@ type ComplexityRoot struct {
 	Query struct {
 		ErrorCodeDesc            func(childComplexity int) int
 		GetAllCompany            func(childComplexity int) int
-		GetCompanyUser           func(childComplexity int) int
+		GetCompanyUser           func(childComplexity int, input *model.GetCompanyUserInput) int
 		GetDeviceList            func(childComplexity int) int
 		GetExpressList           func(childComplexity int) int
 		GetManufacturers         func(childComplexity int) int
@@ -286,7 +286,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*companies.Companies, error)
-	GetCompanyUser(ctx context.Context) ([]*users.Users, error)
+	GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
@@ -982,7 +982,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetCompanyUser(childComplexity), true
+		args, err := ec.field_Query_getCompanyUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCompanyUser(childComplexity, args["input"].(*model.GetCompanyUserInput)), true
 
 	case "Query.getDeviceList":
 		if e.complexity.Query.GetDeviceList == nil {
@@ -1648,10 +1653,13 @@ extend type Mutation {
     """ 删除公司人员 (auth: companyAdmin) """
     deleteCompanyUser(uid: Int!): Boolean! @hasRole(role: [companyAdmin])
 }
-
+input GetCompanyUserInput {
+    """ 角色id """
+    roleId: Int
+}
 extend type Query {
     """ 获取公司人员 (aunth: companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin) """
-    getCompanyUser: [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
+    getCompanyUser(input: GetCompanyUserInput): [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../devices.graphql", Input: `type DeviceItem {
@@ -2422,6 +2430,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.GetCompanyUserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -5831,10 +5854,17 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getCompanyUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetCompanyUser(rctx)
+			return ec.resolvers.Query().GetCompanyUser(rctx, args["input"].(*model.GetCompanyUserInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
@@ -9981,6 +10011,26 @@ func (ec *executionContext) unmarshalInputEditSpecificationInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Context, obj interface{}) (model.GetCompanyUserInput, error) {
+	var it model.GetCompanyUserInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "roleId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleId"))
+			it.RoleID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (model.PaginationInput, error) {
 	var it model.PaginationInput
 	var asMap = obj.(map[string]interface{})
@@ -12813,6 +12863,29 @@ func (ec *executionContext) marshalOExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋc
 		return graphql.Null
 	}
 	return ec._ExpressItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx context.Context, v interface{}) (*model.GetCompanyUserInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGetCompanyUserInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt64(*v)
 }
 
 func (ec *executionContext) marshalOManufacturerItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v *codeinfo.CodeInfo) graphql.Marshaler {
