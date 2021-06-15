@@ -369,7 +369,7 @@ func TestProjectAdminGetSteelList(t *testing.T) {
 /**
  * 项目管理员设置密码集成测试
  */
-func TestProjectAdminSetPasswordList(t *testing.T) {
+func TestProjectAdminSetPassword(t *testing.T) {
 	q := `
 		mutation ($input: SetPasswordInput!) {
 		  setPassword(input: $input)
@@ -383,5 +383,35 @@ func TestProjectAdminSetPasswordList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("项目管理员设置密码集成测试")
+	}
+}
+/**
+ * 项目管理员获取我的信息集成测试
+ */
+func TestProjectAdminGetMyInfo(t *testing.T) {
+	q := `
+		query getMyInfoQuery{
+		  getMyInfo{
+			id
+			name
+			company{
+			  id
+			  name
+			}
+			phone
+			role{
+			  id
+			  name
+			  tag
+			}
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} { },
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	if err != nil {
+		t.Fatal("项目管理员获取我的信息集成测试")
 	}
 }

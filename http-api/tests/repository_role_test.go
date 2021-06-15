@@ -926,7 +926,7 @@ func TestRepositoryAdminGetSteelList(t *testing.T) {
 /**
  * 仓库管理员设置密码集成测试
  */
-func TestRepositoryAdminSetPasswordList(t *testing.T) {
+func TestRepositoryAdminSetPassword(t *testing.T) {
 	q := `
 		mutation ($input: SetPasswordInput!) {
 		  setPassword(input: $input)
@@ -940,6 +940,38 @@ func TestRepositoryAdminSetPasswordList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
 		t.Fatal("仓库管理员设置密码集成测试")
+	}
+}
+
+
+/**
+ * 仓库管理员获取我的信息集成测试
+ */
+func TestRepositoryAdminGetMyInfo(t *testing.T) {
+	q := `
+		query getMyInfoQuery{
+		  getMyInfo{
+			id
+			name
+			company{
+			  id
+			  name
+			}
+			phone
+			role{
+			  id
+			  name
+			  tag
+			}
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} { },
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("仓库管理员获取我的信息集成测试")
 	}
 }
 

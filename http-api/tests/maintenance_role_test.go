@@ -385,3 +385,33 @@ func TestMaintenanceAdminSetPasswordList(t *testing.T) {
 		t.Fatal("维修管理员设置密码集成测试")
 	}
 }
+/**
+ * 维修管理员获取我的信息集成测试
+ */
+func TestMaintenanceAdminGetMyInfo(t *testing.T) {
+	q := `
+		query getMyInfoQuery{
+		  getMyInfo{
+			id
+			name
+			company{
+			  id
+			  name
+			}
+			phone
+			role{
+			  id
+			  name
+			  tag
+			}
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} { },
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	if err != nil {
+		t.Fatal("维修管理员获取我的信息集成测试")
+	}
+}
