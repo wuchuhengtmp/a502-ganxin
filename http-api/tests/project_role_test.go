@@ -319,3 +319,50 @@ func TestProjectAdminGetDeviceList(t *testing.T) {
 		assert.Equal(t, u.CompanyId, me.CompanyId)
 	}
 }
+/**
+ * 项目管理员获取型钢列表集成测试
+ */
+func TestProjectAdminGetSteelList(t *testing.T) {
+	q := `
+	query getSteelListQuery ($input: PaginationInput!){
+		getSteelList(input: $input) {
+		list{
+		  id
+		  state
+		  totalUsageRate
+		  repository{
+			id
+			name
+		  }
+		  manufacturer{
+			id
+			name
+		  }
+		  materialManufacturer{
+			id
+			name
+		  }
+		  turnover
+		  usageYearRate
+		  totalUsageRate
+		  producedDate
+		  specifcation{
+			id
+			specification
+		  }
+		}
+		total
+	  }  
+	}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} {
+			"page": 1,
+			"pageSize": 10,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	if err != nil {
+		t.Fatal("项目管理员获取型钢列表集成测试")
+	}
+}

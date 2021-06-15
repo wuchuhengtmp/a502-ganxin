@@ -845,7 +845,10 @@ func TestRepositoryAdminCreateSteel(t *testing.T) {
 		  createSteel(input: $input) {
 			id
 			state
-			specificationId
+			specifcation{
+			  id
+			  specification
+			}
 			turnover
 			producedDate
 		  }
@@ -854,7 +857,9 @@ func TestRepositoryAdminCreateSteel(t *testing.T) {
 	v := map[string]interface{}{
 		"input": map[string]interface{} {
 			"identifierList": []interface{}{
-				"1", "2", "3",
+				fmt.Sprintf("%d", time.Now().UnixNano()),
+				fmt.Sprintf("%d", time.Now().UnixNano()),
+				fmt.Sprintf("%d", time.Now().UnixNano()),
 			},
 			"repositoryId": 1,
 			"specificationId": 1,
@@ -866,5 +871,53 @@ func TestRepositoryAdminCreateSteel(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+/**
+ * 仓库管理员获取型钢列表集成测试
+ */
+func TestRepositoryAdminGetSteelList(t *testing.T) {
+	q := `
+	query getSteelListQuery ($input: PaginationInput!){
+		getSteelList(input: $input) {
+		list{
+		  id
+		  state
+		  totalUsageRate
+		  repository{
+			id
+			name
+		  }
+		  manufacturer{
+			id
+			name
+		  }
+		  materialManufacturer{
+			id
+			name
+		  }
+		  turnover
+		  usageYearRate
+		  totalUsageRate
+		  producedDate
+		  specifcation{
+			id
+			specification
+		  }
+		}
+		total
+	  }  
+	}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} {
+			"page": 1,
+			"pageSize": 10,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("仓库管理员获取型钢列表集成测试")
 	}
 }
