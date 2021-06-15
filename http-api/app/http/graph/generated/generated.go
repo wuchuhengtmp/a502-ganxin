@@ -171,6 +171,7 @@ type ComplexityRoot struct {
 		GetExpressList           func(childComplexity int) int
 		GetManufacturers         func(childComplexity int) int
 		GetMaterialManufacturers func(childComplexity int) int
+		GetMyInfo                func(childComplexity int) int
 		GetPrice                 func(childComplexity int) int
 		GetRepositoryList        func(childComplexity int) int
 		GetRoleList              func(childComplexity int) int
@@ -230,13 +231,14 @@ type ComplexityRoot struct {
 	}
 
 	UserItem struct {
-		Avatar func(childComplexity int) int
-		ID     func(childComplexity int) int
-		IsAble func(childComplexity int) int
-		Name   func(childComplexity int) int
-		Phone  func(childComplexity int) int
-		Role   func(childComplexity int) int
-		Wechat func(childComplexity int) int
+		Avatar  func(childComplexity int) int
+		Company func(childComplexity int) int
+		ID      func(childComplexity int) int
+		IsAble  func(childComplexity int) int
+		Name    func(childComplexity int) int
+		Phone   func(childComplexity int) int
+		Role    func(childComplexity int) int
+		Wechat  func(childComplexity int) int
 	}
 }
 
@@ -287,6 +289,7 @@ type QueryResolver interface {
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
+	GetMyInfo(ctx context.Context) (*users.Users, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -312,6 +315,8 @@ type UserItemResolver interface {
 	Role(ctx context.Context, obj *users.Users) (*roles.Role, error)
 
 	Avatar(ctx context.Context, obj *users.Users) (*model.FileItem, error)
+
+	Company(ctx context.Context, obj *users.Users) (*companies.Companies, error)
 }
 
 type executableSchema struct {
@@ -993,6 +998,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetMaterialManufacturers(childComplexity), true
 
+	case "Query.getMyInfo":
+		if e.complexity.Query.GetMyInfo == nil {
+			break
+		}
+
+		return e.complexity.Query.GetMyInfo(childComplexity), true
+
 	case "Query.getPrice":
 		if e.complexity.Query.GetPrice == nil {
 			break
@@ -1292,6 +1304,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserItem.Avatar(childComplexity), true
 
+	case "UserItem.company":
+		if e.complexity.UserItem.Company == nil {
+			break
+		}
+
+		return e.complexity.UserItem.Company(childComplexity), true
+
 	case "UserItem.id":
 		if e.complexity.UserItem.ID == nil {
 			break
@@ -1586,6 +1605,7 @@ type UserItem {
     wechat: String!
     avatar: FileItem!
     isAble: Boolean!
+    company: CompanyItem!
 }
 """ 添加用户信息需要的信息 """
 input CreateCompanyUserInput {
@@ -1762,6 +1782,10 @@ extend type Query {
 }
 
 `, BuiltIn: false},
+	{Name: "../me.graphql", Input: `extend type Query {
+    """ 获取我的信息(auth: repositoryAdmin projectAdmin maintenanceAdmin) """
+    getMyInfo: UserItem! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
+}`, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
     """  获取价格 """
     getPrice: Float!
@@ -5982,6 +6006,65 @@ func (ec *executionContext) _Query_getMaterialManufacturers(ctx context.Context,
 	return ec.marshalNMaterialManufacturerItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getMyInfo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMyInfo(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*users.Users); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/users.Users`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7810,6 +7893,41 @@ func (ec *executionContext) _UserItem_isAble(ctx context.Context, field graphql.
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserItem_company(ctx context.Context, field graphql.CollectedField, obj *users.Users) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserItem().Company(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*companies.Companies)
+	fc.Result = res
+	return ec.marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -10574,6 +10692,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getMyInfo":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMyInfo(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getPrice":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -11085,6 +11217,20 @@ func (ec *executionContext) _UserItem(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "company":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserItem_company(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

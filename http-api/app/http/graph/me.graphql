@@ -1,0 +1,4 @@
+extend type Query {
+    """ 获取我的信息(auth: repositoryAdmin projectAdmin maintenanceAdmin) """
+    getMyInfo: UserItem! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
+}

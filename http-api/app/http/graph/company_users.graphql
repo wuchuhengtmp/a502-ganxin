@@ -23,6 +23,7 @@ type UserItem {
     wechat: String!
     avatar: FileItem!
     isAble: Boolean!
+    company: CompanyItem!
 }
 """ 添加用户信息需要的信息 """
 input CreateCompanyUserInput {

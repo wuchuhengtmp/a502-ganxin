@@ -17,6 +17,7 @@ import (
 	"http-api/app/models/files"
 	"http-api/app/models/roles"
 	"http-api/app/models/users"
+	model2 "http-api/pkg/model"
 )
 
 func (q *QueryResolver) GetCompanyUser(ctx context.Context) ([]*users.Users, error) {
@@ -50,4 +51,14 @@ func (UserItemResolver) Avatar(ctx context.Context, obj *users.Users) (*model.Fi
 	}
 
 	return &res, nil
+}
+// :xxx 这里的查询按理说是要放到模型中操作的，但循环依赖了
+func (UserItemResolver)Company(ctx context.Context, obj *users.Users) (*companies.Companies, error) {
+	c := companies.Companies{}
+	err := model2.DB.Model(&companies.Companies{}).Where("id = ?", obj.CompanyId).First(&c).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &c, nil
 }
