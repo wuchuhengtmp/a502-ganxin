@@ -77,3 +77,6 @@ models:
     model: http-api/app/models/companies.Companies
   GetSteelListRes:
     model: http-api/app/models/steels.GetSteelListRes
+  ProjectItem:
+    model: http-api/app/models/projects.Projects
+

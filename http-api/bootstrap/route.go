@@ -7,14 +7,17 @@ import (
 	"http-api/app/models/configs"
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
-	"http-api/app/models/fix"
-	fix_records "http-api/app/models/fix-records"
 	"http-api/app/models/logs"
+	"http-api/app/models/maintenance"
+	"http-api/app/models/maintenance_leader"
+	"http-api/app/models/maintenance_record"
 	"http-api/app/models/msg"
 	order_details "http-api/app/models/order-details"
 	"http-api/app/models/orders"
+	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
+	"http-api/app/models/repository_leader"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
@@ -62,9 +65,12 @@ func SetupDB() {
 		projects.Projects{},
 		order_details.OrderDetail{},
 		orders.Order{},
-		fix.Fix{},
-		fix_records.FixRecord{},
 		logs.Logos{},
 		msg.Msg{},
+		maintenance_leader.MaintenanceLeader{},
+		maintenance_record.MaintenanceRecord{},
+		maintenance.Maintenance{},
+		repository_leader.RepositoryLeader{},
+		project_leader.ProjectLeader{},
 	)
 }

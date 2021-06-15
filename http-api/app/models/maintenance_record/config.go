@@ -6,14 +6,14 @@
  * @DATE    2021/5/26
  * @Listen  MIT
  */
-package fix_records
+package maintenance_record
 
 import (
 	"gorm.io/gorm"
 	"time"
 )
 
-type FixRecord struct {
+type MaintenanceRecord struct {
 	Id        int64     `json:"id"`
 	FixId     int64     `json:"fix_id" gorm:"comment:维修厂id"`
 	SteelId   int64     `json:"steel_id" gorm:"comment:型钢id"`

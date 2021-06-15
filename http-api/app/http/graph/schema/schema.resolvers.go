@@ -40,6 +40,10 @@ func (c *Resolver)CompanyItem() generated.CompanyItemResolver {
 func (c *Resolver)SteelItem() generated.SteelItemResolver {
 	return query_resolver.SteelItemResolver{}
 }
+func (r *Resolver)ProjectItem() generated.ProjectItemResolver {
+	return query_resolver.ProjectItemResolver{}
+}
+
 
 type mutationResolver struct{
 	*Resolver

@@ -11,6 +11,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/companies"
 	"http-api/app/models/devices"
+	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
@@ -48,6 +49,7 @@ type ResolverRoot interface {
 	CompanyItem() CompanyItemResolver
 	DeviceItem() DeviceItemResolver
 	Mutation() MutationResolver
+	ProjectItem() ProjectItemResolver
 	Query() QueryResolver
 	RepositoryItem() RepositoryItemResolver
 	SpecificationItem() SpecificationItemResolver
@@ -141,6 +143,7 @@ type ComplexityRoot struct {
 		CreateExpress              func(childComplexity int, input model.CreateExpressInput) int
 		CreateManufacturer         func(childComplexity int, input model.CreateManufacturerInput) int
 		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
+		CreateProject              func(childComplexity int, input model.CreateProjectInput) int
 		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
 		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
 		CreateSteel                func(childComplexity int, input model.CreateSteelInput) int
@@ -162,6 +165,18 @@ type ComplexityRoot struct {
 		Login                      func(childComplexity int, phone string, password string, mac *string) int
 		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
 		SingleUpload               func(childComplexity int, file graphql.Upload) int
+	}
+
+	ProjectItem struct {
+		Address    func(childComplexity int) int
+		City       func(childComplexity int) int
+		Company    func(childComplexity int) int
+		EndedAt    func(childComplexity int) int
+		ID         func(childComplexity int) int
+		LeaderList func(childComplexity int) int
+		Name       func(childComplexity int) int
+		Remark     func(childComplexity int) int
+		StartedAt  func(childComplexity int) int
 	}
 
 	Query struct {
@@ -275,6 +290,7 @@ type MutationResolver interface {
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
+	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
@@ -282,6 +298,11 @@ type MutationResolver interface {
 	DeleteSpecification(ctx context.Context, id int64) (bool, error)
 	CreateSteel(ctx context.Context, input model.CreateSteelInput) ([]*steels.Steels, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
+}
+type ProjectItemResolver interface {
+	LeaderList(ctx context.Context, obj *projects.Projects) ([]*users.Users, error)
+
+	Company(ctx context.Context, obj *projects.Projects) (*companies.Companies, error)
 }
 type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
@@ -711,6 +732,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateMaterialManufacturer(childComplexity, args["input"].(model.CreateMaterialManufacturerInput)), true
 
+	case "Mutation.createProject":
+		if e.complexity.Mutation.CreateProject == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createProject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateProject(childComplexity, args["input"].(model.CreateProjectInput)), true
+
 	case "Mutation.createRepository":
 		if e.complexity.Mutation.CreateRepository == nil {
 			break
@@ -962,6 +995,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SingleUpload(childComplexity, args["file"].(graphql.Upload)), true
+
+	case "ProjectItem.address":
+		if e.complexity.ProjectItem.Address == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.Address(childComplexity), true
+
+	case "ProjectItem.city":
+		if e.complexity.ProjectItem.City == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.City(childComplexity), true
+
+	case "ProjectItem.company":
+		if e.complexity.ProjectItem.Company == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.Company(childComplexity), true
+
+	case "ProjectItem.endedAt":
+		if e.complexity.ProjectItem.EndedAt == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.EndedAt(childComplexity), true
+
+	case "ProjectItem.id":
+		if e.complexity.ProjectItem.ID == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.ID(childComplexity), true
+
+	case "ProjectItem.leaderList":
+		if e.complexity.ProjectItem.LeaderList == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.LeaderList(childComplexity), true
+
+	case "ProjectItem.name":
+		if e.complexity.ProjectItem.Name == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.Name(childComplexity), true
+
+	case "ProjectItem.remark":
+		if e.complexity.ProjectItem.Remark == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.Remark(childComplexity), true
+
+	case "ProjectItem.startedAt":
+		if e.complexity.ProjectItem.StartedAt == nil {
+			break
+		}
+
+		return e.complexity.ProjectItem.StartedAt(childComplexity), true
 
 	case "Query.errorCodeDesc":
 		if e.complexity.Query.ErrorCodeDesc == nil {
@@ -1827,6 +1923,44 @@ extend type Mutation {
     editPrice(price: Float!): Float! @hasRole(role: [companyAdmin])
 }
 `, BuiltIn: false},
+	{Name: "../project.graphql", Input: `type ProjectItem {
+    id: Int!
+    """ 项目名"""
+    name: String!
+    """ 城市名"""
+    city: String!
+    """ 负责人合集 """
+    leaderList: [UserItem!]!
+    """ 地址 """
+    address: String!
+    """ 开始时间 """
+    startedAt: Time!
+    """ 结束时间 """
+    endedAt: Time
+    """ 备注 """
+    remark: String!
+    """ 公司 """
+    company:  CompanyItem!
+}
+""" 创建项目需要的参数 """
+input CreateProjectInput {
+    """ 城市 """
+    city: String!
+    """ 项目名 """
+    name: String!
+    """ 地址  """
+    address: String!
+    """ 多个负责人ids """
+    leaderIdS: [Int!]!
+    """ 备注 """
+    remark: String!
+    """ 开始时间 """
+    startAt: Time!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+}`, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `""" 仓库信息 """
 type RepositoryItem {
     id: Int!
@@ -2077,6 +2211,21 @@ func (ec *executionContext) field_Mutation_createMaterialManufacturer_args(ctx c
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateMaterialManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateMaterialManufacturerInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateProjectInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateProjectInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateProjectInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5306,6 +5455,72 @@ func (ec *executionContext) _Mutation_editPrice(ctx context.Context, field graph
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createProject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createProject_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateProject(rctx, args["input"].(model.CreateProjectInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*projects.Projects); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/projects.Projects`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*projects.Projects)
+	fc.Result = res
+	return ec.marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5742,6 +5957,318 @@ func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field gr
 	res := resTmp.(*model.FileItem)
 	fc.Result = res
 	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_id(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_name(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_city(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.City, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_leaderList(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProjectItem().LeaderList(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsersᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_address(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Address, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_startedAt(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_endedAt(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_remark(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Remark, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProjectItem_company(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ProjectItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProjectItem().Company(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*companies.Companies)
+	fc.Result = res
+	return ec.marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_errorCodeDesc(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -9451,6 +9978,66 @@ func (ec *executionContext) unmarshalInputCreateMaterialManufacturerInput(ctx co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context, obj interface{}) (model.CreateProjectInput, error) {
+	var it model.CreateProjectInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "city":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
+			it.City, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "leaderIdS":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("leaderIdS"))
+			it.LeaderIDS, err = ec.unmarshalNInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "startAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startAt"))
+			it.StartAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateRepositoryInput(ctx context.Context, obj interface{}) (model.CreateRepositoryInput, error) {
 	var it model.CreateRepositoryInput
 	var asMap = obj.(map[string]interface{})
@@ -10712,6 +11299,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createProject":
+			out.Values[i] = ec._Mutation_createProject(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createRepository":
 			out.Values[i] = ec._Mutation_createRepository(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -10747,6 +11339,88 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var projectItemImplementors = []string{"ProjectItem"}
+
+func (ec *executionContext) _ProjectItem(ctx context.Context, sel ast.SelectionSet, obj *projects.Projects) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, projectItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProjectItem")
+		case "id":
+			out.Values[i] = ec._ProjectItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._ProjectItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "city":
+			out.Values[i] = ec._ProjectItem_city(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "leaderList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProjectItem_leaderList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "address":
+			out.Values[i] = ec._ProjectItem_address(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "startedAt":
+			out.Values[i] = ec._ProjectItem_startedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "endedAt":
+			out.Values[i] = ec._ProjectItem_endedAt(ctx, field, obj)
+		case "remark":
+			out.Values[i] = ec._ProjectItem_remark(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "company":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProjectItem_company(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11767,6 +12441,11 @@ func (ec *executionContext) unmarshalNCreateMaterialManufacturerInput2httpᚑapi
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateProjectInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateProjectInput(ctx context.Context, v interface{}) (model.CreateProjectInput, error) {
+	res, err := ec.unmarshalInputCreateProjectInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateRepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateRepositoryInput(ctx context.Context, v interface{}) (model.CreateRepositoryInput, error) {
 	res, err := ec.unmarshalInputCreateRepositoryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -12024,6 +12703,36 @@ func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2ᚕint64ᚄ(ctx context.Context, v interface{}) ([]int64, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]int64, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int64(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNInt2ᚕint64ᚄ(ctx context.Context, sel ast.SelectionSet, v []int64) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int64(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNLoginRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐLoginRes(ctx context.Context, sel ast.SelectionSet, v model.LoginRes) graphql.Marshaler {
 	return ec._LoginRes(ctx, sel, &v)
 }
@@ -12143,6 +12852,20 @@ func (ec *executionContext) marshalNMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 func (ec *executionContext) unmarshalNPaginationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐPaginationInput(ctx context.Context, v interface{}) (model.PaginationInput, error) {
 	res, err := ec.unmarshalInputPaginationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNProjectItem2httpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx context.Context, sel ast.SelectionSet, v projects.Projects) graphql.Marshaler {
+	return ec._ProjectItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx context.Context, sel ast.SelectionSet, v *projects.Projects) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ProjectItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRepositoryItem2httpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx context.Context, sel ast.SelectionSet, v repositories.Repositories) graphql.Marshaler {
@@ -12566,6 +13289,43 @@ func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋu
 	return ret
 }
 
+func (ec *executionContext) marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsersᚄ(ctx context.Context, sel ast.SelectionSet, v []*users.Users) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx context.Context, sel ast.SelectionSet, v *users.Users) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -12960,6 +13720,15 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	return graphql.MarshalTime(v)
 }
 
 func (ec *executionContext) marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx context.Context, sel ast.SelectionSet, v *users.Users) graphql.Marshaler {

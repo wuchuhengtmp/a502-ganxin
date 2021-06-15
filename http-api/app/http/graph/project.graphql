@@ -1,0 +1,38 @@
+type ProjectItem {
+    id: Int!
+    """ 项目名"""
+    name: String!
+    """ 城市名"""
+    city: String!
+    """ 负责人合集 """
+    leaderList: [UserItem!]!
+    """ 地址 """
+    address: String!
+    """ 开始时间 """
+    startedAt: Time!
+    """ 结束时间 """
+    endedAt: Time
+    """ 备注 """
+    remark: String!
+    """ 公司 """
+    company:  CompanyItem!
+}
+""" 创建项目需要的参数 """
+input CreateProjectInput {
+    """ 城市 """
+    city: String!
+    """ 项目名 """
+    name: String!
+    """ 地址  """
+    address: String!
+    """ 多个负责人ids """
+    leaderIdS: [Int!]!
+    """ 备注 """
+    remark: String!
+    """ 开始时间 """
+    startAt: Time!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+}

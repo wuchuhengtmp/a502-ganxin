@@ -22,7 +22,6 @@ import (
 	helper2 "http-api/pkg/helper"
 	"http-api/pkg/model"
 	sqlModel "http-api/pkg/model"
-	"time"
 )
 
 /**
@@ -69,31 +68,6 @@ func (c *Companies) CreateSelf(ctx context.Context, input graphQL.CreateCompanyI
 
 		return nil
 	})
-}
-
-func GetAllByUid(uid int64) (cs []Companies) {
-	db := model.DB
-	me := users.Users{}
-	_ = me.GetSelfById(uid)
-	roleModel := roles.Role{}
-	_ = roleModel.GetSelfById(me.RoleId)
-	//  超级管理员能查看到的数据域--就是没限制
-	if roleModel.Tag == roles.RoleAdmin {
-		db.Model(&Companies{}).Find(&cs)
-	} else {
-		// 不是超级管员查看数据进行限制
-		db.Model(&Companies{}).Where("id = ?", me.CompanyId).Find(&cs)
-	}
-	// 公司状态根据有郊期期限修正
-	for i, company := range cs {
-		if company.IsAble == true && company.EndedAt.Unix() >= time.Now().Unix() {
-			company.IsAble = false
-			db.Model(&company).Where("id = ?", company.ID).Updates(company)
-			cs[i].IsAble = false
-		}
-	}
-
-	return cs
 }
 
 /**
@@ -243,7 +217,7 @@ func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUser
 func GetCompanyItems(companyId int64, input *graphQL.GetCompanyUserInput) ([]*users.Users, error) {
 	var c []*users.Users
 	db := sqlModel.DB
-	if input.RoleID != nil {
+	if input != nil && input.RoleID != nil {
 		db.Model(&users.Users{}).Where("company_id = ? AND role_id = ?", companyId, input.RoleID).Find(&c)
 	} else {
 		db.Model(&users.Users{}).Where("company_id = ?", companyId).Find(&c)

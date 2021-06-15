@@ -75,6 +75,22 @@ type CreateMaterialManufacturerInput struct {
 	IsDefault bool   `json:"isDefault"`
 }
 
+//  创建项目需要的参数
+type CreateProjectInput struct {
+	//  城市
+	City string `json:"city"`
+	//  项目名
+	Name string `json:"name"`
+	//  地址
+	Address string `json:"address"`
+	//  多个负责人ids
+	LeaderIDS []int64 `json:"leaderIdS"`
+	//  备注
+	Remark string `json:"remark"`
+	//  开始时间
+	StartAt time.Time `json:"startAt"`
+}
+
 //   创建仓库需要提交的参数
 type CreateRepositoryInput struct {
 	Name              string `json:"name"`

@@ -6,13 +6,13 @@
  * @DATE    2021/5/26
  * @Listen  MIT
  */
-package fix
+package maintenance
 
 import "gorm.io/gorm"
 
-type Fix struct {
+type Maintenance struct {
 	Id        int64  `json:"id"`
-	name      string `json:"name" gorm:"comment:维修厂名"`
+	Name      string `json:"name" gorm:"comment:维修厂名"`
 	Address   string `json:"address" gorm:"comment:地址"`
 	Remark    string `json:"remark" gorm:"comment:备注"`
 	IsAble    bool   `json:"isAble" gorm:"comment:是否启动"`

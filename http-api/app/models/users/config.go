@@ -29,7 +29,10 @@ type Users struct {
 	gorm.Model
 }
 
-func (Users) TableName() string {
+/*
+ * 定义表名，用于那些联表查询需要直接使用表名等情况
+ */
+func (Users)TableName() string {
 	return "users"
 }
 
