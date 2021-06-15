@@ -234,6 +234,11 @@ type PaginationInput struct {
 	Page int64 `json:"page"`
 }
 
+//  设置密码的参数
+type SetPasswordInput struct {
+	Password string `json:"password"`
+}
+
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`

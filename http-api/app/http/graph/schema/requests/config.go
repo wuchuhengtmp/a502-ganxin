@@ -117,4 +117,11 @@ func init()  {
 
 		return nil
 	})
+	// 长度
+	govalidator.AddCustomRule("minLen", func(field string, rule string, message string, value interface{}) error {
+		v := value.(int64)
+		fmt.Println(v)
+
+		return nil
+	})
 }

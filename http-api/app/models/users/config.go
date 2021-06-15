@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	"http-api/app/models"
 	"http-api/app/models/roles"
+	helper2 "http-api/pkg/helper"
 	sqlModel "http-api/pkg/model"
 )
 
@@ -103,12 +104,7 @@ func (u *Users) GetSelfById(uid int64) error {
 	return db.Model(u).Where("id = ?", uid).First(u).Error
 }
 
-//func (u *Users)GetCompany()(*companies.Companies, error) {
-//	c := companies.Companies{}
-//	err := sqlModel.DB.Model(&companies.Companies{}).Where("id = ?", u.CompanyId).First(&c).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &c, nil
-//}
+func (u *Users)SetSelfPassword(password string) error {
+	err := sqlModel.DB.Model(&Users{}).Where("id = ?", u.ID).Update("password", helper2.GetHashByStr(password)).Error
+	return err
+}

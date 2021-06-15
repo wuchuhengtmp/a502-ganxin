@@ -55,3 +55,4 @@ func GetUser(ctx context.Context) *users.Users {
 	}
 	return &raw
 }
+

@@ -160,6 +160,7 @@ type ComplexityRoot struct {
 		EditPrice                  func(childComplexity int, price float64) int
 		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
 		Login                      func(childComplexity int, phone string, password string, mac *string) int
+		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
 		SingleUpload               func(childComplexity int, file graphql.Upload) int
 	}
 
@@ -272,6 +273,7 @@ type MutationResolver interface {
 	CreateMaterialManufacturer(ctx context.Context, input model.CreateMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditMaterialManufacturer(ctx context.Context, input model.EditMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
+	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
@@ -936,6 +938,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
+
+	case "Mutation.setPassword":
+		if e.complexity.Mutation.SetPassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setPassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetPassword(childComplexity, args["input"].(*model.SetPasswordInput)), true
 
 	case "Mutation.singleUpload":
 		if e.complexity.Mutation.SingleUpload == nil {
@@ -1782,10 +1796,19 @@ extend type Query {
 }
 
 `, BuiltIn: false},
-	{Name: "../me.graphql", Input: `extend type Query {
+	{Name: "../me.graphql", Input: `""" 设置密码的参数 """
+input SetPasswordInput {
+    password: String!
+}
+extend type Query {
     """ 获取我的信息(auth: repositoryAdmin projectAdmin maintenanceAdmin) """
     getMyInfo: UserItem! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
-}`, BuiltIn: false},
+}
+extend type  Mutation {
+    """ 设置密码 (auth: repositoryAdmin projectAdmin maintenanceAdmin) """
+    setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
+}
+`, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
     """  获取价格 """
     getPrice: Float!
@@ -2354,6 +2377,21 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		}
 	}
 	args["mac"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setPassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.SetPasswordInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOSetPasswordInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetPasswordInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -5077,6 +5115,72 @@ func (ec *executionContext) _Mutation_deleteMaterialManufacturer(ctx context.Con
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setPassword_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetPassword(rctx, args["input"].(*model.SetPasswordInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
 			if err != nil {
 				return nil, err
 			}
@@ -9912,6 +10016,26 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
+	var it model.SetPasswordInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -10525,6 +10649,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteMaterialManufacturer":
 			out.Values[i] = ec._Mutation_deleteMaterialManufacturer(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setPassword":
+			out.Values[i] = ec._Mutation_setPassword(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -12712,6 +12841,14 @@ func (ec *executionContext) marshalORoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrole
 		return graphql.Null
 	}
 	return ec._RoleItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSetPasswordInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetPasswordInput(ctx context.Context, v interface{}) (*model.SetPasswordInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSetPasswordInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v *specificationinfo.SpecificationInfo) graphql.Marshaler {
