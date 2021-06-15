@@ -14,6 +14,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/configs"
 	"http-api/app/models/devices"
+	"http-api/app/models/logs"
 	"http-api/app/models/roles"
 	"http-api/pkg/model"
 	"http-api/seeders"
@@ -1084,9 +1085,9 @@ func TestCompanyAdminGetSteelList(t *testing.T) {
 	  }  
 	}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
-			"page": 1,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"page":     1,
 			"pageSize": 10,
 		},
 	}
@@ -1094,4 +1095,70 @@ func TestCompanyAdminGetSteelList(t *testing.T) {
 	if err != nil {
 		t.Fatal("公司管理员获取型钢列表集成测试")
 	}
+}
+
+/**
+ * 公司管理员创建项目集成测试
+ */
+func TestCompanyAdminCreateProject(t *testing.T) {
+	var totalLogs int64
+	model.DB.Model(&logs.Logos{}).Count(&totalLogs)
+	q := `
+		query ($input: GetCompanyUserInput!) {
+		  getCompanyUser(input: $input) {
+			id
+			name
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"roleId": roles.RoleProjectAdminId,
+		},
+	}
+	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("公司管理员创建项目集成测试")
+	}
+	users := res["getCompanyUser"].([]interface{})
+	var userIds []int64
+	for _, user := range users {
+		u := user.(map[string]interface{})
+		userIds = append(userIds, int64(u["id"].(float64)))
+	}
+	q = `
+		mutation ($input: CreateProjectInput!) {
+		  createProject(input: $input) {
+			id
+			city
+			company{id name}
+			endedAt
+			leaderList { id name }
+			city
+			name
+			remark
+			startedAt
+		  }
+		}
+	`
+	s := time.Unix(time.Now().Unix() + 1000, 0)
+	timeStr := s.Format(time.RFC3339)
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"address":   "address_for_companyCreateProjectTest",
+			"city":      "city_for_companyCreateProjectTest",
+			"leaderIdS": userIds,
+			"name":      "name_for_companyCreateProjectTest",
+			"remark":    "remark_for_companyCreateProjectTest",
+			"startAt":   timeStr,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleCompanyAdmin)
+	if err != nil {
+		t.Fatal("公司管理员创建项目集成测试")
+	}
+	// 日志新增断言
+	var currentTotalLogs int64
+	model.DB.Model(&logs.Logos{}).Count(&currentTotalLogs)
+	assert.Equal(t, totalLogs + 1, currentTotalLogs)
 }
