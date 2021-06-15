@@ -365,3 +365,23 @@ func TestMaintenanceAdminGetSteelList(t *testing.T) {
 		t.Fatal("维修管理员获取型钢列表集成测试")
 	}
 }
+
+/**
+ * 维修管理员设置密码集成测试
+ */
+func TestMaintenanceAdminSetPasswordList(t *testing.T) {
+	q := `
+		mutation ($input: SetPasswordInput!) {
+		  setPassword(input: $input)
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} {
+			"password": "12345678",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	if err != nil {
+		t.Fatal("维修管理员设置密码集成测试")
+	}
+}

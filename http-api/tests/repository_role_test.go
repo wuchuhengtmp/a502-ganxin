@@ -920,4 +920,26 @@ func TestRepositoryAdminGetSteelList(t *testing.T) {
 	if err != nil {
 		t.Fatal("仓库管理员获取型钢列表集成测试")
 	}
+
 }
+
+/**
+ * 仓库管理员设置密码集成测试
+ */
+func TestRepositoryAdminSetPasswordList(t *testing.T) {
+	q := `
+		mutation ($input: SetPasswordInput!) {
+		  setPassword(input: $input)
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface {} {
+			"password": "12345678",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	if err != nil {
+		t.Fatal("仓库管理员设置密码集成测试")
+	}
+}
+
