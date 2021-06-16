@@ -12,42 +12,41 @@ import (
 )
 
 // Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{} }
+func (*Resolver) Mutation() generated.MutationResolver { return &mutationResolver{} }
 
 // Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver {
+func (*Resolver) Query() generated.QueryResolver {
 	return &queryResolver{ }
 }
 
-func (r *Resolver) RepositoryItem () generated.RepositoryItemResolver {
+func (*Resolver) RepositoryItem () generated.RepositoryItemResolver {
 	return query_resolver.RepositoryItemResolver{}
 }
 
-func (r *Resolver) SpecificationItem() generated.SpecificationItemResolver {
+func (*Resolver) SpecificationItem() generated.SpecificationItemResolver {
 	return query_resolver.SpecificationItemResolver{}
 }
-func (r *Resolver)DeviceItem() generated.DeviceItemResolver {
+func (*Resolver)DeviceItem() generated.DeviceItemResolver {
 	return query_resolver.DeviceItemResolver{}
 }
 
-func (r *Resolver) UserItem() generated.UserItemResolver {
+func (*Resolver) UserItem() generated.UserItemResolver {
 	return query_resolver.UserItemResolver{}
 }
-func (c *Resolver)CompanyItem() generated.CompanyItemResolver {
+func (*Resolver)CompanyItem() generated.CompanyItemResolver {
 	return query_resolver.CompanyItemResolver{}
 }
 
-func (c *Resolver)SteelItem() generated.SteelItemResolver {
+func (*Resolver)SteelItem() generated.SteelItemResolver {
 	return query_resolver.SteelItemResolver{}
 }
-func (r *Resolver)ProjectItem() generated.ProjectItemResolver {
+func (*Resolver)ProjectItem() generated.ProjectItemResolver {
 	return query_resolver.ProjectItemResolver{}
 }
 
-func (r *Resolver)OrderItem() generated.OrderItemResolver {
+func (*Resolver)OrderItem() generated.OrderItemResolver {
 	return query_resolver.OrderItemResolver{}
 }
-
 
 type mutationResolver struct{
 	*Resolver

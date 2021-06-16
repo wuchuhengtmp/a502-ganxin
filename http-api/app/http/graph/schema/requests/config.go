@@ -15,12 +15,16 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
+	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
+	"http-api/pkg/model"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
-func init()  {
+func init() {
 	// 定义验证手机规则
 	govalidator.AddCustomRule("phone", func(field string, rule string, message string, value interface{}) error {
 		const patter string = `^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199)\d{8}$`
@@ -88,7 +92,7 @@ func init()  {
 	// 规格表的id是否存在
 	govalidator.AddCustomRule("isSpecificationId", func(field string, rule string, message string, value interface{}) error {
 		v := value.(int64)
-		s := specificationinfo.SpecificationInfo{ ID:  v }
+		s := specificationinfo.SpecificationInfo{ID: v}
 		if err := s.GetSelf(); err != nil {
 			return fmt.Errorf("%s:%d 没有这个规格记录", field, v)
 		}
@@ -124,4 +128,59 @@ func init()  {
 
 		return nil
 	})
+	// 是否是公司仓库
+	govalidator.AddCustomRule("isCompanyRepository", func(field string, rule string, message string, value interface{}) error {
+		me, err := getUserByRule(rule)
+		if err == nil { return err }
+		r := repositories.Repositories{}
+		err = model.DB.
+			Model(&repositories.Repositories{}).
+			Where("company_id = ? AND id = ?", me.CompanyId, value).First(&r).
+			Error
+		if err != nil {
+			return fmt.Errorf("公司中没有这个仓库")
+		}
+
+		return nil
+	})
+
+	// 是否是公司名下的规格
+	govalidator.AddCustomRule("isCompanySpecification", func(field string, rule string, message string, value interface{}) error {
+		me, err := getUserByRule(rule)
+		if err != nil { return err }
+		r := repositories.Repositories{}
+		err = model.DB.
+			Model(&specificationinfo.SpecificationInfo{}).
+			Where("company_id = ? AND id = ?", me.CompanyId, value).First(&r).
+			Error
+		if err != nil {
+			return fmt.Errorf("公司中没有这个规格")
+		}
+
+		return nil
+	})
+}
+
+func getUserByRule (rule string) (u *users.Users,  err error ) {
+	uid, _ := strconv.ParseInt( strings.SplitAfter(rule, ":")[1], 10, 16)
+	me := users.Users{}
+	if err := me.GetSelfById(uid); err != nil { return nil, fmt.Errorf("没有这个用户") }
+
+	return &me, nil
+}
+
+/**
+ *  验证
+ */
+func Validate(opts govalidator.Options) error {
+	errs := govalidator.New(opts).ValidateStruct()
+	if len(errs) > 0 {
+		for _, fieldErrors := range errs {
+			for _, err := range fieldErrors {
+				return fmt.Errorf("%s", err)
+			}
+		}
+	}
+
+	return nil
 }

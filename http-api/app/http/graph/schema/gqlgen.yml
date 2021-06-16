@@ -81,4 +81,7 @@ models:
     model: http-api/app/models/projects.Projects
   OrderItem:
     model: http-api/app/models/orders.Order
+  GetRepositoryOverviewRes:
+    model: http-api/app/models/repositories.GetRepositoryOverviewRes
+
 

@@ -13,10 +13,6 @@ type RepositoryItem {
     adminPhone: String!
     adminWechat: String!
 }
-extend type Query {
-    """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
-    getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
-}
 """  创建仓库需要提交的参数"""
 input CreateRepositoryInput {
     name: String!
@@ -24,6 +20,24 @@ input CreateRepositoryInput {
     repositoryAdminId: Int!
     remark: String!
     pinYin: String!
+}
+type GetRepositoryOverviewRes {
+    """ 总量 """
+    total: Int!
+    """ 重量 (t/吨) """
+    weight: Float!
+}
+input GetRepositoryOverviewInput {
+    """ 仓库id """
+    id: Int!
+    """ 规格ID """
+    specificationId: Int
+}
+extend type Query {
+    """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
+    getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
+    """ 获取仓库概览(auth:repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin ) """
+    getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""

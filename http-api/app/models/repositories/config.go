@@ -33,10 +33,14 @@ type Repositories struct {
 	gorm.Model
 }
 
+func (Repositories) TableName() string {
+	return "repositories"
+}
+
 /**
  * 获取公司下的仓库
  */
-func (Repositories)GetAllRepositoryByCompanyId(CompanyId int64) ([]*Repositories, error) {
+func (Repositories) GetAllRepositoryByCompanyId(CompanyId int64) ([]*Repositories, error) {
 	db := sqlModel.DB
 	var res []*Repositories
 	if err := db.Model(&Repositories{}).Where("company_id = ?", CompanyId).Find(&res).Error; err != nil {
@@ -47,14 +51,14 @@ func (Repositories)GetAllRepositoryByCompanyId(CompanyId int64) ([]*Repositories
 }
 
 // 创建新的仓库
-func (r *Repositories)CreatSelf(ctx context.Context) error {
+func (r *Repositories) CreatSelf(ctx context.Context) error {
 	tx := sqlModel.DB.Begin()
 	tx.Create(r)
 	me := auth.GetUser(ctx)
 	log := logs.Logos{
 		Content: fmt.Sprintf("创建仓库: 仓库id为%d", r.ID),
-		Uid: me.ID,
-		Type: logs.CreateActionType,
+		Uid:     me.ID,
+		Type:    logs.CreateActionType,
 	}
 	tx.Create(&log)
 	if err := tx.Commit().Error; err != nil {
@@ -65,13 +69,13 @@ func (r *Repositories)CreatSelf(ctx context.Context) error {
 	return nil
 }
 
-func (r *Repositories)GetSelf() error {
- 	db := sqlModel.DB
+func (r *Repositories) GetSelf() error {
+	db := sqlModel.DB
 
 	return db.Model(r).Where("id = ?", r.ID).First(r).Error
 }
 
-func (r *Repositories) GetAdminUser () (*users.Users, error) {
+func (r *Repositories) GetAdminUser() (*users.Users, error) {
 	user := users.Users{}
 	err := user.GetSelfById(r.Uid)
 	if err != nil {
@@ -89,9 +93,9 @@ func DeleteById(ctx context.Context, id int64) error {
 	tx.Where("id = ?", id).Delete(&Repositories{ID: id})
 	me := auth.GetUser(ctx)
 	l := logs.Logos{
-		Uid: me.ID,
+		Uid:     me.ID,
 		Content: fmt.Sprintf("删除仓库:仓库id为%d", id),
-		Type: logs.DeleteActionType,
+		Type:    logs.DeleteActionType,
 	}
 	tx.Create(&l)
 	if err := tx.Commit().Error; err != nil {
@@ -102,7 +106,7 @@ func DeleteById(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (r *Repositories)IsExists(ctx context.Context) error {
+func (r *Repositories) IsExists(ctx context.Context) error {
 	me := auth.GetUser(ctx)
 	err := sqlModel.DB.Model(&Repositories{}).Where("id = ? AND company_id = ?", r.ID, me.CompanyId).First(&r).Error
 

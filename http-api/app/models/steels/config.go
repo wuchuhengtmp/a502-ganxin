@@ -56,6 +56,10 @@ type Steels struct {
 	gorm.Model
 }
 
+func (Steels) TableName() string {
+	return  "steels"
+}
+
 // 获取型钢的响应格式
 type GetSteelListRes struct {
 	Total int64     `json:"total"`

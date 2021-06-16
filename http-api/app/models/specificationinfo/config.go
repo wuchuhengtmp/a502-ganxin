@@ -28,6 +28,9 @@ type SpecificationInfo struct {
 	gorm.Model
 }
 
+func(SpecificationInfo) TableName() string {
+	return "specification_infos"
+}
 /**
  * 添加一条新的规格记录
  */

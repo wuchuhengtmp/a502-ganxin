@@ -251,6 +251,13 @@ type GetCompanyUserInput struct {
 	RoleID *int64 `json:"roleId"`
 }
 
+type GetRepositoryOverviewInput struct {
+	//  仓库id
+	ID int64 `json:"id"`
+	//  规格ID
+	SpecificationID *int64 `json:"specificationId"`
+}
+
 type GraphDesc struct {
 	//  接口错码说明
 	Title string `json:"title"`
