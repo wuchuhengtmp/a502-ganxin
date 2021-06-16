@@ -20,6 +20,7 @@ import (
 	"http-api/app/models/repository_leader"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/steel_logs"
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/config"
@@ -72,5 +73,6 @@ func SetupDB() {
 		maintenance.Maintenance{},
 		repository_leader.RepositoryLeader{},
 		project_leader.ProjectLeader{},
+		steel_logs.SteelLog{},
 	)
 }

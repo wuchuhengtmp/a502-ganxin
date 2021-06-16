@@ -17,6 +17,7 @@ import (
 	"http-api/app/models/companies"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/steel_logs"
 	"http-api/pkg/model"
 	"time"
 )
@@ -135,6 +136,15 @@ func (s *Steels) CreateMultipleSteel(ctx context.Context, steels []*Steels) erro
 			if err := tx.Model(&Steels{}).Where("id = ?", steel.ID).Update("code", code).Error; err != nil {
 				return err
 			}
+			// 型钢入库日志
+			ll := steel_logs.SteelLog{
+				Type:    steel_logs.CreateType,
+				SteelId: steel.ID,
+				Uid:     me.ID,
+			}
+			if err := tx.Create(&ll).Error; err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -199,10 +209,10 @@ func (s *Steels) GetManufacturer() (*codeinfo.CodeInfo, error) {
 	return &c, err
 }
 
-func (s Steels)GetRepository() (*repositories.Repositories, error) {
+func (s Steels) GetRepository() (*repositories.Repositories, error) {
 	r := repositories.Repositories{}
 	err := model.DB.Model(repositories.Repositories{}).Where("id = ?", s.RepositoryId).
-	First(&r).Error
+		First(&r).Error
 
 	return &r, err
 }
