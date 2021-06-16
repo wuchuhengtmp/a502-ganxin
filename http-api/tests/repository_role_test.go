@@ -980,3 +980,28 @@ func TestRepositoryAdminGetMyInfo(t *testing.T) {
 		t.Fatal("仓库管理员获取我的信息集成测试")
 	}
 }
+/**
+ * 仓库管理员获取项目列表集成测试
+ */
+func TestRepositoryAdminGetProjectList(t *testing.T) {
+	q := `
+		query {
+		  getProjectLis {
+			id
+			name
+			address
+			remark
+			startedAt
+			leaderList {
+			  id
+			  name
+			}
+			city
+			endedAt
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	assert.NoError(t, err)
+}

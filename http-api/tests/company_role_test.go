@@ -1162,3 +1162,29 @@ func TestCompanyAdminCreateProject(t *testing.T) {
 	model.DB.Model(&logs.Logos{}).Count(&currentTotalLogs)
 	assert.Equal(t, totalLogs + 1, currentTotalLogs)
 }
+
+/**
+ * 公司管理员获取项目列表集成测试
+ */
+func TestCompanyAdminGetProjectList(t *testing.T) {
+	q := `
+		query {
+		  getProjectLis {
+			id
+			name
+			address
+			remark
+			startedAt
+			leaderList {
+			  id
+			  name
+			}
+			city
+			endedAt
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
