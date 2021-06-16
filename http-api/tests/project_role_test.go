@@ -13,7 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
+	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
+	"http-api/app/models/specificationinfo"
 	"http-api/pkg/model"
 	"http-api/seeders"
 	"testing"
@@ -21,7 +23,7 @@ import (
 
 // 项目管理员测试上下文
 var projectAdminTestCtx = struct {
-	Token string
+	Token    string
 	Username string
 	Password string
 }{
@@ -43,8 +45,8 @@ func TestProjectAdminRoleLogin(t *testing.T) {
 		  }
 		}
 	`
-	variables :=  map[string]interface{} {
-		"phone": projectAdminTestCtx.Username,
+	variables := map[string]interface{}{
+		"phone":    projectAdminTestCtx.Username,
 		"password": projectAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleProjectAdmin)
@@ -57,7 +59,7 @@ func TestProjectAdminRoleLogin(t *testing.T) {
 /**
  * 项目管理员获取公司列表集成测试
  */
-func TestProjectAdminRoleGetAllCompany(t *testing.T)  {
+func TestProjectAdminRoleGetAllCompany(t *testing.T) {
 	q := `query {
 			  getAllCompany {
 				id
@@ -89,16 +91,16 @@ func TestProjectAdminRoleGetAllCompany(t *testing.T)  {
 	`
 	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleProjectAdmin)
-	hasError(t, err )
+	hasError(t, err)
 	if len(res) != 1 {
-		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题") )
+		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题"))
 	}
 }
 
 /**
  * 项目管理员获取公司人员列表集成测试
  */
-func TestProjectAdminRoleGetCompanyUsers(t *testing.T)  {
+func TestProjectAdminRoleGetCompanyUsers(t *testing.T) {
 	q := `
 		query getCompanyUserQuery {
 		  getCompanyUser{
@@ -123,11 +125,10 @@ func TestProjectAdminRoleGetCompanyUsers(t *testing.T)  {
 	hasError(t, err)
 }
 
-
 /**
  * 项目管理员获取仓库列表集成测试
  */
-func TestProjectAdminRoleGetRepository(t *testing.T)  {
+func TestProjectAdminRoleGetRepository(t *testing.T) {
 	q := `
 		 query {
 		  getRepositoryList {
@@ -148,7 +149,7 @@ func TestProjectAdminRoleGetRepository(t *testing.T)  {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {},
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	hasError(t, err)
@@ -170,7 +171,7 @@ func TestProjectAdminRoleGetSpecification(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	hasError(t, err)
 }
@@ -188,7 +189,7 @@ func TestProjectAdminRoleGetMaterialManufacturers(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	hasError(t, err)
 }
@@ -205,9 +206,9 @@ func TestProjectRoleGetManufacturer(t *testing.T) {
 		remark
 	  }
 	}`
-	v := map[string]interface{} {}
-	res, err := graphReqClient(q, v, roles.RoleProjectAdmin);
-	if  err != nil {
+	v := map[string]interface{}{}
+	res, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	if err != nil {
 		t.Fatal("failed:项目管理员获取制造商集成测试")
 	}
 	assertCompanyIdForGetManufacturers(t, res, projectAdminTestCtx.Token)
@@ -234,7 +235,7 @@ func TestProjectAdminRoleGetExpressList(t *testing.T) {
 	}
 	me, _ := GetUserByToken(projectAdminTestCtx.Token)
 	items := res["getExpressList"].([]interface{})
-	for _,item := range items {
+	for _, item := range items {
 		express := item.(map[string]interface{})
 		id := express["id"].(float64)
 		record := codeinfo.CodeInfo{}
@@ -252,7 +253,7 @@ func TestProjectAdminRoleGetPrice(t *testing.T) {
 		  getPrice
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("failed:项目管理员获取集成测试")
@@ -273,16 +274,17 @@ func TestProjectAdminRoleLoginDevice(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"phone": "13427969607",
+	v := map[string]interface{}{
+		"phone":    "13427969607",
 		"password": "12345678",
-		"mac": "123:1242:1242:12412",
+		"mac":      "123:1242:1242:12412",
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("failed:项目管理员登录设备集成测试")
 	}
 }
+
 /**
  * 项目管理员获取设备列表集成测试
  */
@@ -300,7 +302,7 @@ func TestProjectAdminGetDeviceList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("failed:项目管理员获取设备列表集成测试")
@@ -319,6 +321,7 @@ func TestProjectAdminGetDeviceList(t *testing.T) {
 		assert.Equal(t, u.CompanyId, me.CompanyId)
 	}
 }
+
 /**
  * 项目管理员获取型钢列表集成测试
  */
@@ -355,9 +358,9 @@ func TestProjectAdminGetSteelList(t *testing.T) {
 	  }  
 	}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
-			"page": 1,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"page":     1,
 			"pageSize": 10,
 		},
 	}
@@ -366,6 +369,7 @@ func TestProjectAdminGetSteelList(t *testing.T) {
 		t.Fatal("项目管理员获取型钢列表集成测试")
 	}
 }
+
 /**
  * 项目管理员设置密码集成测试
  */
@@ -375,8 +379,8 @@ func TestProjectAdminSetPassword(t *testing.T) {
 		  setPassword(input: $input)
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"password": "12345678",
 		},
 	}
@@ -385,6 +389,7 @@ func TestProjectAdminSetPassword(t *testing.T) {
 		t.Fatal("项目管理员设置密码集成测试")
 	}
 }
+
 /**
  * 项目管理员获取我的信息集成测试
  */
@@ -407,8 +412,8 @@ func TestProjectAdminGetMyInfo(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} { },
+	v := map[string]interface{}{
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
@@ -437,7 +442,36 @@ func TestProjectAdminGetProjectList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员获取仓库概览测试
+ */
+func TestProjectAdminGetRepositoryOverview(t *testing.T) {
+	me, _ := GetUserByToken(projectAdminTestCtx.Token)
+	r := repositories.Repositories{}
+	err := model.DB.Model(&repositories.Repositories{}).Where("company_id = ?", me.CompanyId).First(&r).Error
+	assert.NoError(t, err)
+	s := specificationinfo.SpecificationInfo{}
+	err = model.DB.Model(&specificationinfo.SpecificationInfo{}).Where("company_id = ?", me.CompanyId).First(&s).Error
+	assert.NoError(t, err)
+	q := `
+		query ($input: GetRepositoryOverviewInput!){
+		  getRepositoryOverview(input: $input){
+			total
+			 weight
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":              r.ID,
+			"specificationId": s.ID,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleProjectAdmin)
 	assert.NoError(t, err)
 }

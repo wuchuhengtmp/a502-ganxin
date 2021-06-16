@@ -2228,8 +2228,8 @@ input GetRepositoryOverviewInput {
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
-    """ 获取仓库概览(auth:repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin ) """
-    getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
+    """ 获取仓库概览(auth:projectAdmin) """
+    getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
@@ -7731,7 +7731,7 @@ func (ec *executionContext) _Query_getRepositoryOverview(ctx context.Context, fi
 			return ec.resolvers.Query().GetRepositoryOverview(rctx, args["input"].(model.GetRepositoryOverviewInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin", "companyAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
 			if err != nil {
 				return nil, err
 			}
