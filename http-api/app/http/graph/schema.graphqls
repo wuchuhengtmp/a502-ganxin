@@ -28,6 +28,10 @@ input PaginationInput {
   pageSize: Int! = 10
   """ 指定哪个分页 """
   page: Int! = 12
+  """ 指定规格 """
+  specificationId: Int
+  """ 指定仓库 """
+  repositoryId: Int
 }
 type LoginRes {
   """ 授权token """    accessToken: String!

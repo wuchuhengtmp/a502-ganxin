@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"github.com/thedevsaddam/govalidator"
 	"http-api/app/http/graph/auth"
-	order_details "http-api/app/models/order-details"
+	order_details "http-api/app/models/order_details"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 )

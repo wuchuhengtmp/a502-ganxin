@@ -101,3 +101,10 @@ func DeleteById(ctx context.Context, id int64) error {
 
 	return nil
 }
+
+func (r *Repositories)IsExists(ctx context.Context) error {
+	me := auth.GetUser(ctx)
+	err := sqlModel.DB.Model(&Repositories{}).Where("id = ? AND company_id = ?", r.ID, me.CompanyId).First(&r).Error
+
+	return err
+}

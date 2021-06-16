@@ -154,3 +154,10 @@ func (s *SpecificationInfo)DeleteSelf(ctx context.Context) error {
 	})
 }
 
+func (s *SpecificationInfo)IsExist(ctx context.Context) error {
+	me := auth.GetUser(ctx)
+	t := SpecificationInfo{}
+	err := sqlModel.DB.Model(&SpecificationInfo{}).Where("id = ? AND company_id = ?", s.ID, me.CompanyId).First(&t).Error
+
+	return err
+}

@@ -162,20 +162,35 @@ func IsExistIdentifier(ctx context.Context, identifier string) bool {
 	}
 }
 
-func (Steels) GetPagination(ctx context.Context, page int64, pageSize int64) (ss []*Steels, err error) {
+func (Steels) GetPagination(ctx context.Context, page int64, pageSize int64, repositoryId *int64, specificationInfoId *int64) (ss []*Steels, err error) {
 	offset := 0
 	if pageSize > 1 {
 		offset = int((page - 1) * pageSize)
 	}
 	me := auth.GetUser(ctx)
-	err = model.DB.Model(&Steels{}).Where("company_id = ?", me.CompanyId).Offset(offset).Limit(int(pageSize)).Find(&ss).Error
+	whereMap := fmt.Sprintf("company_id = %d", me.CompanyId)
+	if repositoryId != nil {
+		whereMap = fmt.Sprintf("%s AND repository_id = %d", whereMap, *repositoryId)
+	}
+	if specificationInfoId != nil {
+		whereMap = fmt.Sprintf("%s AND specification_id = %d", whereMap, *specificationInfoId)
+	}
+	// todo 总使用率 年使用率 Turnover周围次数
+	err = model.DB.Model(&Steels{}).Where(whereMap).Offset(offset).Limit(int(pageSize)).Find(&ss).Error
 
 	return
 }
 
-func (Steels) GetTotal(ctx context.Context) (total int64) {
+func (Steels) GetTotal(ctx context.Context, repositoryId *int64, specificationInfoId *int64) (total int64) {
 	me := auth.GetUser(ctx)
-	model.DB.Model(&Steels{}).Where("company_id = ?", me.CompanyId).Count(&total)
+	whereMap := fmt.Sprintf("company_id = %d", me.CompanyId)
+	if repositoryId != nil {
+		whereMap = fmt.Sprintf("%s AND repository_id = %d", whereMap, *repositoryId)
+	}
+	if specificationInfoId != nil {
+		whereMap = fmt.Sprintf("%s AND specification_id = %d", whereMap, *specificationInfoId)
+	}
+	model.DB.Model(&Steels{}).Where(whereMap).Count(&total)
 
 	return
 }

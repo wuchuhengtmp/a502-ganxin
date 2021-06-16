@@ -1,0 +1,53 @@
+""" 型钢订单 """
+type OrderItem {
+    id: Int!
+    """ 项目 """
+    project: ProjectItem!
+    """仓库状态100待确认200已确认300已拒绝400已发货500待收货600已收货(部分)700已收货全部800已归库"""
+    state: Int!
+    """ 预计归还时间 """
+    expectedReturnAt: Time!
+    """ 配件列表 """
+    partList: String !
+    """ 创建人 """
+    createUser: UserItem!
+    """ 确认时间 """
+    confirmedAt: Time
+    """ 收货人 """
+    receiveUser: UserItem!
+    """ 收货时间 """
+    receiveAt: Time
+    """ 快递公司 """
+    expressCompany: CompanyItem!
+    """ 物流号 """
+    expressNo: String!
+    """ 备注 """
+    remark: String!
+}
+
+""" 创建需求单的指定型钢单项参数 """
+input CreateOrderSteelInput {
+    """ 型钢id """
+    id: Int!
+    """ 数量 """
+    total: Int!
+}
+
+"""  创建需求单 """
+input CreateOrderInput {
+    """ 项目ID """
+    projectId: Int!
+    """ 出货仓库ID """
+    repositoryId: Int!
+    """ 预计归还时间 """
+    expectedReturnAt: Time!
+    """ 备注 """
+    remark: String!
+    """ 配件清单 """
+    partList: String!
+    """ 型钢列表 """
+    steelList: [CreateOrderSteelInput!]!
+}
+extend type Mutation {
+    createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
+}

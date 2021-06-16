@@ -12,7 +12,7 @@ import (
 	"http-api/app/models/maintenance_leader"
 	"http-api/app/models/maintenance_record"
 	"http-api/app/models/msg"
-	order_details "http-api/app/models/order-details"
+	order_details "http-api/app/models/order_details"
 	"http-api/app/models/orders"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"

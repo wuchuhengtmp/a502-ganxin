@@ -75,6 +75,30 @@ type CreateMaterialManufacturerInput struct {
 	IsDefault bool   `json:"isDefault"`
 }
 
+//   创建需求单
+type CreateOrderInput struct {
+	//  项目ID
+	ProjectID int64 `json:"projectId"`
+	//  出货仓库ID
+	RepositoryID int64 `json:"repositoryId"`
+	//  预计归还时间
+	ExpectedReturnAt time.Time `json:"expectedReturnAt"`
+	//  备注
+	Remark string `json:"remark"`
+	//  配件清单
+	PartList string `json:"partList"`
+	//  型钢列表
+	SteelList []*CreateOrderSteelInput `json:"steelList"`
+}
+
+//  创建需求单的指定型钢单项参数
+type CreateOrderSteelInput struct {
+	//  型钢id
+	ID int64 `json:"id"`
+	//  数量
+	Total int64 `json:"total"`
+}
+
 //  创建项目需要的参数
 type CreateProjectInput struct {
 	//  城市
@@ -253,6 +277,10 @@ type PaginationInput struct {
 	PageSize int64 `json:"pageSize"`
 	//  指定哪个分页
 	Page int64 `json:"page"`
+	//  指定规格
+	SpecificationID *int64 `json:"specificationId"`
+	//  指定仓库
+	RepositoryID *int64 `json:"repositoryId"`
 }
 
 //  设置密码的参数

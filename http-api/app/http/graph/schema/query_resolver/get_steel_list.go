@@ -10,7 +10,9 @@ package query_resolver
 
 import (
 	"context"
+	"http-api/app/http/graph/errors"
 	"http-api/app/http/graph/model"
+	"http-api/app/http/graph/schema/requests"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
@@ -19,15 +21,18 @@ import (
 
 
 func (*QueryResolver)GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error) {
+	if err := requests.ValidateGetSteelListRequest(ctx, input); err != nil {
+		return nil, errors.ValidateErr(ctx, err)
+	}
 	s := steels.Steels{}
-	list, err := s.GetPagination(ctx, input.Page, input.PageSize)
+	list, err := s.GetPagination(ctx, input.Page, input.PageSize, input.RepositoryID, input.SpecificationID)
 	if  err != nil {
 		return nil, err
 	}
 
 	res := steels.GetSteelListRes {
 		List: list,
-		Total: s.GetTotal(ctx),
+		Total: s.GetTotal(ctx, input.RepositoryID, input.SpecificationID),
 	}
 
 	return &res, nil

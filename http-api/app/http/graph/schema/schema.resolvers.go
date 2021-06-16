@@ -44,6 +44,10 @@ func (r *Resolver)ProjectItem() generated.ProjectItemResolver {
 	return query_resolver.ProjectItemResolver{}
 }
 
+func (r *Resolver)OrderItem() generated.OrderItemResolver {
+	return query_resolver.OrderItemResolver{}
+}
+
 
 type mutationResolver struct{
 	*Resolver
