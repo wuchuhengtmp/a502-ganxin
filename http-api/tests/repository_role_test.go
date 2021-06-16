@@ -14,6 +14,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
 	"http-api/app/models/roles"
+	"http-api/app/models/steel_logs"
 	"http-api/pkg/model"
 	"http-api/seeders"
 	"math/rand"
@@ -840,6 +841,8 @@ func TestRepositoryAdminGetDeviceList(t *testing.T) {
  * 仓库管理员入库型钢集成测试
  */
 func TestRepositoryAdminCreateSteel(t *testing.T) {
+	var oldTotalLogs int64
+	model.DB.Model(&steel_logs.SteelLog{}).Count(&oldTotalLogs)
 	q := `
 		mutation createSteelMutation($input: CreateSteelInput! ){
 		  createSteel(input: $input) {
@@ -872,6 +875,10 @@ func TestRepositoryAdminCreateSteel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// 断言型钢操作日志增量3
+	var newTotalLogs int64
+	model.DB.Model(&steel_logs.SteelLog{}).Count(&newTotalLogs)
+	assert.Equal(t, oldTotalLogs + 3, newTotalLogs)
 }
 
 /**
@@ -943,7 +950,6 @@ func TestRepositoryAdminSetPassword(t *testing.T) {
 	}
 }
 
-
 /**
  * 仓库管理员获取我的信息集成测试
  */
@@ -974,4 +980,3 @@ func TestRepositoryAdminGetMyInfo(t *testing.T) {
 		t.Fatal("仓库管理员获取我的信息集成测试")
 	}
 }
-
