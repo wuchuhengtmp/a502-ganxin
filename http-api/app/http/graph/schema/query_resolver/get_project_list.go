@@ -1,5 +1,5 @@
 /**
- * @Desc    The query_resolver is part of http-api
+ * @Desc    获取项目列表解析器
  * @Author  wuchuheng<wuchuheng@163.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
@@ -14,6 +14,10 @@ import (
 	"http-api/app/models/projects"
 	"http-api/app/models/users"
 )
+
+func (QueryResolver)GetProjectLis(ctx context.Context) ([]*projects.Projects, error) {
+	return projects.Projects{}.GetProjectList(ctx)
+}
 
 type ProjectItemResolver struct { }
 

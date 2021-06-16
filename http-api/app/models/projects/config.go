@@ -17,6 +17,7 @@ import (
 	"http-api/app/models/companies"
 	"http-api/app/models/logs"
 	"http-api/app/models/project_leader"
+	"http-api/app/models/roles"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 	"time"
@@ -100,3 +101,25 @@ func (c *Projects)GetCompany() (cm companies.Companies, err error) {
 	return
 }
 
+func (Projects)GetProjectList(ctx context.Context) (ps []*Projects, err error){
+	role, _ := auth.GetUser(ctx).GetRole()
+	projectTableName := Projects{}.TableName()
+	projectLeaderTableName := project_leader.ProjectLeader{}.TableName()
+	me := auth.GetUser(ctx)
+	// 仓库管理员只能查看自己项目列表
+	if role.Tag == roles.RoleProjectAdmin {
+		err = model.DB.Model(&Projects{}).
+			Select(fmt.Sprintf("%s.*", projectTableName)).
+			Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTableName, projectLeaderTableName, projectTableName)).
+			Where(fmt.Sprintf("%s.company_id = ? AND %s.uid = ?", projectTableName, projectLeaderTableName), me.CompanyId, me.ID).
+			Scan(&ps).Error
+	} else {
+		err = model.DB.Model(&Projects{}).
+			Select(fmt.Sprintf("%s.*", projectTableName)).
+			Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTableName, projectLeaderTableName, projectTableName)).
+			Where(fmt.Sprintf("%s.company_id = ?", projectTableName), me.CompanyId).
+			Scan(&ps).Error
+	}
+
+	return
+}
