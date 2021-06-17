@@ -13,6 +13,7 @@ import (
 	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/errors"
 	"http-api/app/models/repositories"
+	"http-api/app/models/users"
 )
 func (*QueryResolver)GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error) {
 	var res []*repositories.Repositories
@@ -28,30 +29,6 @@ func (*QueryResolver)GetRepositoryList(ctx context.Context) ([]*repositories.Rep
 
 type RepositoryItemResolver struct {}
 
-// adminName 字段解析器
-func (RepositoryItemResolver)AdminName(ctx context.Context, obj *repositories.Repositories) (string, error) {
-	 user, err := obj.GetAdminUser()
-	 if err != nil {
-		return "", errors.ServerErr(ctx, err)
-	 }
-
-	 return user.Name, nil
-}
-// adminPhone字段解析器
-func (RepositoryItemResolver)AdminPhone(ctx context.Context, obj *repositories.Repositories) (string, error) {
-	user, err := obj.GetAdminUser()
-	if err != nil {
-		return "", errors.ServerErr(ctx, err)
-	}
-
-	return user.Phone, nil
-}
-// adminWechat字段解析器
-func (RepositoryItemResolver)AdminWechat(ctx context.Context, obj *repositories.Repositories) (string, error) {
-	user, err := obj.GetAdminUser()
-	if err != nil {
-		return "", errors.ServerErr(ctx, err)
-	}
-
-	return user.Wechat, nil
+func (RepositoryItemResolver) Leaders(ctx context.Context, obj *repositories.Repositories) ([]*users.Users, error) {
+	return obj.GetLeaders()
 }

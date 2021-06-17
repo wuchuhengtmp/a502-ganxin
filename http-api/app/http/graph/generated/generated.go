@@ -221,18 +221,23 @@ type ComplexityRoot struct {
 	}
 
 	RepositoryItem struct {
-		Address     func(childComplexity int) int
-		AdminName   func(childComplexity int) int
-		AdminPhone  func(childComplexity int) int
-		AdminWechat func(childComplexity int) int
-		City        func(childComplexity int) int
-		ID          func(childComplexity int) int
-		IsAble      func(childComplexity int) int
-		Name        func(childComplexity int) int
-		PinYin      func(childComplexity int) int
-		Remark      func(childComplexity int) int
-		Total       func(childComplexity int) int
-		Weight      func(childComplexity int) int
+		Address func(childComplexity int) int
+		City    func(childComplexity int) int
+		ID      func(childComplexity int) int
+		IsAble  func(childComplexity int) int
+		Leaders func(childComplexity int) int
+		Name    func(childComplexity int) int
+		PinYin  func(childComplexity int) int
+		Remark  func(childComplexity int) int
+		Total   func(childComplexity int) int
+		Weight  func(childComplexity int) int
+	}
+
+	RepositoryLeaderItem struct {
+		ID     func(childComplexity int) int
+		Name   func(childComplexity int) int
+		Phone  func(childComplexity int) int
+		Wechat func(childComplexity int) int
 	}
 
 	RoleItem struct {
@@ -358,9 +363,7 @@ type QueryResolver interface {
 	GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error)
 }
 type RepositoryItemResolver interface {
-	AdminName(ctx context.Context, obj *repositories.Repositories) (string, error)
-	AdminPhone(ctx context.Context, obj *repositories.Repositories) (string, error)
-	AdminWechat(ctx context.Context, obj *repositories.Repositories) (string, error)
+	Leaders(ctx context.Context, obj *repositories.Repositories) ([]*users.Users, error)
 }
 type SpecificationItemResolver interface {
 	Specification(ctx context.Context, obj *specificationinfo.SpecificationInfo) (string, error)
@@ -1334,27 +1337,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RepositoryItem.Address(childComplexity), true
 
-	case "RepositoryItem.adminName":
-		if e.complexity.RepositoryItem.AdminName == nil {
-			break
-		}
-
-		return e.complexity.RepositoryItem.AdminName(childComplexity), true
-
-	case "RepositoryItem.adminPhone":
-		if e.complexity.RepositoryItem.AdminPhone == nil {
-			break
-		}
-
-		return e.complexity.RepositoryItem.AdminPhone(childComplexity), true
-
-	case "RepositoryItem.adminWechat":
-		if e.complexity.RepositoryItem.AdminWechat == nil {
-			break
-		}
-
-		return e.complexity.RepositoryItem.AdminWechat(childComplexity), true
-
 	case "RepositoryItem.city":
 		if e.complexity.RepositoryItem.City == nil {
 			break
@@ -1375,6 +1357,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RepositoryItem.IsAble(childComplexity), true
+
+	case "RepositoryItem.leaders":
+		if e.complexity.RepositoryItem.Leaders == nil {
+			break
+		}
+
+		return e.complexity.RepositoryItem.Leaders(childComplexity), true
 
 	case "RepositoryItem.name":
 		if e.complexity.RepositoryItem.Name == nil {
@@ -1410,6 +1399,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RepositoryItem.Weight(childComplexity), true
+
+	case "RepositoryLeaderItem.id":
+		if e.complexity.RepositoryLeaderItem.ID == nil {
+			break
+		}
+
+		return e.complexity.RepositoryLeaderItem.ID(childComplexity), true
+
+	case "RepositoryLeaderItem.name":
+		if e.complexity.RepositoryLeaderItem.Name == nil {
+			break
+		}
+
+		return e.complexity.RepositoryLeaderItem.Name(childComplexity), true
+
+	case "RepositoryLeaderItem.phone":
+		if e.complexity.RepositoryLeaderItem.Phone == nil {
+			break
+		}
+
+		return e.complexity.RepositoryLeaderItem.Phone(childComplexity), true
+
+	case "RepositoryLeaderItem.wechat":
+		if e.complexity.RepositoryLeaderItem.Wechat == nil {
+			break
+		}
+
+		return e.complexity.RepositoryLeaderItem.Wechat(childComplexity), true
 
 	case "RoleItem.id":
 		if e.complexity.RoleItem.ID == nil {
@@ -2190,7 +2207,13 @@ extend type Query {
     """ 获取项目列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }`, BuiltIn: false},
-	{Name: "../repository.graphql", Input: `""" 仓库信息 """
+	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
+    id: Int!
+    name: String!
+    phone: String!
+    wechat: String!
+}
+""" 仓库信息 """
 type RepositoryItem {
     id: Int!
     name: String!
@@ -2201,9 +2224,7 @@ type RepositoryItem {
     weight: Float!
     remark: String!
     isAble: Boolean!
-    adminName: String!
-    adminPhone: String!
-    adminWechat: String!
+    leaders:[UserItem!]!
 }
 """  创建仓库需要提交的参数"""
 input CreateRepositoryInput {
@@ -8314,7 +8335,7 @@ func (ec *executionContext) _RepositoryItem_isAble(ctx context.Context, field gr
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RepositoryItem_adminName(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+func (ec *executionContext) _RepositoryItem_leaders(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8332,7 +8353,77 @@ func (ec *executionContext) _RepositoryItem_adminName(ctx context.Context, field
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RepositoryItem().AdminName(rctx, obj)
+		return ec.resolvers.RepositoryItem().Leaders(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsersᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryLeaderItem_id(ctx context.Context, field graphql.CollectedField, obj *model.RepositoryLeaderItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryLeaderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RepositoryLeaderItem_name(ctx context.Context, field graphql.CollectedField, obj *model.RepositoryLeaderItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RepositoryLeaderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8349,7 +8440,7 @@ func (ec *executionContext) _RepositoryItem_adminName(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RepositoryItem_adminPhone(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+func (ec *executionContext) _RepositoryLeaderItem_phone(ctx context.Context, field graphql.CollectedField, obj *model.RepositoryLeaderItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8357,17 +8448,17 @@ func (ec *executionContext) _RepositoryItem_adminPhone(ctx context.Context, fiel
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "RepositoryItem",
+		Object:     "RepositoryLeaderItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RepositoryItem().AdminPhone(rctx, obj)
+		return obj.Phone, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8384,7 +8475,7 @@ func (ec *executionContext) _RepositoryItem_adminPhone(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _RepositoryItem_adminWechat(ctx context.Context, field graphql.CollectedField, obj *repositories.Repositories) (ret graphql.Marshaler) {
+func (ec *executionContext) _RepositoryLeaderItem_wechat(ctx context.Context, field graphql.CollectedField, obj *model.RepositoryLeaderItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8392,17 +8483,17 @@ func (ec *executionContext) _RepositoryItem_adminWechat(ctx context.Context, fie
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "RepositoryItem",
+		Object:     "RepositoryLeaderItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RepositoryItem().AdminWechat(rctx, obj)
+		return obj.Wechat, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12966,7 +13057,7 @@ func (ec *executionContext) _RepositoryItem(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "adminName":
+		case "leaders":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -12974,40 +13065,54 @@ func (ec *executionContext) _RepositoryItem(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._RepositoryItem_adminName(ctx, field, obj)
+				res = ec._RepositoryItem_leaders(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
 				return res
 			})
-		case "adminPhone":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._RepositoryItem_adminPhone(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "adminWechat":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._RepositoryItem_adminWechat(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var repositoryLeaderItemImplementors = []string{"RepositoryLeaderItem"}
+
+func (ec *executionContext) _RepositoryLeaderItem(ctx context.Context, sel ast.SelectionSet, obj *model.RepositoryLeaderItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryLeaderItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RepositoryLeaderItem")
+		case "id":
+			out.Values[i] = ec._RepositoryLeaderItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._RepositoryLeaderItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "phone":
+			out.Values[i] = ec._RepositoryLeaderItem_phone(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "wechat":
+			out.Values[i] = ec._RepositoryLeaderItem_wechat(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

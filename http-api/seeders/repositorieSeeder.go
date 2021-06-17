@@ -19,7 +19,7 @@ var repositorySeeder = []seed.Seed{
 	seed.Seed{
 		Name: "create repository",
 		Run: func(db *gorm.DB) error {
-			return createRepository( db, 1,
+			return createRepository(db, 1,
 				"石景山仓库",
 				"SJS",
 				"北京",
@@ -30,13 +30,13 @@ var repositorySeeder = []seed.Seed{
 				"",
 				true,
 				CompanyId,
-				)
+			)
 		},
 	},
 	seed.Seed{
 		Name: "create repository",
 		Run: func(db *gorm.DB) error {
-			return createRepository( db, 2,
+			return createRepository(db, 2,
 				"大兴仓库",
 				"DX",
 				"北京",
@@ -65,25 +65,27 @@ func createRepository(
 	remark string,
 	isAble bool,
 	companyId int64,
-	) error {
-	return db.Create(&repositories.Repositories{
-		ID:      id,
-		Name:    name,
-		PinYin:  pinYin,
-		City:    city,
-		Address: address,
-		Total:   total,
-		Weight:  weight,
-		Remark:  remark,
-		IsAble:   isAble,
-		CompanyId: companyId,
-	}).Error
-}
+) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		r := repositories.Repositories{
+				ID:        id,
+				Name:      name,
+				PinYin:    pinYin,
+				City:      city,
+				Address:   address,
+				Total:     total,
+				Weight:    weight,
+				Remark:    remark,
+				IsAble:    isAble,
+				CompanyId: companyId,
+			}
+		err := tx.Create(&r).Error
+		if err != nil { return err }
+		tx.Create(&repository_leader.RepositoryLeader{
+			Uid: uid,
+			RepositoryId: r.ID,
+		})
 
-func createRepositoryLeader(db *gorm.DB, repositoryId int64, uid int64)  error{
-	return db.Create(&repository_leader.RepositoryLeader{
-		RepositoryId: repositoryId,
-		Uid: uid,
-	}).Error
-
+		return nil
+	})
 }

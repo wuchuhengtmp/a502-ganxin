@@ -290,6 +290,13 @@ type PaginationInput struct {
 	RepositoryID *int64 `json:"repositoryId"`
 }
 
+type RepositoryLeaderItem struct {
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Phone  string `json:"phone"`
+	Wechat string `json:"wechat"`
+}
+
 //  设置密码的参数
 type SetPasswordInput struct {
 	Password string `json:"password"`

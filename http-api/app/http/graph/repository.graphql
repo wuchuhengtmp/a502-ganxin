@@ -15,9 +15,7 @@ type RepositoryItem {
     weight: Float!
     remark: String!
     isAble: Boolean!
-    adminName: String!
-    adminPhone: String!
-    adminWechat: String!
+    leaders:[UserItem!]!
 }
 """  创建仓库需要提交的参数"""
 input CreateRepositoryInput {
