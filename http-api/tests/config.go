@@ -17,19 +17,23 @@ import (
 	"http-api/app/models/users"
 	"http-api/bootstrap"
 	"http-api/config"
+	pkgConfig "http-api/pkg/config"
 	"http-api/pkg/jwt"
 	"http-api/pkg/model"
 	"testing"
 )
 
-const bashUrl string = "http://localhost:9501/query"
+var bashUrl string
 
 // graphql 请求客户端
-var client = graphql.NewClient(bashUrl)
+var client  *graphql.Client
 
 func init() {
 	config.Initialize()
 	bootstrap.SetupDB()
+	appPort := pkgConfig.GetString("APP_PORT")
+	bashUrl = fmt.Sprintf("http://localhost:%s/query", appPort)
+	client = graphql.NewClient(bashUrl)
 }
 
 /**

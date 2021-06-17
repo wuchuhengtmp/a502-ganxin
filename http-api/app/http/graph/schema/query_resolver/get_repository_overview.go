@@ -14,6 +14,7 @@ import (
 	"http-api/app/http/graph/errors"
 	"http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
+	"http-api/app/models/orders"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
@@ -40,6 +41,8 @@ func (*QueryResolver) GetRepositoryOverview(ctx context.Context, input model.Get
 		return nil, err
 	}
 	// todo 要减去还没发货但已经确认的数量和重量
+	cTotal, _ := orders.GetConfirmSteelTotalBySpecificationId(*input.SpecificationID)
+	g.Total -= cTotal
 
 	return &g, nil
 }

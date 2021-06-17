@@ -77,3 +77,10 @@ func GetConfirmSteelTotalBySpecificationId(specificationId int64) (int64, error)
 
 	return confirmTotal, err
 }
+
+///**
+// * 获取确认订单
+// */
+//func GetConfirmSteelTotalWeightBySpecificationId(specificationId int64) (float64, error) {
+//
+//}

@@ -10,6 +10,7 @@ package tests
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"http-api/app/models/roles"
 	"http-api/seeders"
 	"testing"
@@ -49,9 +50,8 @@ func TestSuperAdminRoleLogin(t *testing.T) {
 		"password": superAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleAdmin)
-	hasError(t, err)
+	assert.NoError(t, err)
 	token := res["login"]
-	//["accessToken"]
 	tokenInfo := token.(map[string]interface{})
 	superAdminTestCtx.SuperAdminToken = tokenInfo["accessToken"].(string)
 }
