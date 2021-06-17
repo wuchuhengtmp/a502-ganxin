@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 	"http-api/pkg/model"
 	"time"
@@ -78,9 +79,34 @@ func GetConfirmSteelTotalBySpecificationId(specificationId int64) (int64, error)
 	return confirmTotal, err
 }
 
-///**
-// * 获取确认订单
-// */
-//func GetConfirmSteelTotalWeightBySpecificationId(specificationId int64) (float64, error) {
-//
-//}
+/**
+* 获取确认订单的重量
+*/
+func GetConfirmSteelTotalWeightBySpecificationId(specificationId int64) (float64, error) {
+	o := Order{}
+	oss := order_specification_steel.OrderSpecificationSteel{}
+	os := order_specification.OrderSpecification{}
+	st := steels.Steels{}
+	var osList []*order_specification.OrderSpecification
+	err := model.DB.Model(&oss).
+		Select(fmt.Sprintf("%s.*", os.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", os.TableName(), os.TableName(), oss.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", o.TableName(), o.TableName(), os.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", st.TableName(), st.TableName(), oss.TableName())).
+		Where(fmt.Sprintf("%s.specification_id = %d", st.TableName(), specificationId)).
+		Where(fmt.Sprintf("%s.state = %d", o.TableName(), StateConfirmed)).
+		Find(&osList).Error
+	var totalWeight float64
+	for _, orderSpecificationItem := range osList {
+		spe := specificationinfo.SpecificationInfo{}
+		err := model.DB.Model(&spe).
+			Where("id = ?", orderSpecificationItem.SpecificationId).
+			First(&spe).Error
+		if err != nil {
+			return totalWeight, err
+		}
+		totalWeight += spe.Weight * float64(orderSpecificationItem.Total)
+	}
+
+	return totalWeight, err
+}

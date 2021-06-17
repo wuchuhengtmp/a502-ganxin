@@ -40,9 +40,11 @@ func (*QueryResolver) GetRepositoryOverview(ctx context.Context, input model.Get
 	if err != nil {
 		return nil, err
 	}
-	// todo 要减去还没发货但已经确认的数量和重量
+	//  要减去还没发货但已经确认的数量和重量
 	cTotal, _ := orders.GetConfirmSteelTotalBySpecificationId(*input.SpecificationID)
 	g.Total -= cTotal
+	w, _ := orders.GetConfirmSteelTotalWeightBySpecificationId(*input.SpecificationID)
+	g.Weight -= w
 
 	return &g, nil
 }
