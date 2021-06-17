@@ -34,10 +34,12 @@ func (*QueryResolver) GetRepositoryOverview(ctx context.Context, input model.Get
 	err := sqlModel.DB.Model(&steels.Steels{}).
 		Select(fmt.Sprintf("count(*) as total, sum(%s.weight) as weight", sTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", sTable, sTable, steelsTable)).
+		Where(fmt.Sprintf("%s.state = %d ", steelsTable, steels.StateInStore)).
 		Scan(&g).Error
 	if err != nil {
 		return nil, err
 	}
+	// todo 要减去还没发货但已经确认的数量和重量
 
 	return &g, nil
 }

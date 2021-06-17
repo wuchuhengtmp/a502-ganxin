@@ -311,10 +311,13 @@ func TestCompanyAdminRoleCreateRepository(t *testing.T) {
 			weight
 			remark
 			isAble
-			adminName
 			total
-			adminWechat
-			adminPhone
+			leaders {
+				id
+				name
+				wechat
+				phone
+			}
 		  }
 		}
 	`
@@ -328,7 +331,7 @@ func TestCompanyAdminRoleCreateRepository(t *testing.T) {
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-	hasError(t, err)
+	assert.NoError(t, err)
 	r := res["createRepository"].(map[string]interface{})
 	id := r["id"].(float64)
 	companyAdminTestCtx.DeleteRepositoryId = int64(id)
@@ -344,9 +347,12 @@ func TestCompanyAdminRoleGetRepository(t *testing.T) {
 			id
 			isAble
 			weight
-			adminName
-			adminWechat
-			adminPhone
+			leaders{
+				id
+				name
+				wechat
+				phone
+			}
 			address
 			total
 			isAble
@@ -377,7 +383,7 @@ func TestCompanyAdminRoleDeleteRepository(t *testing.T) {
 		"id": companyAdminTestCtx.DeleteRepositoryId,
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-	hasError(t, err)
+	assert.NoError(t, err)
 }
 
 /**

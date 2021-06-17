@@ -93,10 +93,10 @@ type CreateOrderInput struct {
 
 //  创建需求单的指定型钢单项参数
 type CreateOrderSteelInput struct {
-	//  型钢id
-	ID int64 `json:"id"`
 	//  数量
 	Total int64 `json:"total"`
+	//  规格ID
+	SpecificationID int64 `json:"specificationId"`
 }
 
 //  创建项目需要的参数

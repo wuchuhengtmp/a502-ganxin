@@ -41,6 +41,7 @@ func (Projects)TableName() string {
 	return "projects"
 }
 
+
 /**
  * 创建新的项目
  */

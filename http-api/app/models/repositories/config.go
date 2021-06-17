@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
 	"http-api/app/models/logs"
+	"http-api/app/models/repository_leader"
 	"http-api/app/models/users"
 	sqlModel "http-api/pkg/model"
 )
@@ -24,7 +25,6 @@ type Repositories struct {
 	PinYin    string  `json:"pinYin" gorm:"comment:拼音"`
 	City      string  `json:"city" gorm:"comment:城市"`
 	Address   string  `json:"address" gorm:"comment:地址"`
-	Uid       int64   `json:"uid" gorm:"comment:管理员id"`
 	Total     int64   `json:"total" gorm:"comment:总量(根)"`
 	Weight    float64 `json:"weight" gorm:"comment:重量(t/吨)"`
 	Remark    string  `json:"remark" gorm:"comment:备注"`
@@ -75,16 +75,6 @@ func (r *Repositories) GetSelf() error {
 	return db.Model(r).Where("id = ?", r.ID).First(r).Error
 }
 
-func (r *Repositories) GetAdminUser() (*users.Users, error) {
-	user := users.Users{}
-	err := user.GetSelfById(r.Uid)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
 /**
  * 删除一个仓库
  */
@@ -111,4 +101,15 @@ func (r *Repositories) IsExists(ctx context.Context) error {
 	err := sqlModel.DB.Model(&Repositories{}).Where("id = ? AND company_id = ?", r.ID, me.CompanyId).First(&r).Error
 
 	return err
+}
+
+func (r *Repositories) GetLeaders() (userList []*users.Users, err error) {
+	userTable := users.Users{}.TableName()
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+	err = sqlModel.DB.Model(&users.Users{}).
+		Select(fmt.Sprintf("%s.*", userTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", repositoryLeaderTable, userTable, repositoryLeaderTable)).
+		Where(fmt.Sprintf("%s.repository_id = %d", repositoryLeaderTable, r.ID)).
+		Find(&userList).Error
+	return
 }

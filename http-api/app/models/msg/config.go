@@ -8,12 +8,32 @@
  */
 package msg
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Msg struct {
 	Id      int64  `json:"id"`
 	IsRead  bool   `json:"isRead" gorm:"comment:是否已读"`
 	Content string `json:"content" gorm:"comment:内容"`
 	Uid     int64  `json:"uid" gorm:"comment:用户id"`
+	Type    string `json:"type" gorm:"comment:消息类型"`
+	Extends string `json:"extends" gorm:"comment:扩展参数json格式,参数用于点击消息能识别类型并自动跳到对应的页面"`
 	gorm.Model
+}
+
+const (
+	CreateOrderType = "createOrder" // 创建订单类型
+)
+
+func (Msg) TableName() string {
+	return "msg"
+}
+
+/**
+ * 推送消息
+ */
+func (*Msg) Push() error {
+	// todo 推送消息逻辑
+	return nil
 }

@@ -9,7 +9,11 @@
 package orders
 
 import (
+	"fmt"
 	"gorm.io/gorm"
+	"http-api/app/models/order_specification"
+	"http-api/app/models/order_specification_steel"
+	"http-api/app/models/steels"
 	"http-api/pkg/model"
 	"time"
 )
@@ -17,8 +21,8 @@ import (
 type Order struct {
 	Id               int64     `json:"id"`
 	ProjectId        int64     `json:"ProjectId" gorm:"comment:项目id"`
-	State            int       `json:"state" gorm:"仓库状态100待确认200已确认300已拒绝400已发货500待收货600已收货(部分)700已收货全部800已归库"`
-	ReceiveState     int       `json:"receiveState" gorm:"comment:场地状态 "`
+	RepositoryId     int64     `json:"repositoryId" gorm:"comment: 仓库id"`
+	State            int       `json:"state" gorm:"订单状态 待确认200 已确认300 已拒绝400 已发货500 待收货600 已收货(部分)700 已收货全部800 已归库"`
 	ExpectedReturnAt time.Time `json:"expectedReturnAt" gorm:"comment:预计归还时间"`
 	PartList         string    `json:"partList" gorm:"comment:配件清单"`
 	CreateUid        int64     `json:"createUid" gorm:"comment:创建人"`
@@ -26,10 +30,24 @@ type Order struct {
 	ReceiveUid       int64     `json:"receiveUid" gorm:"comment:收货人id"`
 	ReceiveAt        time.Time `json:"receiveAt" gorm:"comment:收货时间"`
 	ExpressCompanyId int64     `json:"expressCompanyId" gorm:"comment:快递公司(码表id)"`
-	ExpressNo        string     `json:"expressNo" gorm:"comment:物流号"`
+	ExpressNo        string    `json:"expressNo" gorm:"comment:物流号"`
+	OrderNo          string    `json:"orderNo" gorm:"comment:订单编号"`
 	Remark           string    `json:"remark" gorm:"comment:备注"`
 	gorm.Model
 }
+
+func (Order) TableName() string {
+	return "orders"
+}
+
+const (
+	StateToBeConfirmed   = 200 // 待确认
+	StateConfirmed       = 300 // 已确认
+	StateRejected        = 400 // 已拒绝
+	StateShipped         = 500 // 已发货
+	StatePartOfReceipted = 700 // 部分收货
+	StateReceipted       = 800 // 收货
+)
 
 /**
  * 根据物流公司获取订单列表
@@ -38,4 +56,24 @@ func (*Order) GetOrdersByExpressId(expressId int64) (os []*Order, err error) {
 	err = model.DB.Model(&Order{}).Where("express_company_id = ?", expressId).Find(&os).Error
 
 	return
+}
+
+/**
+ *  获取确认订单型钢的数量
+ */
+func GetConfirmSteelTotalBySpecificationId(specificationId int64) (int64, error) {
+	o := Order{}
+	oss := order_specification_steel.OrderSpecificationSteel{}
+	os := order_specification.OrderSpecification{}
+	st := steels.Steels{}
+	var confirmTotal int64
+	err := model.DB.Model(&oss).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", os.TableName(), os.TableName(), oss.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", o.TableName(), o.TableName(), os.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", st.TableName(), st.TableName(), oss.TableName())).
+		Where(fmt.Sprintf("%s.specification_id = %d", st.TableName(), specificationId)).
+		Where(fmt.Sprintf("%s.state = %d", o.TableName(), StateConfirmed)).
+		Count(&confirmTotal).Error
+
+	return confirmTotal, err
 }

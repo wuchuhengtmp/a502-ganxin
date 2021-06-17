@@ -2089,7 +2089,7 @@ type OrderItem {
     id: Int!
     """ 项目 """
     project: ProjectItem!
-    """仓库状态100待确认200已确认300已拒绝400已发货500待收货600已收货(部分)700已收货全部800已归库"""
+    """订单状态 待确认200已确认300已拒绝400已发货500待收货600已收货(部分)700已收货全部800已归库"""
     state: Int!
     """ 预计归还时间 """
     expectedReturnAt: Time!
@@ -2113,10 +2113,10 @@ type OrderItem {
 
 """ 创建需求单的指定型钢单项参数 """
 input CreateOrderSteelInput {
-    """ 型钢id """
-    id: Int!
     """ 数量 """
     total: Int!
+    """ 规格ID """
+    specificationId: Int!
 }
 
 """  创建需求单 """
@@ -10992,19 +10992,19 @@ func (ec *executionContext) unmarshalInputCreateOrderSteelInput(ctx context.Cont
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "total":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("total"))
 			it.Total, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalNInt2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}

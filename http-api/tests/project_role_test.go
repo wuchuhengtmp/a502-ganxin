@@ -135,9 +135,12 @@ func TestProjectAdminRoleGetRepository(t *testing.T) {
 			id
 			isAble
 			weight
-			adminName
-			adminWechat
-			adminPhone
+			leaders {
+				id
+				name
+				wechat
+				phone
+			}
 			address
 			total
 			isAble

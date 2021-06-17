@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"github.com/thedevsaddam/govalidator"
 	"http-api/app/http/graph/auth"
-	order_details "http-api/app/models/order_details"
+	order_details "http-api/app/models/order_specification"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 )
@@ -47,7 +47,7 @@ func ValidateDeleteSpecificationRequest(ctx context.Context, id int64) error {
 	if _, err := steelsModel.GetSteelsBySpecificationId(id); err != nil {
 		return fmt.Errorf("该规格正被型钢使用中，无法删除")
 	}
-	OrderDetailModel := order_details.OrderDetail{}
+	OrderDetailModel := order_details.OrderSpecification{}
 	if _, err := OrderDetailModel.GetOrderBySpecificationId(id); err != nil {
 
 	}

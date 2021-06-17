@@ -10,7 +10,6 @@ package query_resolver
 
 import (
 	"context"
-	"fmt"
 	"http-api/app/models/specificationinfo"
 	"http-api/pkg/model"
 )
@@ -25,5 +24,5 @@ func (*QueryResolver)GetSpecification(ctx context.Context) ([]*specificationinfo
 }
 
 func (SpecificationItemResolver)Specification(ctx context.Context, obj *specificationinfo.SpecificationInfo) (string, error) {
-	return fmt.Sprintf("%sx%.2fx%.2f", obj.Type, obj.Length, obj.Weight), nil
+	return obj.GetSelfSpecification(), nil
 }

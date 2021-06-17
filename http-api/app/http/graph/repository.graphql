@@ -1,3 +1,9 @@
+type RepositoryLeaderItem {
+    id: Int!
+    name: String!
+    phone: String!
+    wechat: String!
+}
 """ 仓库信息 """
 type RepositoryItem {
     id: Int!

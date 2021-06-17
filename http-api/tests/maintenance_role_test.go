@@ -135,9 +135,12 @@ func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
 			id
 			isAble
 			weight
-			adminName
-			adminWechat
-			adminPhone
+			leaders {
+				id
+				name
+				wechat
+				phone
+			}
 			address
 			total
 			isAble
@@ -152,7 +155,7 @@ func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
 		"input": map[string]interface{} {},
 	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
-	hasError(t, err)
+	assert.NoError(t, err)
 }
 
 /**

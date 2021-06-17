@@ -12,7 +12,8 @@ import (
 	"http-api/app/models/maintenance_leader"
 	"http-api/app/models/maintenance_record"
 	"http-api/app/models/msg"
-	order_details "http-api/app/models/order_details"
+	order_details "http-api/app/models/order_specification"
+	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
@@ -30,7 +31,7 @@ import (
 	"time"
 )
 
-func SetupRoute() *mux.Router  {
+func SetupRoute() *mux.Router {
 	router := mux.NewRouter()
 	routes.RegisterWebRoutes(router)
 	routes.RegisterApiRoutes(router)
@@ -64,7 +65,7 @@ func SetupDB() {
 		logs.Logos{},
 		steels.Steels{},
 		projects.Projects{},
-		order_details.OrderDetail{},
+		order_details.OrderSpecification{},
 		orders.Order{},
 		logs.Logos{},
 		msg.Msg{},
@@ -74,5 +75,6 @@ func SetupDB() {
 		repository_leader.RepositoryLeader{},
 		project_leader.ProjectLeader{},
 		steel_logs.SteelLog{},
+		order_specification_steel.OrderSpecificationSteel{},
 	)
 }

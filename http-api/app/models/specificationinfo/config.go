@@ -31,6 +31,10 @@ type SpecificationInfo struct {
 func(SpecificationInfo) TableName() string {
 	return "specification_infos"
 }
+
+func (s *SpecificationInfo)GetSelfSpecification() string  {
+	return fmt.Sprintf("%sx%.2fx%.2f", s.Type, s.Length, s.Weight)
+}
 /**
  * 添加一条新的规格记录
  */

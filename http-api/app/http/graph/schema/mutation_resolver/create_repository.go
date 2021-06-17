@@ -10,10 +10,10 @@ package mutation_resolver
 
 import (
 	"context"
-	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/errors"
 	"http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
+	"http-api/app/http/graph/schema/services"
 	"http-api/app/models/repositories"
 )
 
@@ -22,19 +22,10 @@ func (*MutationResolver) CreateRepository(ctx context.Context, input model.Creat
 	if err := validator.ValidateCreateRepository(ctx, input); err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
-	me := auth.GetUser(ctx)
-	repositoryModel := repositories.Repositories{
-		Name:    input.Name,
-		Address: input.Address,
-		Remark:  input.Remark,
-		Uid:     input.RepositoryAdminID,
-		PinYin:  input.PinYin,
-		CompanyId: me.CompanyId,
-		IsAble:  true,
-	}
-	if err := repositoryModel.CreatSelf(ctx); err != nil {
+	r, err := services.CreateRepository(ctx, input)
+	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
 
-	return &repositoryModel, nil
+	return r, nil
 }

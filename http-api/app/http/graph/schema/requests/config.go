@@ -15,6 +15,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
+	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
@@ -155,6 +156,21 @@ func init() {
 			Error
 		if err != nil {
 			return fmt.Errorf("公司中没有这个规格")
+		}
+
+		return nil
+	})
+	// 是否是公司名下的项目
+	govalidator.AddCustomRule("isCompanyProject", func(field string, rule string, message string, value interface{}) error {
+		me, err := getUserByRule(rule)
+		if err != nil { return err }
+		r := projects.Projects{}
+		err = model.DB.
+			Model(&r).
+			Where("company_id = ? AND id = ?", me.CompanyId, value).First(&r).
+			Error
+		if err != nil {
+			return fmt.Errorf("公司中没有这个项目")
 		}
 
 		return nil

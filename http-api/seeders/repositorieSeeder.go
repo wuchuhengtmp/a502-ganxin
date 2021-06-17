@@ -11,6 +11,7 @@ package seeders
 import (
 	"gorm.io/gorm"
 	"http-api/app/models/repositories"
+	"http-api/app/models/repository_leader"
 	"http-api/pkg/seed"
 )
 
@@ -71,11 +72,18 @@ func createRepository(
 		PinYin:  pinYin,
 		City:    city,
 		Address: address,
-		Uid:     uid,
 		Total:   total,
 		Weight:  weight,
 		Remark:  remark,
 		IsAble:   isAble,
 		CompanyId: companyId,
 	}).Error
+}
+
+func createRepositoryLeader(db *gorm.DB, repositoryId int64, uid int64)  error{
+	return db.Create(&repository_leader.RepositoryLeader{
+		RepositoryId: repositoryId,
+		Uid: uid,
+	}).Error
+
 }
