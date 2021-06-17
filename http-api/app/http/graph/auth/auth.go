@@ -1,6 +1,6 @@
 /**
  * @Desc    graph中间件
- * @Author  wuchuheng<wuchuheng@163.com>
+ * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
  * @DATE    2021/5/27

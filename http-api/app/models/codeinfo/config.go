@@ -1,6 +1,6 @@
 /**
  * @Desc    其它的码表信息模型
- * @Author  wuchuheng<wuchuheng@163.com>
+ * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
  * @DATE    2021/5/24

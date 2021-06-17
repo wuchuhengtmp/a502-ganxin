@@ -1,6 +1,6 @@
 /**
  * @Desc    无角色鉴权限制的公共接口集成测试
- * @Author  wuchuheng<wuchuheng@163.com>
+ * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
  * @DATE    2021/6/4

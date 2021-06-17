@@ -1,6 +1,6 @@
 /**
  * @Desc    声明种子数据
- * @Author  wuchuheng<wuchuheng@163.com>
+ * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @DATE    2021/4/27
  * @Listen  MIT
