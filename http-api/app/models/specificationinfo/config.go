@@ -35,6 +35,7 @@ func(SpecificationInfo) TableName() string {
 func (s *SpecificationInfo)GetSelfSpecification() string  {
 	return fmt.Sprintf("%sx%.2fx%.2f", s.Type, s.Length, s.Weight)
 }
+
 /**
  * 添加一条新的规格记录
  */
@@ -59,7 +60,7 @@ func (s *SpecificationInfo) CreateSelf(ctx context.Context) error {
 		l := logs.Logos{
 			Content: fmt.Sprintf("添加一条新的规格记录:id为%d", s.ID),
 			Type:    logs.CreateActionType,
-			Uid:     me.ID,
+			Uid:     me.Id,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
@@ -131,7 +132,7 @@ func (s *SpecificationInfo) Edit(ctx context.Context, input model.EditSpecificat
 		l := logs.Logos{
 			Type:    logs.UpdateActionType,
 			Content: fmt.Sprintf("编辑规格: 被修改的id为:%d", s.ID),
-			Uid:     me.ID,
+			Uid:     me.Id,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
@@ -149,7 +150,7 @@ func (s *SpecificationInfo)DeleteSelf(ctx context.Context) error {
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid: me.ID,
+			Uid: me.Id,
 			Type: logs.CreateActionType,
 			Content: fmt.Sprintf("删除一条规格记录:id为%d", s.ID),
 		}

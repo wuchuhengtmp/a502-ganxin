@@ -35,14 +35,14 @@ func (r *MutationResolver) Login(ctx context.Context, phone string, password str
 	if mac != nil && len(*mac) > 0 {
 		macAddres = *mac
 		isDevice = true
-		d := devices.Device{Uid: user.ID, Mac: *mac}
+		d := devices.Device{Uid: user.Id, Mac: *mac}
 		_, err := d.GetDeviceSelf()
 		if err != nil {
 			d.IsAble = true
 			_ = d.CreateSelf()
 		}
 	}
-	accessToken, _ := jwt.GenerateTokenByUID(user.ID, isDevice, macAddres)
+	accessToken, _ := jwt.GenerateTokenByUID(user.Id, isDevice, macAddres)
 	expired := jwt.GetExpiredAt()
 	role, _ := user.GetRole()
 	return &model.LoginRes{

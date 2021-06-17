@@ -46,7 +46,7 @@ func CreateRepository(ctx context.Context, input grlModel.CreateRepositoryInput)
 		l := logs.Logos{
 			Type:    logs.CreateActionType,
 			Content: fmt.Sprintf("创建新的仓库: 仓库id为%d", r.ID),
-			Uid:     me.ID,
+			Uid:     me.Id,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err

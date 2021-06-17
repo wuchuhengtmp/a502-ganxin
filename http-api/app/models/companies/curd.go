@@ -47,7 +47,7 @@ func (c *Companies) CreateSelf(ctx context.Context, input graphQL.CreateCompanyI
 		me := auth.GetUser(ctx)
 		logsModel := logs.Logos{}
 		logsModel.Type = logs.CreateActionType
-		logsModel.Uid = me.ID
+		logsModel.Uid = me.Id
 		user := users.Users{
 			Name:         input.AdminName,
 			Password:     helper2.GetHashByStr(input.AdminPassword),
@@ -141,7 +141,7 @@ func (c *Companies) Update(ctx context.Context, input graphQL.EditCompanyInput) 
 		me := auth.GetUser(ctx)
 		logsModel := logs.Logos{}
 		logsModel.Type = logs.UpdateActionType
-		logsModel.Uid = me.ID
+		logsModel.Uid = me.Id
 		logsModel.Content = fmt.Sprintf("修改公司，名称: %s, ID:%d", c.Name, input.ID)
 		if tx.Create(&logsModel).Error != nil {
 			return err
@@ -195,10 +195,10 @@ func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUser
 		return &user, err
 	}
 	log := logs.Logos{}
-	log.Uid = me.ID
+	log.Uid = me.Id
 	log.Content = fmt.Sprintf("添加 %s", roles.RoleTagMapName[input.Role.String()])
 	log.Type = logs.CreateActionType
-	log.Uid = me.ID
+	log.Uid = me.Id
 	if err := tx.Create(&log).Error; err != nil {
 		tx.Rollback()
 		return &user, err
@@ -241,7 +241,7 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 	log.Type = logs.UpdateActionType
 	log.Content = fmt.Sprintf("编辑公司人员: 被更新的用户id为%d", user.ID)
 	me := auth.GetUser(ctx)
-	log.Uid = me.ID
+	log.Uid = me.Id
 	tx.Create(&log)
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
@@ -252,7 +252,7 @@ func UpdateCompanyUser(ctx context.Context, input *graphQL.EditCompanyUserInput)
 	avatarInfo := files.File{}
 	_ = avatarInfo.GetSelfById(user.AvatarFileId)
 	res := users.Users{
-		ID: user.ID,
+		Id: user.Id,
 		Phone:  user.Phone,
 		Wechat: user.Wechat,
 		IsAble: user.IsAble,
@@ -271,7 +271,7 @@ func DeleteCompanyUserByUid(ctx context.Context, uid int64) error {
 	tx.Model(&users.Users{}).Where("id = ?", uid).Delete(&users.Users{})
 	me := auth.GetUser(ctx)
 	log := logs.Logos{}
-	log.Uid = me.ID
+	log.Uid = me.Id
 	log.Content = fmt.Sprintf("删除用户:用户id为 %d;用户名为 %s", user.ID, user.Name)
 	log.Type = logs.DeleteActionType
 	tx.Create(&log)

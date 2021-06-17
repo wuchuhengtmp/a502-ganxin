@@ -15,14 +15,34 @@ import (
 )
 
 type OrderService orders.Order
+/**
+ * 把订单数量赋值给订单服务
+ */
+func (o *OrderService) OrderMoveIntoMe(guest *orders.Order) {
+	o.Id = guest.Id
+	o.ProjectId = guest.ProjectId
+	o.RepositoryId = guest.RepositoryId
+	o.State = guest.State
+	o.ExpectedReturnAt = guest.ExpectedReturnAt
+	o.PartList = guest.PartList
+	o.CreateUid = guest.CreateUid
+	o.ConfirmedAt = guest.ConfirmedAt
+	o.ReceiveUid = guest.ReceiveUid
+	o.ReceiveAt = guest.ReceiveAt
+	o.ExpressCompanyId = guest.ExpressCompanyId
+	o.ExpressNo = guest.ExpressNo
+	o.OrderNo = guest.OrderNo
+	o.Remark = guest.Remark
+	o.DeletedAt = guest.DeletedAt
+	o.CreatedAt = guest.CreatedAt
+	o.UpdatedAt = guest.UpdatedAt
+}
 
 /**
  * 获取订单上关联的项目
  */
-func (o *OrderService)GetProject() (p projects.Projects, err error) {
+func (o *OrderService) GetProject() (p projects.Projects, err error) {
 	err = model.DB.Model(&projects.Projects{}).Where("id = ?", o.ProjectId).First(&p).Error
 
 	return
 }
-
-

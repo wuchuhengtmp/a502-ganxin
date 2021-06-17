@@ -136,7 +136,7 @@ func CreateUser(
 	companyId int64,
 ) error {
 	return db.Create(&users.Users{
-		ID:           id,
+		Id:           id,
 		Name:         name,
 		Password:     password,
 		Phone:        phone,

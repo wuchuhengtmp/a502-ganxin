@@ -36,7 +36,7 @@ func GetOrderList(ctx context.Context, input graphModel.GetOrderListInput) (orde
 			Select(fmt.Sprintf("%s.*", orders.Order{}.TableName())).
 			Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
 			Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
-			Where(fmt.Sprintf("%s.uid = %d", projectLeaderTable, me.ID)).
+			Where(fmt.Sprintf("%s.uid = %d", projectLeaderTable, me.Id)).
 			Where(fmt.Sprintf("%s.company_id = %d",projectTable, me.CompanyId)).
 			Find(&orderList).
 			Error

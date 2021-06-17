@@ -30,8 +30,8 @@ type Device struct {
  * 获取用户信息
  */
 func (d *Device) GetUser() (*users.Users, error) {
-	u := users.Users{ID: d.Uid}
-	err := u.GetSelfById(u.ID)
+	u := users.Users{Id: d.Uid}
+	err := u.GetSelfById(u.Id)
 
 	return &u, err
 }
@@ -88,7 +88,7 @@ func (d *Device) EditSelf(ctx context.Context) error {
 
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("编辑设备: 设备id为%d", d.ID),
 			Type:    logs.UpdateActionType,
 		}

@@ -28,7 +28,7 @@ func ValidateGetOverviewRequest(ctx context.Context, input model.GetRepositoryOv
 		}
 	}
 	me := auth.GetUser(ctx)
-	idStr := fmt.Sprintf("%d", me.ID)
+	idStr := fmt.Sprintf("%d", me.Id)
 	// 仓库验证
 	rules := govalidator.MapData{
 		"id": []string{"required", "isCompanyRepository:" + idStr},

@@ -50,7 +50,7 @@ func ValidateCreateProjectRequest(ctx context.Context, input model.CreateProject
 		return fmt.Errorf("负责人至少要一位")
 	}
 	for _, uid := range input.LeaderIDS {
-		u := users.Users{ID: uid}
+		u := users.Users{Id: uid}
 		if err := u.GetSelfById(uid); err != nil {
 			return fmt.Errorf("没有用户id为:%d", uid)
 		}

@@ -26,7 +26,7 @@ func (*MutationResolver) CreateSteel(ctx context.Context, input model.CreateStee
 	for _, identifier := range input.IdentifierList {
 		s := steels.Steels{
 			Identifier:             identifier,
-			CreatedUid:             me.ID,
+			CreatedUid:             me.Id,
 			State:                  steels.StateInStore,
 			SpecificationId:        input.SpecificationID,
 			CompanyId:              me.CompanyId,

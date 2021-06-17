@@ -10,6 +10,7 @@ package order_specification
 
 import (
 	"gorm.io/gorm"
+	"http-api/app/models/specificationinfo"
 	"http-api/pkg/model"
 )
 
@@ -33,4 +34,13 @@ func (*OrderSpecification) GetOrderBySpecificationId(specificationId int64) (ord
 	}
 
 	return
+}
+
+func (o *OrderSpecification)GetSpecification() (*specificationinfo.SpecificationInfo, error) {
+	var s specificationinfo.SpecificationInfo
+	if err := model.DB.Model(&s).Where("id = ?", o.SpecificationId).First(&s).Error; err != nil {
+		return nil, err
+	}
+
+	return &s, nil
 }

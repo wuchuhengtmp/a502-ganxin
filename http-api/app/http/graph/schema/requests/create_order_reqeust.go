@@ -41,7 +41,7 @@ func ValidateCreateOrderValidate(ctx context.Context, input grapModel.CreateOrde
 			Where("state = ? AND specification_id = ?", steels.StateInStore, s.SpecificationID).
 			Count(&total)
 		if total < s.Total {
-			return fmt.Errorf("型钢规格:%s,不足%d", sp.GetSelfSpecification(), s.Total)
+			return fmt.Errorf("型钢规格:%s,库存不足%d", sp.GetSelfSpecification(), s.Total)
 		}
 		// 减去待发货数量再比较存量
 		confirmTotal, err := orders.GetConfirmSteelTotalBySpecificationId(s.SpecificationID)
@@ -49,7 +49,7 @@ func ValidateCreateOrderValidate(ctx context.Context, input grapModel.CreateOrde
 			return err
 		}
 		if total - confirmTotal < s.Total {
-			return fmt.Errorf("型钢规格:%s,不足%d", sp.GetSelfSpecification(), s.Total)
+			return fmt.Errorf("型钢规格:%s,库存不足%d", sp.GetSelfSpecification(), s.Total)
 		}
 	}
 

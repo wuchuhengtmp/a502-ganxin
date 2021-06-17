@@ -57,7 +57,7 @@ func (r *Repositories) CreatSelf(ctx context.Context) error {
 	me := auth.GetUser(ctx)
 	log := logs.Logos{
 		Content: fmt.Sprintf("创建仓库: 仓库id为%d", r.ID),
-		Uid:     me.ID,
+		Uid:     me.Id,
 		Type:    logs.CreateActionType,
 	}
 	tx.Create(&log)
@@ -83,7 +83,7 @@ func DeleteById(ctx context.Context, id int64) error {
 	tx.Where("id = ?", id).Delete(&Repositories{ID: id})
 	me := auth.GetUser(ctx)
 	l := logs.Logos{
-		Uid:     me.ID,
+		Uid:     me.Id,
 		Content: fmt.Sprintf("删除仓库:仓库id为%d", id),
 		Type:    logs.DeleteActionType,
 	}

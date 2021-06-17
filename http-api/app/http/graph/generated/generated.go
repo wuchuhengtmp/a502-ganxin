@@ -95,6 +95,13 @@ type ComplexityRoot struct {
 		Desc func(childComplexity int) int
 	}
 
+	ExpressCompanyItem struct {
+		ID        func(childComplexity int) int
+		IsDefault func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Remark    func(childComplexity int) int
+	}
+
 	ExpressItem struct {
 		ID        func(childComplexity int) int
 		IsDefault func(childComplexity int) int
@@ -177,7 +184,9 @@ type ComplexityRoot struct {
 
 	OrderItem struct {
 		ConfirmedAt      func(childComplexity int) int
+		ConfirmedUser    func(childComplexity int) int
 		CreateUser       func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
 		ExpectedReturnAt func(childComplexity int) int
 		ExpressCompany   func(childComplexity int) int
 		ExpressNo        func(childComplexity int) int
@@ -188,7 +197,12 @@ type ComplexityRoot struct {
 		ReceiveAt        func(childComplexity int) int
 		ReceiveUser      func(childComplexity int) int
 		Remark           func(childComplexity int) int
+		Repository       func(childComplexity int) int
+		SendAt           func(childComplexity int) int
+		Sender           func(childComplexity int) int
 		State            func(childComplexity int) int
+		Total            func(childComplexity int) int
+		Weight           func(childComplexity int) int
 	}
 
 	ProjectItem struct {
@@ -281,7 +295,7 @@ type ComplexityRoot struct {
 	UserItem struct {
 		Avatar  func(childComplexity int) int
 		Company func(childComplexity int) int
-		ID      func(childComplexity int) int
+		Id      func(childComplexity int) int
 		IsAble  func(childComplexity int) int
 		Name    func(childComplexity int) int
 		Phone   func(childComplexity int) int
@@ -334,13 +348,16 @@ type MutationResolver interface {
 }
 type OrderItemResolver interface {
 	Project(ctx context.Context, obj *orders.Order) (*projects.Projects, error)
-	State(ctx context.Context, obj *orders.Order) (int64, error)
 
 	CreateUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
-
+	ConfirmedUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
 	ReceiveUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
+	ExpressCompany(ctx context.Context, obj *orders.Order) (*codeinfo.CodeInfo, error)
+	Sender(ctx context.Context, obj *orders.Order) (*users.Users, error)
 
-	ExpressCompany(ctx context.Context, obj *orders.Order) (*companies.Companies, error)
+	Total(ctx context.Context, obj *orders.Order) (int64, error)
+	Weight(ctx context.Context, obj *orders.Order) (float64, error)
+	Repository(ctx context.Context, obj *orders.Order) (*repositories.Repositories, error)
 }
 type ProjectItemResolver interface {
 	LeaderList(ctx context.Context, obj *projects.Projects) ([]*users.Users, error)
@@ -554,6 +571,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ErrCodes.Desc(childComplexity), true
+
+	case "ExpressCompanyItem.id":
+		if e.complexity.ExpressCompanyItem.ID == nil {
+			break
+		}
+
+		return e.complexity.ExpressCompanyItem.ID(childComplexity), true
+
+	case "ExpressCompanyItem.isDefault":
+		if e.complexity.ExpressCompanyItem.IsDefault == nil {
+			break
+		}
+
+		return e.complexity.ExpressCompanyItem.IsDefault(childComplexity), true
+
+	case "ExpressCompanyItem.name":
+		if e.complexity.ExpressCompanyItem.Name == nil {
+			break
+		}
+
+		return e.complexity.ExpressCompanyItem.Name(childComplexity), true
+
+	case "ExpressCompanyItem.remark":
+		if e.complexity.ExpressCompanyItem.Remark == nil {
+			break
+		}
+
+		return e.complexity.ExpressCompanyItem.Remark(childComplexity), true
 
 	case "ExpressItem.id":
 		if e.complexity.ExpressItem.ID == nil {
@@ -1073,12 +1118,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderItem.ConfirmedAt(childComplexity), true
 
+	case "OrderItem.confirmedUser":
+		if e.complexity.OrderItem.ConfirmedUser == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.ConfirmedUser(childComplexity), true
+
 	case "OrderItem.createUser":
 		if e.complexity.OrderItem.CreateUser == nil {
 			break
 		}
 
 		return e.complexity.OrderItem.CreateUser(childComplexity), true
+
+	case "OrderItem.createdAt":
+		if e.complexity.OrderItem.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.CreatedAt(childComplexity), true
 
 	case "OrderItem.expectedReturnAt":
 		if e.complexity.OrderItem.ExpectedReturnAt == nil {
@@ -1150,12 +1209,47 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderItem.Remark(childComplexity), true
 
+	case "OrderItem.repository":
+		if e.complexity.OrderItem.Repository == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.Repository(childComplexity), true
+
+	case "OrderItem.sendAt":
+		if e.complexity.OrderItem.SendAt == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.SendAt(childComplexity), true
+
+	case "OrderItem.sender":
+		if e.complexity.OrderItem.Sender == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.Sender(childComplexity), true
+
 	case "OrderItem.state":
 		if e.complexity.OrderItem.State == nil {
 			break
 		}
 
 		return e.complexity.OrderItem.State(childComplexity), true
+
+	case "OrderItem.total":
+		if e.complexity.OrderItem.Total == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.Total(childComplexity), true
+
+	case "OrderItem.weight":
+		if e.complexity.OrderItem.Weight == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.Weight(childComplexity), true
 
 	case "ProjectItem.address":
 		if e.complexity.ProjectItem.Address == nil {
@@ -1633,11 +1727,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.UserItem.Company(childComplexity), true
 
 	case "UserItem.id":
-		if e.complexity.UserItem.ID == nil {
+		if e.complexity.UserItem.Id == nil {
 			break
 		}
 
-		return e.complexity.UserItem.ID(childComplexity), true
+		return e.complexity.UserItem.Id(childComplexity), true
 
 	case "UserItem.isAble":
 		if e.complexity.UserItem.IsAble == nil {
@@ -2123,33 +2217,57 @@ extend type  Mutation {
     setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
 }
 `, BuiltIn: false},
-	{Name: "../order.graphql", Input: `""" 型钢订单 """
+	{Name: "../order.graphql", Input: `""" 运输公司 """
+type ExpressCompanyItem {
+    id: Int!
+    """ 公司名 """
+    name: String!
+    """ 是否默认 """
+    isDefault: Boolean!
+    """ 备注 """
+    remark: String!
+}
+""" 型钢订单 """
 type OrderItem {
     id: Int!
     """ 项目 """
     project: ProjectItem!
     """订单状态 待确认200已确认300已拒绝400已发货500待收货600已收货(部分)700已收货全部800已归库"""
     state: Int!
-    """ 预计归还时间 """
-    expectedReturnAt: Time!
     """ 配件列表 """
     partList: String !
     """ 创建人 """
     createUser: UserItem!
-    """ 确认时间 """
-    confirmedAt: Time
+    """ 确认人 """
+    confirmedUser: UserItem
     """ 收货人 """
-    receiveUser: UserItem!
-    """ 收货时间 """
-    receiveAt: Time
+    receiveUser: UserItem
     """ 快递公司 """
-    expressCompany: CompanyItem!
+    expressCompany: ExpressItem
+    """ 发货人 """
+    sender: UserItem
     """ 物流号 """
     expressNo: String!
     """ 备注 """
     remark: String!
     """ 订单编号 """
     orderNo: String!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+    """ 出货仓库 """
+    repository: RepositoryItem!
+    """ 创建时间 """
+    createdAt: Time!
+    """ 确认时间 """
+    confirmedAt: Time
+    """ 收货时间 """
+    receiveAt: Time
+    """ 发货时间 """
+    sendAt: Time
+    """ 预计归还时间 """
+    expectedReturnAt: Time!
 }
 
 """ 创建需求单的指定型钢单项参数 """
@@ -3752,6 +3870,146 @@ func (ec *executionContext) _ErrCodes_desc(ctx context.Context, field graphql.Co
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Desc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressCompanyItem_id(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressCompanyItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressCompanyItem_name(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressCompanyItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressCompanyItem_isDefault(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressCompanyItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsDefault, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpressCompanyItem_remark(ctx context.Context, field graphql.CollectedField, obj *codeinfo.CodeInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpressCompanyItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Remark, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6524,14 +6782,14 @@ func (ec *executionContext) _OrderItem_state(ctx context.Context, field graphql.
 		Object:     "OrderItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.OrderItem().State(rctx, obj)
+		return obj.State, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6546,41 +6804,6 @@ func (ec *executionContext) _OrderItem_state(ctx context.Context, field graphql.
 	res := resTmp.(int64)
 	fc.Result = res
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _OrderItem_expectedReturnAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpectedReturnAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderItem_partList(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
@@ -6653,7 +6876,7 @@ func (ec *executionContext) _OrderItem_createUser(ctx context.Context, field gra
 	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _OrderItem_confirmedAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+func (ec *executionContext) _OrderItem_confirmedUser(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -6664,14 +6887,14 @@ func (ec *executionContext) _OrderItem_confirmedAt(ctx context.Context, field gr
 		Object:     "OrderItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ConfirmedAt, nil
+		return ec.resolvers.OrderItem().ConfirmedUser(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6680,9 +6903,9 @@ func (ec *executionContext) _OrderItem_confirmedAt(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*users.Users)
 	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderItem_receiveUser(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
@@ -6710,46 +6933,11 @@ func (ec *executionContext) _OrderItem_receiveUser(ctx context.Context, field gr
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*users.Users)
 	fc.Result = res
-	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _OrderItem_receiveAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ReceiveAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderItem_expressCompany(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
@@ -6777,14 +6965,43 @@ func (ec *executionContext) _OrderItem_expressCompany(ctx context.Context, field
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*companies.Companies)
+	res := resTmp.(*codeinfo.CodeInfo)
 	fc.Result = res
-	return ec.marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcompaniesᚐCompanies(ctx, field.Selections, res)
+	return ec.marshalOExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_sender(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderItem().Sender(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*users.Users)
+	fc.Result = res
+	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderItem_expressNo(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
@@ -6890,6 +7107,277 @@ func (ec *executionContext) _OrderItem_orderNo(ctx context.Context, field graphq
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_total(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderItem().Total(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_weight(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderItem().Weight(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_repository(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderItem().Repository(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repositories.Repositories)
+	fc.Result = res
+	return ec.marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_confirmedAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ConfirmedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_receiveAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReceiveAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_sendAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SendAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_expectedReturnAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpectedReturnAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ProjectItem_id(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
@@ -9523,7 +10011,7 @@ func (ec *executionContext) _UserItem_id(ctx context.Context, field graphql.Coll
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.Id, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12266,6 +12754,48 @@ func (ec *executionContext) _ErrCodes(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var expressCompanyItemImplementors = []string{"ExpressCompanyItem"}
+
+func (ec *executionContext) _ExpressCompanyItem(ctx context.Context, sel ast.SelectionSet, obj *codeinfo.CodeInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, expressCompanyItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExpressCompanyItem")
+		case "id":
+			out.Values[i] = ec._ExpressCompanyItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ExpressCompanyItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isDefault":
+			out.Values[i] = ec._ExpressCompanyItem_isDefault(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "remark":
+			out.Values[i] = ec._ExpressCompanyItem_remark(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var expressItemImplementors = []string{"ExpressItem"}
 
 func (ec *executionContext) _ExpressItem(ctx context.Context, sel ast.SelectionSet, obj *codeinfo.CodeInfo) graphql.Marshaler {
@@ -12764,21 +13294,7 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 				return res
 			})
 		case "state":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._OrderItem_state(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "expectedReturnAt":
-			out.Values[i] = ec._OrderItem_expectedReturnAt(ctx, field, obj)
+			out.Values[i] = ec._OrderItem_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
@@ -12801,8 +13317,17 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 				}
 				return res
 			})
-		case "confirmedAt":
-			out.Values[i] = ec._OrderItem_confirmedAt(ctx, field, obj)
+		case "confirmedUser":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_confirmedUser(ctx, field, obj)
+				return res
+			})
 		case "receiveUser":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -12812,13 +13337,8 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._OrderItem_receiveUser(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
-		case "receiveAt":
-			out.Values[i] = ec._OrderItem_receiveAt(ctx, field, obj)
 		case "expressCompany":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -12828,9 +13348,17 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._OrderItem_expressCompany(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				return res
+			})
+		case "sender":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_sender(ctx, field, obj)
 				return res
 			})
 		case "expressNo":
@@ -12845,6 +13373,64 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 			}
 		case "orderNo":
 			out.Values[i] = ec._OrderItem_orderNo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "total":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_total(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "weight":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_weight(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "repository":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_repository(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "createdAt":
+			out.Values[i] = ec._OrderItem_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "confirmedAt":
+			out.Values[i] = ec._OrderItem_confirmedAt(ctx, field, obj)
+		case "receiveAt":
+			out.Values[i] = ec._OrderItem_receiveAt(ctx, field, obj)
+		case "sendAt":
+			out.Values[i] = ec._OrderItem_sendAt(ctx, field, obj)
+		case "expectedReturnAt":
+			out.Values[i] = ec._OrderItem_expectedReturnAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}

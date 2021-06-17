@@ -144,7 +144,7 @@ func (s *Steels) CreateMultipleSteel(ctx context.Context, steels []*Steels) erro
 			ll := steel_logs.SteelLog{
 				Type:    steel_logs.CreateType,
 				SteelId: steel.ID,
-				Uid:     me.ID,
+				Uid:     me.Id,
 			}
 			if err := tx.Create(&ll).Error; err != nil {
 				return err

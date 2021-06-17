@@ -35,7 +35,7 @@ func (m *MutationResolver) CreateCompanyUser(ctx context.Context, input model.Cr
 	avatar := files.File{}
 	_ = avatar.GetSelfById(newUser.AvatarFileId)
 	userItem := users.Users{
-		ID: newUser.ID,
+		Id: newUser.Id,
 		//Role: &roles.RoleItem{
 		//	ID: role.ID,
 		//	Tag: role.Tag,

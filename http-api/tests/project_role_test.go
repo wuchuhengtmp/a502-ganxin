@@ -503,7 +503,7 @@ func TestProjectAdminCreateOrder(t *testing.T) {
 		Select(fmt.Sprintf("%s.*", projects.Projects{}.TableName())).
 		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", project_leader.ProjectLeader{}.TableName(), project_leader.ProjectLeader{}.TableName(), projects.Projects{}.TableName())).
 		Where(fmt.Sprintf("%s.company_id = %d", projects.Projects{}.TableName(), me.CompanyId)).
-		Where(fmt.Sprintf("%s.uid = %d", project_leader.ProjectLeader{}.TableName(), me.ID)).
+		Where(fmt.Sprintf("%s.uid = %d", project_leader.ProjectLeader{}.TableName(), me.Id)).
 		Find(&ps).
 		Error
 	assert.NoError(t, err)

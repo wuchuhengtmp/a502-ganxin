@@ -62,7 +62,7 @@ func (c *Configs) EditPrice(ctx context.Context) error {
 			return err
 		}
 		l := logs.Logos{
-			Uid: me.ID,
+			Uid: me.Id,
 			Content: fmt.Sprintf("修改价格: %.4f -> %s", oldPrice, c.Value),
 			Type: logs.UpdateActionType,
 		}

@@ -52,9 +52,10 @@ func GraphMiddleware(next http.Handler) http.Handler {
  */
 func GetUser(ctx context.Context) *users.Users {
 	raw, _ := ctx.Value(userCtxKey).(users.Users)
-	if raw.ID == 0 {
+	if raw.Id == 0 {
 		return nil
 	}
+
 	return &raw
 }
 /**

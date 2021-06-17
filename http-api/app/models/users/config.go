@@ -16,7 +16,7 @@ import (
 )
 
 type Users struct {
-	ID           int64  `json:"id" sql:"unique_index"`
+	Id           int64  `json:"id" sql:"unique_index"`
 	Name         string `json:"name" gorm:"comment:用户名"`
 	Password     string `json:"password" gorm:"comment:密码"`
 	Phone        string `json:"phone" gorm:"comment:手机号"`

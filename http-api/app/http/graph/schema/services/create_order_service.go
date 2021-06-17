@@ -32,7 +32,7 @@ func CreateOrder(ctx context.Context, input gqlModel.CreateOrderInput) (*orders.
 	o := orders.Order{}
 	return &o, model.DB.Transaction(func(tx *gorm.DB) error {
 		me := auth.GetUser(ctx)
-		o.CreateUid = me.ID
+		o.CreateUid = me.Id
 		o.State = orders.StateToBeConfirmed
 		o.ProjectId = input.ProjectID
 		o.RepositoryId = input.RepositoryID
@@ -40,6 +40,7 @@ func CreateOrder(ctx context.Context, input gqlModel.CreateOrderInput) (*orders.
 		o.PartList = input.PartList
 		o.Remark = input.Remark
 		o.ProjectId = input.ProjectID
+		o.CompanyId = me.CompanyId
 		t := time.Now()
 		year, month, day := t.Date()
 		h := t.Hour()
@@ -81,7 +82,9 @@ func CreateOrder(ctx context.Context, input gqlModel.CreateOrderInput) (*orders.
  */
 func _createOrderMsg(tx *gorm.DB, o *orders.Order) error {
 	userList, err := repository_leader.RepositoryLeader{}.GetLeaders(tx)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	r := repositories.Repositories{ID: o.RepositoryId}
 	if err := r.GetSelf(); err != nil {
 		return err
@@ -105,7 +108,9 @@ func _createOrderMsg(tx *gorm.DB, o *orders.Order) error {
 		Select("sum(total) as TotalSteels").
 		Where("order_id = ?", o.Id).
 		Scan(&totalSteels).Error
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	// 获取重量
 	var oss []*order_specification.OrderSpecification
 	tx.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", o.Id).Find(&oss)
@@ -130,14 +135,17 @@ func _createOrderMsg(tx *gorm.DB, o *orders.Order) error {
 				totalSteels.TotalWeight,
 			),
 			Type:    msg2.CreateOrderType,
-			Uid:     user.ID,
+			Uid:     user.Id,
 			Extends: string(extends),
 			IsRead:  false,
 		}
 		// 创建消息
-		if err := tx.Create(&msg).Error; err != nil { return err }
+		if err := tx.Create(&msg).Error; err != nil {
+			return err
+		}
 		// 推送消息
-		_: msg.Push()
+	_:
+		msg.Push()
 	}
 
 	return nil

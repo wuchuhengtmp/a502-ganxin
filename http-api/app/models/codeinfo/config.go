@@ -60,7 +60,7 @@ func (c *CodeInfo) CreateMaterialManufacturer(ctx context.Context) error {
 			}
 		}
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("添加材料商：id为%d", c.ID),
 			Type:    logs.CreateActionType,
 		}
@@ -133,7 +133,7 @@ func (c *CodeInfo) EditMaterialManufacturer(ctx context.Context) error {
 			}
 		}
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("编辑材料商:被修改id为%d", c.ID),
 			Type:    logs.UpdateActionType,
 		}
@@ -157,7 +157,7 @@ func (c *CodeInfo) DeleteMaterial(ctx context.Context) error {
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("删除材料商:被删除id为 %d", c.ID),
 			Type:    logs.DeleteActionType,
 		}
@@ -186,7 +186,7 @@ func (c *CodeInfo) CreateManufacturerSelf(ctx context.Context) error {
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("添加制造商:id为%d", c.ID),
 			Type:    logs.CreateActionType,
 		}
@@ -248,7 +248,7 @@ func (c *CodeInfo) EditManufacturer(ctx context.Context) error {
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("编辑制作商:修改的id为%d", c.ID),
 			Type:    logs.UpdateActionType,
 		}
@@ -281,7 +281,7 @@ func (c *CodeInfo) DeleteManufacturer(ctx context.Context) error {
 		}
 		me := auth.GetUser(ctx)
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("删除制造商: id为%d", c.ID),
 			Type:    logs.CreateActionType,
 		}
@@ -308,7 +308,7 @@ func (c *CodeInfo) CreateExpress(ctx context.Context) error {
 			return err
 		}
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("创建物流公司:id为%d", c.ID),
 			Type:    logs.CreateActionType,
 		}
@@ -379,7 +379,7 @@ func (c *CodeInfo) EditExpress(ctx context.Context) error {
 			return nil
 		}
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("编辑物流公司:id为%d", c.ID),
 			Type:    logs.UpdateActionType,
 		}
@@ -412,7 +412,7 @@ func (c *CodeInfo) DeleteExpress(ctx context.Context) error {
 			}
 		}
 		l := logs.Logos{
-			Uid:     me.ID,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("删除物流商:id为:%d", c.ID),
 			Type:    logs.DeleteActionType,
 		}

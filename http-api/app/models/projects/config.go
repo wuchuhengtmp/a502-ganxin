@@ -64,7 +64,7 @@ func (p *Projects) CreateProject(ctx context.Context, input graphModel.CreatePro
 				return err
 			}
 			leader := project_leader.ProjectLeader{
-				Uid:       user.ID,
+				Uid:       user.Id,
 				ProjectId: p.ID,
 			}
 			if err := tx.Create(&leader).Error; err != nil {
@@ -75,7 +75,7 @@ func (p *Projects) CreateProject(ctx context.Context, input graphModel.CreatePro
 		l := logs.Logos{
 			Type:    logs.CreateActionType,
 			Content: fmt.Sprintf("新增新项目:项目id为:%d", p.ID),
-			Uid:     me.ID,
+			Uid:     me.Id,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err
@@ -112,7 +112,7 @@ func (Projects)GetProjectList(ctx context.Context) (ps []*Projects, err error){
 		err = model.DB.Model(&Projects{}).
 			Select(fmt.Sprintf("%s.*", projectTableName)).
 			Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTableName, projectLeaderTableName, projectTableName)).
-			Where(fmt.Sprintf("%s.company_id = ? AND %s.uid = ?", projectTableName, projectLeaderTableName), me.CompanyId, me.ID).
+			Where(fmt.Sprintf("%s.company_id = ? AND %s.uid = ?", projectTableName, projectLeaderTableName), me.CompanyId, me.Id).
 			Scan(&ps).Error
 	} else {
 		err = model.DB.Model(&Projects{}).

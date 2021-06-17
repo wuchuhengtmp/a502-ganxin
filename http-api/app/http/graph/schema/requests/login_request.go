@@ -29,7 +29,7 @@ func  ValidateLoginRequest(phone string, password string, mac *string) error  {
 	}
 	// 设备端登录检验
 	if mac != nil {
-		d := devices.Device{Uid: user.ID,Mac: *mac}
+		d := devices.Device{Uid: user.Id,Mac: *mac}
 		recordDevice, err := d.GetDeviceSelf()
 		if err == nil && recordDevice.IsAble == false {
 			return fmt.Errorf("您的账号已禁止在当前设备登录，请联系管理员解禁")
