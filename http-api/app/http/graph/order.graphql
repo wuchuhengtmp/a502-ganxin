@@ -23,6 +23,8 @@ type OrderItem {
     expressNo: String!
     """ 备注 """
     remark: String!
+    """ 订单编号 """
+    orderNo: String!
 }
 
 """ 创建需求单的指定型钢单项参数 """
@@ -48,6 +50,20 @@ input CreateOrderInput {
     """ 型钢列表 """
     steelList: [CreateOrderSteelInput!]!
 }
+enum  GetOrderListInputType {
+    """ 确认订单 """
+    confirmOrder
+    """ 待确认订单 """
+    toBeConfirm
+}
+input GetOrderListInput {
+    queryType: GetOrderListInputType
+}
 extend type Mutation {
+    """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
+}
+extend type Query {
+    """ 获取需求单列表 """
+    getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin projectAdmin maintenanceAdmin])
 }

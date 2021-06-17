@@ -182,6 +182,7 @@ type ComplexityRoot struct {
 		ExpressCompany   func(childComplexity int) int
 		ExpressNo        func(childComplexity int) int
 		Id               func(childComplexity int) int
+		OrderNo          func(childComplexity int) int
 		PartList         func(childComplexity int) int
 		Project          func(childComplexity int) int
 		ReceiveAt        func(childComplexity int) int
@@ -211,6 +212,7 @@ type ComplexityRoot struct {
 		GetManufacturers         func(childComplexity int) int
 		GetMaterialManufacturers func(childComplexity int) int
 		GetMyInfo                func(childComplexity int) int
+		GetOrderList             func(childComplexity int, input model.GetOrderListInput) int
 		GetPrice                 func(childComplexity int) int
 		GetProjectLis            func(childComplexity int) int
 		GetRepositoryList        func(childComplexity int) int
@@ -354,6 +356,7 @@ type QueryResolver interface {
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
+	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
@@ -1105,6 +1108,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderItem.Id(childComplexity), true
 
+	case "OrderItem.orderNo":
+		if e.complexity.OrderItem.OrderNo == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.OrderNo(childComplexity), true
+
 	case "OrderItem.partList":
 		if e.complexity.OrderItem.PartList == nil {
 			break
@@ -1270,6 +1280,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMyInfo(childComplexity), true
+
+	case "Query.getOrderList":
+		if e.complexity.Query.GetOrderList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getOrderList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetOrderList(childComplexity, args["input"].(model.GetOrderListInput)), true
 
 	case "Query.getPrice":
 		if e.complexity.Query.GetPrice == nil {
@@ -2126,6 +2148,8 @@ type OrderItem {
     expressNo: String!
     """ 备注 """
     remark: String!
+    """ 订单编号 """
+    orderNo: String!
 }
 
 """ 创建需求单的指定型钢单项参数 """
@@ -2151,9 +2175,24 @@ input CreateOrderInput {
     """ 型钢列表 """
     steelList: [CreateOrderSteelInput!]!
 }
+enum  GetOrderListInputType {
+    """ 确认订单 """
+    confirmOrder
+    """ 待确认订单 """
+    toBeConfirm
+}
+input GetOrderListInput {
+    queryType: GetOrderListInputType
+}
 extend type Mutation {
+    """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
-}`, BuiltIn: false},
+}
+extend type Query {
+    """ 获取需求单列表 """
+    getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin projectAdmin maintenanceAdmin])
+}
+`, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
     """  获取价格 """
     getPrice: Float!
@@ -2868,6 +2907,21 @@ func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getOrderList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetOrderListInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetOrderListInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderListInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6803,6 +6857,41 @@ func (ec *executionContext) _OrderItem_remark(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _OrderItem_orderNo(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OrderNo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _ProjectItem_id(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7568,6 +7657,72 @@ func (ec *executionContext) _Query_getMyInfo(ctx context.Context, field graphql.
 	res := resTmp.(*users.Users)
 	fc.Result = res
 	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getOrderList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getOrderList_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetOrderList(rctx, args["input"].(model.GetOrderListInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "companyAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*orders.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -11745,6 +11900,26 @@ func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetOrderListInput(ctx context.Context, obj interface{}) (model.GetOrderListInput, error) {
+	var it model.GetOrderListInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "queryType":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryType"))
+			it.QueryType, err = ec.unmarshalOGetOrderListInputType2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderListInputType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetRepositoryOverviewInput(ctx context.Context, obj interface{}) (model.GetRepositoryOverviewInput, error) {
 	var it model.GetRepositoryOverviewInput
 	var asMap = obj.(map[string]interface{})
@@ -12668,6 +12843,11 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "orderNo":
+			out.Values[i] = ec._OrderItem_orderNo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12883,6 +13063,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getMyInfo(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getOrderList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getOrderList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -14047,6 +14241,11 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNGetOrderListInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderListInput(ctx context.Context, v interface{}) (model.GetOrderListInput, error) {
+	res, err := ec.unmarshalInputGetOrderListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNGetRepositoryOverviewInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryOverviewInput(ctx context.Context, v interface{}) (model.GetRepositoryOverviewInput, error) {
 	res, err := ec.unmarshalInputGetRepositoryOverviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14272,6 +14471,43 @@ func (ec *executionContext) marshalNMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 
 func (ec *executionContext) marshalNOrderItem2httpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx context.Context, sel ast.SelectionSet, v orders.Order) graphql.Marshaler {
 	return ec._OrderItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx context.Context, sel ast.SelectionSet, v []*orders.Order) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx context.Context, sel ast.SelectionSet, v *orders.Order) graphql.Marshaler {
@@ -15105,6 +15341,22 @@ func (ec *executionContext) unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOGetOrderListInputType2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderListInputType(ctx context.Context, v interface{}) (*model.GetOrderListInputType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.GetOrderListInputType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOGetOrderListInputType2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderListInputType(ctx context.Context, sel ast.SelectionSet, v *model.GetOrderListInputType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
 	if v == nil {
 		return nil, nil
@@ -15132,6 +15384,13 @@ func (ec *executionContext) marshalOMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 		return graphql.Null
 	}
 	return ec._MaterialManufacturerItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx context.Context, sel ast.SelectionSet, v *orders.Order) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._OrderItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx context.Context, sel ast.SelectionSet, v *projects.Projects) graphql.Marshaler {

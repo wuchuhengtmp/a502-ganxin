@@ -10,15 +10,19 @@ package query_resolver
 
 import (
 	"context"
+	"http-api/app/http/graph/model"
+	"http-api/app/http/graph/schema/services"
 	"http-api/app/models/companies"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/app/models/users"
 )
+func (*QueryResolver) GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error) {
+	return services.GetOrderList(ctx, input)
+}
 
 type OrderItemResolver struct { }
 func (OrderItemResolver)Project(ctx context.Context, obj *orders.Order) (*projects.Projects, error) {
-	// todo
 	var p projects.Projects
 
 	return &p, nil

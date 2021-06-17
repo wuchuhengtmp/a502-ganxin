@@ -251,6 +251,10 @@ type GetCompanyUserInput struct {
 	RoleID *int64 `json:"roleId"`
 }
 
+type GetOrderListInput struct {
+	QueryType *GetOrderListInputType `json:"queryType"`
+}
+
 type GetRepositoryOverviewInput struct {
 	//  仓库id
 	ID int64 `json:"id"`
@@ -351,5 +355,48 @@ func (e *CreateInputUserRole) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CreateInputUserRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GetOrderListInputType string
+
+const (
+	//  确认订单
+	GetOrderListInputTypeConfirmOrder GetOrderListInputType = "confirmOrder"
+	//  待确认订单
+	GetOrderListInputTypeToBeConfirm GetOrderListInputType = "toBeConfirm"
+)
+
+var AllGetOrderListInputType = []GetOrderListInputType{
+	GetOrderListInputTypeConfirmOrder,
+	GetOrderListInputTypeToBeConfirm,
+}
+
+func (e GetOrderListInputType) IsValid() bool {
+	switch e {
+	case GetOrderListInputTypeConfirmOrder, GetOrderListInputTypeToBeConfirm:
+		return true
+	}
+	return false
+}
+
+func (e GetOrderListInputType) String() string {
+	return string(e)
+}
+
+func (e *GetOrderListInputType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetOrderListInputType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetOrderListInputType", str)
+	}
+	return nil
+}
+
+func (e GetOrderListInputType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
