@@ -13,12 +13,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
+	"http-api/app/models/project_leader"
+	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
 	"http-api/pkg/model"
 	"http-api/seeders"
 	"testing"
+	"time"
 )
 
 // 项目管理员测试上下文
@@ -473,6 +476,54 @@ func TestProjectAdminGetRepositoryOverview(t *testing.T) {
 		"input": map[string]interface{}{
 			"id":              r.ID,
 			"specificationId": s.ID,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员创建需求单集成测试
+ */
+func TestProjectAdminCreateOrder(t *testing.T) {
+	q := `
+		mutation ($input: CreateOrderInput!) {
+		  createOrder(input: $input) {
+			id
+			state
+		  }
+		}
+	`
+	me, _ := GetUserByToken(projectAdminTestCtx.Token)
+	// 预计归还时间
+	expectedReturnAt := time.Unix(time.Now().Unix() + 60*60*24*30, 0).Format(time.RFC3339)
+	// 项目id
+	var ps []*projects.Projects
+	err := model.DB.Model(&projects.Projects{}).
+		Select(fmt.Sprintf("%s.*", projects.Projects{}.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", project_leader.ProjectLeader{}.TableName(), project_leader.ProjectLeader{}.TableName(), projects.Projects{}.TableName())).
+		Where(fmt.Sprintf("%s.company_id = %d", projects.Projects{}.TableName(), me.CompanyId)).
+		Where(fmt.Sprintf("%s.uid = %d", project_leader.ProjectLeader{}.TableName(), me.ID)).
+		Find(&ps).
+		Error
+	assert.NoError(t, err)
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"expectedReturnAt": expectedReturnAt,
+			"partList": "这是配件清单_for_ProjectRoleCreateTest",
+			"projectId": ps[0].ID,
+			"repositoryId": 1,
+			"remark": "这是备注",
+			"steelList": []interface{} {
+				map[string]interface{} {
+					"total": 1,
+					"specificationId": 1,
+				},
+				map[string]interface{}{
+					"total": 2,
+					"specificationId": 1,
+				},
+			},
 		},
 	}
 	_, err = graphReqClient(q, v, roles.RoleProjectAdmin)
