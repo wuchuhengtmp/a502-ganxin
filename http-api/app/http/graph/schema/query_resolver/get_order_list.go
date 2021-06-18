@@ -19,6 +19,7 @@ import (
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
@@ -153,4 +154,22 @@ func (OrderItemResolver) ExpressCompany(ctx context.Context, obj *orders.Order) 
 	}
 
 	return nil, nil
+}
+
+func (OrderItemResolver)OrderSpecificationList(ctx context.Context, obj *orders.Order) (list []*order_specification.OrderSpecification, err error) {
+	oo := order_specification.OrderSpecification{}
+	err = model.DB.Model(&oo).Where("order_id = ?", obj.Id).Find(&list).Error
+
+	return
+}
+
+type OrderSpecificationItemResolver struct { }
+
+func (OrderSpecificationItemResolver) Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error) {
+	sp := specificationinfo.SpecificationInfo{ID: obj.SpecificationId}
+	if err := sp.GetSelf(); err != nil {
+		return 0, err
+	}
+
+	return sp.Weight * float64(obj.Total), nil
 }

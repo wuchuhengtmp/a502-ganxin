@@ -114,3 +114,10 @@ func GetConfirmSteelTotalWeightBySpecificationId(specificationId int64) (float64
 
 	return totalWeight, err
 }
+
+func (o *Order) GetSelf() (err error) {
+	err = model.DB.Model(&Order{}).Where("id = ?", o.Id).First(&o).Error
+
+	return
+}
+

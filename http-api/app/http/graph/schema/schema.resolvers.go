@@ -18,6 +18,15 @@ func (*Resolver) Mutation() generated.MutationResolver { return &mutationResolve
 func (*Resolver) Query() generated.QueryResolver {
 	return &queryResolver{ }
 }
+type mutationResolver struct{
+	*Resolver
+	*mutation_resolver.MutationResolver
+}
+
+type queryResolver struct{
+	*Resolver
+	query_resolver.QueryResolver
+}
 
 func (*Resolver) RepositoryItem () generated.RepositoryItemResolver {
 	return query_resolver.RepositoryItemResolver{}
@@ -47,16 +56,12 @@ func (*Resolver)ProjectItem() generated.ProjectItemResolver {
 func (*Resolver)OrderItem() generated.OrderItemResolver {
 	return query_resolver.OrderItemResolver{}
 }
+func (*Resolver) OrderSpecificationItem() generated.OrderSpecificationItemResolver {
 
-type mutationResolver struct{
-	*Resolver
-	*mutation_resolver.MutationResolver
+	return query_resolver.OrderSpecificationItemResolver{}
+
 }
 
-type queryResolver struct{
-	*Resolver
-	query_resolver.QueryResolver
-}
 
 /**
  * graphQL 解析器入口
@@ -64,6 +69,9 @@ type queryResolver struct{
 func Handler() *handler.Server {
 	conf := generated.Config{Resolvers: &Resolver{}}
 	// 加入角色指令解析器
+	conf.Directives.HasRole = directives.HasRole
+	// 必须是设备
+	conf.Directives.MustBeDevice = directives.MustBeDevice
 	conf.Directives.HasRole = directives.HasRole
 	return handler.NewDefaultServer( generated.NewExecutableSchema(conf))
 }

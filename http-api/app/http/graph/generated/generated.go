@@ -11,6 +11,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/companies"
 	"http-api/app/models/devices"
+	"http-api/app/models/order_specification"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
@@ -51,6 +52,7 @@ type ResolverRoot interface {
 	DeviceItem() DeviceItemResolver
 	Mutation() MutationResolver
 	OrderItem() OrderItemResolver
+	OrderSpecificationItem() OrderSpecificationItemResolver
 	ProjectItem() ProjectItemResolver
 	Query() QueryResolver
 	RepositoryItem() RepositoryItemResolver
@@ -60,7 +62,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.GraphqlRole) (res interface{}, err error)
+	HasRole      func(ctx context.Context, obj interface{}, next graphql.Resolver, role []roles.GraphqlRole) (res interface{}, err error)
+	MustBeDevice func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -183,26 +186,34 @@ type ComplexityRoot struct {
 	}
 
 	OrderItem struct {
-		ConfirmedAt      func(childComplexity int) int
-		ConfirmedUser    func(childComplexity int) int
-		CreateUser       func(childComplexity int) int
-		CreatedAt        func(childComplexity int) int
-		ExpectedReturnAt func(childComplexity int) int
-		ExpressCompany   func(childComplexity int) int
-		ExpressNo        func(childComplexity int) int
-		Id               func(childComplexity int) int
-		OrderNo          func(childComplexity int) int
-		PartList         func(childComplexity int) int
-		Project          func(childComplexity int) int
-		ReceiveAt        func(childComplexity int) int
-		ReceiveUser      func(childComplexity int) int
-		Remark           func(childComplexity int) int
-		Repository       func(childComplexity int) int
-		SendAt           func(childComplexity int) int
-		Sender           func(childComplexity int) int
-		State            func(childComplexity int) int
-		Total            func(childComplexity int) int
-		Weight           func(childComplexity int) int
+		ConfirmedAt            func(childComplexity int) int
+		ConfirmedUser          func(childComplexity int) int
+		CreateUser             func(childComplexity int) int
+		CreatedAt              func(childComplexity int) int
+		ExpectedReturnAt       func(childComplexity int) int
+		ExpressCompany         func(childComplexity int) int
+		ExpressNo              func(childComplexity int) int
+		Id                     func(childComplexity int) int
+		OrderNo                func(childComplexity int) int
+		OrderSpecificationList func(childComplexity int) int
+		PartList               func(childComplexity int) int
+		Project                func(childComplexity int) int
+		ReceiveAt              func(childComplexity int) int
+		ReceiveUser            func(childComplexity int) int
+		Remark                 func(childComplexity int) int
+		Repository             func(childComplexity int) int
+		SendAt                 func(childComplexity int) int
+		Sender                 func(childComplexity int) int
+		State                  func(childComplexity int) int
+		Total                  func(childComplexity int) int
+		Weight                 func(childComplexity int) int
+	}
+
+	OrderSpecificationItem struct {
+		Id            func(childComplexity int) int
+		Specification func(childComplexity int) int
+		Total         func(childComplexity int) int
+		Weight        func(childComplexity int) int
 	}
 
 	ProjectItem struct {
@@ -226,6 +237,7 @@ type ComplexityRoot struct {
 		GetManufacturers         func(childComplexity int) int
 		GetMaterialManufacturers func(childComplexity int) int
 		GetMyInfo                func(childComplexity int) int
+		GetOrderDetail           func(childComplexity int, input model.GetOrderDetailInput) int
 		GetOrderList             func(childComplexity int, input model.GetOrderListInput) int
 		GetPrice                 func(childComplexity int) int
 		GetProjectLis            func(childComplexity int) int
@@ -358,6 +370,10 @@ type OrderItemResolver interface {
 	Total(ctx context.Context, obj *orders.Order) (int64, error)
 	Weight(ctx context.Context, obj *orders.Order) (float64, error)
 	Repository(ctx context.Context, obj *orders.Order) (*repositories.Repositories, error)
+	OrderSpecificationList(ctx context.Context, obj *orders.Order) ([]*order_specification.OrderSpecification, error)
+}
+type OrderSpecificationItemResolver interface {
+	Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error)
 }
 type ProjectItemResolver interface {
 	LeaderList(ctx context.Context, obj *projects.Projects) ([]*users.Users, error)
@@ -374,6 +390,7 @@ type QueryResolver interface {
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
+	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
@@ -1174,6 +1191,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderItem.OrderNo(childComplexity), true
 
+	case "OrderItem.orderSpecificationList":
+		if e.complexity.OrderItem.OrderSpecificationList == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.OrderSpecificationList(childComplexity), true
+
 	case "OrderItem.partList":
 		if e.complexity.OrderItem.PartList == nil {
 			break
@@ -1250,6 +1274,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OrderItem.Weight(childComplexity), true
+
+	case "OrderSpecificationItem.id":
+		if e.complexity.OrderSpecificationItem.Id == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.Id(childComplexity), true
+
+	case "OrderSpecificationItem.specification":
+		if e.complexity.OrderSpecificationItem.Specification == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.Specification(childComplexity), true
+
+	case "OrderSpecificationItem.total":
+		if e.complexity.OrderSpecificationItem.Total == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.Total(childComplexity), true
+
+	case "OrderSpecificationItem.weight":
+		if e.complexity.OrderSpecificationItem.Weight == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.Weight(childComplexity), true
 
 	case "ProjectItem.address":
 		if e.complexity.ProjectItem.Address == nil {
@@ -1374,6 +1426,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMyInfo(childComplexity), true
+
+	case "Query.getOrderDetail":
+		if e.complexity.Query.GetOrderDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getOrderDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetOrderDetail(childComplexity, args["input"].(model.GetOrderDetailInput)), true
 
 	case "Query.getOrderList":
 		if e.complexity.Query.GetOrderList == nil {
@@ -2082,7 +2146,7 @@ extend type Mutation {
     """ 修改设备状态 (auth: companyAdmin)"""
     editDevice(input: EditDeviceInput!): Boolean! @hasRole(role: [companyAdmin])
 }`, BuiltIn: false},
-	{Name: "../directive.graphql", Input: `# 声明指令
+	{Name: "../directive.graphql", Input: `""" 声明指令 """
 enum Role {
     """ 超级管理员 """
     admin
@@ -2096,8 +2160,12 @@ enum Role {
     maintenanceAdmin
 }
 
-# 角色鉴权
-directive @hasRole(role: [Role!]!) on FIELD_DEFINITION`, BuiltIn: false},
+""" 角色鉴权 """
+directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
+
+""" 必须是设备才能访问 """
+directive @mustBeDevice on FIELD_DEFINITION
+`, BuiltIn: false},
 	{Name: "../express.graphql", Input: `""" 添加物流商需要的参数 """
 input CreateExpressInput {
     name: String!
@@ -2217,7 +2285,18 @@ extend type  Mutation {
     setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
 }
 `, BuiltIn: false},
-	{Name: "../order.graphql", Input: `""" 运输公司 """
+	{Name: "../order.graphql", Input: `""" 订单规格 """
+type OrderSpecificationItem {
+    id: Int!
+    """ 规格 """
+    specification: String!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
+
+""" 运输公司 """
 type ExpressCompanyItem {
     id: Int!
     """ 公司名 """
@@ -2258,6 +2337,8 @@ type OrderItem {
     weight: Float!
     """ 出货仓库 """
     repository: RepositoryItem!
+    """ 规格列表 """
+    orderSpecificationList: [OrderSpecificationItem!]!
     """ 创建时间 """
     createdAt: Time!
     """ 确认时间 """
@@ -2302,6 +2383,10 @@ enum  GetOrderListInputType {
 input GetOrderListInput {
     queryType: GetOrderListInputType
 }
+input getOrderDetailInput{
+    """ 订单id """
+    id: Int!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
@@ -2309,6 +2394,8 @@ extend type Mutation {
 extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
+    """ 获取订单详情-手持机 auth(projectAdmin)  """
+    getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
@@ -3025,6 +3112,21 @@ func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getOrderDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetOrderDetailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNgetOrderDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7214,6 +7316,41 @@ func (ec *executionContext) _OrderItem_repository(ctx context.Context, field gra
 	return ec.marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _OrderItem_orderSpecificationList(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderItem().OrderSpecificationList(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*order_specification.OrderSpecification)
+	fc.Result = res
+	return ec.marshalNOrderSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecificationᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _OrderItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7378,6 +7515,146 @@ func (ec *executionContext) _OrderItem_expectedReturnAt(ctx context.Context, fie
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_id(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_specification(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Specification, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_total(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_weight(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderSpecificationItem().Weight(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ProjectItem_id(ctx context.Context, field graphql.CollectedField, obj *projects.Projects) (ret graphql.Marshaler) {
@@ -8211,6 +8488,78 @@ func (ec *executionContext) _Query_getOrderList(ctx context.Context, field graph
 	res := resTmp.([]*orders.Order)
 	fc.Result = res
 	return ec.marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getOrderDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getOrderDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetOrderDetail(rctx, args["input"].(model.GetOrderDetailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*orders.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -12507,6 +12856,26 @@ func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputgetOrderDetailInput(ctx context.Context, obj interface{}) (model.GetOrderDetailInput, error) {
+	var it model.GetOrderDetailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -13418,6 +13787,20 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 				}
 				return res
 			})
+		case "orderSpecificationList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_orderSpecificationList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "createdAt":
 			out.Values[i] = ec._OrderItem_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13434,6 +13817,57 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var orderSpecificationItemImplementors = []string{"OrderSpecificationItem"}
+
+func (ec *executionContext) _OrderSpecificationItem(ctx context.Context, sel ast.SelectionSet, obj *order_specification.OrderSpecification) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, orderSpecificationItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OrderSpecificationItem")
+		case "id":
+			out.Values[i] = ec._OrderSpecificationItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "specification":
+			out.Values[i] = ec._OrderSpecificationItem_specification(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "total":
+			out.Values[i] = ec._OrderSpecificationItem_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "weight":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderSpecificationItem_weight(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13663,6 +14097,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getOrderList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getOrderDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getOrderDetail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -15106,6 +15554,53 @@ func (ec *executionContext) marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋord
 	return ec._OrderItem(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNOrderSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecificationᚄ(ctx context.Context, sel ast.SelectionSet, v []*order_specification.OrderSpecification) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNOrderSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNOrderSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx context.Context, sel ast.SelectionSet, v *order_specification.OrderSpecification) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._OrderSpecificationItem(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNPaginationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐPaginationInput(ctx context.Context, v interface{}) (model.PaginationInput, error) {
 	res, err := ec.unmarshalInputPaginationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -15857,6 +16352,11 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNgetOrderDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderDetailInput(ctx context.Context, v interface{}) (model.GetOrderDetailInput, error) {
+	res, err := ec.unmarshalInputgetOrderDetailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

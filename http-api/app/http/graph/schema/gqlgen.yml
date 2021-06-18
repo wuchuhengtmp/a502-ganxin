@@ -85,6 +85,7 @@ models:
     model: http-api/app/models/repositories.GetRepositoryOverviewRes
   ExpressCompanyItem:
     model: http-api/app/models/codeinfo.CodeInfo
-
+  OrderSpecificationItem:
+    model: http-api/app/models/order_specification.OrderSpecification
 
 

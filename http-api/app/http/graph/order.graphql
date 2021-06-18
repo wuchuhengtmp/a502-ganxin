@@ -1,3 +1,14 @@
+""" 订单规格 """
+type OrderSpecificationItem {
+    id: Int!
+    """ 规格 """
+    specification: String!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
+
 """ 运输公司 """
 type ExpressCompanyItem {
     id: Int!
@@ -39,6 +50,8 @@ type OrderItem {
     weight: Float!
     """ 出货仓库 """
     repository: RepositoryItem!
+    """ 规格列表 """
+    orderSpecificationList: [OrderSpecificationItem!]!
     """ 创建时间 """
     createdAt: Time!
     """ 确认时间 """
@@ -83,6 +96,10 @@ enum  GetOrderListInputType {
 input GetOrderListInput {
     queryType: GetOrderListInputType
 }
+input getOrderDetailInput{
+    """ 订单id """
+    id: Int!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
@@ -90,4 +107,6 @@ extend type Mutation {
 extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
+    """ 获取订单详情-手持机 auth(projectAdmin)  """
+    getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

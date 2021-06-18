@@ -311,6 +311,11 @@ type User struct {
 	Name string `json:"name"`
 }
 
+type GetOrderDetailInput struct {
+	//  订单id
+	ID int64 `json:"id"`
+}
+
 //  角色
 type CreateInputUserRole string
 

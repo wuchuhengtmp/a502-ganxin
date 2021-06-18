@@ -43,7 +43,7 @@ func InvalidToken(ctx context.Context) (bool, error) {
 func AccessDenied(ctx context.Context, msg string) (bool, error) {
 	err := &gqlerror.Error{
 		Path:    graphql.GetPath(ctx),
-		Message: fmt.Sprintf("拒绝访问:需要任一的 %s 权限", msg),
+		Message: fmt.Sprintf("%s", msg),
 		Extensions: map[string]interface{}{
 			"code": 4100,
 		},
@@ -51,6 +51,8 @@ func AccessDenied(ctx context.Context, msg string) (bool, error) {
 
 	return false, err
 }
+
+
 
 /**
  * 验证错误

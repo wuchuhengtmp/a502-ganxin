@@ -1,4 +1,4 @@
-# 声明指令
+""" 声明指令 """
 enum Role {
     """ 超级管理员 """
     admin
@@ -12,5 +12,8 @@ enum Role {
     maintenanceAdmin
 }
 
-# 角色鉴权
+""" 角色鉴权 """
 directive @hasRole(role: [Role!]!) on FIELD_DEFINITION
+
+""" 必须是设备才能访问 """
+directive @mustBeDevice on FIELD_DEFINITION

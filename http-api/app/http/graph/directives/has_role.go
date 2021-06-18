@@ -44,7 +44,7 @@ func HasRole (ctx context.Context, obj interface{}, next graphql.Resolver, roles
 	} else {
 		var errMsg string
 		for _, role := range roles {
-			errMsg = fmt.Sprintf("%s %s", errMsg, role)
+			errMsg = fmt.Sprintf("拒绝访问:需要任一的 %s %s 权限", errMsg, role)
 		}
 
 		return errors.AccessDenied(ctx, errMsg)
