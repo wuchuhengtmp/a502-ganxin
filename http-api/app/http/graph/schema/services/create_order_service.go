@@ -99,29 +99,13 @@ func _createOrderMsg(tx *gorm.DB, o *orders.Order) error {
 		return err
 	}
 	var totalSteels struct {
-		TotalSteels int64 `json:"totalSteels"`
+		TotalSteels int64
 		TotalWeight float64
 	}
 	// 获取数量
-	err = tx.Model(&order_specification.OrderSpecification{}).
-		Debug().
-		Select("sum(total) as TotalSteels").
-		Where("order_id = ?", o.Id).
-		Scan(&totalSteels).Error
-	if err != nil {
-		return err
-	}
+	if totalSteels.TotalSteels, err = orders.GetTotal(tx, o); err != nil { return err }
 	// 获取重量
-	var oss []*order_specification.OrderSpecification
-	tx.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", o.Id).Find(&oss)
-	for _, specificationItem := range oss {
-		spec := specificationinfo.SpecificationInfo{}
-		if err := tx.Model(&spec).Where("id = ?", specificationItem.SpecificationId).First(&spec).Error; err != nil {
-			return err
-		}
-		totalSteels.TotalWeight += spec.Weight * float64(specificationItem.Total)
-	}
-
+	if totalSteels.TotalWeight, err = orders.GetWeight(tx, o); err != nil { return err }
 	extends, _ := json.Marshal(o)
 	for _, user := range userList {
 		msg := msg2.Msg{

@@ -35,8 +35,8 @@ func (r *Roles)isContain(role roles.GraphqlRole) bool {
 func HasRole (ctx context.Context, obj interface{}, next graphql.Resolver, roles []roles.GraphqlRole) (interface{}, error) {
 	var allRoles Roles = roles
 	me := auth.GetUser(ctx)
-	if me == nil {
-		return errors.InvalidToken(ctx)
+	if err := auth.ValidateToken(ctx); err != nil {
+		return errors.AccessDenied(ctx, err.Error())
 	}
 	myRole, _ := me.GetRole()
 	if allRoles.isContain(myRole.Tag) {

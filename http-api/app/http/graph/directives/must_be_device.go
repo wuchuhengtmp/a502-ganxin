@@ -17,6 +17,9 @@ import (
 )
 
 func MustBeDevice (ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+	if err := auth.ValidateToken(ctx); err != nil {
+		return errors.AccessDenied(ctx, err.Error())
+	}
 	if !auth.IsDevice(ctx) {
 		errMsg := fmt.Sprintf("必须是设备才能访问")
 		return errors.AccessDenied(ctx, errMsg)

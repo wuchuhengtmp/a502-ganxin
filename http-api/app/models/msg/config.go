@@ -23,7 +23,8 @@ type Msg struct {
 }
 
 const (
-	CreateOrderType = "createOrder" // 创建订单类型
+	CreateOrderType  = "createOrder"  // 创建订单类型
+	ConfirmOrderType = "confirmOrder" // 确认订单类型
 )
 
 func (Msg) TableName() string {

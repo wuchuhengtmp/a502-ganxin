@@ -9,6 +9,10 @@
 package services
 
 import (
+	"context"
+	"gorm.io/gorm"
+	"http-api/app/http/graph/auth"
+	graphModel "http-api/app/http/graph/model"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/pkg/model"
@@ -45,4 +49,35 @@ func (o *OrderService) GetProject() (p projects.Projects, err error) {
 	err = model.DB.Model(&projects.Projects{}).Where("id = ?", o.ProjectId).First(&p).Error
 
 	return
+}
+/**
+ * 确认订单
+ */
+func ConfirmOrRejectOrder(ctx context.Context, input graphModel.ConfirmOrderInput) (*orders.Order, error) {
+	o := orders.Order{Id: input.ID}
+	err := model.DB.Transaction(func(tx *gorm.DB) error {
+		// 修改订单状态
+		_ = o.GetSelf()
+		if input.IsAccess {
+			o.State = orders.StateConfirmed
+		} else {
+			o.State = orders.StateRejected
+		}
+		me := auth.GetUser(ctx)
+		o.ConfirmedUid = me.Id
+		err := tx.Model(&orders.Order{}).
+			Where("id = ?", input.ID).
+			Update("state", o.State).
+			Update("confirmed_uid", o.ConfirmedUid).Error
+		if err != nil {
+			return err
+		}
+		// 添加消息
+		if err := CreateConfirmOrRejectOrderMsg(tx, &o); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return &o, err
 }

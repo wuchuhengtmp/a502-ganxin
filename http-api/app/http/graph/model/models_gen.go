@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+//  确认订单或打拒绝
+type ConfirmOrderInput struct {
+	//  订单id
+	ID int64 `json:"id"`
+	//  是否通过
+	IsAccess bool `json:"isAccess"`
+}
+
 //  创建公司参数
 type CreateCompanyInput struct {
 	//  公司名

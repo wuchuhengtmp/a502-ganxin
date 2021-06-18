@@ -100,9 +100,19 @@ input getOrderDetailInput{
     """ 订单id """
     id: Int!
 }
+
+""" 确认订单或打拒绝 """
+input ConfirmOrderInput {
+    """ 订单id """
+    id: Int!
+    """ 是否通过 """
+    isAccess: Boolean!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
+    """ 确认订单 """
+    confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -110,3 +120,4 @@ extend type Query {
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
 }
+

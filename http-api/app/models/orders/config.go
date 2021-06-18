@@ -46,13 +46,24 @@ func (Order) TableName() string {
 }
 
 const (
-	StateToBeConfirmed   = 200 // 待确认
-	StateConfirmed       = 300 // 已确认
-	StateRejected        = 400 // 已拒绝
-	StateSend            = 500 // 已发货
-	StatePartOfReceipted = 700 // 部分收货
-	StateReceipted       = 800 // 收货
+	StateToBeConfirmed   int64 = 200 // 待确认
+	StateConfirmed       int64 = 300 // 已确认
+	StateRejected        int64 = 400 // 已拒绝
+	StateSend            int64 = 500 // 已发货
+	StatePartOfReceipted int64 = 700 // 部分收货
+	StateReceipted       int64 = 800 // 收货
 )
+/**
+ *  状态码映射说明
+ */
+var StateMapDesc = map[int64]string{
+	StateToBeConfirmed:   "待确认",
+	StateConfirmed:       "已确认",
+	StateRejected:        "已拒绝",
+	StateSend:            "已发货",
+	StatePartOfReceipted: "部分收货",
+	StateReceipted:       "收货",
+}
 
 /**
  * 根据物流公司获取订单列表
@@ -121,3 +132,35 @@ func (o *Order) GetSelf() (err error) {
 	return
 }
 
+/**
+ * 获取订单上型钢的数量
+ */
+func GetTotal(tx *gorm.DB, o *Order) (int64, error)  {
+	var totalSteels struct {
+		TotalSteels int64
+	}
+	err := tx.Model(&order_specification.OrderSpecification{}).
+		Select("sum(total) as TotalSteels").
+		Where("order_id = ?", o.Id).
+		Scan(&totalSteels).Error
+
+	return totalSteels.TotalSteels, err
+}
+
+/**
+ * 获取订单重量
+ */
+func GetWeight(tx *gorm.DB, o *Order) (float64, error) {
+	var totalWeight float64
+	var oss []*order_specification.OrderSpecification
+	tx.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", o.Id).Find(&oss)
+	for _, specificationItem := range oss {
+		spec := specificationinfo.SpecificationInfo{}
+		if err := tx.Model(&spec).Where("id = ?", specificationItem.SpecificationId).First(&spec).Error; err != nil {
+			return 0, err
+		}
+		totalWeight += spec.Weight * float64(specificationItem.Total)
+	}
+
+	return totalWeight, nil
+}

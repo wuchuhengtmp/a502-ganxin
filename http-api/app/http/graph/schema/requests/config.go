@@ -15,6 +15,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
+	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
@@ -171,6 +172,21 @@ func init() {
 			Error
 		if err != nil {
 			return fmt.Errorf("公司中没有这个项目")
+		}
+
+		return nil
+	})
+	// 是否是公司下的订单
+	govalidator.AddCustomRule("isCompanyOrder", func(field string, rule string, message string, value interface{}) error {
+		me, err := getUserByRule(rule)
+		if err != nil { return err }
+		r := orders.Order{}
+		err = model.DB.
+			Model(&r).
+			Where("company_id = ? AND id = ?", me.CompanyId, value).First(&r).
+			Error
+		if err != nil {
+			return fmt.Errorf("公司中没有这个订单")
 		}
 
 		return nil

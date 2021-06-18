@@ -155,6 +155,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		ConfirmOrRejectOrder       func(childComplexity int, input model.ConfirmOrderInput) int
 		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
 		CreateCompanyUser          func(childComplexity int, input model.CreateCompanyUserInput) int
 		CreateExpress              func(childComplexity int, input model.CreateExpressInput) int
@@ -348,6 +349,7 @@ type MutationResolver interface {
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
+	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
@@ -791,6 +793,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MaterialManufacturerItem.Remark(childComplexity), true
+
+	case "Mutation.confirmOrRejectOrder":
+		if e.complexity.Mutation.ConfirmOrRejectOrder == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_confirmOrRejectOrder_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ConfirmOrRejectOrder(childComplexity, args["input"].(model.ConfirmOrderInput)), true
 
 	case "Mutation.createCompany":
 		if e.complexity.Mutation.CreateCompany == nil {
@@ -2387,9 +2401,19 @@ input getOrderDetailInput{
     """ 订单id """
     id: Int!
 }
+
+""" 确认订单或打拒绝 """
+input ConfirmOrderInput {
+    """ 订单id """
+    id: Int!
+    """ 是否通过 """
+    isAccess: Boolean!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
+    """ 确认订单 """
+    confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -2397,6 +2421,7 @@ extend type Query {
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
 }
+
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
     """  获取价格 """
@@ -2649,6 +2674,21 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 		}
 	}
 	args["role"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_confirmOrRejectOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ConfirmOrderInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNConfirmOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐConfirmOrderInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -6207,6 +6247,78 @@ func (ec *executionContext) _Mutation_createOrder(ctx context.Context, field gra
 		}
 
 		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*orders.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_confirmOrRejectOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_confirmOrRejectOrder_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ConfirmOrRejectOrder(rctx, args["input"].(model.ConfirmOrderInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -11709,6 +11821,34 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputConfirmOrderInput(ctx context.Context, obj interface{}) (model.ConfirmOrderInput, error) {
+	var it model.ConfirmOrderInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isAccess":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAccess"))
+			it.IsAccess, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateCompanyInput(ctx context.Context, obj interface{}) (model.CreateCompanyInput, error) {
 	var it model.CreateCompanyInput
 	var asMap = obj.(map[string]interface{})
@@ -13576,6 +13716,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "confirmOrRejectOrder":
+			out.Values[i] = ec._Mutation_confirmOrRejectOrder(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "editPrice":
 			out.Values[i] = ec._Mutation_editPrice(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -15003,6 +15148,11 @@ func (ec *executionContext) marshalNCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋc
 		return graphql.Null
 	}
 	return ec._CompanyItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNConfirmOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐConfirmOrderInput(ctx context.Context, v interface{}) (model.ConfirmOrderInput, error) {
+	res, err := ec.unmarshalInputConfirmOrderInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateCompanyInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateCompanyInput(ctx context.Context, v interface{}) (model.CreateCompanyInput, error) {

@@ -10,6 +10,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"http-api/app/models/users"
 	"http-api/pkg/jwt"
 	"http-api/pkg/model"
@@ -18,6 +19,7 @@ import (
 
 const userCtxKey string = "userKey"
 const isDeviceKey string = "isDeviceKey"
+const tokenKey string = "hasTokenKey"
 
 func GraphMiddleware(next http.Handler) http.Handler {
 
@@ -42,6 +44,8 @@ func GraphMiddleware(next http.Handler) http.Handler {
 		}
 		ctx := context.WithValue(r.Context(), userCtxKey, user)
 		ctx = context.WithValue(ctx, isDeviceKey, isDevice)
+		ctx = context.WithValue(ctx, tokenKey, token)
+
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
@@ -65,4 +69,35 @@ func IsDevice(ctx context.Context) bool {
 	raw, _ := ctx.Value(isDeviceKey).(bool)
 
 	return raw
+}
+
+func Token(ctx context.Context) string  {
+	raw, _ := ctx.Value(tokenKey).(string)
+
+	return raw
+}
+
+/**
+ * 验证token
+ */
+func ValidateToken(ctx context.Context) error {
+	token := Token(ctx)
+	if len(token) == 0 {
+		return fmt.Errorf("token 不能为空")
+	}
+	if len(token) > 7 {
+		db := model.DB;
+		payload, err := jwt.ParseByTokenStr(token[7:])
+		if err == nil {
+			userModel := users.Users{}
+			err = db.Model(&userModel).Where("id = ?", payload.Uid).First(&userModel).Error
+			if err == nil {
+				return nil
+			}
+		}
+	} else {
+		return fmt.Errorf("不是Bearer 格式的token")
+	}
+
+return fmt.Errorf("无效token")
 }
