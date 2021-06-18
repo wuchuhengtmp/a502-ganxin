@@ -23,8 +23,9 @@ type Msg struct {
 }
 
 const (
-	CreateOrderType  = "createOrder"  // 创建订单类型
-	ConfirmOrderType = "confirmOrder" // 确认订单类型
+	CreateOrderType  string = "createOrder"  // 创建订单类型
+	ConfirmOrderType string = "confirmOrder" // 确认订单类型
+	RejectOrderType string = "rejectOrderType" // 拒绝订单类型
 )
 
 func (Msg) TableName() string {
@@ -38,3 +39,17 @@ func (*Msg) Push() error {
 	// todo 推送消息逻辑
 	return nil
 }
+
+/**
+ * 创建消息
+ */
+func (m *Msg)CreateSelf(tx *gorm.DB) error {
+	if err := tx.Create(m).Error; err != nil {
+		return err
+	}
+	_= m.Push()
+
+	return nil
+}
+
+

@@ -103,6 +103,9 @@ func (r *Repositories) IsExists(ctx context.Context) error {
 	return err
 }
 
+/**
+ * 获取仓库负责人列表
+ */
 func (r *Repositories) GetLeaders() (userList []*users.Users, err error) {
 	userTable := users.Users{}.TableName()
 	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
@@ -110,6 +113,20 @@ func (r *Repositories) GetLeaders() (userList []*users.Users, err error) {
 		Select(fmt.Sprintf("%s.*", userTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", repositoryLeaderTable, userTable, repositoryLeaderTable)).
 		Where(fmt.Sprintf("%s.repository_id = %d", repositoryLeaderTable, r.ID)).
+		Find(&userList).Error
+	return
+}
+
+/**
+ * 获取仓库负责人列表
+ */
+func GetLeaders(tx *gorm.DB, repositoryId int64) (userList []*users.Users, err error) {
+	userTable := users.Users{}.TableName()
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+	err = tx.Model(&users.Users{}).
+		Select(fmt.Sprintf("%s.*", userTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", repositoryLeaderTable, userTable, repositoryLeaderTable)).
+		Where(fmt.Sprintf("%s.repository_id = %d", repositoryLeaderTable, repositoryId)).
 		Find(&userList).Error
 	return
 }

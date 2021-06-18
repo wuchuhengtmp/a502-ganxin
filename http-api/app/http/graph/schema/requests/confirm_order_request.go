@@ -33,7 +33,7 @@ func ValidateConfirmOrderRequest(ctx context.Context, input model.ConfirmOrderIn
 	o := orders.Order{Id: input.ID}
 	_ = o.GetSelf()
 	if o.State != orders.StateToBeConfirmed {
-		return fmt.Errorf("当前订单状态为:%s 无法进行确认", orders.StateMapDesc[o.State] )
+		return fmt.Errorf("当前订单状态为:%s 无法再次确认", orders.StateMapDesc[o.State] )
 	}
 
 	return nil

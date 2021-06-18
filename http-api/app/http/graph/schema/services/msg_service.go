@@ -16,7 +16,6 @@ import (
 	"http-api/app/models/msg"
 	"http-api/app/models/orders"
 	"http-api/app/models/repositories"
-	"http-api/app/models/repository_leader"
 	"http-api/app/models/users"
 	"time"
 )
@@ -34,11 +33,14 @@ func CreateConfirmOrRejectOrderMsg(tx *gorm.DB, o *orders.Order) error {
 		return err
 	}
 	state := fmt.Sprintf("仓库管理员 %s", confirmAdmin.Name)
+	msgType := ""
 	if o.State != orders.StateRejected && o.State != orders.StateConfirmed {
 		return fmt.Errorf("系统错误，订单状态不正确")
 	} else if o.State == orders.StateConfirmed {
+		msgType = msg.ConfirmOrderType
 		state += "确认订单"
 	} else {
+		msgType = msg.RejectOrderType
 		state += "拒绝订单"
 	}
 	total, err := orders.GetTotal(tx, o)
@@ -51,18 +53,18 @@ func CreateConfirmOrRejectOrderMsg(tx *gorm.DB, o *orders.Order) error {
 	}
 
 	t := helper.Time2Str(time.Now())
-	c := fmt.Sprintf("%s 仓库于%s, %s, 总数: %d根，%f吨。", r.Name, t, state, total, weight)
+	c := fmt.Sprintf("%s 仓库于%s, %s, 订单编号为: %s, 总数: %d根，%.2f吨。", r.Name, t, state, o.OrderNo, total, weight)
 	extends, _ := json.Marshal(o)
-	userList, err := repository_leader.RepositoryLeader{}.GetLeaders(tx)
+	userList, err := repositories.GetLeaders(tx, o.RepositoryId)
 	for _, user := range userList {
 		msgItem := msg.Msg{
 			IsRead:  false,
 			Content: c,
 			Uid:     user.Id,
-			Type:    msg.ConfirmOrderType,
+			Type:    msgType,
 			Extends: string(extends),
 		}
-		if err := tx.Create(&msgItem).Error; err != nil {
+		if err := msgItem.CreateSelf(tx); err != nil {
 			return err
 		}
 	}

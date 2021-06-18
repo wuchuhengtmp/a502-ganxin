@@ -9,9 +9,7 @@
 package repository_leader
 
 import (
-	"fmt"
 	"gorm.io/gorm"
-	"http-api/app/models/users"
 )
 
 type RepositoryLeader struct {
@@ -25,15 +23,3 @@ func (RepositoryLeader) TableName() string {
 	return "repository_leader"
 }
 
-/**
- * 获取负责人列表
- */
-func (RepositoryLeader) GetLeaders(tx *gorm.DB) (userList []*users.Users, err error) {
-	rt := RepositoryLeader{}.TableName()
-	ut := users.Users{}.TableName()
-	err = tx.Model(&users.Users{}).Select(fmt.Sprintf("%s.*", ut)).
-		Joins(fmt.Sprintf("join %s ON %s.uid = %s.id", rt, rt, ut)).
-		Scan(&userList).Error
-
-	return
-}

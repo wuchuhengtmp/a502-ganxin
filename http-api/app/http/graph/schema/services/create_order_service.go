@@ -21,7 +21,6 @@ import (
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
-	"http-api/app/models/repository_leader"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
@@ -81,7 +80,7 @@ func CreateOrder(ctx context.Context, input gqlModel.CreateOrderInput) (*orders.
  * 创建新订单消息
  */
 func _createOrderMsg(tx *gorm.DB, o *orders.Order) error {
-	userList, err := repository_leader.RepositoryLeader{}.GetLeaders(tx)
+	userList, err := repositories.GetLeaders(tx, o.RepositoryId)
 	if err != nil {
 		return err
 	}
@@ -123,13 +122,7 @@ func _createOrderMsg(tx *gorm.DB, o *orders.Order) error {
 			Extends: string(extends),
 			IsRead:  false,
 		}
-		// 创建消息
-		if err := tx.Create(&msg).Error; err != nil {
-			return err
-		}
-		// 推送消息
-	_:
-		msg.Push()
+		if err := msg.CreateSelf(tx); err != nil { return err }
 	}
 
 	return nil
