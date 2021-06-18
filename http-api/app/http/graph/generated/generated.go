@@ -2308,7 +2308,7 @@ extend type Mutation {
 }
 extend type Query {
     """ 获取需求单列表 """
-    getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin projectAdmin maintenanceAdmin])
+    getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
@@ -8176,7 +8176,7 @@ func (ec *executionContext) _Query_getOrderList(ctx context.Context, field graph
 			return ec.resolvers.Query().GetOrderList(rctx, args["input"].(model.GetOrderListInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "companyAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "companyAdmin", "repositoryAdmin", "maintenanceAdmin"})
 			if err != nil {
 				return nil, err
 			}

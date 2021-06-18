@@ -89,5 +89,5 @@ extend type Mutation {
 }
 extend type Query {
     """ 获取需求单列表 """
-    getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin projectAdmin maintenanceAdmin])
+    getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
 }

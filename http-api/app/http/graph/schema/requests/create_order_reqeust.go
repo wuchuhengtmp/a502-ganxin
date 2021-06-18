@@ -53,7 +53,7 @@ func ValidateCreateOrderValidate(ctx context.Context, input grapModel.CreateOrde
 		}
 	}
 
-	strId := fmt.Sprintf("%d", auth.GetUser(ctx).ID)
+	strId := fmt.Sprintf("%d", auth.GetUser(ctx).Id)
 	rules := govalidator.MapData{
 		"projectId":  []string{"required", "isCompanyProject:" + strId},
 		"repositoryId": []string{"required", "isCompanyRepository:" + strId},

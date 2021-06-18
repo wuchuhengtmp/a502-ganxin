@@ -1008,3 +1008,61 @@ func TestRepositoryAdminGetProjectList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+/**
+ * 仓库管理员获取订单列表集成测试
+ */
+func TestRepositoryAdminGetOrderList(t *testing.T) {
+	q := `
+		query ($input: GetOrderListInput!){
+		  getOrderList(input: $input) {
+		   id
+			state
+			orderNo
+			project {
+			  id
+			  name
+			}
+			repository{
+			  id
+			  name
+			}
+			state
+			expectedReturnAt
+			partList
+			createdAt
+			createUser {
+			  id
+			  name
+			}
+			confirmedUser {
+			  id
+			  name
+			}
+			confirmedAt
+			sender {
+			  id
+			  name
+			}
+			receiveUser {
+			  id
+			  name
+			}
+			sendAt
+			receiveAt
+			total
+			weight
+			expressCompany{
+			  id
+			  name
+			}
+			orderNo
+			remark
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	assert.NoError(t, err)
+}
