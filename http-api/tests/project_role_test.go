@@ -26,9 +26,10 @@ import (
 
 // 项目管理员测试上下文
 var projectAdminTestCtx = struct {
-	Token    string
-	Username string
-	Password string
+	Token       string
+	Username    string
+	Password    string
+	DeviceToken string
 }{
 	Username: seeders.ProjectAdmin.Username,
 	Password: seeders.ProjectAdmin.Password,
@@ -57,6 +58,29 @@ func TestProjectAdminRoleLogin(t *testing.T) {
 	token := res["login"]
 	tokenInfo := token.(map[string]interface{})
 	projectAdminTestCtx.Token = tokenInfo["accessToken"].(string)
+}
+
+/**
+ * 项目管理员登录测试-手机机
+ */
+func TestProjectAdminRoleDeviceLogin(t *testing.T) {
+	query := `
+		mutation ($phone: String!, $password: String!, $mac: String!){
+		  login (phone: $phone, password: $password, mac: $mac) {
+			accessToken
+		  }
+		}
+	`
+	variables := map[string]interface{}{
+		"phone":    projectAdminTestCtx.Username,
+		"password": projectAdminTestCtx.Password,
+		"mac": "123:1242:1242:12412",
+	}
+	res, err := graphReqClient(query, variables, roles.RoleProjectAdmin)
+	hasError(t, err)
+	token := res["login"]
+	tokenInfo := token.(map[string]interface{})
+	projectAdminTestCtx.DeviceToken = tokenInfo["accessToken"].(string)
 }
 
 /**
@@ -496,7 +520,7 @@ func TestProjectAdminCreateOrder(t *testing.T) {
 	`
 	me, _ := GetUserByToken(projectAdminTestCtx.Token)
 	// 预计归还时间
-	expectedReturnAt := time.Unix(time.Now().Unix() + 60*60*24*30, 0).Format(time.RFC3339)
+	expectedReturnAt := time.Unix(time.Now().Unix()+60*60*24*30, 0).Format(time.RFC3339)
 	// 项目id
 	var ps []*projects.Projects
 	err := model.DB.Model(&projects.Projects{}).
@@ -507,20 +531,20 @@ func TestProjectAdminCreateOrder(t *testing.T) {
 		Find(&ps).
 		Error
 	assert.NoError(t, err)
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"expectedReturnAt": expectedReturnAt,
-			"partList": "这是配件清单_for_ProjectRoleCreateTest",
-			"projectId": ps[0].ID,
-			"repositoryId": 1,
-			"remark": "这是备注",
-			"steelList": []interface{} {
-				map[string]interface{} {
-					"total": 1,
+			"partList":         "这是配件清单_for_ProjectRoleCreateTest",
+			"projectId":        ps[0].ID,
+			"repositoryId":     1,
+			"remark":           "这是备注",
+			"steelList": []interface{}{
+				map[string]interface{}{
+					"total":           1,
 					"specificationId": 1,
 				},
 				map[string]interface{}{
-					"total": 2,
+					"total":           2,
 					"specificationId": 1,
 				},
 			},
@@ -529,6 +553,7 @@ func TestProjectAdminCreateOrder(t *testing.T) {
 	_, err = graphReqClient(q, v, roles.RoleProjectAdmin)
 	assert.NoError(t, err)
 }
+
 /**
  * 项目管理员获取订单列表集成测试
  */
@@ -581,9 +606,68 @@ func TestProjectAdminGetOrderList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员获取订单列表集成测试-手持机
+ */
+func TestProjectAdminDeviceGetOrderList(t *testing.T) {
+	q := `
+		query ($input: GetOrderListInput!){
+		  getOrderList(input: $input) {
+		   id
+			state
+			orderNo
+			project {
+			  id
+			  name
+			}
+			repository{
+			  id
+			  name
+			}
+			state
+			expectedReturnAt
+			partList
+			createdAt
+			createUser {
+			  id
+			  name
+			}
+			confirmedUser {
+			  id
+			  name
+			}
+			confirmedAt
+			sender {
+			  id
+			  name
+			}
+			receiveUser {
+			  id
+			  name
+			}
+			sendAt
+			receiveAt
+			total
+			weight
+			expressCompany{
+			  id
+			  name
+			}
+			orderNo
+			remark
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }

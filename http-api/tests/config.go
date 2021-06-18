@@ -48,7 +48,7 @@ func hasError(t *testing.T, err error) {
 /**
 * graphql 客户端
  */
-func graphReqClient(query string, variables map[string]interface{}, role roles.GraphqlRole) (responseData map[string]interface{}, err error) {
+func graphReqClient(query string, variables map[string]interface{}, role roles.GraphqlRole, p ...interface{}) (responseData map[string]interface{}, err error) {
 	req := graphql.NewRequest(query)
 	for key, variable := range variables {
 		req.Var(key, variable)
@@ -72,12 +72,16 @@ func graphReqClient(query string, variables map[string]interface{}, role roles.G
 		}
 		break
 	case roles.RoleProjectAdmin:
-		if len(projectAdminTestCtx.Token) > 0 {
+		if len(p) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p[0]))
+		} else if len(projectAdminTestCtx.Token) > 0 {
 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", projectAdminTestCtx.Token))
 		}
 		break
 	case roles.RoleMaintenanceAdmin:
-		if len(maintenanceAdminTestCtx.Token) > 0 {
+		if len(p) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p[0]))
+		} else if len(maintenanceAdminTestCtx.Token) > 0 {
 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", maintenanceAdminTestCtx.Token))
 		}
 		break
