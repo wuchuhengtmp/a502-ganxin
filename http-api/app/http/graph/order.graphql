@@ -108,5 +108,5 @@ extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
     """ 获取订单详情-手持机 auth(projectAdmin)  """
-    getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin]) @mustBeDevice
+    getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
 }

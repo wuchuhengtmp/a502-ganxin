@@ -2395,7 +2395,7 @@ extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
     """ 获取订单详情-手持机 auth(projectAdmin)  """
-    getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin]) @mustBeDevice
+    getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
@@ -8519,7 +8519,7 @@ func (ec *executionContext) _Query_getOrderDetail(ctx context.Context, field gra
 			return ec.resolvers.Query().GetOrderDetail(rctx, args["input"].(model.GetOrderDetailInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "repositoryAdmin"})
 			if err != nil {
 				return nil, err
 			}

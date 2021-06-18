@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
+	"http-api/app/models/orders"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
@@ -671,5 +672,49 @@ func TestProjectAdminDeviceGetOrderList(t *testing.T) {
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员获取订单详情集成测试-手持机
+ */
+func TestProjectAdminDeviceGetOrderDetail(t *testing.T) {
+	me, err := GetUserByToken(projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+	o := orders.Order{}
+	err = model.DB.Model(&orders.Order{}).Where("company_id = ?", me.CompanyId).First(&o).Error
+	assert.NoError(t, err)
+	q := `
+		query ($input: getOrderDetailInput!){
+		  getOrderDetail(input: $input) {
+			id
+			project {
+			  id
+			  name
+		   }
+			repository {
+			  id
+			  name
+			}
+			remark
+			partList
+			orderSpecificationList{
+			  id
+			  specification
+			  total
+			  weight
+			}
+			state
+			expectedReturnAt
+		   createdAt
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"id": o.Id,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }

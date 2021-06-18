@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
+	"http-api/app/models/orders"
 	"http-api/app/models/roles"
 	"http-api/app/models/steel_logs"
 	"http-api/pkg/model"
@@ -1152,4 +1153,46 @@ func TestRepositoryAdminDeviceGetOrderList(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-
+/**
+ * 仓库管理员获取订单详情集成测试-手持机
+ */
+func TestRepositoryAdminDeviceGetOrderDetail(t *testing.T) {
+	me, err := GetUserByToken(repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+	o := orders.Order{}
+	err = model.DB.Model(&orders.Order{}).Where("company_id = ?", me.CompanyId).First(&o).Error
+	assert.NoError(t, err)
+	q := `
+		query ($input: getOrderDetailInput!){
+		  getOrderDetail(input: $input) {
+			id
+			project {
+			  id
+			  name
+		   }
+			repository {
+			  id
+			  name
+			}
+			remark
+			partList
+			orderSpecificationList{
+			  id
+			  specification
+			  total
+			  weight
+			}
+			state
+			expectedReturnAt
+		   createdAt
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"id": o.Id,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
