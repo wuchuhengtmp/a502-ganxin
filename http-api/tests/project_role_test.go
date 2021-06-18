@@ -666,7 +666,9 @@ func TestProjectAdminDeviceGetOrderList(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{}{},
+		"input": map[string]interface{} {
+			"queryType": "toBeConfirm",
+		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)

@@ -25,6 +25,7 @@ import (
 // 仓库管理员测试上下文
 var repositoryAdminTestCtx = struct {
 	Token    string
+	DeviceToken    string
 	Username string
 	Password string
 	// 用于个性规格记录
@@ -70,6 +71,29 @@ func TestRepositoryAdminRoleLogin(t *testing.T) {
 	token := res["login"]
 	tokenInfo := token.(map[string]interface{})
 	repositoryAdminTestCtx.Token = tokenInfo["accessToken"].(string)
+}
+
+/**
+ * 仓库管理员登录测试-手持机
+ */
+func TestRepositoryAdminRoleDeviceLogin(t *testing.T) {
+	query := `
+		mutation ($phone: String!, $password: String!, $mac: String!){
+		  login (phone: $phone, password: $password, mac: $mac) {
+			accessToken
+		  }
+		}
+	`
+	variables := map[string]interface{}{
+		"phone":    repositoryAdminTestCtx.Username,
+		"password": repositoryAdminTestCtx.Password,
+		"mac": "123:1242:1242:12412",
+	}
+	res, err := graphReqClient(query, variables, roles.RoleRepositoryAdmin)
+	hasError(t, err)
+	token := res["login"]
+	tokenInfo := token.(map[string]interface{})
+	repositoryAdminTestCtx. DeviceToken= tokenInfo["accessToken"].(string)
 }
 
 /**
@@ -1066,3 +1090,66 @@ func TestRepositoryAdminGetOrderList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员获取订单列表集成测试-手持机
+ */
+func TestRepositoryAdminDeviceGetOrderList(t *testing.T) {
+	q := `
+		query ($input: GetOrderListInput!){
+		  getOrderList(input: $input) {
+		   id
+			state
+			orderNo
+			project {
+			  id
+			  name
+			}
+			repository{
+			  id
+			  name
+			}
+			state
+			expectedReturnAt
+			partList
+			createdAt
+			createUser {
+			  id
+			  name
+			}
+			confirmedUser {
+			  id
+			  name
+			}
+			confirmedAt
+			sender {
+			  id
+			  name
+			}
+			receiveUser {
+			  id
+			  name
+			}
+			sendAt
+			receiveAt
+			total
+			weight
+			expressCompany{
+			  id
+			  name
+			}
+			orderNo
+			remark
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{
+			"queryType": "toBeConfirm",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+

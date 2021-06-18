@@ -10,7 +10,9 @@ package query_resolver
 
 import (
 	"context"
+	"http-api/app/http/graph/errors"
 	graphModel "http-api/app/http/graph/model"
+	"http-api/app/http/graph/schema/requests"
 	"http-api/app/http/graph/schema/services"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/order_specification"
@@ -22,6 +24,11 @@ import (
 )
 
 func (*QueryResolver) GetOrderList(ctx context.Context, input graphModel.GetOrderListInput) ([]*orders.Order, error) {
+	if err := requests.ValidateGetOrderListRequest(ctx, input); err != nil {
+		var tmp []*orders.Order
+		return tmp, errors.ValidateErr(ctx, err)
+	}
+
 	return services.GetOrderList(ctx, input)
 }
 

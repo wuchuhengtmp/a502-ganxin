@@ -62,7 +62,9 @@ func graphReqClient(query string, variables map[string]interface{}, role roles.G
 		}
 		break
 	case roles.RoleCompanyAdmin:
-		if len(companyAdminTestCtx.Token) > 0 {
+		if len(p) > 0 {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p[0]))
+		} else if len(companyAdminTestCtx.Token) > 0 {
 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", companyAdminTestCtx.Token))
 		}
 		break

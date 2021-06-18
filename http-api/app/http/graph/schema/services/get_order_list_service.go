@@ -27,20 +27,45 @@ func GetOrderList(ctx context.Context, input graphModel.GetOrderListInput) (orde
 	if err != nil {
 		return
 	}
-	// 项目管理员的手持设备 只看到他自己项目下的订单
-	if isDevice && role.Tag == roles.RoleProjectAdmin {
+	// 手持设备查看
+	if isDevice {
 		projectLeaderTable := project_leader.ProjectLeader{}.TableName()
 		projectTable := projects.Projects{}.TableName()
 		orderTable := orders.Order{}.TableName()
-		err = model.DB.Model(&orders.Order{}).
-			Select(fmt.Sprintf("%s.*", orders.Order{}.TableName())).
-			Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
-			Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
-			Where(fmt.Sprintf("%s.uid = %d", projectLeaderTable, me.Id)).
-			Where(fmt.Sprintf("%s.company_id = %d",projectTable, me.CompanyId)).
-			Find(&orderList).
-			Error
+		whereMap := ""
+		// 项目管理员的手持设备 只看到他自己项目下的订单
+		if role.Tag == roles.RoleProjectAdmin {
+			//  确认订单条件
+			if *input.QueryType == graphModel.GetOrderListInputTypeConfirmOrder {
+				whereMap = fmt.Sprintf("%s.state >= %d", orderTable, orders.StateConfirmed)
+			} else {
+				// 未确认订单条件
+				whereMap = fmt.Sprintf("%s.state < %d", orderTable, orders.StateConfirmed)
+			}
+			err = model.DB.Model(&orders.Order{}).
+				Select(fmt.Sprintf("%s.*", orders.Order{}.TableName())).
+				Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+				Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
+				Where(fmt.Sprintf("%s.uid = %d", projectLeaderTable, me.Id)).
+				Where(fmt.Sprintf("%s.company_id = %d", projectTable, me.CompanyId)).
+				Where(whereMap).
+				Find(&orderList).
+				Error
+		} else {
+			//  确认订单条件
+			if *input.QueryType == graphModel.GetOrderListInputTypeConfirmOrder {
+				whereMap = fmt.Sprintf("state >= %d", orders.StateConfirmed)
+			} else {
+				// 未确认订单条件
+				whereMap = fmt.Sprintf("state < %d", orders.StateConfirmed)
+			}
+			err = model.DB.Model(&orders.Order{}).
+				Where("company_id = ?", me.CompanyId).
+				Where(whereMap).
+				Find(&orderList).Error
+		}
 	} else {
+		// 后台查看
 		err = model.DB.Model(&orders.Order{}).
 			Where("company_id = ?", me.CompanyId).
 			Find(&orderList).Error
