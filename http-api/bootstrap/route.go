@@ -12,6 +12,7 @@ import (
 	"http-api/app/models/maintenance_leader"
 	"http-api/app/models/maintenance_record"
 	"http-api/app/models/msg"
+	"http-api/app/models/order_express"
 	order_details "http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
@@ -76,5 +77,6 @@ func SetupDB() {
 		project_leader.ProjectLeader{},
 		steel_logs.SteelLog{},
 		order_specification_steel.OrderSpecificationSteel{},
+		order_express.OrderExpress{},
 	)
 }

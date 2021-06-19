@@ -302,6 +302,13 @@ type PaginationInput struct {
 	RepositoryID *int64 `json:"repositoryId"`
 }
 
+type ProjectOrder2WorkshopDetail struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+}
+
 type RepositoryLeaderItem struct {
 	ID     int64  `json:"id"`
 	Name   string `json:"name"`

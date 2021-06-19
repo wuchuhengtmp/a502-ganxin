@@ -16,6 +16,7 @@ import (
 	"http-api/app/http/graph/schema/services"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/order_specification"
+	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
@@ -49,20 +50,6 @@ func (OrderItemResolver) CreateUser(ctx context.Context, obj *orders.Order) (*us
 	}
 
 	return &u, nil
-}
-
-func (OrderItemResolver) ReceiveUser(ctx context.Context, obj *orders.Order) (*users.Users, error) {
-	// 有收货人
-	if obj.State >= orders.StateReceipted {
-		u := users.Users{}
-		if err := u.GetSelfById(obj.ReceiveUid); err != nil {
-			return nil, err
-		} else {
-			return &u, nil
-		}
-	}
-
-	return nil, nil
 }
 
 func (OrderItemResolver) Repository(ctx context.Context, obj *orders.Order) (*repositories.Repositories, error) {
@@ -156,14 +143,14 @@ func (OrderItemResolver) ExpressCompany(ctx context.Context, obj *orders.Order) 
 	return nil, nil
 }
 
-func (OrderItemResolver)OrderSpecificationList(ctx context.Context, obj *orders.Order) (list []*order_specification.OrderSpecification, err error) {
+func (OrderItemResolver) OrderSpecificationList(ctx context.Context, obj *orders.Order) (list []*order_specification.OrderSpecification, err error) {
 	oo := order_specification.OrderSpecification{}
 	err = model.DB.Model(&oo).Where("order_id = ?", obj.Id).Find(&list).Error
 
 	return
 }
 
-type OrderSpecificationItemResolver struct { }
+type OrderSpecificationItemResolver struct{}
 
 func (OrderSpecificationItemResolver) Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error) {
 	sp := specificationinfo.SpecificationInfo{ID: obj.SpecificationId}
@@ -172,4 +159,20 @@ func (OrderSpecificationItemResolver) Weight(ctx context.Context, obj *order_spe
 	}
 
 	return sp.Weight * float64(obj.Total), nil
+}
+
+func (OrderSpecificationItemResolver) TotalSend(ctx context.Context, obj *order_specification.OrderSpecification) (total int64, err error) {
+	err = model.DB.Model(&order_specification_steel.OrderSpecificationSteel{}).
+		Where("order_specification_id = ?", obj.Id).
+		Count(&total).Error
+
+	return
+}
+
+func (OrderSpecificationItemResolver) TotalToBeSend(ctx context.Context, obj *order_specification.OrderSpecification) (total int64, err error) {
+	err = model.DB.Model(&order_specification_steel.OrderSpecificationSteel{}).
+		Where("order_specification_id = ?", obj.Id).
+		Count(&total).Error
+
+	return obj.Total - total, err
 }

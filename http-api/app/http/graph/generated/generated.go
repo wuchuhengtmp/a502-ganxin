@@ -155,35 +155,36 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ConfirmOrRejectOrder       func(childComplexity int, input model.ConfirmOrderInput) int
-		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
-		CreateCompanyUser          func(childComplexity int, input model.CreateCompanyUserInput) int
-		CreateExpress              func(childComplexity int, input model.CreateExpressInput) int
-		CreateManufacturer         func(childComplexity int, input model.CreateManufacturerInput) int
-		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
-		CreateOrder                func(childComplexity int, input model.CreateOrderInput) int
-		CreateProject              func(childComplexity int, input model.CreateProjectInput) int
-		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
-		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
-		CreateSteel                func(childComplexity int, input model.CreateSteelInput) int
-		DeleteCompany              func(childComplexity int, id int64) int
-		DeleteCompanyUser          func(childComplexity int, uid int64) int
-		DeleteExpress              func(childComplexity int, id int64) int
-		DeleteManufacturer         func(childComplexity int, id int64) int
-		DeleteMaterialManufacturer func(childComplexity int, id int64) int
-		DeleteRepository           func(childComplexity int, repositoryID int64) int
-		DeleteSpecification        func(childComplexity int, id int64) int
-		EditCompany                func(childComplexity int, input model.EditCompanyInput) int
-		EditCompanyUser            func(childComplexity int, input *model.EditCompanyUserInput) int
-		EditDevice                 func(childComplexity int, input model.EditDeviceInput) int
-		EditExpress                func(childComplexity int, input model.EditExpressInput) int
-		EditManufacturer           func(childComplexity int, input model.EditManufacturerInput) int
-		EditMaterialManufacturer   func(childComplexity int, input model.EditMaterialManufacturerInput) int
-		EditPrice                  func(childComplexity int, price float64) int
-		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
-		Login                      func(childComplexity int, phone string, password string, mac *string) int
-		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
-		SingleUpload               func(childComplexity int, file graphql.Upload) int
+		ConfirmOrRejectOrder        func(childComplexity int, input model.ConfirmOrderInput) int
+		CreateCompany               func(childComplexity int, input model.CreateCompanyInput) int
+		CreateCompanyUser           func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateExpress               func(childComplexity int, input model.CreateExpressInput) int
+		CreateManufacturer          func(childComplexity int, input model.CreateManufacturerInput) int
+		CreateMaterialManufacturer  func(childComplexity int, input model.CreateMaterialManufacturerInput) int
+		CreateOrder                 func(childComplexity int, input model.CreateOrderInput) int
+		CreateProject               func(childComplexity int, input model.CreateProjectInput) int
+		CreateRepository            func(childComplexity int, input model.CreateRepositoryInput) int
+		CreateSpecification         func(childComplexity int, input model.CreateSpecificationInput) int
+		CreateSteel                 func(childComplexity int, input model.CreateSteelInput) int
+		DeleteCompany               func(childComplexity int, id int64) int
+		DeleteCompanyUser           func(childComplexity int, uid int64) int
+		DeleteExpress               func(childComplexity int, id int64) int
+		DeleteManufacturer          func(childComplexity int, id int64) int
+		DeleteMaterialManufacturer  func(childComplexity int, id int64) int
+		DeleteRepository            func(childComplexity int, repositoryID int64) int
+		DeleteSpecification         func(childComplexity int, id int64) int
+		EditCompany                 func(childComplexity int, input model.EditCompanyInput) int
+		EditCompanyUser             func(childComplexity int, input *model.EditCompanyUserInput) int
+		EditDevice                  func(childComplexity int, input model.EditDeviceInput) int
+		EditExpress                 func(childComplexity int, input model.EditExpressInput) int
+		EditManufacturer            func(childComplexity int, input model.EditManufacturerInput) int
+		EditMaterialManufacturer    func(childComplexity int, input model.EditMaterialManufacturerInput) int
+		EditPrice                   func(childComplexity int, price float64) int
+		EditSpecification           func(childComplexity int, input model.EditSpecificationInput) int
+		Login                       func(childComplexity int, phone string, password string, mac *string) int
+		ProjectOrder2WorkshopDetail func(childComplexity int, input model.ProjectOrder2WorkshopDetail) int
+		SetPassword                 func(childComplexity int, input *model.SetPasswordInput) int
+		SingleUpload                func(childComplexity int, file graphql.Upload) int
 	}
 
 	OrderItem struct {
@@ -192,19 +193,13 @@ type ComplexityRoot struct {
 		CreateUser             func(childComplexity int) int
 		CreatedAt              func(childComplexity int) int
 		ExpectedReturnAt       func(childComplexity int) int
-		ExpressCompany         func(childComplexity int) int
-		ExpressNo              func(childComplexity int) int
 		Id                     func(childComplexity int) int
 		OrderNo                func(childComplexity int) int
 		OrderSpecificationList func(childComplexity int) int
 		PartList               func(childComplexity int) int
 		Project                func(childComplexity int) int
-		ReceiveAt              func(childComplexity int) int
-		ReceiveUser            func(childComplexity int) int
 		Remark                 func(childComplexity int) int
 		Repository             func(childComplexity int) int
-		SendAt                 func(childComplexity int) int
-		Sender                 func(childComplexity int) int
 		State                  func(childComplexity int) int
 		Total                  func(childComplexity int) int
 		Weight                 func(childComplexity int) int
@@ -214,6 +209,8 @@ type ComplexityRoot struct {
 		Id            func(childComplexity int) int
 		Specification func(childComplexity int) int
 		Total         func(childComplexity int) int
+		TotalSend     func(childComplexity int) int
+		TotalToBeSend func(childComplexity int) int
 		Weight        func(childComplexity int) int
 	}
 
@@ -230,23 +227,24 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ErrorCodeDesc            func(childComplexity int) int
-		GetAllCompany            func(childComplexity int) int
-		GetCompanyUser           func(childComplexity int, input *model.GetCompanyUserInput) int
-		GetDeviceList            func(childComplexity int) int
-		GetExpressList           func(childComplexity int) int
-		GetManufacturers         func(childComplexity int) int
-		GetMaterialManufacturers func(childComplexity int) int
-		GetMyInfo                func(childComplexity int) int
-		GetOrderDetail           func(childComplexity int, input model.GetOrderDetailInput) int
-		GetOrderList             func(childComplexity int, input model.GetOrderListInput) int
-		GetPrice                 func(childComplexity int) int
-		GetProjectLis            func(childComplexity int) int
-		GetRepositoryList        func(childComplexity int) int
-		GetRepositoryOverview    func(childComplexity int, input model.GetRepositoryOverviewInput) int
-		GetRoleList              func(childComplexity int) int
-		GetSpecification         func(childComplexity int) int
-		GetSteelList             func(childComplexity int, input model.PaginationInput) int
+		ErrorCodeDesc                func(childComplexity int) int
+		GetAllCompany                func(childComplexity int) int
+		GetCompanyUser               func(childComplexity int, input *model.GetCompanyUserInput) int
+		GetDeviceList                func(childComplexity int) int
+		GetExpressList               func(childComplexity int) int
+		GetManufacturers             func(childComplexity int) int
+		GetMaterialManufacturers     func(childComplexity int) int
+		GetMyInfo                    func(childComplexity int) int
+		GetOrderDetail               func(childComplexity int, input model.GetOrderDetailInput) int
+		GetOrderList                 func(childComplexity int, input model.GetOrderListInput) int
+		GetPrice                     func(childComplexity int) int
+		GetProjectLis                func(childComplexity int) int
+		GetRepositoryList            func(childComplexity int) int
+		GetRepositoryOverview        func(childComplexity int, input model.GetRepositoryOverviewInput) int
+		GetRoleList                  func(childComplexity int) int
+		GetSpecification             func(childComplexity int) int
+		GetSteelList                 func(childComplexity int, input model.PaginationInput) int
+		GetTobeSendWorkshopOrderList func(childComplexity int) int
 	}
 
 	RepositoryItem struct {
@@ -350,6 +348,7 @@ type MutationResolver interface {
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
+	ProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetail) ([]*steels.Steels, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
@@ -365,9 +364,6 @@ type OrderItemResolver interface {
 
 	CreateUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
 	ConfirmedUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
-	ReceiveUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
-	ExpressCompany(ctx context.Context, obj *orders.Order) (*codeinfo.CodeInfo, error)
-	Sender(ctx context.Context, obj *orders.Order) (*users.Users, error)
 
 	Total(ctx context.Context, obj *orders.Order) (int64, error)
 	Weight(ctx context.Context, obj *orders.Order) (float64, error)
@@ -375,6 +371,8 @@ type OrderItemResolver interface {
 	OrderSpecificationList(ctx context.Context, obj *orders.Order) ([]*order_specification.OrderSpecification, error)
 }
 type OrderSpecificationItemResolver interface {
+	TotalSend(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
+	TotalToBeSend(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
 	Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error)
 }
 type ProjectItemResolver interface {
@@ -392,6 +390,7 @@ type QueryResolver interface {
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
+	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
@@ -1118,6 +1117,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
 
+	case "Mutation.projectOrder2WorkshopDetail":
+		if e.complexity.Mutation.ProjectOrder2WorkshopDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_projectOrder2WorkshopDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ProjectOrder2WorkshopDetail(childComplexity, args["input"].(model.ProjectOrder2WorkshopDetail)), true
+
 	case "Mutation.setPassword":
 		if e.complexity.Mutation.SetPassword == nil {
 			break
@@ -1177,20 +1188,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderItem.ExpectedReturnAt(childComplexity), true
 
-	case "OrderItem.expressCompany":
-		if e.complexity.OrderItem.ExpressCompany == nil {
-			break
-		}
-
-		return e.complexity.OrderItem.ExpressCompany(childComplexity), true
-
-	case "OrderItem.expressNo":
-		if e.complexity.OrderItem.ExpressNo == nil {
-			break
-		}
-
-		return e.complexity.OrderItem.ExpressNo(childComplexity), true
-
 	case "OrderItem.id":
 		if e.complexity.OrderItem.Id == nil {
 			break
@@ -1226,20 +1223,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderItem.Project(childComplexity), true
 
-	case "OrderItem.receiveAt":
-		if e.complexity.OrderItem.ReceiveAt == nil {
-			break
-		}
-
-		return e.complexity.OrderItem.ReceiveAt(childComplexity), true
-
-	case "OrderItem.receiveUser":
-		if e.complexity.OrderItem.ReceiveUser == nil {
-			break
-		}
-
-		return e.complexity.OrderItem.ReceiveUser(childComplexity), true
-
 	case "OrderItem.remark":
 		if e.complexity.OrderItem.Remark == nil {
 			break
@@ -1253,20 +1236,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OrderItem.Repository(childComplexity), true
-
-	case "OrderItem.sendAt":
-		if e.complexity.OrderItem.SendAt == nil {
-			break
-		}
-
-		return e.complexity.OrderItem.SendAt(childComplexity), true
-
-	case "OrderItem.sender":
-		if e.complexity.OrderItem.Sender == nil {
-			break
-		}
-
-		return e.complexity.OrderItem.Sender(childComplexity), true
 
 	case "OrderItem.state":
 		if e.complexity.OrderItem.State == nil {
@@ -1309,6 +1278,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OrderSpecificationItem.Total(childComplexity), true
+
+	case "OrderSpecificationItem.totalSend":
+		if e.complexity.OrderSpecificationItem.TotalSend == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.TotalSend(childComplexity), true
+
+	case "OrderSpecificationItem.totalToBeSend":
+		if e.complexity.OrderSpecificationItem.TotalToBeSend == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.TotalToBeSend(childComplexity), true
 
 	case "OrderSpecificationItem.weight":
 		if e.complexity.OrderSpecificationItem.Weight == nil {
@@ -1523,6 +1506,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetSteelList(childComplexity, args["input"].(model.PaginationInput)), true
+
+	case "Query.getTobeSendWorkshopOrderList":
+		if e.complexity.Query.GetTobeSendWorkshopOrderList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetTobeSendWorkshopOrderList(childComplexity), true
 
 	case "RepositoryItem.address":
 		if e.complexity.RepositoryItem.Address == nil {
@@ -2212,7 +2202,7 @@ extend type Mutation {
 
 extend type Query {
     """ 获取物流公司列表 (auth:  admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
-    getExpressList: [ExpressItem]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getExpressList: [ExpressItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 `, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
@@ -2306,6 +2296,10 @@ type OrderSpecificationItem {
     specification: String!
     """ 数量 """
     total: Int!
+    """ 已出库 """
+    totalSend: Int!
+    """ 未来出库 """
+    totalToBeSend: Int!
     """ 重量 """
     weight: Float!
 }
@@ -2325,7 +2319,7 @@ type OrderItem {
     id: Int!
     """ 项目 """
     project: ProjectItem!
-    """订单状态 待确认200已确认300已拒绝400已发货500待收货600已收货(部分)700已收货全部800已归库"""
+    """订单状态 待确认200 已确认300 已拒绝400 已发货500 待收货600 已收货(部分)700 已收货全部800 已归库900"""
     state: Int!
     """ 配件列表 """
     partList: String !
@@ -2333,14 +2327,18 @@ type OrderItem {
     createUser: UserItem!
     """ 确认人 """
     confirmedUser: UserItem
-    """ 收货人 """
-    receiveUser: UserItem
-    """ 快递公司 """
-    expressCompany: ExpressItem
-    """ 发货人 """
-    sender: UserItem
-    """ 物流号 """
-    expressNo: String!
+#    """ 收货人 """
+#    receiveUser: UserItem
+#    """ 快递公司 """
+#    expressCompany: ExpressItem
+#    """ 发货人 """
+#    sender: UserItem
+#    """ 物流号 """
+#    expressNo: String!
+#    """ 收货时间 """
+#    receiveAt: Time
+#    """ 发货时间 """
+#    sendAt: Time
     """ 备注 """
     remark: String!
     """ 订单编号 """
@@ -2357,10 +2355,6 @@ type OrderItem {
     createdAt: Time!
     """ 确认时间 """
     confirmedAt: Time
-    """ 收货时间 """
-    receiveAt: Time
-    """ 发货时间 """
-    sendAt: Time
     """ 预计归还时间 """
     expectedReturnAt: Time!
 }
@@ -2397,6 +2391,7 @@ enum  GetOrderListInputType {
 input GetOrderListInput {
     queryType: GetOrderListInputType
 }
+
 input getOrderDetailInput{
     """ 订单id """
     id: Int!
@@ -2409,15 +2404,27 @@ input ConfirmOrderInput {
     """ 是否通过 """
     isAccess: Boolean!
 }
+input ProjectOrder2WorkshopDetail {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格id """
+    specificationId: Int
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+#    """ 项目订单出库到场地 """
+#    projectOrder2Workshop(): Boolean!
+    """ 项目订单出库到场地详情 """
+     projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
+    """ 获取要出库到场地的订单列表-手持机 """
+    getTobeSendWorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
 }
@@ -3097,6 +3104,21 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		}
 	}
 	args["mac"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_projectOrder2WorkshopDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ProjectOrder2WorkshopDetail
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNProjectOrder2WorkshopDetail2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetail(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -6345,6 +6367,48 @@ func (ec *executionContext) _Mutation_confirmOrRejectOrder(ctx context.Context, 
 	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_projectOrder2WorkshopDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_projectOrder2WorkshopDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ProjectOrder2WorkshopDetail(rctx, args["input"].(model.ProjectOrder2WorkshopDetail))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_editPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7122,137 +7186,6 @@ func (ec *executionContext) _OrderItem_confirmedUser(ctx context.Context, field 
 	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _OrderItem_receiveUser(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.OrderItem().ReceiveUser(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*users.Users)
-	fc.Result = res
-	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _OrderItem_expressCompany(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.OrderItem().ExpressCompany(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*codeinfo.CodeInfo)
-	fc.Result = res
-	return ec.marshalOExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _OrderItem_sender(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.OrderItem().Sender(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*users.Users)
-	fc.Result = res
-	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _OrderItem_expressNo(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpressNo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _OrderItem_remark(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7530,70 +7463,6 @@ func (ec *executionContext) _OrderItem_confirmedAt(ctx context.Context, field gr
 	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _OrderItem_receiveAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ReceiveAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _OrderItem_sendAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "OrderItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SendAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _OrderItem_expectedReturnAt(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7718,6 +7587,76 @@ func (ec *executionContext) _OrderSpecificationItem_total(ctx context.Context, f
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_totalSend(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderSpecificationItem().TotalSend(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_totalToBeSend(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderSpecificationItem().TotalToBeSend(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8322,7 +8261,7 @@ func (ec *executionContext) _Query_getExpressList(ctx context.Context, field gra
 			return ec.resolvers.Query().GetExpressList(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
 			if err != nil {
 				return nil, err
 			}
@@ -8576,6 +8515,71 @@ func (ec *executionContext) _Query_getOrderList(ctx context.Context, field graph
 		}
 
 		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*orders.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getTobeSendWorkshopOrderList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTobeSendWorkshopOrderList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -12976,6 +12980,34 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputProjectOrder2WorkshopDetail(ctx context.Context, obj interface{}) (model.ProjectOrder2WorkshopDetail, error) {
+	var it model.ProjectOrder2WorkshopDetail
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
 	var it model.SetPasswordInput
 	var asMap = obj.(map[string]interface{})
@@ -13721,6 +13753,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "projectOrder2WorkshopDetail":
+			out.Values[i] = ec._Mutation_projectOrder2WorkshopDetail(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "editPrice":
 			out.Values[i] = ec._Mutation_editPrice(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -13842,44 +13879,6 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 				res = ec._OrderItem_confirmedUser(ctx, field, obj)
 				return res
 			})
-		case "receiveUser":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._OrderItem_receiveUser(ctx, field, obj)
-				return res
-			})
-		case "expressCompany":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._OrderItem_expressCompany(ctx, field, obj)
-				return res
-			})
-		case "sender":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._OrderItem_sender(ctx, field, obj)
-				return res
-			})
-		case "expressNo":
-			out.Values[i] = ec._OrderItem_expressNo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "remark":
 			out.Values[i] = ec._OrderItem_remark(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13953,10 +13952,6 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 			}
 		case "confirmedAt":
 			out.Values[i] = ec._OrderItem_confirmedAt(ctx, field, obj)
-		case "receiveAt":
-			out.Values[i] = ec._OrderItem_receiveAt(ctx, field, obj)
-		case "sendAt":
-			out.Values[i] = ec._OrderItem_sendAt(ctx, field, obj)
 		case "expectedReturnAt":
 			out.Values[i] = ec._OrderItem_expectedReturnAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13999,6 +13994,34 @@ func (ec *executionContext) _OrderSpecificationItem(ctx context.Context, sel ast
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "totalSend":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderSpecificationItem_totalSend(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "totalToBeSend":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderSpecificationItem_totalToBeSend(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "weight":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -14242,6 +14265,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getOrderList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getTobeSendWorkshopOrderList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getTobeSendWorkshopOrderList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -15805,6 +15842,11 @@ func (ec *executionContext) marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋp
 		return graphql.Null
 	}
 	return ec._ProjectItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNProjectOrder2WorkshopDetail2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetail(ctx context.Context, v interface{}) (model.ProjectOrder2WorkshopDetail, error) {
+	res, err := ec.unmarshalInputProjectOrder2WorkshopDetail(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNRepositoryItem2httpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositories(ctx context.Context, sel ast.SelectionSet, v repositories.Repositories) graphql.Marshaler {

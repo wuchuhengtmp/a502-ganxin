@@ -23,18 +23,14 @@ type Order struct {
 	Id               int64     `json:"id"`
 	ProjectId        int64     `json:"ProjectId" gorm:"comment:项目id"`
 	RepositoryId     int64     `json:"repositoryId" gorm:"comment: 仓库id"`
-	State            int64     `json:"state" gorm:"订单状态 待确认200 已确认300 已拒绝400 已发货500 待收货600 已收货(部分)700 已收货全部800 已归库"`
+	State            int64     `json:"state" gorm:"comment:订单状态 待确认200 已确认300 已拒绝400 已发货500 待收货600 已收货(部分)700 已收货全部800 已归库900"`
 	PartList         string    `json:"partList" gorm:"comment:配件清单"`
 	CreateUid        int64     `json:"createUid" gorm:"comment:创建人"`
 	ConfirmedUid     int64     `json:"confirmedUid" gorm:"comment:确认人"`
-	ReceiveUid       int64     `json:"receiveUid" gorm:"comment:收货人id"`
-	ExpressCompanyId int64     `json:"expressCompanyId" gorm:"comment:快递公司(码表id)"`
 	SenderUid        int64     `json:"senderUid" gorm:"comment:发货人"`
-	ExpressNo        string    `json:"expressNo" gorm:"comment:物流号"`
 	OrderNo          string    `json:"orderNo" gorm:"comment:订单编号"`
 	Remark           string    `json:"remark" gorm:"comment:备注"`
 	CompanyId        int64     `json:"companyId" gorm:"comment:公司id"`
-	SendAt           time.Time `json:"sendAt" gorm:"comment:发货时间"`
 	ExpectedReturnAt time.Time `json:"expectedReturnAt" gorm:"comment:预计归还时间"`
 	ReceiveAt        time.Time `json:"receiveAt" gorm:"comment:收货时间"`
 	ConfirmedAt      time.Time `json:"confirmAt" gorm:"comment:确认时间"`

@@ -31,10 +31,7 @@ func (o *OrderService) OrderMoveIntoMe(guest *orders.Order) {
 	o.PartList = guest.PartList
 	o.CreateUid = guest.CreateUid
 	o.ConfirmedAt = guest.ConfirmedAt
-	o.ReceiveUid = guest.ReceiveUid
 	o.ReceiveAt = guest.ReceiveAt
-	o.ExpressCompanyId = guest.ExpressCompanyId
-	o.ExpressNo = guest.ExpressNo
 	o.OrderNo = guest.OrderNo
 	o.Remark = guest.Remark
 	o.DeletedAt = guest.DeletedAt

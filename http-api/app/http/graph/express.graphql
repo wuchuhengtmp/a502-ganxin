@@ -30,5 +30,5 @@ extend type Mutation {
 
 extend type Query {
     """ 获取物流公司列表 (auth:  admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
-    getExpressList: [ExpressItem]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getExpressList: [ExpressItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
