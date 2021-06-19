@@ -25,10 +25,10 @@ import (
 
 // 仓库管理员测试上下文
 var repositoryAdminTestCtx = struct {
-	Token    string
-	DeviceToken    string
-	Username string
-	Password string
+	Token       string
+	DeviceToken string
+	Username    string
+	Password    string
 	// 用于个性规格记录
 	EditSpecificationId   int64
 	DeleteSpecificationId int64
@@ -88,13 +88,13 @@ func TestRepositoryAdminRoleDeviceLogin(t *testing.T) {
 	variables := map[string]interface{}{
 		"phone":    repositoryAdminTestCtx.Username,
 		"password": repositoryAdminTestCtx.Password,
-		"mac": "123:1242:1242:12412",
+		"mac":      "123:1242:1242:12412",
 	}
 	res, err := graphReqClient(query, variables, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 	token := res["login"]
 	tokenInfo := token.(map[string]interface{})
-	repositoryAdminTestCtx. DeviceToken= tokenInfo["accessToken"].(string)
+	repositoryAdminTestCtx.DeviceToken = tokenInfo["accessToken"].(string)
 }
 
 /**
@@ -886,17 +886,17 @@ func TestRepositoryAdminCreateSteel(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifierList": []interface{}{
 				fmt.Sprintf("%d", time.Now().UnixNano()),
 				fmt.Sprintf("%d", time.Now().UnixNano()),
 				fmt.Sprintf("%d", time.Now().UnixNano()),
 			},
-			"repositoryId": 1,
-			"specificationId": 1,
-			"manufacturerId":  4,
+			"repositoryId":           1,
+			"specificationId":        1,
+			"manufacturerId":         4,
 			"materialManufacturerId": 1,
-			"producedDate": "2021-06-11T10:08:42+08:00",
+			"producedDate":           "2021-06-11T10:08:42+08:00",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
@@ -906,7 +906,7 @@ func TestRepositoryAdminCreateSteel(t *testing.T) {
 	// 断言型钢操作日志增量3
 	var newTotalLogs int64
 	model.DB.Model(&steel_logs.SteelLog{}).Count(&newTotalLogs)
-	assert.Equal(t, oldTotalLogs + 3, newTotalLogs)
+	assert.Equal(t, oldTotalLogs+3, newTotalLogs)
 }
 
 /**
@@ -945,9 +945,9 @@ func TestRepositoryAdminGetSteelList(t *testing.T) {
 	  }  
 	}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
-			"page": 1,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"page":     1,
 			"pageSize": 10,
 		},
 	}
@@ -967,8 +967,8 @@ func TestRepositoryAdminSetPassword(t *testing.T) {
 		  setPassword(input: $input)
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"password": "12345678",
 		},
 	}
@@ -1000,14 +1000,15 @@ func TestRepositoryAdminGetMyInfo(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} { },
+	v := map[string]interface{}{
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	if err != nil {
 		t.Fatal("仓库管理员获取我的信息集成测试")
 	}
 }
+
 /**
  * 仓库管理员获取项目列表集成测试
  */
@@ -1029,10 +1030,11 @@ func TestRepositoryAdminGetProjectList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+
 /**
  * 仓库管理员获取订单列表集成测试
  */
@@ -1085,7 +1087,7 @@ func TestRepositoryAdminGetOrderList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
@@ -1144,7 +1146,7 @@ func TestRepositoryAdminDeviceGetOrderList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{
 			"queryType": "toBeConfirm",
 		},
@@ -1188,9 +1190,35 @@ func TestRepositoryAdminDeviceGetOrderDetail(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"id": o.Id,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理员确认或拒绝订单集成测试-手持设备
+ */
+func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
+	me, err := GetUserByToken(repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+	o := orders.Order{}
+	err = model.DB.Model(&o).Where("company_id = ? AND state = ?", me.CompanyId, orders.StateToBeConfirmed).First(&o).Error
+	assert.NoError(t, err)
+	q := `
+		mutation ($input: ConfirmOrderInput!){
+		  confirmOrRejectOrder(input: $input) {
+			id
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"id":       o.Id,
+			"isAccess": true,
 		},
 	}
 	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
