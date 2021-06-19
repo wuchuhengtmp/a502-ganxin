@@ -1040,7 +1040,7 @@ func TestRepositoryAdminGetProjectList(t *testing.T) {
  */
 func TestRepositoryAdminGetOrderList(t *testing.T) {
 	q := `
-		query ($input: GetOrderListInput!){
+		 query ($input: GetOrderListInput!){
 		  getOrderList(input: $input) {
 		   id
 			state
@@ -1066,26 +1066,34 @@ func TestRepositoryAdminGetOrderList(t *testing.T) {
 			  name
 			}
 			confirmedAt
-			sender {
-			  id
-			  name
-			}
-			receiveUser {
-			  id
-			  name
-			}
-			sendAt
-			receiveAt
+			expressList {
+        id
+        createdAt
+        sender {
+          id
+          name
+        }
+        receiver {
+          id
+          name
+        }
+        direction
+        expressCompany {
+          id
+          name
+        }
+        expressNo
+        receiveAt
+         
+      }
+			
 			total
-			weight
-			expressCompany{
-			  id
-			  name
-			}
+			weight		
 			orderNo
 			remark
 		  }
 		}
+
 	`
 	v := map[string]interface{}{
 		"input": map[string]interface{}{},
@@ -1099,7 +1107,7 @@ func TestRepositoryAdminGetOrderList(t *testing.T) {
  */
 func TestRepositoryAdminDeviceGetOrderList(t *testing.T) {
 	q := `
-		query ($input: GetOrderListInput!){
+		 query ($input: GetOrderListInput!){
 		  getOrderList(input: $input) {
 		   id
 			state
@@ -1125,27 +1133,34 @@ func TestRepositoryAdminDeviceGetOrderList(t *testing.T) {
 			  name
 			}
 			confirmedAt
-			sender {
-			  id
-			  name
-			}
-			receiveUser {
-			  id
-			  name
-			}
-			sendAt
-			receiveAt
+			expressList {
+        id
+        createdAt
+        sender {
+          id
+          name
+        }
+        receiver {
+          id
+          name
+        }
+        direction
+        expressCompany {
+          id
+          name
+        }
+        expressNo
+        receiveAt
+         
+      }
+			
 			total
-			weight
-			expressCompany{
-			  id
-			  name
-			}
+			weight		
 			orderNo
 			remark
 		  }
 		}
-	`
+`
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
 			"queryType": "toBeConfirm",

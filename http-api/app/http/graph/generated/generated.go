@@ -11,6 +11,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/companies"
 	"http-api/app/models/devices"
+	"http-api/app/models/order_express"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
@@ -51,6 +52,7 @@ type ResolverRoot interface {
 	CompanyItem() CompanyItemResolver
 	DeviceItem() DeviceItemResolver
 	Mutation() MutationResolver
+	OrderExpressItem() OrderExpressItemResolver
 	OrderItem() OrderItemResolver
 	OrderSpecificationItem() OrderSpecificationItemResolver
 	ProjectItem() ProjectItemResolver
@@ -187,12 +189,24 @@ type ComplexityRoot struct {
 		SingleUpload                func(childComplexity int, file graphql.Upload) int
 	}
 
+	OrderExpressItem struct {
+		CreatedAt      func(childComplexity int) int
+		Direction      func(childComplexity int) int
+		ExpressCompany func(childComplexity int) int
+		ExpressNo      func(childComplexity int) int
+		Id             func(childComplexity int) int
+		ReceiveAt      func(childComplexity int) int
+		Receiver       func(childComplexity int) int
+		Sender         func(childComplexity int) int
+	}
+
 	OrderItem struct {
 		ConfirmedAt            func(childComplexity int) int
 		ConfirmedUser          func(childComplexity int) int
 		CreateUser             func(childComplexity int) int
 		CreatedAt              func(childComplexity int) int
 		ExpectedReturnAt       func(childComplexity int) int
+		ExpressList            func(childComplexity int) int
 		Id                     func(childComplexity int) int
 		OrderNo                func(childComplexity int) int
 		OrderSpecificationList func(childComplexity int) int
@@ -359,11 +373,18 @@ type MutationResolver interface {
 	CreateSteel(ctx context.Context, input model.CreateSteelInput) ([]*steels.Steels, error)
 	SingleUpload(ctx context.Context, file graphql.Upload) (*model.FileItem, error)
 }
+type OrderExpressItemResolver interface {
+	ExpressCompany(ctx context.Context, obj *order_express.OrderExpress) (*codeinfo.CodeInfo, error)
+
+	Sender(ctx context.Context, obj *order_express.OrderExpress) (*users.Users, error)
+	Receiver(ctx context.Context, obj *order_express.OrderExpress) (*users.Users, error)
+}
 type OrderItemResolver interface {
 	Project(ctx context.Context, obj *orders.Order) (*projects.Projects, error)
 
 	CreateUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
 	ConfirmedUser(ctx context.Context, obj *orders.Order) (*users.Users, error)
+	ExpressList(ctx context.Context, obj *orders.Order) ([]*order_express.OrderExpress, error)
 
 	Total(ctx context.Context, obj *orders.Order) (int64, error)
 	Weight(ctx context.Context, obj *orders.Order) (float64, error)
@@ -1153,6 +1174,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SingleUpload(childComplexity, args["file"].(graphql.Upload)), true
 
+	case "OrderExpressItem.createdAt":
+		if e.complexity.OrderExpressItem.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.CreatedAt(childComplexity), true
+
+	case "OrderExpressItem.direction":
+		if e.complexity.OrderExpressItem.Direction == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.Direction(childComplexity), true
+
+	case "OrderExpressItem.expressCompany":
+		if e.complexity.OrderExpressItem.ExpressCompany == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.ExpressCompany(childComplexity), true
+
+	case "OrderExpressItem.expressNo":
+		if e.complexity.OrderExpressItem.ExpressNo == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.ExpressNo(childComplexity), true
+
+	case "OrderExpressItem.id":
+		if e.complexity.OrderExpressItem.Id == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.Id(childComplexity), true
+
+	case "OrderExpressItem.receiveAt":
+		if e.complexity.OrderExpressItem.ReceiveAt == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.ReceiveAt(childComplexity), true
+
+	case "OrderExpressItem.receiver":
+		if e.complexity.OrderExpressItem.Receiver == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.Receiver(childComplexity), true
+
+	case "OrderExpressItem.sender":
+		if e.complexity.OrderExpressItem.Sender == nil {
+			break
+		}
+
+		return e.complexity.OrderExpressItem.Sender(childComplexity), true
+
 	case "OrderItem.confirmedAt":
 		if e.complexity.OrderItem.ConfirmedAt == nil {
 			break
@@ -1187,6 +1264,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OrderItem.ExpectedReturnAt(childComplexity), true
+
+	case "OrderItem.expressList":
+		if e.complexity.OrderItem.ExpressList == nil {
+			break
+		}
+
+		return e.complexity.OrderItem.ExpressList(childComplexity), true
 
 	case "OrderItem.id":
 		if e.complexity.OrderItem.Id == nil {
@@ -2314,6 +2398,31 @@ type ExpressCompanyItem {
     """ 备注 """
     remark: String!
 }
+""" 物流方向 """
+enum OrderExpressDirection {
+    """ 去工场方向 """
+    toWorkshop
+    """ 归库方向 """
+    toRepository
+}
+""" 订单物流 """
+type OrderExpressItem {
+    id: Int!
+    """物流公司 """
+    expressCompany: ExpressCompanyItem!
+    """ 物流订单 """
+    expressNo        :String!
+    """ 发货人 """
+    sender: UserItem!
+    """ 收货人 """
+    receiver: UserItem!
+    """ 物流方向 """
+    direction: OrderExpressDirection!
+    """ 收货时间 """
+    receiveAt: Time
+    """ 发货时间 """
+    createdAt: Time!
+}
 """ 型钢订单 """
 type OrderItem {
     id: Int!
@@ -2327,18 +2436,8 @@ type OrderItem {
     createUser: UserItem!
     """ 确认人 """
     confirmedUser: UserItem
-#    """ 收货人 """
-#    receiveUser: UserItem
-#    """ 快递公司 """
-#    expressCompany: ExpressItem
-#    """ 发货人 """
-#    sender: UserItem
-#    """ 物流号 """
-#    expressNo: String!
-#    """ 收货时间 """
-#    receiveAt: Time
-#    """ 发货时间 """
-#    sendAt: Time
+    """ 物流单信"""
+    expressList: [OrderExpressItem]
     """ 备注 """
     remark: String!
     """ 订单编号 """
@@ -2415,10 +2514,10 @@ extend type Mutation {
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-#    """ 项目订单出库到场地 """
-#    projectOrder2Workshop(): Boolean!
+    #   todo  """ 项目订单出库到场地 """
+    #    projectOrder2Workshop(): Boolean!
     """ 项目订单出库到场地详情 """
-     projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
+    projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -6979,6 +7078,283 @@ func (ec *executionContext) _Mutation_singleUpload(ctx context.Context, field gr
 	return ec.marshalNFileItem2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐFileItem(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _OrderExpressItem_id(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_expressCompany(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderExpressItem().ExpressCompany(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*codeinfo.CodeInfo)
+	fc.Result = res
+	return ec.marshalNExpressCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_expressNo(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpressNo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_sender(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderExpressItem().Sender(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_receiver(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderExpressItem().Receiver(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_direction(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Direction, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(order_express.OrderExpressDirection)
+	fc.Result = res
+	return ec.marshalNOrderExpressDirection2httpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpressDirection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_receiveAt(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReceiveAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderExpressItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderExpressItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _OrderItem_id(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7184,6 +7560,38 @@ func (ec *executionContext) _OrderItem_confirmedUser(ctx context.Context, field 
 	res := resTmp.(*users.Users)
 	fc.Result = res
 	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderItem_expressList(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderItem().ExpressList(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*order_express.OrderExpress)
+	fc.Result = res
+	return ec.marshalOOrderExpressItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpress(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderItem_remark(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
@@ -13814,6 +14222,92 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var orderExpressItemImplementors = []string{"OrderExpressItem"}
+
+func (ec *executionContext) _OrderExpressItem(ctx context.Context, sel ast.SelectionSet, obj *order_express.OrderExpress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, orderExpressItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OrderExpressItem")
+		case "id":
+			out.Values[i] = ec._OrderExpressItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "expressCompany":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderExpressItem_expressCompany(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "expressNo":
+			out.Values[i] = ec._OrderExpressItem_expressNo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "sender":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderExpressItem_sender(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "receiver":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderExpressItem_receiver(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "direction":
+			out.Values[i] = ec._OrderExpressItem_direction(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "receiveAt":
+			out.Values[i] = ec._OrderExpressItem_receiveAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._OrderExpressItem_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var orderItemImplementors = []string{"OrderItem"}
 
 func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet, obj *orders.Order) graphql.Marshaler {
@@ -13877,6 +14371,17 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._OrderItem_confirmedUser(ctx, field, obj)
+				return res
+			})
+		case "expressList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderItem_expressList(ctx, field, obj)
 				return res
 			})
 		case "remark":
@@ -15382,6 +15887,20 @@ func (ec *executionContext) marshalNErrCodes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgra
 	return ret
 }
 
+func (ec *executionContext) marshalNExpressCompanyItem2httpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v codeinfo.CodeInfo) graphql.Marshaler {
+	return ec._ExpressCompanyItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNExpressCompanyItem2ᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v *codeinfo.CodeInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ExpressCompanyItem(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNExpressItem2httpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx context.Context, sel ast.SelectionSet, v codeinfo.CodeInfo) graphql.Marshaler {
 	return ec._ExpressItem(ctx, sel, &v)
 }
@@ -15688,6 +16207,22 @@ func (ec *executionContext) marshalNMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 		return graphql.Null
 	}
 	return ec._MaterialManufacturerItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNOrderExpressDirection2httpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpressDirection(ctx context.Context, v interface{}) (order_express.OrderExpressDirection, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := order_express.OrderExpressDirection(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOrderExpressDirection2httpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpressDirection(ctx context.Context, sel ast.SelectionSet, v order_express.OrderExpressDirection) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNOrderItem2httpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx context.Context, sel ast.SelectionSet, v orders.Order) graphql.Marshaler {
@@ -16662,6 +17197,53 @@ func (ec *executionContext) marshalOMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 		return graphql.Null
 	}
 	return ec._MaterialManufacturerItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOOrderExpressItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpress(ctx context.Context, sel ast.SelectionSet, v []*order_express.OrderExpress) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOOrderExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpress(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOOrderExpressItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpress(ctx context.Context, sel ast.SelectionSet, v *order_express.OrderExpress) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._OrderExpressItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx context.Context, sel ast.SelectionSet, v *orders.Order) graphql.Marshaler {

@@ -56,6 +56,10 @@ func (*Resolver)ProjectItem() generated.ProjectItemResolver {
 func (*Resolver)OrderItem() generated.OrderItemResolver {
 	return query_resolver.OrderItemResolver{}
 }
+func (*Resolver)OrderExpressItem() generated.OrderExpressItemResolver {
+	return query_resolver.OrderExpressItemResolver{}
+}
+
 func (*Resolver) OrderSpecificationItem() generated.OrderSpecificationItemResolver {
 
 	return query_resolver.OrderSpecificationItemResolver{}

@@ -15,6 +15,7 @@ import (
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/http/graph/schema/services"
 	"http-api/app/models/codeinfo"
+	"http-api/app/models/order_express"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
@@ -175,4 +176,13 @@ func (OrderSpecificationItemResolver) TotalToBeSend(ctx context.Context, obj *or
 		Count(&total).Error
 
 	return obj.Total - total, err
+}
+
+func (OrderItemResolver) ExpressList(ctx context.Context, obj *orders.Order) (orderExpressList []*order_express.OrderExpress, err error) {
+	err = model.DB.Model(&order_express.OrderExpress{}).
+		Where("order_id = ?", obj.Id).
+		Find(&orderExpressList).
+		Error
+
+	return
 }

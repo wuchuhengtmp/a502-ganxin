@@ -23,6 +23,31 @@ type ExpressCompanyItem {
     """ 备注 """
     remark: String!
 }
+""" 物流方向 """
+enum OrderExpressDirection {
+    """ 去工场方向 """
+    toWorkshop
+    """ 归库方向 """
+    toRepository
+}
+""" 订单物流 """
+type OrderExpressItem {
+    id: Int!
+    """物流公司 """
+    expressCompany: ExpressCompanyItem!
+    """ 物流订单 """
+    expressNo        :String!
+    """ 发货人 """
+    sender: UserItem!
+    """ 收货人 """
+    receiver: UserItem!
+    """ 物流方向 """
+    direction: OrderExpressDirection!
+    """ 收货时间 """
+    receiveAt: Time
+    """ 发货时间 """
+    createdAt: Time!
+}
 """ 型钢订单 """
 type OrderItem {
     id: Int!
@@ -36,18 +61,8 @@ type OrderItem {
     createUser: UserItem!
     """ 确认人 """
     confirmedUser: UserItem
-#    """ 收货人 """
-#    receiveUser: UserItem
-#    """ 快递公司 """
-#    expressCompany: ExpressItem
-#    """ 发货人 """
-#    sender: UserItem
-#    """ 物流号 """
-#    expressNo: String!
-#    """ 收货时间 """
-#    receiveAt: Time
-#    """ 发货时间 """
-#    sendAt: Time
+    """ 物流单信"""
+    expressList: [OrderExpressItem]
     """ 备注 """
     remark: String!
     """ 订单编号 """
@@ -124,10 +139,10 @@ extend type Mutation {
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-#    """ 项目订单出库到场地 """
-#    projectOrder2Workshop(): Boolean!
+    #   todo  """ 项目订单出库到场地 """
+    #    projectOrder2Workshop(): Boolean!
     """ 项目订单出库到场地详情 """
-     projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
+    projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 extend type Query {
     """ 获取需求单列表 """

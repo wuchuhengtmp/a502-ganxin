@@ -87,5 +87,8 @@ models:
     model: http-api/app/models/codeinfo.CodeInfo
   OrderSpecificationItem:
     model: http-api/app/models/order_specification.OrderSpecification
-
+  OrderExpressItem:
+    model: http-api/app/models/order_express.OrderExpress
+  OrderExpressDirection:
+    model: http-api/app/models/order_express.OrderExpressDirection
 

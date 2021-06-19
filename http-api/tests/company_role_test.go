@@ -1199,7 +1199,10 @@ func TestCompanyAdminGetProjectList(t *testing.T) {
  */
 func TestCompanyAdminGetOrderList(t *testing.T) {
 	q := `
-		query ($input: GetOrderListInput!){
+			
+# confirmOrder 确认订单类型
+# ≈ 待确认订单类型
+  query ($input: GetOrderListInput!){
 		  getOrderList(input: $input) {
 		   id
 			state
@@ -1225,26 +1228,34 @@ func TestCompanyAdminGetOrderList(t *testing.T) {
 			  name
 			}
 			confirmedAt
-			sender {
-			  id
-			  name
-			}
-			receiveUser {
-			  id
-			  name
-			}
-			sendAt
-			receiveAt
+			expressList {
+        id
+        createdAt
+        sender {
+          id
+          name
+        }
+        receiver {
+          id
+          name
+        }
+        direction
+        expressCompany {
+          id
+          name
+        }
+        expressNo
+        receiveAt
+         
+      }
+			
 			total
-			weight
-			expressCompany{
-			  id
-			  name
-			}
+			weight		
 			orderNo
 			remark
 		  }
 		}
+
 	`
 	v := map[string]interface{} {
 		"input": map[string]interface{}{},

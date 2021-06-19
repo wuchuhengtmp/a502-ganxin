@@ -448,7 +448,7 @@ func TestMaintenanceAdminGetProjectList(t *testing.T) {
  */
 func TestMaintenanceAdminGetOrderList(t *testing.T) {
 	q := `
-		query ($input: GetOrderListInput!){
+		 query ($input: GetOrderListInput!){
 		  getOrderList(input: $input) {
 		   id
 			state
@@ -474,26 +474,34 @@ func TestMaintenanceAdminGetOrderList(t *testing.T) {
 			  name
 			}
 			confirmedAt
-			sender {
-			  id
-			  name
-			}
-			receiveUser {
-			  id
-			  name
-			}
-			sendAt
-			receiveAt
+			expressList {
+        id
+        createdAt
+        sender {
+          id
+          name
+        }
+        receiver {
+          id
+          name
+        }
+        direction
+        expressCompany {
+          id
+          name
+        }
+        expressNo
+        receiveAt
+         
+      }
+			
 			total
-			weight
-			expressCompany{
-			  id
-			  name
-			}
+			weight		
 			orderNo
 			remark
 		  }
 		}
+
 	`
 	v := map[string]interface{} {
 		"input": map[string]interface{}{},
