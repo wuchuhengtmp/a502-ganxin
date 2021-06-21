@@ -133,6 +133,8 @@ input ProjectOrder2WorkshopDetail {
     identifierList: [String!]!
     """ 规格id """
     specificationId: Int
+    """ 订单id """
+    orderId: Int!
 }
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
@@ -141,15 +143,15 @@ extend type Mutation {
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     #   todo  """ 项目订单出库到场地 """
     #    projectOrder2Workshop(): Boolean!
-    """ 项目订单出库到场地详情 """
-    projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
-    """ 获取要出库到场地的订单列表-手持机 """
-    getTobeSendWorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取要出库到场地的订单列表-手持机 auth(repositoryAdmin) """
+    getTobeSendWorkshopOrderList: [OrderItem]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
+    """ 获取项目订单出库到场地详情 """
+    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 

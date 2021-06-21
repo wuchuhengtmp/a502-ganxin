@@ -307,6 +307,8 @@ type ProjectOrder2WorkshopDetail struct {
 	IdentifierList []string `json:"identifierList"`
 	//  规格id
 	SpecificationID *int64 `json:"specificationId"`
+	//  订单id
+	OrderID int64 `json:"orderId"`
 }
 
 type RepositoryLeaderItem struct {

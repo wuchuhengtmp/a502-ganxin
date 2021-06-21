@@ -157,36 +157,35 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ConfirmOrRejectOrder        func(childComplexity int, input model.ConfirmOrderInput) int
-		CreateCompany               func(childComplexity int, input model.CreateCompanyInput) int
-		CreateCompanyUser           func(childComplexity int, input model.CreateCompanyUserInput) int
-		CreateExpress               func(childComplexity int, input model.CreateExpressInput) int
-		CreateManufacturer          func(childComplexity int, input model.CreateManufacturerInput) int
-		CreateMaterialManufacturer  func(childComplexity int, input model.CreateMaterialManufacturerInput) int
-		CreateOrder                 func(childComplexity int, input model.CreateOrderInput) int
-		CreateProject               func(childComplexity int, input model.CreateProjectInput) int
-		CreateRepository            func(childComplexity int, input model.CreateRepositoryInput) int
-		CreateSpecification         func(childComplexity int, input model.CreateSpecificationInput) int
-		CreateSteel                 func(childComplexity int, input model.CreateSteelInput) int
-		DeleteCompany               func(childComplexity int, id int64) int
-		DeleteCompanyUser           func(childComplexity int, uid int64) int
-		DeleteExpress               func(childComplexity int, id int64) int
-		DeleteManufacturer          func(childComplexity int, id int64) int
-		DeleteMaterialManufacturer  func(childComplexity int, id int64) int
-		DeleteRepository            func(childComplexity int, repositoryID int64) int
-		DeleteSpecification         func(childComplexity int, id int64) int
-		EditCompany                 func(childComplexity int, input model.EditCompanyInput) int
-		EditCompanyUser             func(childComplexity int, input *model.EditCompanyUserInput) int
-		EditDevice                  func(childComplexity int, input model.EditDeviceInput) int
-		EditExpress                 func(childComplexity int, input model.EditExpressInput) int
-		EditManufacturer            func(childComplexity int, input model.EditManufacturerInput) int
-		EditMaterialManufacturer    func(childComplexity int, input model.EditMaterialManufacturerInput) int
-		EditPrice                   func(childComplexity int, price float64) int
-		EditSpecification           func(childComplexity int, input model.EditSpecificationInput) int
-		Login                       func(childComplexity int, phone string, password string, mac *string) int
-		ProjectOrder2WorkshopDetail func(childComplexity int, input model.ProjectOrder2WorkshopDetail) int
-		SetPassword                 func(childComplexity int, input *model.SetPasswordInput) int
-		SingleUpload                func(childComplexity int, file graphql.Upload) int
+		ConfirmOrRejectOrder       func(childComplexity int, input model.ConfirmOrderInput) int
+		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
+		CreateCompanyUser          func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateExpress              func(childComplexity int, input model.CreateExpressInput) int
+		CreateManufacturer         func(childComplexity int, input model.CreateManufacturerInput) int
+		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
+		CreateOrder                func(childComplexity int, input model.CreateOrderInput) int
+		CreateProject              func(childComplexity int, input model.CreateProjectInput) int
+		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
+		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
+		CreateSteel                func(childComplexity int, input model.CreateSteelInput) int
+		DeleteCompany              func(childComplexity int, id int64) int
+		DeleteCompanyUser          func(childComplexity int, uid int64) int
+		DeleteExpress              func(childComplexity int, id int64) int
+		DeleteManufacturer         func(childComplexity int, id int64) int
+		DeleteMaterialManufacturer func(childComplexity int, id int64) int
+		DeleteRepository           func(childComplexity int, repositoryID int64) int
+		DeleteSpecification        func(childComplexity int, id int64) int
+		EditCompany                func(childComplexity int, input model.EditCompanyInput) int
+		EditCompanyUser            func(childComplexity int, input *model.EditCompanyUserInput) int
+		EditDevice                 func(childComplexity int, input model.EditDeviceInput) int
+		EditExpress                func(childComplexity int, input model.EditExpressInput) int
+		EditManufacturer           func(childComplexity int, input model.EditManufacturerInput) int
+		EditMaterialManufacturer   func(childComplexity int, input model.EditMaterialManufacturerInput) int
+		EditPrice                  func(childComplexity int, price float64) int
+		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
+		Login                      func(childComplexity int, phone string, password string, mac *string) int
+		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
+		SingleUpload               func(childComplexity int, file graphql.Upload) int
 	}
 
 	OrderExpressItem struct {
@@ -241,24 +240,25 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ErrorCodeDesc                func(childComplexity int) int
-		GetAllCompany                func(childComplexity int) int
-		GetCompanyUser               func(childComplexity int, input *model.GetCompanyUserInput) int
-		GetDeviceList                func(childComplexity int) int
-		GetExpressList               func(childComplexity int) int
-		GetManufacturers             func(childComplexity int) int
-		GetMaterialManufacturers     func(childComplexity int) int
-		GetMyInfo                    func(childComplexity int) int
-		GetOrderDetail               func(childComplexity int, input model.GetOrderDetailInput) int
-		GetOrderList                 func(childComplexity int, input model.GetOrderListInput) int
-		GetPrice                     func(childComplexity int) int
-		GetProjectLis                func(childComplexity int) int
-		GetRepositoryList            func(childComplexity int) int
-		GetRepositoryOverview        func(childComplexity int, input model.GetRepositoryOverviewInput) int
-		GetRoleList                  func(childComplexity int) int
-		GetSpecification             func(childComplexity int) int
-		GetSteelList                 func(childComplexity int, input model.PaginationInput) int
-		GetTobeSendWorkshopOrderList func(childComplexity int) int
+		ErrorCodeDesc                  func(childComplexity int) int
+		GetAllCompany                  func(childComplexity int) int
+		GetCompanyUser                 func(childComplexity int, input *model.GetCompanyUserInput) int
+		GetDeviceList                  func(childComplexity int) int
+		GetExpressList                 func(childComplexity int) int
+		GetManufacturers               func(childComplexity int) int
+		GetMaterialManufacturers       func(childComplexity int) int
+		GetMyInfo                      func(childComplexity int) int
+		GetOrderDetail                 func(childComplexity int, input model.GetOrderDetailInput) int
+		GetOrderList                   func(childComplexity int, input model.GetOrderListInput) int
+		GetPrice                       func(childComplexity int) int
+		GetProjectLis                  func(childComplexity int) int
+		GetProjectOrder2WorkshopDetail func(childComplexity int, input model.ProjectOrder2WorkshopDetail) int
+		GetRepositoryList              func(childComplexity int) int
+		GetRepositoryOverview          func(childComplexity int, input model.GetRepositoryOverviewInput) int
+		GetRoleList                    func(childComplexity int) int
+		GetSpecification               func(childComplexity int) int
+		GetSteelList                   func(childComplexity int, input model.PaginationInput) int
+		GetTobeSendWorkshopOrderList   func(childComplexity int) int
 	}
 
 	RepositoryItem struct {
@@ -362,7 +362,6 @@ type MutationResolver interface {
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
-	ProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetail) ([]*steels.Steels, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
@@ -413,6 +412,7 @@ type QueryResolver interface {
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
 	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
+	GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetail) ([]*steels.Steels, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
@@ -1138,18 +1138,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
 
-	case "Mutation.projectOrder2WorkshopDetail":
-		if e.complexity.Mutation.ProjectOrder2WorkshopDetail == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_projectOrder2WorkshopDetail_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.ProjectOrder2WorkshopDetail(childComplexity, args["input"].(model.ProjectOrder2WorkshopDetail)), true
-
 	case "Mutation.setPassword":
 		if e.complexity.Mutation.SetPassword == nil {
 			break
@@ -1545,6 +1533,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetProjectLis(childComplexity), true
+
+	case "Query.getProjectOrder2WorkshopDetail":
+		if e.complexity.Query.GetProjectOrder2WorkshopDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getProjectOrder2WorkshopDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetProjectOrder2WorkshopDetail(childComplexity, args["input"].(model.ProjectOrder2WorkshopDetail)), true
 
 	case "Query.getRepositoryList":
 		if e.complexity.Query.GetRepositoryList == nil {
@@ -2508,6 +2508,8 @@ input ProjectOrder2WorkshopDetail {
     identifierList: [String!]!
     """ 规格id """
     specificationId: Int
+    """ 订单id """
+    orderId: Int!
 }
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
@@ -2516,16 +2518,16 @@ extend type Mutation {
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     #   todo  """ 项目订单出库到场地 """
     #    projectOrder2Workshop(): Boolean!
-    """ 项目订单出库到场地详情 """
-    projectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
-    """ 获取要出库到场地的订单列表-手持机 """
-    getTobeSendWorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取要出库到场地的订单列表-手持机 auth(repositoryAdmin) """
+    getTobeSendWorkshopOrderList: [OrderItem]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
+    """ 获取项目订单出库到场地详情 """
+    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
 }
 
 `, BuiltIn: false},
@@ -3206,21 +3208,6 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_projectOrder2WorkshopDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.ProjectOrder2WorkshopDetail
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNProjectOrder2WorkshopDetail2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetail(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_setPassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3303,6 +3290,21 @@ func (ec *executionContext) field_Query_getOrderList_args(ctx context.Context, r
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNGetOrderListInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderListInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getProjectOrder2WorkshopDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ProjectOrder2WorkshopDetail
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNProjectOrder2WorkshopDetail2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetail(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6466,48 +6468,6 @@ func (ec *executionContext) _Mutation_confirmOrRejectOrder(ctx context.Context, 
 	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_projectOrder2WorkshopDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_projectOrder2WorkshopDetail_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ProjectOrder2WorkshopDetail(rctx, args["input"].(model.ProjectOrder2WorkshopDetail))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*steels.Steels)
-	fc.Result = res
-	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Mutation_editPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8971,7 +8931,7 @@ func (ec *executionContext) _Query_getTobeSendWorkshopOrderList(ctx context.Cont
 			return ec.resolvers.Query().GetTobeSendWorkshopOrderList(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
 			if err != nil {
 				return nil, err
 			}
@@ -9084,6 +9044,48 @@ func (ec *executionContext) _Query_getOrderDetail(ctx context.Context, field gra
 	res := resTmp.(*orders.Order)
 	fc.Result = res
 	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getProjectOrder2WorkshopDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getProjectOrder2WorkshopDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetProjectOrder2WorkshopDetail(rctx, args["input"].(model.ProjectOrder2WorkshopDetail))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -13410,6 +13412,14 @@ func (ec *executionContext) unmarshalInputProjectOrder2WorkshopDetail(ctx contex
 			if err != nil {
 				return it, err
 			}
+		case "orderId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderId"))
+			it.OrderID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -14161,11 +14171,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "projectOrder2WorkshopDetail":
-			out.Values[i] = ec._Mutation_projectOrder2WorkshopDetail(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "editPrice":
 			out.Values[i] = ec._Mutation_editPrice(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -14798,6 +14803,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getOrderDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getProjectOrder2WorkshopDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getProjectOrder2WorkshopDetail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

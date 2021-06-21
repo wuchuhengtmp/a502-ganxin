@@ -23,7 +23,7 @@ type Order struct {
 	Id               int64     `json:"id"`
 	ProjectId        int64     `json:"ProjectId" gorm:"comment:项目id"`
 	RepositoryId     int64     `json:"repositoryId" gorm:"comment: 仓库id"`
-	State            int64     `json:"state" gorm:"comment:订单状态 待确认200 已确认300 已拒绝400 已发货500 待收货600 已收货(部分)700 已收货全部800 已归库900"`
+	State            StateCode `json:"state" gorm:"comment:订单状态 待确认200 已确认300 已拒绝400 已发货500 待收货600 已收货(部分)700 已收货全部800 已归库900"`
 	PartList         string    `json:"partList" gorm:"comment:配件清单"`
 	CreateUid        int64     `json:"createUid" gorm:"comment:创建人"`
 	ConfirmedUid     int64     `json:"confirmedUid" gorm:"comment:确认人"`
@@ -41,18 +41,21 @@ func (Order) TableName() string {
 	return "orders"
 }
 
+type StateCode = int64
+
 const (
-	StateToBeConfirmed   int64 = 200 // 待确认
-	StateConfirmed       int64 = 300 // 已确认
-	StateRejected        int64 = 400 // 已拒绝
-	StateSend            int64 = 500 // 已发货
-	StatePartOfReceipted int64 = 700 // 部分收货
-	StateReceipted       int64 = 800 // 收货
+	StateToBeConfirmed   StateCode = 200 // 待确认
+	StateConfirmed       StateCode = 300 // 已确认
+	StateRejected        StateCode = 400 // 已拒绝
+	StateSend            StateCode = 500 // 已发货
+	StatePartOfReceipted StateCode = 700 // 部分收货
+	StateReceipted       StateCode = 800 // 收货
 )
+
 /**
  *  状态码映射说明
  */
-var StateMapDesc = map[int64]string{
+var StateMapDesc = map[StateCode]string{
 	StateToBeConfirmed:   "待确认",
 	StateConfirmed:       "已确认",
 	StateRejected:        "已拒绝",
@@ -131,7 +134,7 @@ func (o *Order) GetSelf() (err error) {
 /**
  * 获取订单上型钢的数量
  */
-func GetTotal(tx *gorm.DB, o *Order) (int64, error)  {
+func GetTotal(tx *gorm.DB, o *Order) (int64, error) {
 	var totalSteels struct {
 		TotalSteels int64
 	}
