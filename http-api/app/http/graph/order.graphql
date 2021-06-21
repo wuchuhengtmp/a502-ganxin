@@ -128,7 +128,7 @@ input ConfirmOrderInput {
     """ 是否通过 """
     isAccess: Boolean!
 }
-input ProjectOrder2WorkshopDetail {
+input ProjectOrder2WorkshopDetailInput {
     """ 识别码列表 """
     identifierList: [String!]!
     """ 规格id """
@@ -152,6 +152,6 @@ extend type Query {
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
     """ 获取项目订单出库到场地详情 """
-    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
+    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 

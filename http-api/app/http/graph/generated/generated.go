@@ -252,7 +252,7 @@ type ComplexityRoot struct {
 		GetOrderList                   func(childComplexity int, input model.GetOrderListInput) int
 		GetPrice                       func(childComplexity int) int
 		GetProjectLis                  func(childComplexity int) int
-		GetProjectOrder2WorkshopDetail func(childComplexity int, input model.ProjectOrder2WorkshopDetail) int
+		GetProjectOrder2WorkshopDetail func(childComplexity int, input model.ProjectOrder2WorkshopDetailInput) int
 		GetRepositoryList              func(childComplexity int) int
 		GetRepositoryOverview          func(childComplexity int, input model.GetRepositoryOverviewInput) int
 		GetRoleList                    func(childComplexity int) int
@@ -412,7 +412,7 @@ type QueryResolver interface {
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
 	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
-	GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetail) ([]*steels.Steels, error)
+	GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetailInput) ([]*steels.Steels, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
@@ -1544,7 +1544,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetProjectOrder2WorkshopDetail(childComplexity, args["input"].(model.ProjectOrder2WorkshopDetail)), true
+		return e.complexity.Query.GetProjectOrder2WorkshopDetail(childComplexity, args["input"].(model.ProjectOrder2WorkshopDetailInput)), true
 
 	case "Query.getRepositoryList":
 		if e.complexity.Query.GetRepositoryList == nil {
@@ -2503,7 +2503,7 @@ input ConfirmOrderInput {
     """ 是否通过 """
     isAccess: Boolean!
 }
-input ProjectOrder2WorkshopDetail {
+input ProjectOrder2WorkshopDetailInput {
     """ 识别码列表 """
     identifierList: [String!]!
     """ 规格id """
@@ -2527,7 +2527,7 @@ extend type Query {
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
     """ 获取项目订单出库到场地详情 """
-    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetail!): [SteelItem!]!
+    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
 `, BuiltIn: false},
@@ -3301,10 +3301,10 @@ func (ec *executionContext) field_Query_getOrderList_args(ctx context.Context, r
 func (ec *executionContext) field_Query_getProjectOrder2WorkshopDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.ProjectOrder2WorkshopDetail
+	var arg0 model.ProjectOrder2WorkshopDetailInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNProjectOrder2WorkshopDetail2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetail(ctx, tmp)
+		arg0, err = ec.unmarshalNProjectOrder2WorkshopDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9070,8 +9070,38 @@ func (ec *executionContext) _Query_getProjectOrder2WorkshopDetail(ctx context.Co
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetProjectOrder2WorkshopDetail(rctx, args["input"].(model.ProjectOrder2WorkshopDetail))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetProjectOrder2WorkshopDetail(rctx, args["input"].(model.ProjectOrder2WorkshopDetailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.Steels); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.Steels`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13390,8 +13420,8 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputProjectOrder2WorkshopDetail(ctx context.Context, obj interface{}) (model.ProjectOrder2WorkshopDetail, error) {
-	var it model.ProjectOrder2WorkshopDetail
+func (ec *executionContext) unmarshalInputProjectOrder2WorkshopDetailInput(ctx context.Context, obj interface{}) (model.ProjectOrder2WorkshopDetailInput, error) {
+	var it model.ProjectOrder2WorkshopDetailInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -16398,8 +16428,8 @@ func (ec *executionContext) marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋp
 	return ec._ProjectItem(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNProjectOrder2WorkshopDetail2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetail(ctx context.Context, v interface{}) (model.ProjectOrder2WorkshopDetail, error) {
-	res, err := ec.unmarshalInputProjectOrder2WorkshopDetail(ctx, v)
+func (ec *executionContext) unmarshalNProjectOrder2WorkshopDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetailInput(ctx context.Context, v interface{}) (model.ProjectOrder2WorkshopDetailInput, error) {
+	res, err := ec.unmarshalInputProjectOrder2WorkshopDetailInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

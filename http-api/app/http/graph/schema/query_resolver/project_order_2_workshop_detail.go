@@ -11,17 +11,30 @@ package query_resolver
 import (
 	"context"
 	"http-api/app/http/graph/errors"
-	"http-api/app/http/graph/model"
+	graphModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/models/steels"
+	"http-api/pkg/model"
 )
 
-func (*QueryResolver)GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetail) (steelList []*steels.Steels, err error) {
+func (*QueryResolver)GetProjectOrder2WorkshopDetail(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) (steelList []*steels.Steels, err error) {
 	if err = requests.ValidateGetProject2WorkshopDetailRequest(ctx, input); err != nil {
 		return steelList, errors.ValidateErr(ctx, err)
 	}
-	// todo 待出库详情信息解析器
-	var steelsList []*steels.Steels
+	if input.SpecificationID != nil {
+		if err := model.DB.
+			Model(&steels.Steels{}).
+			Where("identifier in ?", input.IdentifierList).
+			Where("specification_id = ?", *input.SpecificationID).
+			Find(&steelList).
+			Error; err != nil {
+			return steelList, err
+		}
+	} else {
+		if err := model.DB.Model(&steels.Steels{}).Where("identifier in ?", input.IdentifierList).Find(&steelList).Error; err != nil {
+			return steelList, err
+		}
+	}
 
-	return steelsList, nil
+	return
 }
