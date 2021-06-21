@@ -27,6 +27,10 @@ type OrderSpecificationList map[string]int64
 func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetail) error {
 	// 声明订单中各个规格需求量,用于检验输入数量和需求量是否超过上限
 	osl := OrderSpecificationList{}
+	// 识别码列表不能为空
+	if err := osl.IdentificationListMustBeEmpty(ctx, input); err != nil {
+		return err
+	}
 	// 检验有没有这个订单
 	if err := osl.checkHasOrder(ctx, input); err != nil {
 		return err
@@ -35,10 +39,14 @@ func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphMo
 	if err := osl.checkOrderState(ctx, input); err != nil {
 		return err
 	}
-	// 获取订单各规格需求上限
-	//if err := osl.getOrderSpecificationGroupTotal(ctx, input); err != nil {
-	//	return nil
-	//}
+	// 验证是否冗余识别码
+	if err := osl.isRedundancyIdentification(input.IdentifierList); err != nil {
+		return err
+	}
+	// 验证每根型钢
+	if err := osl.CheckSteelList(ctx, input); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -72,20 +80,61 @@ func (OrderSpecificationList) checkOrderState(ctx context.Context, input graphMo
 }
 
 // 获取订单各规格的需求量上限
-func (OrderSpecificationList) int8(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetail)  (OrderSpecificationList error){
+func (OrderSpecificationList) GetOrderSpecificationGroupTotal(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetail)  (map[string]int64, error){
+	list :=  make(map[string]int64)
 	var osList  []*order_specification.OrderSpecification
 	if err := model.DB.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", input.OrderID).Find( &osList).Error; err != nil {
-		return err
+		return list, nil
 	}
 	for _, item := range osList {
 		oss := order_specification_steel.OrderSpecificationSteel{}
 		var existsTotal int64
 		if err := model.DB.Model(&oss).Where( "order_specification_id = ?", item.Id).Count(&existsTotal).Error; err != nil {
-			return err
+			return list, err
 		}
-			//osl[item.Specification] = item.Total - existsTotal
+		list[item.Specification] = item.Total - existsTotal
 	}
 
+	return list, nil
+}
+
+/**
+ * 检验是否有冗余识别码
+ */
+func (OrderSpecificationList)isRedundancyIdentification(list []string) error {
+	identificationMapTotal := make(map[string]int64)
+	for _, item := range list {
+		if _, ok := identificationMapTotal[item]; ok {
+			return fmt.Errorf("识别码出现冗余，%s 不能输入多个同样的", item)
+		} else {
+			identificationMapTotal[item] = 1
+		}
+	}
+
+	return nil
+}
+
+/*
+ * 识别码不能为空
+ */
+func (OrderSpecificationList)IdentificationListMustBeEmpty(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetail) error {
+	if len(input.IdentifierList) == 0 {
+		return fmt.Errorf("识别码列表不能为空")
+	}
+
+	return nil
+}
+
+func (OrderSpecificationList)CheckSteelList(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetail) error {
+	osl := OrderSpecificationList{}
+	// 获取订单各规格需求上限
+	_, err := osl.GetOrderSpecificationGroupTotal(ctx, input)
+	if  err != nil {
+		return nil
+	}
+	//for _, identification := range input.IdentifierList {
+	//
+	//}
 
 	return nil
 }
