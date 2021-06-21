@@ -119,6 +119,12 @@ type ComplexityRoot struct {
 		URL func(childComplexity int) int
 	}
 
+	GetProjectOrder2WorkshopDetailRes struct {
+		List        func(childComplexity int) int
+		Total       func(childComplexity int) int
+		TotalWeight func(childComplexity int) int
+	}
+
 	GetRepositoryOverviewRes struct {
 		Total  func(childComplexity int) int
 		Weight func(childComplexity int) int
@@ -412,7 +418,7 @@ type QueryResolver interface {
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
 	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
-	GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetailInput) ([]*steels.Steels, error)
+	GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetailInput) (*projects.GetProjectOrder2WorkshopDetailRes, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
@@ -680,6 +686,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FileItem.URL(childComplexity), true
+
+	case "GetProjectOrder2WorkshopDetailRes.list":
+		if e.complexity.GetProjectOrder2WorkshopDetailRes.List == nil {
+			break
+		}
+
+		return e.complexity.GetProjectOrder2WorkshopDetailRes.List(childComplexity), true
+
+	case "GetProjectOrder2WorkshopDetailRes.total":
+		if e.complexity.GetProjectOrder2WorkshopDetailRes.Total == nil {
+			break
+		}
+
+		return e.complexity.GetProjectOrder2WorkshopDetailRes.Total(childComplexity), true
+
+	case "GetProjectOrder2WorkshopDetailRes.totalWeight":
+		if e.complexity.GetProjectOrder2WorkshopDetailRes.TotalWeight == nil {
+			break
+		}
+
+		return e.complexity.GetProjectOrder2WorkshopDetailRes.TotalWeight(childComplexity), true
 
 	case "GetRepositoryOverviewRes.total":
 		if e.complexity.GetRepositoryOverviewRes.Total == nil {
@@ -2511,6 +2538,15 @@ input ProjectOrder2WorkshopDetailInput {
     """ 订单id """
     orderId: Int!
 }
+""" 获取项目订单出库到场地详情 """
+type GetProjectOrder2WorkshopDetailRes {
+    """  数量列表 """
+    list: [SteelItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重置吨 """
+    totalWeight: Float!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
@@ -2527,7 +2563,7 @@ extend type Query {
     """ 获取订单详情-手持机 auth(projectAdmin)  """
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
     """ 获取项目订单出库到场地详情 """
-    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): GetProjectOrder2WorkshopDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
 `, BuiltIn: false},
@@ -4499,6 +4535,111 @@ func (ec *executionContext) _FileItem_url(ctx context.Context, field graphql.Col
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes_list(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectOrder2WorkshopDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectOrder2WorkshopDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.List, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚕhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes_total(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectOrder2WorkshopDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectOrder2WorkshopDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes_totalWeight(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectOrder2WorkshopDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectOrder2WorkshopDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalWeight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetRepositoryOverviewRes_total(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositoryOverviewRes) (ret graphql.Marshaler) {
@@ -9098,10 +9239,10 @@ func (ec *executionContext) _Query_getProjectOrder2WorkshopDetail(ctx context.Co
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*steels.Steels); ok {
+		if data, ok := tmp.(*projects.GetProjectOrder2WorkshopDetailRes); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.Steels`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/projects.GetProjectOrder2WorkshopDetailRes`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9113,9 +9254,9 @@ func (ec *executionContext) _Query_getProjectOrder2WorkshopDetail(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*steels.Steels)
+	res := resTmp.(*projects.GetProjectOrder2WorkshopDetailRes)
 	fc.Result = res
-	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
+	return ec.marshalNGetProjectOrder2WorkshopDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectOrder2WorkshopDetailRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -13859,6 +14000,43 @@ func (ec *executionContext) _FileItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var getProjectOrder2WorkshopDetailResImplementors = []string{"GetProjectOrder2WorkshopDetailRes"}
+
+func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes(ctx context.Context, sel ast.SelectionSet, obj *projects.GetProjectOrder2WorkshopDetailRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getProjectOrder2WorkshopDetailResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetProjectOrder2WorkshopDetailRes")
+		case "list":
+			out.Values[i] = ec._GetProjectOrder2WorkshopDetailRes_list(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GetProjectOrder2WorkshopDetailRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "totalWeight":
+			out.Values[i] = ec._GetProjectOrder2WorkshopDetailRes_totalWeight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var getRepositoryOverviewResImplementors = []string{"GetRepositoryOverviewRes"}
 
 func (ec *executionContext) _GetRepositoryOverviewRes(ctx context.Context, sel ast.SelectionSet, obj *repositories.GetRepositoryOverviewRes) graphql.Marshaler {
@@ -16035,6 +16213,20 @@ func (ec *executionContext) unmarshalNGetOrderListInput2httpᚑapiᚋappᚋhttp�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNGetProjectOrder2WorkshopDetailRes2httpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectOrder2WorkshopDetailRes(ctx context.Context, sel ast.SelectionSet, v projects.GetProjectOrder2WorkshopDetailRes) graphql.Marshaler {
+	return ec._GetProjectOrder2WorkshopDetailRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetProjectOrder2WorkshopDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectOrder2WorkshopDetailRes(ctx context.Context, sel ast.SelectionSet, v *projects.GetProjectOrder2WorkshopDetailRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetProjectOrder2WorkshopDetailRes(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNGetRepositoryOverviewInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryOverviewInput(ctx context.Context, v interface{}) (model.GetRepositoryOverviewInput, error) {
 	res, err := ec.unmarshalInputGetRepositoryOverviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -16652,6 +16844,47 @@ func (ec *executionContext) marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmode
 		return graphql.Null
 	}
 	return ec._SpecificationItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSteelItem2httpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx context.Context, sel ast.SelectionSet, v steels.Steels) graphql.Marshaler {
+	return ec._SteelItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSteelItem2ᚕhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx context.Context, sel ast.SelectionSet, v []steels.Steels) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSteelItem2httpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx context.Context, sel ast.SelectionSet, v []*steels.Steels) graphql.Marshaler {

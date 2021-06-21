@@ -66,7 +66,6 @@ func (*Resolver) OrderSpecificationItem() generated.OrderSpecificationItemResolv
 
 }
 
-
 /**
  * graphQL 解析器入口
  */

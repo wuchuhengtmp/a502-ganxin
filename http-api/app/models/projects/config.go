@@ -18,6 +18,7 @@ import (
 	"http-api/app/models/logs"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/roles"
+	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 	"time"
@@ -41,6 +42,17 @@ func (Projects)TableName() string {
 	return "projects"
 }
 
+
+/**
+ * 获取待出库的订单详情
+ */
+type GetProjectOrder2WorkshopDetailRes struct {
+	List []steels.Steels
+	//""" 数量 """
+	Total int64
+	//""" 重置吨 """
+	TotalWeight float64
+}
 
 /**
  * 创建新的项目
