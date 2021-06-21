@@ -16,6 +16,7 @@ import (
 	"http-api/app/models/orders"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
+	"http-api/app/models/repository_leader"
 	"http-api/app/models/roles"
 	"http-api/pkg/model"
 )
@@ -27,11 +28,12 @@ func GetOrderList(ctx context.Context, input graphModel.GetOrderListInput) (orde
 	if err != nil {
 		return
 	}
+	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
+	projectTable := projects.Projects{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
 	// 手持设备查看
 	if isDevice {
-		projectLeaderTable := project_leader.ProjectLeader{}.TableName()
-		projectTable := projects.Projects{}.TableName()
-		orderTable := orders.Order{}.TableName()
 		whereMap := ""
 		// 项目管理员的手持设备 只看到他自己项目下的订单
 		if role.Tag == roles.RoleProjectAdmin {
@@ -51,17 +53,21 @@ func GetOrderList(ctx context.Context, input graphModel.GetOrderListInput) (orde
 				Where(whereMap).
 				Find(&orderList).
 				Error
-		} else {
+		} else if roles.RoleRepositoryAdmin == role.Tag {
+			// 仓库管理员在设备视角来查看列表
 			//  确认订单条件
 			if *input.QueryType == graphModel.GetOrderListInputTypeConfirmOrder {
-				whereMap = fmt.Sprintf("state >= %d", orders.StateConfirmed)
+				whereMap = fmt.Sprintf("%s.state >= %d", orderTable, orders.StateConfirmed)
 			} else {
 				// 未确认订单条件
-				whereMap = fmt.Sprintf("state < %d", orders.StateConfirmed)
+				whereMap = fmt.Sprintf("%s.state < %d", orderTable, orders.StateConfirmed)
 			}
-			err = model.DB.Model(&orders.Order{}).
-				Where("company_id = ?", me.CompanyId).
+			err = model.DB.Debug().Model(&orders.Order{}).
+				Select(fmt.Sprintf("%s.*", orderTable)).
+				Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.repository_id", repositoryLeaderTable, repositoryLeaderTable, orderTable)).
+				Where(fmt.Sprintf("%s.company_id = ?", orderTable), me.CompanyId).
 				Where(whereMap).
+				Where(fmt.Sprintf("%s.uid = %d", repositoryLeaderTable, me.Id)).
 				Find(&orderList).Error
 		}
 	} else {

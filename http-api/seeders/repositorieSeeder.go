@@ -24,7 +24,7 @@ var repositorySeeder = []seed.Seed{
 				"SJS",
 				"北京",
 				"石景山城通街26号院",
-				1,
+				RepositoryAdmin.Id,
 				700,
 				5322.6,
 				"",

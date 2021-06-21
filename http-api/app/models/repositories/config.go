@@ -43,7 +43,7 @@ func (Repositories) TableName() string {
 func (Repositories) GetAllRepositoryByCompanyId(CompanyId int64) ([]*Repositories, error) {
 	db := sqlModel.DB
 	var res []*Repositories
-	if err := db.Model(&Repositories{}).Where("company_id = ?", CompanyId).Find(&res).Error; err != nil {
+	if err := db.Debug().Model(&Repositories{}).Where("company_id = ?", CompanyId).Find(&res).Error; err != nil {
 		return nil, err
 	}
 

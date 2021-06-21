@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"http-api/app/http/graph/auth"
 	"http-api/app/models/orders"
-	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
+	"http-api/app/models/repository_leader"
 	"http-api/pkg/model"
 )
 
@@ -23,13 +23,13 @@ func (*QueryResolver) GetTobeSendWorkshopOrderList(ctx context.Context) (orderLi
 	me := auth.GetUser(ctx)
 	orderTable := orders.Order{}.TableName()
 	projectTable := projects.Projects{}.TableName()
-	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
-	err = model.DB.Model(&orderModel).
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+	err = model.DB.Debug().Model(&orderModel).
 		Select(fmt.Sprintf("%s.*", orderTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
-		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
+		Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.repository_id", repositoryLeaderTable, repositoryLeaderTable, orderTable)).
 		Where(fmt.Sprintf("%s.company_id = ? AND %s.state in ?", orderTable, orderTable), me.CompanyId, []int64{orders.StateConfirmed, orders.StatePartOfReceipted}).
-		Where(fmt.Sprintf("%s.uid = %d", projectLeaderTable, me.Id)).
+		Where(fmt.Sprintf("%s.uid = %d", repositoryLeaderTable, me.Id)).
 		Find(&orderList).
 		Error
 
