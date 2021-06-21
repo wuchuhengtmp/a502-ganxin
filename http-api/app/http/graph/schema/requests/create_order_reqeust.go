@@ -30,6 +30,7 @@ func ValidateCreateOrderValidate(ctx context.Context, input grapModel.CreateOrde
 	if len(input.SteelList) == 0 {
 		return fmt.Errorf("型钢不能为空")
 	}
+	specificationIdMapId := make(map[int64]int64) // 用于检验型钢规格冗余
 	for _, s := range input.SteelList {
 		sp := specificationinfo.SpecificationInfo{ID: s.SpecificationID}
 		if err := sp.GetSelf(); err != nil || sp.CompanyId != me.CompanyId {
@@ -50,6 +51,15 @@ func ValidateCreateOrderValidate(ctx context.Context, input grapModel.CreateOrde
 		}
 		if total - confirmTotal < s.Total {
 			return fmt.Errorf("型钢规格:%s,库存不足%d", sp.GetSelfSpecification(), s.Total)
+		}
+		if _, ok := specificationIdMapId[s.SpecificationID]; ok {
+			spc := specificationinfo.SpecificationInfo{}
+			if err := model.DB.Model(&spc).Where("id = ?", s.SpecificationID).First(&spc).Error; err != nil {
+				return err
+			}
+			return fmt.Errorf( "请把规格为:%s 的数据合并为一条，保持订单简洁", spc.GetSelfSpecification() )
+		} else {
+			specificationIdMapId[s.SpecificationID] = s.SpecificationID
 		}
 	}
 

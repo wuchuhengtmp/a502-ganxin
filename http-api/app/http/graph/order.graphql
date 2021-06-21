@@ -150,8 +150,8 @@ extend type Mutation {
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-    #   todo  """ 项目订单出库到场地 """
-    #    projectOrder2Workshop(): Boolean!
+#    #   todo  """ 项目订单出库到场地 """
+#        projectOrder2Workshop(): Boolean!
 }
 extend type Query {
     """ 获取需求单列表 """
