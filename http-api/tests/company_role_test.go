@@ -1098,9 +1098,7 @@ func TestCompanyAdminGetSteelList(t *testing.T) {
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-	if err != nil {
-		t.Fatal("公司管理员获取型钢列表集成测试")
-	}
+	assert.NoError(t, err)
 }
 
 /**

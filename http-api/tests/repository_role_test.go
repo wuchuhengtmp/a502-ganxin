@@ -1239,3 +1239,59 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员获取待出库详细信息-手持设备
+ */
+func TestRepositoryAdminGetProjectOrder2WorkshopDetail(t *testing.T) {
+	q := `
+		query ($input: ProjectOrder2WorkshopDetailInput!){
+		   getProjectOrder2WorkshopDetail(input: $input) {
+			#  这是列表
+			list{
+				id
+				identifier
+				# 这是规格相关信息
+				specifcation{
+				  specification
+				  id
+				}
+				state
+				turnover
+
+			  }
+			# 数量
+			total
+			# 重量
+			totalWeight 
+			}
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{
+			"orderId": 1,
+			"identifierList": []string {
+				"11",
+			},
+		},
+	}
+	_ ,err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理员获取获取可以出库的订单列表集成测试-手持机
+ */
+func TestRepositoryAdminGetTobeSendWorkshopOrderList(t *testing.T) {
+	q := `
+		query {
+		   getTobeSendWorkshopOrderList{
+			id
+			state
+		  }
+		}
+	`
+	v := map[string]interface{} {}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

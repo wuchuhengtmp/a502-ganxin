@@ -544,10 +544,6 @@ func TestProjectAdminCreateOrder(t *testing.T) {
 					"total":           1,
 					"specificationId": 1,
 				},
-				map[string]interface{}{
-					"total":           2,
-					"specificationId": 1,
-				},
 			},
 		},
 	}
@@ -735,19 +731,3 @@ func TestProjectAdminDeviceGetOrderDetail(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-/**
- * 项目管理员获取获取可以出库的订单列表集成测试-手持机
- */
-func TestProjectAdminGetTobeSendWorkshopOrderList(t *testing.T) {
-	q := `
-		query {
-		   getTobeSendWorkshopOrderList{
-			id
-			state
-		  }
-		}
-	`
-	v := map[string]interface{} {}
-	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
-	assert.NoError(t, err)
-}
