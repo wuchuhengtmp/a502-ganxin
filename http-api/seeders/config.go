@@ -22,6 +22,8 @@ func All() []seed.Seed {
 	seeds = append(seeds, repositorySeeder...)
 	seeds = append(seeds, deviceSeeders...)
 	seeds = append(seeds, companySeeders...)
+	seeds = append(seeds, projectSeeder...)
+	seeds = append(seeds, steelsSeeds...)
 
 	return seeds
 }
