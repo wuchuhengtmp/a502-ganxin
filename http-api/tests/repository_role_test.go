@@ -1363,3 +1363,28 @@ func TestRepositoryAdminGetSteelDetail(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员型钢出库集成测试-手持机
+ */
+func TestRepositoryAdminRoleSetProjectOrder2Workshop(t *testing.T) {
+	q := `
+		mutation ($input: ProjectOrder2WorkshopInput!) {
+		  setProjectOrder2Workshop(input: $input) {
+			id
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"expressCompanyId": 12,
+			"expressNo": "124333123",
+			"identifierList": []string{
+				"8",
+			},
+			"orderId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
