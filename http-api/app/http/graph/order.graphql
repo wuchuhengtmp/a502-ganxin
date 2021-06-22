@@ -161,7 +161,7 @@ extend type Mutation {
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 型钢出库到场地 """
-    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem!
+    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Query {
     """ 获取需求单列表 """
