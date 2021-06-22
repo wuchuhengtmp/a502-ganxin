@@ -1,0 +1,28 @@
+""" 维修详情记录 """
+type MaintenanceRecordItem {
+    """ 序号 """
+    id: Int!
+    """ 维修厂 """
+    maintenance: MaintenanceItem!
+    """ 型钢 """
+    steel: SteelItem!
+    """ 维修天数 """
+    useDays: Int
+    """ 出厂时间 """
+    outedAt: Time
+    """ 入厂时间 """
+    enteredAt: Time
+    """ 出库时间 """
+    outRepositoryAt: Time!
+    """ 入库时间 """
+    enterRepositoryAt: Time
+}
+
+"""  维修厂 """
+type MaintenanceItem {
+    id: Int!
+    name: String!
+    address: String!
+    remark: String!
+    isAble: Boolean!
+}

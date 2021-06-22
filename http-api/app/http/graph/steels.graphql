@@ -1,10 +1,34 @@
+"""  型钢在项目的记录详情 """
+type SteelInProject {
+    """ 序号 """
+    id: Int!
+    """ 型钢 """
+    steel: SteelItem!
+    """ 安装序号 """
+    locationCode: Int
+    """ 订单详情 """
+    order: OrderItem!
+    """ 安装时间 """
+    installationAt: Time
+    """ 进场时间 """
+    enterWorkshopAt: Time
+    """ 出场时间 """
+    outWorkshopAt: Time
+    """ 出库时间 """
+    outRepositoryAt: Time
+    """ 归库时间 """
+    enterRepositoryAt: Time
+    """ 使用天数 """
+    useDays: Int
+}
+
 """ 型钢数据项 """
 type SteelItem {
     id: Int!
     """ 识别码列表 """
     identifier: String!
-    """首次入库用户id """
-    createdUid: Int!
+    """首次入库用户 """
+    createUser: UserItem!
     """
     100【仓库】-在库
     101【仓库】-运送至项目途中
@@ -41,6 +65,12 @@ type SteelItem {
     producedDate: Time!
     """ 规格参数 """
     specifcation: SpecificationItem!
+    """ 项目经历 """
+    steelInProject: [SteelInProject]!
+    """ 维修经历 """
+    steelInMaintenance: [MaintenanceRecordItem]!
+    """ 首次入库时间 """
+    createdAt: Time!
 }
 
 """ 型钢入库需要的参数 """
@@ -58,15 +88,21 @@ input CreateSteelInput {
     """ 生产时间 """
     producedDate: Time!
 }
-extend type Mutation {
-    """ 型钢入库 """
-    createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
-}
 type GetSteelListRes {
     total: Int!
     list: [SteelItem]!
 }
+""" 获取一个型钢详情请求参数 """
+input GetOneSteelDetailInput {
+    identifier: String!
+}
+extend type Mutation {
+    """ 型钢入库 """
+    createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
+}
 extend type Query {
     """ 获取型钢列表 """
     getSteelList(input: PaginationInput!):GetSteelListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取一个型钢详情 """
+    getOneSteelDetail(input: GetOneSteelDetailInput!): SteelItem! @hasRole(role: [projectAdmin, maintenanceAdmin, repositoryAdmin]) @mustBeDevice
 }

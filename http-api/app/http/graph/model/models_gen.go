@@ -259,6 +259,11 @@ type GetCompanyUserInput struct {
 	RoleID *int64 `json:"roleId"`
 }
 
+//  获取一个型钢详情请求参数
+type GetOneSteelDetailInput struct {
+	Identifier string `json:"identifier"`
+}
+
 type GetOrderListInput struct {
 	QueryType *GetOrderListInputType `json:"queryType"`
 }

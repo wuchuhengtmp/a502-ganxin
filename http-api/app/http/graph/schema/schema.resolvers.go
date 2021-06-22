@@ -61,9 +61,13 @@ func (*Resolver)OrderExpressItem() generated.OrderExpressItemResolver {
 }
 
 func (*Resolver) OrderSpecificationItem() generated.OrderSpecificationItemResolver {
-
 	return query_resolver.OrderSpecificationItemResolver{}
-
+}
+func (*Resolver)MaintenanceRecordItem() generated.MaintenanceRecordItemResolver {
+	return query_resolver.MaintenanceRecordItemResolver{}
+}
+func(*Resolver) SteelInProject() generated.SteelInProjectResolver {
+	return query_resolver.SteelInProjectResolver{}
 }
 
 /**

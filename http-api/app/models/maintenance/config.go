@@ -1,5 +1,5 @@
 /**
- * @Desc    维修模型
+ * @Desc    维修厂模型
  * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
@@ -19,3 +19,6 @@ type Maintenance struct {
 	CompanyId int64  `json:"companyId" gorm:"comment:公司id"`
 	gorm.Model
 }
+
+
+

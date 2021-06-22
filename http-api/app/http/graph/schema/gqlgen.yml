@@ -93,3 +93,9 @@ models:
     model: http-api/app/models/order_express.OrderExpressDirection
   GetProjectOrder2WorkshopDetailRes:
     model: http-api/app/models/projects.GetProjectOrder2WorkshopDetailRes
+  MaintenanceRecordItem:
+    model: http-api/app/models/maintenance_record.MaintenanceRecord
+  MaintenanceItem:
+    model: http-api/app/models/maintenance.Maintenance
+  SteelInProject:
+    model: http-api/app/models/order_specification_steel.OrderSpecificationSteel
