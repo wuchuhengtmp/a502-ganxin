@@ -59,11 +59,11 @@ func (ValidateSetProjectOrder2WorkshopRequestSteps) CheckExpress(ctx context.Con
 	express := codeinfo.CodeInfo{}
 	err := model.DB.Model(&express).Where("company_id = ?", me.CompanyId).
 		Where("type = ?", codeinfo.ExpressCompany).
-		Where("id = ?", input.ExpressCampanyID).
+		Where("id = ?", input.ExpressCompanyID).
 		First(&express).
 		Error
 	if err != nil {
-		return fmt.Errorf("没有物流公司id为:%d的物流公司", input.ExpressCampanyID)
+		return fmt.Errorf("没有物流公司id为:%d的物流公司", input.ExpressCompanyID)
 	}
 	if len(input.ExpressNo) == 0 {
 		return fmt.Errorf("物流编号不能为空")

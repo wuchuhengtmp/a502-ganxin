@@ -2856,7 +2856,7 @@ input ProjectOrder2WorkshopInput {
     """ 订单id """
     orderId: Int!
     """ 物流公司id """
-    expressCampanyId: Int!
+    expressCompanyId: Int!
     """ 物流编号 """
     expressNo: String!
 }
@@ -15080,11 +15080,11 @@ func (ec *executionContext) unmarshalInputProjectOrder2WorkshopInput(ctx context
 			if err != nil {
 				return it, err
 			}
-		case "expressCampanyId":
+		case "expressCompanyId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expressCampanyId"))
-			it.ExpressCampanyID, err = ec.unmarshalNInt2int64(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expressCompanyId"))
+			it.ExpressCompanyID, err = ec.unmarshalNInt2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}

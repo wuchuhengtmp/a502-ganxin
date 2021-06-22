@@ -95,7 +95,7 @@ func (*SetProjectOrder2WorkshopSteps) CreateExpressOrder(tx *gorm.DB, ctx contex
 	me := auth.GetUser(ctx)
 	orderExpress := order_express.OrderExpress{
 		OrderId:          input.OrderID,
-		ExpressCompanyId: input.ExpressCampanyID,
+		ExpressCompanyId: input.ExpressCompanyID,
 		ExpressNo:        input.ExpressNo,
 		SenderUid:        me.Id,
 		CompanyId:        me.CompanyId,

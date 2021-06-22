@@ -151,7 +151,7 @@ input ProjectOrder2WorkshopInput {
     """ 订单id """
     orderId: Int!
     """ 物流公司id """
-    expressCampanyId: Int!
+    expressCompanyId: Int!
     """ 物流编号 """
     expressNo: String!
 }
