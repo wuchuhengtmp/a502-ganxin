@@ -145,13 +145,23 @@ type GetProjectOrder2WorkshopDetailRes {
     """ 重置吨 """
     totalWeight: Float!
 }
+input ProjectOrder2WorkshopInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 订单id """
+    orderId: Int!
+    """ 物流公司id """
+    expressCampanyId: Int!
+    """ 物流编号 """
+    expressNo: String!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-#    #   todo  """ 项目订单出库到场地 """
-#        projectOrder2Workshop(): Boolean!
+    """ 型钢出库到场地 """
+    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem!
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -163,4 +173,3 @@ extend type Query {
     """ 获取项目订单出库到场地详情 """
     getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): GetProjectOrder2WorkshopDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
-

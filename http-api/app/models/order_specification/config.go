@@ -1,5 +1,5 @@
 /**
- * @Desc    订单详情
+ * @Desc    订单规格详情
  * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318

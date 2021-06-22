@@ -20,22 +20,22 @@ import (
 	"http-api/pkg/model"
 )
 
-// 订单各个规格对应的需求量
-type OrderSpecificationList map[string]int64
+// 验证可待出库的订单型钢详情验证器的验证步骤合集
+type ValidateGetProject2WorkshopDetailRequestSteps map[string]int64
 
 func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
 	// 声明订单中各个规格需求量,用于检验输入数量和需求量是否超过上限
-	osl := OrderSpecificationList{}
+	osl := ValidateGetProject2WorkshopDetailRequestSteps{}
 	// 识别码列表不能为空
-	if err := osl.IdentificationListMustBeEmpty(ctx, input); err != nil {
+	if err := osl.IdentificationListMustBeEmpty(ctx, input.IdentifierList); err != nil {
 		return err
 	}
 	// 检验有没有这个订单
-	if err := osl.checkHasOrder(ctx, input); err != nil {
+	if err := osl.checkHasOrder(ctx, input.OrderID); err != nil {
 		return err
 	}
 	// 检验订单状态 只能是确认或部分发货才行
-	if err := osl.checkOrderState(ctx, input); err != nil {
+	if err := osl.checkOrderState(ctx, input.OrderID); err != nil {
 		return err
 	}
 	// 验证是否冗余识别码
@@ -43,7 +43,7 @@ func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphMo
 		return err
 	}
 	// 验证每根型钢的状态和规格是否满足订单要求，且数量也没超过上限
-	if err := osl.CheckSteelList(ctx, input); err != nil {
+	if err := osl.CheckSteelList(ctx, input.OrderID, input.IdentifierList); err != nil {
 		return err
 	}
 	// 检验规格
@@ -55,25 +55,25 @@ func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphMo
 }
 
 // 有没有这个订单
-func (OrderSpecificationList) checkHasOrder(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
+func (ValidateGetProject2WorkshopDetailRequestSteps) checkHasOrder(ctx context.Context, orderId int64) error {
 	me := auth.GetUser(ctx)
 	o := orders.Order{}
-	err := model.DB.Model(&o).Where("id = ?", input.OrderID).
+	err := model.DB.Model(&o).Where("id = ?", orderId).
 		Where("company_id = ?", me.CompanyId).
 		First(&o).
 		Error
 	if err != nil {
-		return fmt.Errorf("没有这个订单id: %d", input.OrderID)
+		return fmt.Errorf("没有这个订单id: %d", orderId)
 	}
 
 	return nil
 }
 
 // 检验订单状态 只能是确认或部分发货才行
-func (OrderSpecificationList) checkOrderState(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
+func (ValidateGetProject2WorkshopDetailRequestSteps) checkOrderState(ctx context.Context, orderId int64) error {
 	o := orders.Order{}
-	if e := model.DB.Model(&o).Where("id = ?", input.OrderID).First(&o).Error; e != nil {
-		return fmt.Errorf("没有这个订单id:%d", input.OrderID)
+	if e := model.DB.Model(&o).Where("id = ?",orderId).First(&o).Error; e != nil {
+		return fmt.Errorf("没有这个订单id:%d", orderId)
 	}
 	if o.State != orders.StateConfirmed && o.State != orders.StatePartOfReceipted {
 		return fmt.Errorf("当前订单状态为:%s, 不能接着发货", orders.StateMapDesc[o.State])
@@ -83,10 +83,10 @@ func (OrderSpecificationList) checkOrderState(ctx context.Context, input graphMo
 }
 
 // 获取订单各规格的需求量上限
-func (OrderSpecificationList) GetOrderSpecificationGroupTotal(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) (map[string]int64, error) {
+func (ValidateGetProject2WorkshopDetailRequestSteps) GetOrderSpecificationGroupTotal(ctx context.Context, orderId int64) (map[string]int64, error) {
 	list := make(map[string]int64)
 	var osList []*order_specification.OrderSpecification
-	if err := model.DB.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", input.OrderID).Find(&osList).Error; err != nil {
+	if err := model.DB.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", orderId).Find(&osList).Error; err != nil {
 		return list, nil
 	}
 	for _, item := range osList {
@@ -104,7 +104,7 @@ func (OrderSpecificationList) GetOrderSpecificationGroupTotal(ctx context.Contex
 /**
  * 检验是否有冗余识别码
  */
-func (OrderSpecificationList) isRedundancyIdentification(list []string) error {
+func (ValidateGetProject2WorkshopDetailRequestSteps) isRedundancyIdentification(list []string) error {
 	identificationMapTotal := make(map[string]int64)
 	for _, item := range list {
 		if _, ok := identificationMapTotal[item]; ok {
@@ -120,21 +120,21 @@ func (OrderSpecificationList) isRedundancyIdentification(list []string) error {
 /*
  * 识别码不能为空
  */
-func (OrderSpecificationList) IdentificationListMustBeEmpty(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
-	if len(input.IdentifierList) == 0 {
+func (ValidateGetProject2WorkshopDetailRequestSteps) IdentificationListMustBeEmpty(ctx context.Context, identifierList []string) error {
+	if len(identifierList) == 0 {
 		return fmt.Errorf("识别码列表不能为空")
 	}
 
 	return nil
 }
 
-func (OrderSpecificationList) CheckSteelList(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
+func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSteelList(ctx context.Context, orderId int64, identifierList []string) error {
 	me := auth.GetUser(ctx)
 	// 订单规格合集
 	var orderSpecificationList []*order_specification.OrderSpecification
 	orderSpecificationSpecificationMapTotal := make(map[string]int64) // 当前同一规格统计量 用于比较上限
 	var orderSpecificationIdList []int64 // 订单要求的规格id集合，用于检验型钢的规格是否在这个合集中
-	err := model.DB.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", input.OrderID).
+	err := model.DB.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", orderId).
 		Find(&orderSpecificationList).
 		Error
 	if err != nil {
@@ -144,22 +144,26 @@ func (OrderSpecificationList) CheckSteelList(ctx context.Context, input graphMod
 		orderSpecificationIdList = append(orderSpecificationIdList, item.SpecificationId)
 	}
 	// 获取订单各规格需求上限
-	osl, err := OrderSpecificationList{}.GetOrderSpecificationGroupTotal(ctx, input)
+	osl, err := ValidateGetProject2WorkshopDetailRequestSteps{}.GetOrderSpecificationGroupTotal(ctx, orderId)
 	if err != nil {
 		return nil
 	}
 	// 检验每根型钢
-	for _, identification := range input.IdentifierList {
+	for _, identification := range identifierList {
 		s := steels.Steels{}
 		// 检验型钢状态能否满足订单要求
 		err := model.DB.Model(&steels.Steels{}).
 			Where("identifier = ?", identification).
-			Where("state = ?", steels.StateInStore).
+			//Where("state = ?", steels.StateInStore).
 			Where("company_id = ?", me.CompanyId).
 			First(&s).
 			Error
 		if err != nil {
 			return fmt.Errorf("仓库中没有 %s 标识码的型钢在仓库中", identification)
+		}
+		// 检验型钢状态
+		if s.State != steels.StateInStore {
+			return fmt.Errorf("识别码为%s的型钢当前状态为:%s, 不能出库", identification, steels.StateCodeMapDes[s.State])
 		}
 		// 检验型钢的规格能否满足订单的要求
 		if err := func() error{
@@ -190,7 +194,7 @@ func (OrderSpecificationList) CheckSteelList(ctx context.Context, input graphMod
 /**
  * 检验规格
  */
-func (OrderSpecificationList) CheckSpecification(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
+func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSpecification(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
 	if input.SpecificationID != nil {
 		err := model.DB.
 			Model(&order_specification.OrderSpecification{}).

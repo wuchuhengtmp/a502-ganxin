@@ -57,7 +57,7 @@ type Steels struct {
 }
 
 func (Steels) TableName() string {
-	return  "steels"
+	return "steels"
 }
 
 // 获取型钢的响应格式
@@ -68,22 +68,41 @@ type GetSteelListRes struct {
 
 // 状态码声明
 const (
-	StateInStore                    = 100 //【仓库】-在库
-	StateRepository2Project         = 101 //【仓库】-运送至项目途中
-	StateRepository2Maintainer      = 102 //【仓库】-运送至维修厂途中
-	StateProjectWillBeUsed          = 200 //【项目】-待使用
-	StateProjectInUse               = 201 //【项目】-使用中
-	StateProjectException           = 202 //【项目】-异常
-	StateProjectIdle                = 203 //【项目】-闲置
-	StateProjectWillBeStore         = 204 //【项目】-准备归库
-	StateProjectOnTheStoreWay       = 205 //【项目】-归库途中
-	StateMaintainerWillBeMaintained = 300 //【维修】-待维修
-	StateMaintainerBeMaintaining    = 301 //【维修】-维修中
-	StateMaintainerWillBeStore      = 302 //【维修】-准备归库
-	StateMaintainerOnTheStoreWay    = 303 //【维修】-归库途中
-	StateLost                       = 400 //丢失
-	StateScrap                      = 500 //报废
+	StateInStore                    int64 = 100 //【仓库】-在库
+	StateRepository2Project         int64 = 101 //【仓库】-运送至项目途中
+	StateRepository2Maintainer      int64 = 102 //【仓库】-运送至维修厂途中
+	StateProjectWillBeUsed          int64 = 200 //【项目】-待使用
+	StateProjectInUse               int64 = 201 //【项目】-使用中
+	StateProjectException           int64 = 202 //【项目】-异常
+	StateProjectIdle                int64 = 203 //【项目】-闲置
+	StateProjectWillBeStore         int64 = 204 //【项目】-准备归库
+	StateProjectOnTheStoreWay       int64 = 205 //【项目】-归库途中
+	StateMaintainerWillBeMaintained int64 = 300 //【维修】-待维修
+	StateMaintainerBeMaintaining    int64 = 301 //【维修】-维修中
+	StateMaintainerWillBeStore      int64 = 302 //【维修】-准备归库
+	StateMaintainerOnTheStoreWay    int64 = 303 //【维修】-归库途中
+	StateLost                       int64 = 400 //丢失
+	StateScrap                      int64 = 500 //报废
 )
+
+// 状态码映射说明
+var StateCodeMapDes = map[int64]string{
+	StateInStore:                    "【仓库】-在库",
+	StateRepository2Project:         "【仓库】-运送至项目途中",
+	StateRepository2Maintainer:      "【仓库】-运送至维修厂途中",
+	StateProjectWillBeUsed:          "【项目】-待使用",
+	StateProjectInUse:               "【项目】-使用中",
+	StateProjectException:           "【项目】-异常",
+	StateProjectIdle:                "【项目】-闲置",
+	StateProjectWillBeStore:         "【项目】-准备归库",
+	StateProjectOnTheStoreWay:       "【项目】-归库途中",
+	StateMaintainerWillBeMaintained: "【维修】-待维修",
+	StateMaintainerBeMaintaining:    "【维修】-维修中",
+	StateMaintainerWillBeStore:      "【维修】-准备归库",
+	StateMaintainerOnTheStoreWay:    "【维修】-归库途中",
+	StateLost:                       "失丢",
+	StateScrap:                      "废报",
+}
 
 /**
  * 根据规格id获取型钢

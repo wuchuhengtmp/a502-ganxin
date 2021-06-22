@@ -316,6 +316,17 @@ type ProjectOrder2WorkshopDetailInput struct {
 	OrderID int64 `json:"orderId"`
 }
 
+type ProjectOrder2WorkshopInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  订单id
+	OrderID int64 `json:"orderId"`
+	//  物流公司id
+	ExpressCampanyID int64 `json:"expressCampanyId"`
+	//  物流编号
+	ExpressNo string `json:"expressNo"`
+}
+
 type RepositoryLeaderItem struct {
 	ID     int64  `json:"id"`
 	Name   string `json:"name"`

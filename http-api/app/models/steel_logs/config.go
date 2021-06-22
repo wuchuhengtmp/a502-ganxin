@@ -21,11 +21,13 @@ type SteelLogType string
 
 const (
 	CreateType SteelLogType = "create"
+	OutSteelType SteelLogType = "out steel"
 )
 
 // 操作类型映射说明
 var TypeMapName = map[SteelLogType]string {
 	CreateType: "型钢入库",
+	OutSteelType: "型钢出库",
 }
 
 /*

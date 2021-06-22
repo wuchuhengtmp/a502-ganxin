@@ -26,6 +26,7 @@ const (
 	CreateOrderType  string = "createOrder"  // 创建订单类型
 	ConfirmOrderType string = "confirmOrder" // 确认订单类型
 	RejectOrderType string = "rejectOrderType" // 拒绝订单类型
+	OutProject2Workshop string ="outOfProjectToWorkshopType" // 出库到项目场地
 )
 
 func (Msg) TableName() string {

@@ -215,6 +215,7 @@ type ComplexityRoot struct {
 		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
 		Login                      func(childComplexity int, phone string, password string, mac *string) int
 		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
+		SetProjectOrder2Workshop   func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
 		SingleUpload               func(childComplexity int, file graphql.Upload) int
 	}
 
@@ -415,6 +416,7 @@ type MutationResolver interface {
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
+	SetProjectOrder2Workshop(ctx context.Context, input model.ProjectOrder2WorkshopInput) (*orders.Order, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
@@ -1326,6 +1328,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetPassword(childComplexity, args["input"].(*model.SetPasswordInput)), true
+
+	case "Mutation.setProjectOrder2Workshop":
+		if e.complexity.Mutation.SetProjectOrder2Workshop == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setProjectOrder2Workshop_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetProjectOrder2Workshop(childComplexity, args["input"].(model.ProjectOrder2WorkshopInput)), true
 
 	case "Mutation.singleUpload":
 		if e.complexity.Mutation.SingleUpload == nil {
@@ -2836,13 +2850,23 @@ type GetProjectOrder2WorkshopDetailRes {
     """ 重置吨 """
     totalWeight: Float!
 }
+input ProjectOrder2WorkshopInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 订单id """
+    orderId: Int!
+    """ 物流公司id """
+    expressCampanyId: Int!
+    """ 物流编号 """
+    expressNo: String!
+}
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
     confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-#    #   todo  """ 项目订单出库到场地 """
-#        projectOrder2Workshop(): Boolean!
+    """ 型钢出库到场地 """
+    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem!
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -2854,7 +2878,6 @@ extend type Query {
     """ 获取项目订单出库到场地详情 """
     getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): GetProjectOrder2WorkshopDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
-
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
     """  获取价格 """
@@ -2981,12 +3004,17 @@ input EditSpecificationInput {
     weight: Float!
     isDefault: Boolean!
 }
+""" 规格参数 """
 type SpecificationItem {
     id: Int!
     type: String!
+    """ 长度 """
     length: Float!
+    """ 重量 """
     weight: Float!
+    """ 是不是默认的规格参数 """
     isDefault: Boolean!
+    """ 规格参数字符串 """
     specification: String!
 }
 extend type Query {
@@ -3578,6 +3606,21 @@ func (ec *executionContext) field_Mutation_setPassword_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOSetPasswordInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetPasswordInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setProjectOrder2Workshop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ProjectOrder2WorkshopInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNProjectOrder2WorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7378,6 +7421,48 @@ func (ec *executionContext) _Mutation_confirmOrRejectOrder(ctx context.Context, 
 			return data, nil
 		}
 		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setProjectOrder2Workshop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setProjectOrder2Workshop_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetProjectOrder2Workshop(rctx, args["input"].(model.ProjectOrder2WorkshopInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14943,6 +15028,50 @@ func (ec *executionContext) unmarshalInputProjectOrder2WorkshopDetailInput(ctx c
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputProjectOrder2WorkshopInput(ctx context.Context, obj interface{}) (model.ProjectOrder2WorkshopInput, error) {
+	var it model.ProjectOrder2WorkshopInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "orderId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderId"))
+			it.OrderID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "expressCampanyId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expressCampanyId"))
+			it.ExpressCampanyID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "expressNo":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expressNo"))
+			it.ExpressNo, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
 	var it model.SetPasswordInput
 	var asMap = obj.(map[string]interface{})
@@ -15846,6 +15975,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "confirmOrRejectOrder":
 			out.Values[i] = ec._Mutation_confirmOrRejectOrder(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setProjectOrder2Workshop":
+			out.Values[i] = ec._Mutation_setProjectOrder2Workshop(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -18287,6 +18421,11 @@ func (ec *executionContext) marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋp
 
 func (ec *executionContext) unmarshalNProjectOrder2WorkshopDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetailInput(ctx context.Context, v interface{}) (model.ProjectOrder2WorkshopDetailInput, error) {
 	res, err := ec.unmarshalInputProjectOrder2WorkshopDetailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNProjectOrder2WorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopInput(ctx context.Context, v interface{}) (model.ProjectOrder2WorkshopInput, error) {
+	res, err := ec.unmarshalInputProjectOrder2WorkshopInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

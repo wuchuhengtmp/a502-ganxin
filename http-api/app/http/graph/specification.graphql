@@ -14,12 +14,17 @@ input EditSpecificationInput {
     weight: Float!
     isDefault: Boolean!
 }
+""" 规格参数 """
 type SpecificationItem {
     id: Int!
     type: String!
+    """ 长度 """
     length: Float!
+    """ 重量 """
     weight: Float!
+    """ 是不是默认的规格参数 """
     isDefault: Boolean!
+    """ 规格参数字符串 """
     specification: String!
 }
 extend type Query {
