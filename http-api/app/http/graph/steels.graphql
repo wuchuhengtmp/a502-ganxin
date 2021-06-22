@@ -69,6 +69,8 @@ type SteelItem {
     steelInProject: [SteelInProject]!
     """ 维修经历 """
     steelInMaintenance: [MaintenanceRecordItem]!
+    """ 型钢编码 """
+    code: String!
     """ 首次入库时间 """
     createdAt: Time!
 }
