@@ -1295,3 +1295,71 @@ func TestRepositoryAdminGetTobeSendWorkshopOrderList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员型钢快速查询集成测试-手持机
+ */
+func TestRepositoryAdminGetSteelDetail(t *testing.T)  {
+	q := `query ($input: GetOneSteelDetailInput!){
+		  getOneSteelDetail(input: $input) {
+			id
+			identifier
+			specifcation{
+			  specification
+			}
+			state
+			manufacturer {
+			  id
+			  name
+			}
+			manufacturer {
+			  id
+			  name
+			}
+			producedDate
+			createdAt
+			createUser{
+			  id
+			  name
+			}
+			steelInProject{
+			  id
+			  outRepositoryAt
+			  order{
+				id
+			  }
+			  locationCode
+			   useDays
+			  order {
+				project{
+				  name
+				}
+			  }
+			  enterWorkshopAt
+			  outWorkshopAt
+			  installationAt
+			  outRepositoryAt
+			  enterRepositoryAt
+			}
+			steelInMaintenance {
+			  id
+			  outedAt
+			  maintenance{
+				name
+			  }
+			  useDays
+			  enteredAt
+			  outedAt
+			  enterRepositoryAt
+			}
+		  }
+		} 
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifier": "8",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

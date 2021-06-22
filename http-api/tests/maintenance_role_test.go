@@ -24,6 +24,7 @@ var maintenanceAdminTestCtx = struct {
 	Token string
 	Username string
 	Password string
+	DeviceToken string
 }{
 	Username: seeders.MaintenanceAdmin.Username,
 	Password: seeders.MaintenanceAdmin.Password,
@@ -54,6 +55,28 @@ func TestMaintenanceAdminRoleLogin(t *testing.T) {
 	maintenanceAdminTestCtx.Token = tokenInfo["accessToken"].(string)
 }
 
+/**
+ * 维修管理员登录测试-手机机
+ */
+func TestMaintenceAdminRoleDeviceLogin(t *testing.T) {
+	query := `
+		mutation ($phone: String!, $password: String!, $mac: String!){
+		  login (phone: $phone, password: $password, mac: $mac) {
+			accessToken
+		  }
+		}
+	`
+	variables := map[string]interface{}{
+		"phone":maintenanceAdminTestCtx.Username,
+		"password":maintenanceAdminTestCtx.Password,
+		"mac": "123:1242:1242:12412",
+	}
+	res, err := graphReqClient(query, variables, roles.RoleProjectAdmin)
+	hasError(t, err)
+	token := res["login"]
+	tokenInfo := token.(map[string]interface{})
+	maintenanceAdminTestCtx.DeviceToken = tokenInfo["accessToken"].(string)
+}
 
 /**
  * 维修管理员获取公司列表集成测试
@@ -507,5 +530,73 @@ func TestMaintenanceAdminGetOrderList(t *testing.T) {
 		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员型钢快速查询集成测试-手持机
+ */
+func TestMaintanceAdminGetSteelDetail(t *testing.T)  {
+	q := `query ($input: GetOneSteelDetailInput!){
+		  getOneSteelDetail(input: $input) {
+			id
+			identifier
+			specifcation{
+			  specification
+			}
+			state
+			manufacturer {
+			  id
+			  name
+			}
+			manufacturer {
+			  id
+			  name
+			}
+			producedDate
+			createdAt
+			createUser{
+			  id
+			  name
+			}
+			steelInProject{
+			  id
+			  outRepositoryAt
+			  order{
+				id
+			  }
+			  locationCode
+			   useDays
+			  order {
+				project{
+				  name
+				}
+			  }
+			  enterWorkshopAt
+			  outWorkshopAt
+			  installationAt
+			  outRepositoryAt
+			  enterRepositoryAt
+			}
+			steelInMaintenance {
+			  id
+			  outedAt
+			  maintenance{
+				name
+			  }
+			  useDays
+			  enteredAt
+			  outedAt
+			  enterRepositoryAt
+			}
+		  }
+		} 
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifier": "8",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
