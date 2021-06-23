@@ -38,8 +38,12 @@ func (*MutationResolver) SetProjectOrder2Workshop(ctx context.Context, input gra
 		return nil, errors.ValidateErr(ctx, err)
 	}
 	o := orders.Order{}
+	err := model.DB.Model(&o).Where("id = ?", input.OrderID).First(&o).Error
+	if err != nil {
+		return  nil, errors.ServerErr(ctx, err)
+	}
 	// 标记型钢为出库状态
-	err := model.DB.Transaction(func(tx *gorm.DB) error {
+	err = model.DB.Transaction(func(tx *gorm.DB) error {
 		steps := SetProjectOrder2WorkshopSteps{}
 		// 创建订单物流
 		orderExpress, err := steps.CreateExpressOrder(tx, ctx, input)
