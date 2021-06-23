@@ -172,4 +172,6 @@ extend type Query {
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
     """ 获取项目订单出库到场地详情 """
     getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): GetProjectOrder2WorkshopDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取送往场地的型钢订单列表 """
+    getSend2WorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

@@ -288,6 +288,7 @@ type ComplexityRoot struct {
 		GetRepositoryList              func(childComplexity int) int
 		GetRepositoryOverview          func(childComplexity int, input model.GetRepositoryOverviewInput) int
 		GetRoleList                    func(childComplexity int) int
+		GetSend2WorkshopOrderList      func(childComplexity int) int
 		GetSpecification               func(childComplexity int) int
 		GetSteelList                   func(childComplexity int, input model.PaginationInput) int
 		GetTobeSendWorkshopOrderList   func(childComplexity int) int
@@ -468,6 +469,7 @@ type QueryResolver interface {
 	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
 	GetProjectOrder2WorkshopDetail(ctx context.Context, input model.ProjectOrder2WorkshopDetailInput) (*projects.GetProjectOrder2WorkshopDetailRes, error)
+	GetSend2WorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
@@ -1775,6 +1777,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRoleList(childComplexity), true
 
+	case "Query.getSend2WorkshopOrderList":
+		if e.complexity.Query.GetSend2WorkshopOrderList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetSend2WorkshopOrderList(childComplexity), true
+
 	case "Query.getSpecification":
 		if e.complexity.Query.GetSpecification == nil {
 			break
@@ -2877,6 +2886,8 @@ extend type Query {
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
     """ 获取项目订单出库到场地详情 """
     getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): GetProjectOrder2WorkshopDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取送往场地的型钢订单列表 """
+    getSend2WorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
@@ -10159,6 +10170,71 @@ func (ec *executionContext) _Query_getProjectOrder2WorkshopDetail(ctx context.Co
 	return ec.marshalNGetProjectOrder2WorkshopDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectOrder2WorkshopDetailRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getSend2WorkshopOrderList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetSend2WorkshopOrderList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*orders.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -16659,6 +16735,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getProjectOrder2WorkshopDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getSend2WorkshopOrderList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSend2WorkshopOrderList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
