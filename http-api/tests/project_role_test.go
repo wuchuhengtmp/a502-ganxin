@@ -798,3 +798,27 @@ func TestProjectAdminGetSteelDetail(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员获取入场订单详情集成测试
+ */
+func TestProjectAdminRoleGetSend2WorkshopListDetail(t *testing.T) {
+	q := `
+		query ($input: GetProjectOrder2WorkshopDetailInput!){
+		  getSend2WorkshopOrderListDetail(input: $input) {
+			list{
+			  id
+			}
+			total
+			totalWeight
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"orderId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.Error(t, err)
+}
