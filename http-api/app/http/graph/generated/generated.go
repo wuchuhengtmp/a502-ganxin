@@ -250,12 +250,13 @@ type ComplexityRoot struct {
 	}
 
 	OrderSpecificationItem struct {
-		Id            func(childComplexity int) int
-		Specification func(childComplexity int) int
-		Total         func(childComplexity int) int
-		TotalSend     func(childComplexity int) int
-		TotalToBeSend func(childComplexity int) int
-		Weight        func(childComplexity int) int
+		Id                func(childComplexity int) int
+		Specification     func(childComplexity int) int
+		SpecificationInfo func(childComplexity int) int
+		Total             func(childComplexity int) int
+		TotalSend         func(childComplexity int) int
+		TotalToBeSend     func(childComplexity int) int
+		Weight            func(childComplexity int) int
 	}
 
 	ProjectItem struct {
@@ -447,6 +448,8 @@ type OrderItemResolver interface {
 	OrderSpecificationList(ctx context.Context, obj *orders.Order) ([]*order_specification.OrderSpecification, error)
 }
 type OrderSpecificationItemResolver interface {
+	SpecificationInfo(ctx context.Context, obj *order_specification.OrderSpecification) (*specificationinfo.SpecificationInfo, error)
+
 	TotalSend(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
 	TotalToBeSend(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
 	Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error)
@@ -1536,6 +1539,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OrderSpecificationItem.Specification(childComplexity), true
+
+	case "OrderSpecificationItem.specificationInfo":
+		if e.complexity.OrderSpecificationItem.SpecificationInfo == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.SpecificationInfo(childComplexity), true
 
 	case "OrderSpecificationItem.total":
 		if e.complexity.OrderSpecificationItem.Total == nil {
@@ -2717,6 +2727,8 @@ type OrderSpecificationItem {
     id: Int!
     """ 规格 """
     specification: String!
+    """ 规格信息合集 """
+    specificationInfo: SpecificationItem!
     """ 数量 """
     total: Int!
     """ 已出库 """
@@ -8986,6 +8998,41 @@ func (ec *executionContext) _OrderSpecificationItem_specification(ctx context.Co
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_specificationInfo(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderSpecificationItem().SpecificationInfo(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*specificationinfo.SpecificationInfo)
+	fc.Result = res
+	return ec.marshalNSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderSpecificationItem_total(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
@@ -16417,6 +16464,20 @@ func (ec *executionContext) _OrderSpecificationItem(ctx context.Context, sel ast
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "specificationInfo":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderSpecificationItem_specificationInfo(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "total":
 			out.Values[i] = ec._OrderSpecificationItem_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

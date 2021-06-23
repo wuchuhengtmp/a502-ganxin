@@ -3,6 +3,8 @@ type OrderSpecificationItem {
     id: Int!
     """ 规格 """
     specification: String!
+    """ 规格信息合集 """
+    specificationInfo: SpecificationItem!
     """ 数量 """
     total: Int!
     """ 已出库 """

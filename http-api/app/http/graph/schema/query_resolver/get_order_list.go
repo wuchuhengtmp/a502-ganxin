@@ -186,3 +186,9 @@ func (OrderItemResolver) ExpressList(ctx context.Context, obj *orders.Order) (or
 
 	return
 }
+func (OrderSpecificationItemResolver)SpecificationInfo(ctx context.Context, obj *order_specification.OrderSpecification) (*specificationinfo.SpecificationInfo, error) {
+	s := specificationinfo.SpecificationInfo{}
+	err := model.DB.Model(&s).Where("id = ?", obj.SpecificationId).First(&s).Error
+
+	return &s, err
+}
