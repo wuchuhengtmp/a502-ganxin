@@ -14,6 +14,32 @@ type OrderSpecificationItem {
     """ 重量 """
     weight: Float!
 }
+""" 订单中规格列表中的一个型钢 """
+type OrderSpecificationSteelItem {
+    id: Int!
+    """ 型钢基本信息 """
+    steel: SteelItem!
+    """订单规格"""
+    orderSpecification: OrderSpecificationItem!
+    """ 出库去场地的物流单 """
+    toWorkshopExpress: ExpressItem
+    """ 去场地归库的物流单id """
+    toRepositoryExpress: ExpressItem
+    """ 安装位置编码 """
+    locationCode: Int!
+    """ 出库用户 """
+    enterRepositoryUser: UserItem
+    """ 安装时间 """
+    installationAt: Time
+    """入场时间 """
+    enterWorkshopAt: Time
+    """ 出场时间 """
+    outWorkshopAt: Time
+    """ 出库时间 """
+    outRepositoryAt: Time!
+    """ 归库时间 """
+    EnterRepositoryAt: Time
+}
 
 """ 运输公司 """
 type ExpressCompanyItem {
@@ -147,6 +173,14 @@ type GetProjectOrder2WorkshopDetailRes {
     """ 重置吨 """
     totalWeight: Float!
 }
+""" 获取要入场的订单需要的请求参数 """
+input GetProjectOrder2WorkshopDetailInput {
+    """ 规格id """
+    specificationId: Int
+    """ 订单id """
+    orderId: Int!
+}
+
 input ProjectOrder2WorkshopInput {
     """ 识别码列表 """
     identifierList: [String!]!
@@ -156,6 +190,15 @@ input ProjectOrder2WorkshopInput {
     expressCompanyId: Int!
     """ 物流编号 """
     expressNo: String!
+}
+""" 获取送往场地的型钢订单列表详情响应格式 """
+type GetSend2WorkshopOrderListDetailRes {
+    """  数量列表 """
+    list: [OrderSpecificationSteelItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重置吨 """
+    totalWeight: Float!
 }
 extend type Mutation {
     """ 创建需求单 (auth: projectAdmin) """
@@ -174,6 +217,8 @@ extend type Query {
     getOrderDetail(input: getOrderDetailInput!): OrderItem! @hasRole(role: [projectAdmin repositoryAdmin]) @mustBeDevice
     """ 获取项目订单出库到场地详情 """
     getProjectOrder2WorkshopDetail(input: ProjectOrder2WorkshopDetailInput!): GetProjectOrder2WorkshopDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-    """ 获取送往场地的型钢订单列表 """
+    """ 获取送往场地的型钢订单列表 auth(role: projectAdmin) """
     getSend2WorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取送往场地的型钢订单列表详情 auth(role: project) """
+    getSend2WorkshopOrderListDetail(input: GetProjectOrder2WorkshopDetailInput!): GetSend2WorkshopOrderListDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

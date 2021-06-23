@@ -268,6 +268,14 @@ type GetOrderListInput struct {
 	QueryType *GetOrderListInputType `json:"queryType"`
 }
 
+//  获取要入场的订单需要的请求参数
+type GetProjectOrder2WorkshopDetailInput struct {
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+	//  订单id
+	OrderID int64 `json:"orderId"`
+}
+
 type GetRepositoryOverviewInput struct {
 	//  仓库id
 	ID int64 `json:"id"`

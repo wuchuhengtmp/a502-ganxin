@@ -16,6 +16,7 @@ import (
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/models/companies"
 	"http-api/app/models/logs"
+	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/roles"
 	"http-api/app/models/steels"
@@ -47,7 +48,18 @@ func (Projects)TableName() string {
  * 获取待出库的订单详情
  */
 type GetProjectOrder2WorkshopDetailRes struct {
-	List []steels.Steels
+	List []*steels.Steels
+	//""" 数量 """
+	Total int64
+	//""" 重置吨 """
+	TotalWeight float64
+}
+
+/**
+ * 获取待入场的订单详情
+ */
+type GetSend2WorkshopOrderListDetailRes struct {
+	List []order_specification_steel.OrderSpecificationSteel
 	//""" 数量 """
 	Total int64
 	//""" 重置吨 """

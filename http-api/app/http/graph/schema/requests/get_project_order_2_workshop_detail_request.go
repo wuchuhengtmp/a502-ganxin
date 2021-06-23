@@ -47,7 +47,7 @@ func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphMo
 		return err
 	}
 	// 检验规格
-	if err := osl.CheckSpecification(ctx, input); err != nil {
+	if err := osl.CheckSpecification(ctx, input.OrderID, input.SpecificationID); err != nil {
 		return err
 	}
 
@@ -194,16 +194,16 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSteelList(ctx context.
 /**
  * 检验规格
  */
-func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSpecification(ctx context.Context, input graphModel.ProjectOrder2WorkshopDetailInput) error {
-	if input.SpecificationID != nil {
+func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSpecification(ctx context.Context, orderId int64, specificationId *int64) error {
+	if specificationId!= nil {
 		err := model.DB.
 			Model(&order_specification.OrderSpecification{}).
-			Where("order_id = ?", input.OrderID).
-			Where("specification_id = ?", input.SpecificationID).
+			Where("order_id = ?", orderId).
+			Where("specification_id = ?", *specificationId).
 			First(&order_specification.OrderSpecification{}).
 			Error
 		if err != nil {
-			return fmt.Errorf("订单中没有id为: %d 的规格", *input.SpecificationID)
+			return fmt.Errorf("订单中没有id为: %d 的规格", *specificationId)
 		}
 	}
 

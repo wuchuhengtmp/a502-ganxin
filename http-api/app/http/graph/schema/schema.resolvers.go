@@ -69,6 +69,9 @@ func (*Resolver)MaintenanceRecordItem() generated.MaintenanceRecordItemResolver 
 func(*Resolver) SteelInProject() generated.SteelInProjectResolver {
 	return query_resolver.SteelInProjectResolver{}
 }
+func (*Resolver) OrderSpecificationSteelItem() generated.OrderSpecificationSteelItemResolver{
+	return query_resolver.OrderSpecificationSteelItemResolver{}
+}
 
 /**
  * graphQL 解析器入口
@@ -80,5 +83,6 @@ func Handler() *handler.Server {
 	// 必须是设备
 	conf.Directives.MustBeDevice = directives.MustBeDevice
 	conf.Directives.HasRole = directives.HasRole
+
 	return handler.NewDefaultServer( generated.NewExecutableSchema(conf))
 }

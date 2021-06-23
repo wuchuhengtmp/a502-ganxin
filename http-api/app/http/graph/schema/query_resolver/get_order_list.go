@@ -76,20 +76,6 @@ func (OrderItemResolver) ConfirmedUser(ctx context.Context, obj *orders.Order) (
 	}
 }
 
-func (OrderItemResolver) Sender(ctx context.Context, obj *orders.Order) (*users.Users, error) {
-	// 有发货
-	if obj.State >= orders.StateSend {
-		u := users.Users{}
-		if err := u.GetSelfById(obj.SenderUid); err != nil {
-			return nil, err
-		} else {
-			return &u, nil
-		}
-	}
-
-	return nil, nil
-}
-
 /**
  * 订单数量字段解析
  */

@@ -27,7 +27,6 @@ type Order struct {
 	PartList         string    `json:"partList" gorm:"comment:配件清单"`
 	CreateUid        int64     `json:"createUid" gorm:"comment:创建人"`
 	ConfirmedUid     int64     `json:"confirmedUid" gorm:"comment:确认人"`
-	SenderUid        int64     `json:"senderUid" gorm:"comment:发货人"`
 	OrderNo          string    `json:"orderNo" gorm:"comment:订单编号"`
 	Remark           string    `json:"remark" gorm:"comment:备注"`
 	CompanyId        int64     `json:"companyId" gorm:"comment:公司id"`

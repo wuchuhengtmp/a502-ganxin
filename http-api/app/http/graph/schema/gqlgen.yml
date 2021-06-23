@@ -99,3 +99,7 @@ models:
     model: http-api/app/models/maintenance.Maintenance
   SteelInProject:
     model: http-api/app/models/order_specification_steel.OrderSpecificationSteel
+  GetSend2WorkshopOrderListDetailRes:
+    model: http-api/app/models/projects.GetSend2WorkshopOrderListDetailRes
+  OrderSpecificationSteelItem:
+    model: http-api/app/models/order_specification_steel.OrderSpecificationSteel
