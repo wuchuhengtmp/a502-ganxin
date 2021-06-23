@@ -301,6 +301,7 @@ type ComplexityRoot struct {
 		GetExpressList                  func(childComplexity int) int
 		GetManufacturers                func(childComplexity int) int
 		GetMaterialManufacturers        func(childComplexity int) int
+		GetMultipleSteelDetail          func(childComplexity int, input *model.GetMultipleSteelDetailInput) int
 		GetMyInfo                       func(childComplexity int) int
 		GetOneSteelDetail               func(childComplexity int, input model.GetOneSteelDetailInput) int
 		GetOrderDetail                  func(childComplexity int, input model.GetOrderDetailInput) int
@@ -513,6 +514,7 @@ type QueryResolver interface {
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 	GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error)
 	GetOneSteelDetail(ctx context.Context, input model.GetOneSteelDetailInput) (*steels.Steels, error)
+	GetMultipleSteelDetail(ctx context.Context, input *model.GetMultipleSteelDetailInput) ([]*steels.Steels, error)
 }
 type RepositoryItemResolver interface {
 	Leaders(ctx context.Context, obj *repositories.Repositories) ([]*users.Users, error)
@@ -1828,6 +1830,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMaterialManufacturers(childComplexity), true
+
+	case "Query.getMultipleSteelDetail":
+		if e.complexity.Query.GetMultipleSteelDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getMultipleSteelDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMultipleSteelDetail(childComplexity, args["input"].(*model.GetMultipleSteelDetailInput)), true
 
 	case "Query.getMyInfo":
 		if e.complexity.Query.GetMyInfo == nil {
@@ -3347,6 +3361,11 @@ type GetSteelListRes {
 input GetOneSteelDetailInput {
     identifier: String!
 }
+""" 获取多个型钢详情的请求参数 """
+input GetMultipleSteelDetailInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
 extend type Mutation {
     """ 型钢入库 """
     createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
@@ -3356,6 +3375,8 @@ extend type Query {
     getSteelList(input: PaginationInput!):GetSteelListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取一个型钢详情 """
     getOneSteelDetail(input: GetOneSteelDetailInput!): SteelItem! @hasRole(role: [projectAdmin, maintenanceAdmin, repositoryAdmin]) @mustBeDevice
+    """ 获取多个型钢详情列表 """
+    getMultipleSteelDetail(input: GetMultipleSteelDetailInput): [SteelItem!]! @hasRole(role: [projectAdmin, maintenanceAdmin, repositoryAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../upload.graphql", Input: `scalar Upload
@@ -3883,6 +3904,21 @@ func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getMultipleSteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.GetMultipleSteelDetailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOGetMultipleSteelDetailInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMultipleSteelDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -11518,6 +11554,78 @@ func (ec *executionContext) _Query_getOneSteelDetail(ctx context.Context, field 
 	return ec.marshalNSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getMultipleSteelDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getMultipleSteelDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMultipleSteelDetail(rctx, args["input"].(*model.GetMultipleSteelDetailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "maintenanceAdmin", "repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.Steels); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.Steels`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -15811,6 +15919,26 @@ func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetMultipleSteelDetailInput(ctx context.Context, obj interface{}) (model.GetMultipleSteelDetailInput, error) {
+	var it model.GetMultipleSteelDetailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetOneSteelDetailInput(ctx context.Context, obj interface{}) (model.GetOneSteelDetailInput, error) {
 	var it model.GetOneSteelDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -17892,6 +18020,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getOneSteelDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getMultipleSteelDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMultipleSteelDetail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -20452,6 +20594,14 @@ func (ec *executionContext) unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputGetCompanyUserInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOGetMultipleSteelDetailInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMultipleSteelDetailInput(ctx context.Context, v interface{}) (*model.GetMultipleSteelDetailInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGetMultipleSteelDetailInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

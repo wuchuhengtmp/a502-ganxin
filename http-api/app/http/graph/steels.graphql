@@ -98,6 +98,11 @@ type GetSteelListRes {
 input GetOneSteelDetailInput {
     identifier: String!
 }
+""" 获取多个型钢详情的请求参数 """
+input GetMultipleSteelDetailInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
 extend type Mutation {
     """ 型钢入库 """
     createSteel(input: CreateSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin])
@@ -107,4 +112,6 @@ extend type Query {
     getSteelList(input: PaginationInput!):GetSteelListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取一个型钢详情 """
     getOneSteelDetail(input: GetOneSteelDetailInput!): SteelItem! @hasRole(role: [projectAdmin, maintenanceAdmin, repositoryAdmin]) @mustBeDevice
+    """ 获取多个型钢详情列表 """
+    getMultipleSteelDetail(input: GetMultipleSteelDetailInput): [SteelItem!]! @hasRole(role: [projectAdmin, maintenanceAdmin, repositoryAdmin]) @mustBeDevice
 }

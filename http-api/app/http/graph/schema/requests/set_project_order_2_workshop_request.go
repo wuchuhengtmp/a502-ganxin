@@ -17,9 +17,6 @@ import (
 	"http-api/pkg/model"
 )
 
-//  验证型钢出库的验证步骤合集
-type ValidateSetProjectOrder2WorkshopRequestSteps struct{}
-
 func ValidateSetProjectOrder2WorkshopRequest(ctx context.Context, input graphModel.ProjectOrder2WorkshopInput) error {
 	osl := ValidateGetProject2WorkshopDetailRequestSteps{}
 	// 识别码列表不能为空
@@ -35,7 +32,7 @@ func ValidateSetProjectOrder2WorkshopRequest(ctx context.Context, input graphMod
 		return err
 	}
 	// 验证是否冗余识别码
-	if err := osl.isRedundancyIdentification(input.IdentifierList); err != nil {
+	if err := osl.CheckRedundancyIdentification(input.IdentifierList); err != nil {
 		return err
 	}
 	// 验证每根型钢的状态和规格是否满足订单要求，且数量也没超过上限
@@ -50,6 +47,10 @@ func ValidateSetProjectOrder2WorkshopRequest(ctx context.Context, input graphMod
 
 	return nil
 }
+
+
+//  验证型钢出库的验证步骤合集
+type ValidateSetProjectOrder2WorkshopRequestSteps struct{}
 
 /**
  * 检验物流
