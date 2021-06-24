@@ -1388,3 +1388,76 @@ func TestRepositoryAdminRoleSetProjectOrder2Workshop(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库多个快速查询集成测试-手持机
+ */
+func TestRepositoryAdminRoleGetMultipleSteelDetail(t *testing.T) {
+	q := `
+		query ($input: GetMultipleSteelDetailInput!){
+		  getMultipleSteelDetail(input: $input) {
+			 id
+			code
+			identifier
+			specifcation{
+			  specification
+			}
+			state
+			manufacturer {
+			  id
+			  name
+			}
+			manufacturer {
+			  id
+			  name
+			}
+			producedDate
+			createdAt
+			createUser{
+			  id
+			  name
+			}
+			steelInProject{
+			  id
+			  outRepositoryAt
+			  order{
+				id
+			  }
+			  locationCode
+			   useDays
+			  order { 
+				project{
+				  name
+				}
+			  }
+			  enterWorkshopAt
+			  outWorkshopAt
+			  installationAt
+			  outRepositoryAt
+			  enterRepositoryAt
+			}
+			steelInMaintenance {
+			  id
+			  outedAt
+			  maintenance{
+				name
+			  }
+			  useDays
+			  enteredAt
+			  outedAt
+			  enterRepositoryAt
+			}
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifierList": []string {
+				"8",
+				"9",
+			},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
