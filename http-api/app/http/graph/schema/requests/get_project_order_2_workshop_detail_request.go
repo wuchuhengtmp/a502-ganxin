@@ -18,7 +18,7 @@ func ValidateGetProject2WorkshopDetailRequest(ctx context.Context, input graphMo
 	// 声明订单中各个规格需求量,用于检验输入数量和需求量是否超过上限
 	osl := ValidateGetProject2WorkshopDetailRequestSteps{}
 	// 识别码列表不能为空
-	if err := osl.IdentificationListMustBeEmpty(ctx, input.IdentifierList); err != nil {
+	if err := osl.CheckIdentificationListMustBeEmpty(ctx, input.IdentifierList); err != nil {
 		return err
 	}
 	// 检验有没有这个订单

@@ -15,6 +15,7 @@ import (
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
+	"http-api/pkg/model"
 )
 
 type OrderSpecificationSteelItemResolver struct { }
@@ -22,32 +23,34 @@ type OrderSpecificationSteelItemResolver struct { }
 
 func (OrderSpecificationSteelItemResolver)Steel(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*steels.Steels, error) {
 	s := steels.Steels{}
-	// todo
+	err := model.DB.Model(&s).Where("id = ?", obj.SteelId).First(&s).Error
 
-	return &s, nil
+	return &s, err
 }
 
 func (OrderSpecificationSteelItemResolver)OrderSpecification(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*order_specification.OrderSpecification, error) {
 	o := order_specification.OrderSpecification{}
+	err := model.DB.Model(&o).Where("id = ?", o.SpecificationId).First(&o).Error
 
-	return &o, nil
+	return &o, err
 }
 func (OrderSpecificationSteelItemResolver)ToWorkshopExpress(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*codeinfo.CodeInfo, error) {
-	o := codeinfo.CodeInfo{}
+	c := codeinfo.CodeInfo{}
+	err := model.DB.Model(&c).Where( "id = ?", obj.ToWorkshopExpressId).First(&c).Error
 
-	return &o, nil
+	return &c, err
 }
 
 func (OrderSpecificationSteelItemResolver)ToRepositoryExpress(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*codeinfo.CodeInfo, error) {
-	// todo
-	o := codeinfo.CodeInfo{}
+	c := codeinfo.CodeInfo{}
+	err := model.DB.Model(&c).Where( "id = ?", obj.ToRepositoryExpressId).First(&c).Error
 
-	return &o, nil
+	return &c, err
 }
 
 func (OrderSpecificationSteelItemResolver)EnterRepositoryUser(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*users.Users, error) {
-	// todo
 	u := users.Users{}
+	err := model.DB.Model(&u).Where("id = ?", obj.EnterRepositoryUid).First(&u).Error
 
-	return &u, nil
+	return &u, err
 }

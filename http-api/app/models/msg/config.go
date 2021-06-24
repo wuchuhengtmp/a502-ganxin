@@ -23,10 +23,11 @@ type Msg struct {
 }
 
 const (
-	CreateOrderType  string = "createOrder"  // 创建订单类型
-	ConfirmOrderType string = "confirmOrder" // 确认订单类型
-	RejectOrderType string = "rejectOrderType" // 拒绝订单类型
-	OutProject2Workshop string ="outOfProjectToWorkshopType" // 出库到项目场地
+	CreateOrderType       string = "createOrder"                // 创建订单类型
+	ConfirmOrderType      string = "confirmOrder"               // 确认订单类型
+	RejectOrderType       string = "rejectOrderType"            // 拒绝订单类型
+	OutProject2Workshop   string = "outOfProjectToWorkshopType" // 出库到项目场地
+	EnterProject2Workshop string = "enter project to Workshop"  // 项目入场
 )
 
 func (Msg) TableName() string {
@@ -44,13 +45,11 @@ func (*Msg) Push() error {
 /**
  * 创建消息
  */
-func (m *Msg)CreateSelf(tx *gorm.DB) error {
+func (m *Msg) CreateSelf(tx *gorm.DB) error {
 	if err := tx.Create(m).Error; err != nil {
 		return err
 	}
-	_= m.Push()
+	_ = m.Push()
 
 	return nil
 }
-
-

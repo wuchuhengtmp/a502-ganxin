@@ -306,7 +306,7 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckRedundancyIdentificati
 /*
  * 识别码不能为空
  */
-func (ValidateGetProject2WorkshopDetailRequestSteps) IdentificationListMustBeEmpty(ctx context.Context, identifierList []string) error {
+func (ValidateGetProject2WorkshopDetailRequestSteps) CheckIdentificationListMustBeEmpty(ctx context.Context, identifierList []string) error {
 	if len(identifierList) == 0 {
 		return fmt.Errorf("识别码列表不能为空")
 	}

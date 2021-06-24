@@ -223,6 +223,7 @@ type ComplexityRoot struct {
 		Login                      func(childComplexity int, phone string, password string, mac *string) int
 		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
 		SetProjectOrder2Workshop   func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
+		SetSteelEnterWorkshop      func(childComplexity int, input model.SetSteelIntoWorkshopInput) int
 		SingleUpload               func(childComplexity int, file graphql.Upload) int
 	}
 
@@ -440,6 +441,7 @@ type MutationResolver interface {
 	EditMaterialManufacturer(ctx context.Context, input model.EditMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
+	SetSteelEnterWorkshop(ctx context.Context, input model.SetSteelIntoWorkshopInput) ([]*order_specification_steel.OrderSpecificationSteel, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
 	SetProjectOrder2Workshop(ctx context.Context, input model.ProjectOrder2WorkshopInput) (*orders.Order, error)
@@ -1400,6 +1402,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetProjectOrder2Workshop(childComplexity, args["input"].(model.ProjectOrder2WorkshopInput)), true
+
+	case "Mutation.setSteelEnterWorkshop":
+		if e.complexity.Mutation.SetSteelEnterWorkshop == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setSteelEnterWorkshop_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetSteelEnterWorkshop(childComplexity, args["input"].(model.SetSteelIntoWorkshopInput)), true
 
 	case "Mutation.singleUpload":
 		if e.complexity.Mutation.SingleUpload == nil {
@@ -3087,7 +3101,15 @@ type GetSend2WorkshopOrderListDetailRes {
     """ 重置吨 """
     totalWeight: Float!
 }
+input SetSteelIntoWorkshopInput {
+    """ 型钢标识码列表 """
+    identifierList: [String!]!
+    """ 订单ID """
+    orderId: Int!
+}
 extend type Mutation {
+    """ 型钢入场 """
+    setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """
@@ -3859,6 +3881,21 @@ func (ec *executionContext) field_Mutation_setProjectOrder2Workshop_args(ctx con
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNProjectOrder2WorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setSteelEnterWorkshop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetSteelIntoWorkshopInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetSteelIntoWorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetSteelIntoWorkshopInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7670,6 +7707,78 @@ func (ec *executionContext) _Mutation_setPassword(ctx context.Context, field gra
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setSteelEnterWorkshop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setSteelEnterWorkshop_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetSteelEnterWorkshop(rctx, args["input"].(model.SetSteelIntoWorkshopInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*order_specification_steel.OrderSpecificationSteel); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/order_specification_steel.OrderSpecificationSteel`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*order_specification_steel.OrderSpecificationSteel)
+	fc.Result = res
+	return ec.marshalNOrderSpecificationSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specification_steelᚐOrderSpecificationSteelᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -16186,6 +16295,34 @@ func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetSteelIntoWorkshopInput(ctx context.Context, obj interface{}) (model.SetSteelIntoWorkshopInput, error) {
+	var it model.SetSteelIntoWorkshopInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "orderId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderId"))
+			it.OrderID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputgetOrderDetailInput(ctx context.Context, obj interface{}) (model.GetOrderDetailInput, error) {
 	var it model.GetOrderDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -17096,6 +17233,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "setPassword":
 			out.Values[i] = ec._Mutation_setPassword(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setSteelEnterWorkshop":
+			out.Values[i] = ec._Mutation_setSteelEnterWorkshop(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -19720,6 +19862,53 @@ func (ec *executionContext) marshalNOrderSpecificationSteelItem2ᚕhttpᚑapiᚋ
 	return ret
 }
 
+func (ec *executionContext) marshalNOrderSpecificationSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specification_steelᚐOrderSpecificationSteelᚄ(ctx context.Context, sel ast.SelectionSet, v []*order_specification_steel.OrderSpecificationSteel) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNOrderSpecificationSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specification_steelᚐOrderSpecificationSteel(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNOrderSpecificationSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specification_steelᚐOrderSpecificationSteel(ctx context.Context, sel ast.SelectionSet, v *order_specification_steel.OrderSpecificationSteel) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._OrderSpecificationSteelItem(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNPaginationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐPaginationInput(ctx context.Context, v interface{}) (model.PaginationInput, error) {
 	res, err := ec.unmarshalInputPaginationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -19954,6 +20143,11 @@ func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrole
 		return graphql.Null
 	}
 	return ec._RoleItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSetSteelIntoWorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetSteelIntoWorkshopInput(ctx context.Context, v interface{}) (model.SetSteelIntoWorkshopInput, error) {
+	res, err := ec.unmarshalInputSetSteelIntoWorkshopInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNSpecificationItem2httpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx context.Context, sel ast.SelectionSet, v specificationinfo.SpecificationInfo) graphql.Marshaler {

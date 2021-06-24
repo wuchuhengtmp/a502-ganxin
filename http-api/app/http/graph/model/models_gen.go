@@ -353,6 +353,13 @@ type SetPasswordInput struct {
 	Password string `json:"password"`
 }
 
+type SetSteelIntoWorkshopInput struct {
+	//  型钢标识码列表
+	IdentifierList []string `json:"identifierList"`
+	//  订单ID
+	OrderID int64 `json:"orderId"`
+}
+
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`

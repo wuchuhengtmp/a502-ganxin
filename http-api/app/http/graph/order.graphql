@@ -200,7 +200,15 @@ type GetSend2WorkshopOrderListDetailRes {
     """ 重置吨 """
     totalWeight: Float!
 }
+input SetSteelIntoWorkshopInput {
+    """ 型钢标识码列表 """
+    identifierList: [String!]!
+    """ 订单ID """
+    orderId: Int!
+}
 extend type Mutation {
+    """ 型钢入场 """
+    setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 创建需求单 (auth: projectAdmin) """
     createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
     """ 确认订单 """

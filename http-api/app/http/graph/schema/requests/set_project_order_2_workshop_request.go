@@ -20,7 +20,7 @@ import (
 func ValidateSetProjectOrder2WorkshopRequest(ctx context.Context, input graphModel.ProjectOrder2WorkshopInput) error {
 	osl := ValidateGetProject2WorkshopDetailRequestSteps{}
 	// 识别码列表不能为空
-	if err := osl.IdentificationListMustBeEmpty(ctx,input.IdentifierList); err != nil {
+	if err := osl.CheckIdentificationListMustBeEmpty(ctx,input.IdentifierList); err != nil {
 		return err
 	}
 	// 检验有没有这个订单
