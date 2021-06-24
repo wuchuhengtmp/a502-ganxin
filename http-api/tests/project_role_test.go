@@ -75,7 +75,7 @@ func TestProjectAdminRoleDeviceLogin(t *testing.T) {
 	variables := map[string]interface{}{
 		"phone":    projectAdminTestCtx.Username,
 		"password": projectAdminTestCtx.Password,
-		"mac": "123:1242:1242:12412",
+		"mac":      "123:1242:1242:12412",
 	}
 	res, err := graphReqClient(query, variables, roles.RoleProjectAdmin)
 	hasError(t, err)
@@ -679,7 +679,7 @@ func TestProjectAdminDeviceGetOrderList(t *testing.T) {
 
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"queryType": "toBeConfirm",
 		},
 	}
@@ -722,8 +722,8 @@ func TestProjectAdminDeviceGetOrderDetail(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"id": o.Id,
 		},
 	}
@@ -734,7 +734,7 @@ func TestProjectAdminDeviceGetOrderDetail(t *testing.T) {
 /**
  * 项目管理员型钢快速查询集成测试-手持机
  */
-func TestProjectAdminGetSteelDetail(t *testing.T)  {
+func TestProjectAdminGetSteelDetail(t *testing.T) {
 	q := `query ($input: GetOneSteelDetailInput!){
 		  getOneSteelDetail(input: $input) {
 			id
@@ -790,8 +790,8 @@ func TestProjectAdminGetSteelDetail(t *testing.T)  {
 		  }
 		} 
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"identifier": "8",
 		},
 	}
@@ -814,11 +814,35 @@ func TestProjectAdminRoleGetSend2WorkshopListDetail(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"orderId": 1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	assert.Error(t, err)
+}
+
+/**
+ * 项目管理员型钢入场集成测试
+ */
+func testProjectAdminRoleSetProjectEnterWorkshop(t *testing.T) {
+	orderId := 1
+	q := `
+			mutation ($input: SetSteelIntoWorkshopInput!) {
+			  setSteelEnterWorkshop(input: $input){
+				id
+			  }
+			}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"orderId": orderId,
+			"identifierList": []interface{}{
+				"8",
+			},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
 }

@@ -1238,12 +1238,15 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	}
 	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
+	t.Run("仓库管理员获取待出库详细信息-手持设备", testRepositoryAdminGetProjectOrder2WorkshopDetail)
+	t.Run("仓库管理员型钢出库集成测试-手持机", testRepositoryAdminRoleSetProjectOrder2Workshop)
+	t.Run("项目管理员型钢入场集成测试-手持设备", testProjectAdminRoleSetProjectEnterWorkshop)
 }
 
 /**
  * 仓库管理员获取待出库详细信息-手持设备
  */
-func TestRepositoryAdminGetProjectOrder2WorkshopDetail(t *testing.T) {
+func testRepositoryAdminGetProjectOrder2WorkshopDetail(t *testing.T) {
 	q := `
 		query ($input: ProjectOrder2WorkshopDetailInput!){
 		   getProjectOrder2WorkshopDetail(input: $input) {
@@ -1367,7 +1370,7 @@ func TestRepositoryAdminGetSteelDetail(t *testing.T)  {
 /**
  * 仓库管理员型钢出库集成测试-手持机
  */
-func TestRepositoryAdminRoleSetProjectOrder2Workshop(t *testing.T) {
+func testRepositoryAdminRoleSetProjectOrder2Workshop(t *testing.T) {
 	q := `
 		mutation ($input: ProjectOrder2WorkshopInput!) {
 		  setProjectOrder2Workshop(input: $input) {
