@@ -108,3 +108,6 @@ models:
     model: http-api/app/models/projects.GetProjectSpecificationDetailRes
   OrderSpecificationSteelItem:
     model: http-api/app/models/order_specification_steel.OrderSpecificationSteel
+  # StateItem 状态项说明
+  StateItem:
+    model: http-api/app/models/steels.StateItem

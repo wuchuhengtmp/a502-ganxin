@@ -495,16 +495,7 @@ func (s *StepsForProject) CheckIsBelongMe(ctx context.Context, projectId int64) 
  */
 func (*StepsForProject) CheckSteelState(ctx context.Context, state int64) error {
 	// 允许项目过滤查询的合法状态合集
-	allowStateList := []int64{
-		steels.StateInStore,              //【仓库】-在库
-		steels.StateRepository2Project,   //【仓库】-运送至项目途中
-		steels.StateProjectWillBeUsed,    //【项目】-待使用
-		steels.StateProjectInUse,         //【项目】-使用中
-		steels.StateProjectException,     //【项目】-异常
-		steels.StateProjectIdle,          //【项目】-闲置
-		steels.StateProjectWillBeStore,   //【项目】-准备归库
-		steels.StateProjectOnTheStoreWay, //【项目】-归库途中
-	}
+	allowStateList := steels.GetStateForProject()
 	for _, stateItem := range allowStateList {
 		if stateItem == state {
 			return nil

@@ -105,6 +105,24 @@ var StateCodeMapDes = map[int64]string{
 }
 
 /**
+ * 获取项目中会用到的型钢状态合集
+ */
+func GetStateForProject() []int64 {
+	list := []int64{
+		StateInStore,              //【仓库】-在库
+		StateRepository2Project,   //【仓库】-运送至项目途中
+		StateProjectWillBeUsed,    //【项目】-待使用
+		StateProjectInUse,         //【项目】-使用中
+		StateProjectException,     //【项目】-异常
+		StateProjectIdle,          //【项目】-闲置
+		StateProjectWillBeStore,   //【项目】-准备归库
+		StateProjectOnTheStoreWay, //【项目】-归库途中
+	}
+
+	return list
+}
+
+/**
  * 根据规格id获取型钢
  */
 func (*Steels) GetSteelsBySpecificationId(specificationId int64) (res []*Steels, err error) {
@@ -253,4 +271,14 @@ func (s Steels) GetRepository() (*repositories.Repositories, error) {
 		First(&r).Error
 
 	return &r, err
+}
+
+/**
+ * 状态项说明
+ */
+type StateItem struct {
+	// 状态
+	State int64
+	// 状态说明
+	Desc string
 }

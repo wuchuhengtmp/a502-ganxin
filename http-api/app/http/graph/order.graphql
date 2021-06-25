@@ -212,6 +212,13 @@ input SetSteelIntoWorkshopInput {
     """ 订单ID """
     orderId: Int!
 }
+""" 状态项 """
+type StateItem {
+    """ 状态码 """
+    state: Int!
+    """  说明 """
+    desc: String!
+}
 extend type Mutation {
     """ 型钢入场 """
     setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
@@ -235,6 +242,8 @@ extend type Query {
     getSend2WorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取送往场地的型钢订单列表详情 auth(role: project) """
     getSend2WorkshopOrderListDetail(input: GetProjectOrder2WorkshopDetailInput!): GetSend2WorkshopOrderListDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取项目型钢状态列表 """
+    getProjectSteelStateList: [StateItem!]!
     #    """ 获取最大的安装位置 """
     #    getMaxLocationCode(): Int!
 }
