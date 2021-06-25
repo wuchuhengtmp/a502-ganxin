@@ -74,6 +74,6 @@ extend type Query {
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取项目规格列表-手持  """
     getProjectSpecificationDetail(input: GetProjectSpecificationDetailInput!): GetProjectSpecificationDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 获取项目型钢详情 """
-    getProjectSteelDetail(input: GetProjectSteelDetailInput!):GetProjectSteelDetailRes!
+    """ 获取项目型钢详情-设备 """
+    getProjectSteelDetail(input: GetProjectSteelDetailInput!):GetProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

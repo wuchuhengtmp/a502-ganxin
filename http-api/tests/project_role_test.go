@@ -882,3 +882,56 @@ func testProjectAdminRoleGetProjectSpecificationDetail(t *testing.T) {
 	 assert.NoError(t, err)
 }
 
+/**
+ *
+ * 项目管理员获取项目详情列表集成测试--手机
+ */
+func testProjectAdminRoleGetProjectSteelDetail(t *testing.T) {
+	q := `
+		query ($input: GetProjectSteelDetailInput!){
+		  getProjectSteelDetail(input: $input) {
+			list{
+			  id
+			  # 订单规格列表
+			  orderSpecification{
+				# 订单
+				order {
+				  # 订单号
+				  id
+				}
+			  }
+			  # 位置编码
+			  locationCode
+			  # 型钢
+			  steel{
+				# 型钢编码
+				code
+				# 规格尺寸
+				specifcation{
+				  specification
+				}
+				# 周转次数
+				turnover
+			  }
+			  # 出库时间
+			  outWorkshopAt
+			  #入场时间
+			  enterWorkshopAt
+			  # 出场时间
+			  outWorkshopAt
+			}
+			total
+			weight
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"projectId": 1,
+			"state": 200,
+			"specificationId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
