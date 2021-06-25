@@ -1241,6 +1241,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("仓库管理员获取待出库详细信息-手持设备", testRepositoryAdminGetProjectOrder2WorkshopDetail)
 	t.Run("仓库管理员型钢出库集成测试-手持机", testRepositoryAdminRoleSetProjectOrder2Workshop)
 	t.Run("项目管理员型钢入场集成测试-手持设备", testProjectAdminRoleSetProjectEnterWorkshop)
+	t.Run("项目管理员获取项目规格列表集成测试--手机", testProjectAdminRoleGetProjectSpecificationDetail)
 }
 
 /**

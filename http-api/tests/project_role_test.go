@@ -846,3 +846,39 @@ func testProjectAdminRoleSetProjectEnterWorkshop(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员获取项目规格列表集成测试--手机
+ */
+func testProjectAdminRoleGetProjectSpecificationDetail(t *testing.T) {
+	q := `
+		query ($input: GetProjectSpecificationDetailInput!) {
+		  getProjectSpecificationDetail(input: $input) {
+			list {
+			  id
+			  specificationInfo{
+				specification
+				id
+				weight
+			  }
+			  # 应该接收(总量) 注: 重量 自己用这个数量乘规格信息中的重量就可以了
+			  total
+			  # 已接收
+			  workshopReceiveTotal
+			  # 已归库
+			  storeTotal
+			}
+			total
+			weight
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"projectId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	 assert.NoError(t, err)
+}
+
