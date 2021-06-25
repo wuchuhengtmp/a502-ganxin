@@ -883,7 +883,6 @@ func testProjectAdminRoleGetProjectSpecificationDetail(t *testing.T) {
 }
 
 /**
- *
  * 项目管理员获取项目详情列表集成测试--手机
  */
 func testProjectAdminRoleGetProjectSteelDetail(t *testing.T) {
@@ -932,6 +931,26 @@ func testProjectAdminRoleGetProjectSteelDetail(t *testing.T) {
 			"specificationId": 1,
 		},
 	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员获取项目型钢状态列表集成测试--手机
+ */
+func testProjectAdminRoleGetProjectSteelStateList(t *testing.T)  {
+	q := `
+		query {
+		  # 获取项目型钢状态列表
+		  getProjectSteelStateList{
+			# 状态
+			state
+			# 说明
+			desc
+		  }
+		}
+	`
+	v := map[string]interface{} { }
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
