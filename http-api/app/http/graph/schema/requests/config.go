@@ -139,7 +139,9 @@ func init() {
 	// 是否是公司仓库
 	govalidator.AddCustomRule("isCompanyRepository", func(field string, rule string, message string, value interface{}) error {
 		me, err := getUserByRule(rule)
-		if err == nil { return err }
+		if err == nil {
+			return err
+		}
 		r := repositories.Repositories{}
 		err = model.DB.
 			Model(&repositories.Repositories{}).
@@ -155,7 +157,9 @@ func init() {
 	// 是否是公司名下的规格
 	govalidator.AddCustomRule("isCompanySpecification", func(field string, rule string, message string, value interface{}) error {
 		me, err := getUserByRule(rule)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		r := repositories.Repositories{}
 		err = model.DB.
 			Model(&specificationinfo.SpecificationInfo{}).
@@ -170,7 +174,9 @@ func init() {
 	// 是否是公司名下的项目
 	govalidator.AddCustomRule("isCompanyProject", func(field string, rule string, message string, value interface{}) error {
 		me, err := getUserByRule(rule)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		r := projects.Projects{}
 		err = model.DB.
 			Model(&r).
@@ -185,7 +191,9 @@ func init() {
 	// 是否是公司下的订单
 	govalidator.AddCustomRule("isCompanyOrder", func(field string, rule string, message string, value interface{}) error {
 		me, err := getUserByRule(rule)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		r := orders.Order{}
 		err = model.DB.
 			Model(&r).
@@ -200,7 +208,9 @@ func init() {
 	// 是否是公司名下的型钢
 	govalidator.AddCustomRule("isCompanySteel", func(field string, rule string, message string, value interface{}) error {
 		me, err := getUserByRule(rule)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		r := steels.Steels{}
 		err = model.DB.
 			Model(&r).
@@ -214,10 +224,12 @@ func init() {
 	})
 }
 
-func getUserByRule (rule string) (u *users.Users,  err error ) {
-	uid, _ := strconv.ParseInt( strings.SplitAfter(rule, ":")[1], 10, 16)
+func getUserByRule(rule string) (u *users.Users, err error) {
+	uid, _ := strconv.ParseInt(strings.SplitAfter(rule, ":")[1], 10, 16)
 	me := users.Users{}
-	if err := me.GetSelfById(uid); err != nil { return nil, fmt.Errorf("没有这个用户") }
+	if err := me.GetSelfById(uid); err != nil {
+		return nil, fmt.Errorf("没有这个用户")
+	}
 
 	return &me, nil
 }
@@ -259,7 +271,7 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) checkHasOrder(ctx context.C
 // 检验订单状态 只能是确认或部分发货才行
 func (ValidateGetProject2WorkshopDetailRequestSteps) checkOrderState(ctx context.Context, orderId int64) error {
 	o := orders.Order{}
-	if e := model.DB.Model(&o).Where("id = ?",orderId).First(&o).Error; e != nil {
+	if e := model.DB.Model(&o).Where("id = ?", orderId).First(&o).Error; e != nil {
 		return fmt.Errorf("没有这个订单id:%d", orderId)
 	}
 	if o.State != orders.StateConfirmed && o.State != orders.StatePartOfReceipted {
@@ -320,7 +332,7 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSteelList(ctx context.
 	// 订单规格合集
 	var orderSpecificationList []*order_specification.OrderSpecification
 	orderSpecificationSpecificationMapTotal := make(map[string]int64) // 当前同一规格统计量 用于比较上限
-	var orderSpecificationIdList []int64 // 订单要求的规格id集合，用于检验型钢的规格是否在这个合集中
+	var orderSpecificationIdList []int64                              // 订单要求的规格id集合，用于检验型钢的规格是否在这个合集中
 	err := model.DB.Model(&order_specification.OrderSpecification{}).Where("order_id = ?", orderId).
 		Find(&orderSpecificationList).
 		Error
@@ -353,9 +365,9 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSteelList(ctx context.
 			return fmt.Errorf("识别码为%s的型钢当前状态为:%s, 不能出库", identification, steels.StateCodeMapDes[s.State])
 		}
 		// 检验型钢的规格能否满足订单的要求
-		if err := func() error{
+		if err := func() error {
 			for _, specificationId := range orderSpecificationIdList {
-				if specificationId == s.SpecificationId  {
+				if specificationId == s.SpecificationId {
 					return nil
 				}
 			}
@@ -378,11 +390,12 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSteelList(ctx context.
 
 	return nil
 }
+
 /**
  * 检验规格
  */
 func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSpecification(ctx context.Context, orderId int64, specificationId *int64) error {
-	if specificationId!= nil {
+	if specificationId != nil {
 		err := model.DB.
 			Model(&order_specification.OrderSpecification{}).
 			Where("order_id = ?", orderId).
@@ -396,13 +409,14 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSpecification(ctx cont
 
 	return nil
 }
+
 // 获取项目规格列表验证器验证步骤
-type ValidateGetProjectSpecificationDetailRequestSteps struct {}
+type ValidateGetProjectSpecificationDetailRequestSteps struct{}
 
 /**
  * 项目的管理员是不是我
  */
-func (v *ValidateGetProjectSpecificationDetailRequestSteps)CheckProjectLeader(ctx context.Context, projectId int64) error  {
+func (v *ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectLeader(ctx context.Context, projectId int64) error {
 	me := auth.GetUser(ctx)
 	projectTable := projects.Projects{}.TableName()
 	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
@@ -424,7 +438,7 @@ func (v *ValidateGetProjectSpecificationDetailRequestSteps)CheckProjectLeader(ct
 /**
  * 项目是否存在
  */
-func (*ValidateGetProjectSpecificationDetailRequestSteps)CheckProjectExists(ctx context.Context, projectId int64) error  {
+func (*ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectExists(ctx context.Context, projectId int64) error {
 	projectItem := projects.Projects{}
 	me := auth.GetUser(ctx)
 	err := model.DB.Model(&projectItem).Where("id = ? AND company_id = ?", projectId, me.CompanyId).First(&projectItem).Error
@@ -435,3 +449,96 @@ func (*ValidateGetProjectSpecificationDetailRequestSteps)CheckProjectExists(ctx 
 	return nil
 }
 
+/*
+ * 项目相关的证步骤
+ */
+type StepsForProject struct{}
+
+/**
+ * 检验有没有这个项目
+ */
+func (*StepsForProject) CheckHasProject(ctx context.Context, projectId int64) error {
+	projectItem := projects.Projects{ID: projectId}
+	err := projectItem.GetSelf()
+	if err != nil {
+		return fmt.Errorf("项目id为：%d 不存在", projectId)
+	}
+
+	return nil
+}
+
+/**
+ * 检验项目管理员是不是我
+ */
+func (s *StepsForProject) CheckIsBelongMe(ctx context.Context, projectId int64) error {
+	if err := s.CheckHasProject(ctx, projectId); err != nil {
+		return err
+	}
+	ProjectLeaderItem := project_leader.ProjectLeader{}
+	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
+	projectTable := projects.Projects{}.TableName()
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&ProjectLeaderItem).
+		Select(fmt.Sprintf("%s.*", projectTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id= %s.project_id", projectTable, projectTable, projectLeaderTable)).
+		Where(fmt.Sprintf("%s.uid = ?", projectLeaderTable), me.Id).
+		First(&ProjectLeaderItem).Error
+	if err != nil {
+		return fmt.Errorf("您不是项目id为:%d 的管理员， 您无权操作", projectId)
+	}
+
+	return nil
+}
+
+/**
+ * 检验项目型钢状态
+ */
+func (*StepsForProject) CheckSteelState(ctx context.Context, state int64) error {
+	// 允许项目过滤查询的合法状态合集
+	allowStateList := []int64{
+		steels.StateInStore,              //【仓库】-在库
+		steels.StateRepository2Project,   //【仓库】-运送至项目途中
+		steels.StateProjectWillBeUsed,    //【项目】-待使用
+		steels.StateProjectInUse,         //【项目】-使用中
+		steels.StateProjectException,     //【项目】-异常
+		steels.StateProjectIdle,          //【项目】-闲置
+		steels.StateProjectWillBeStore,   //【项目】-准备归库
+		steels.StateProjectOnTheStoreWay, //【项目】-归库途中
+	}
+	for _, stateItem := range allowStateList {
+		if stateItem == state {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("状态为:%d 不合法", state)
+}
+
+/**
+ *  检验规格id
+ */
+func (s *StepsForProject) CheckSpecification(ctx context.Context, specificationId int64, projectId int64) error {
+	if err := s.CheckHasProject(ctx, projectId); err != nil {
+		return err
+	}
+	orderSpecificationItem := order_specification.OrderSpecification{}
+	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	projectTable := projects.Projects{}.TableName()
+	var orderSpecificationList  []order_specification.OrderSpecification
+	err := model.DB.Model(&orderSpecificationItem).
+		Select(fmt.Sprintf("%s.*", orderSpecificationItem.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+		Find(&orderSpecificationList).Error
+	if err != nil {
+		return err
+	}
+	for _, i := range orderSpecificationList {
+		if i.SpecificationId == specificationId {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("项目id为: %d中没有规格id为: %d", projectId, specificationId)
+}

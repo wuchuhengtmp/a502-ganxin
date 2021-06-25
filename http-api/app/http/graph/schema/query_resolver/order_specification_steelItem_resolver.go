@@ -30,7 +30,7 @@ func (OrderSpecificationSteelItemResolver)Steel(ctx context.Context, obj *order_
 
 func (OrderSpecificationSteelItemResolver)OrderSpecification(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*order_specification.OrderSpecification, error) {
 	o := order_specification.OrderSpecification{}
-	err := model.DB.Model(&o).Where("id = ?", o.SpecificationId).First(&o).Error
+	err := model.DB.Model(&o).Where("id = ?", obj.OrderSpecificationId).First(&o).Error
 
 	return &o, err
 }

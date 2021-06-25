@@ -288,6 +288,16 @@ type GetProjectSpecificationDetailInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  获取项目型钢详情需要的参数
+type GetProjectSteelDetailInput struct {
+	//  项目id
+	ProjectID int64 `json:"projectId"`
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+	//  型钢状态
+	State *int64 `json:"state"`
+}
+
 type GetRepositoryOverviewInput struct {
 	//  仓库id
 	ID int64 `json:"id"`

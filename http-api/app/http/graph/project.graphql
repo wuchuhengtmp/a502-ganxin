@@ -46,8 +46,25 @@ input GetProjectSpecificationDetailInput {
     """ 项目id """
     projectId: Int!
 }
+""" 获取项目型钢详情  """
+type GetProjectSteelDetailRes {
+    """ 订单规格列表 """
+    list: [OrderSpecificationSteelItem]!
+    """ 已经扫描数量 """
+    total: Int!
+    """ 已经扫描重量 """
+    weight: Float!
+}
+""" 获取项目型钢详情需要的参数 """
+input GetProjectSteelDetailInput {
+    """ 项目id """
+    projectId: Int!
+    """ 规格id """
+    specificationId: Int
+    """ 型钢状态 """
+    state: Int
+}
 extend type Mutation {
-
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
 }
@@ -57,4 +74,6 @@ extend type Query {
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取项目规格列表-手持  """
     getProjectSpecificationDetail(input: GetProjectSpecificationDetailInput!): GetProjectSpecificationDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取项目型钢详情 """
+    getProjectSteelDetail(input: GetProjectSteelDetailInput!):GetProjectSteelDetailRes!
 }

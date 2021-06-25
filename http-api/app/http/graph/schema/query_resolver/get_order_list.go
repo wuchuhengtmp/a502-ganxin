@@ -139,6 +139,15 @@ func (OrderItemResolver) OrderSpecificationList(ctx context.Context, obj *orders
 }
 
 type OrderSpecificationItemResolver struct{}
+func (OrderSpecificationItemResolver)Order(ctx context.Context, obj *order_specification.OrderSpecification) (*orders.Order, error) {
+	orderItem := orders.Order{}
+	err := model.DB.Model(&orderItem).Where("id = ?", obj.OrderId).First(&orderItem).Error
+	if err != nil {
+		return nil , err
+	}
+
+	return &orderItem, nil
+}
 
 func (OrderSpecificationItemResolver) Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error) {
 	sp := specificationinfo.SpecificationInfo{ID: obj.SpecificationId}

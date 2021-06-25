@@ -1,6 +1,8 @@
 """ 订单规格 """
 type OrderSpecificationItem {
     id: Int!
+    """ 归属的订单 """
+    order: OrderItem!
     """ 规格 """
     specification: String!
     """ 规格信息合集 """

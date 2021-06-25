@@ -45,6 +45,15 @@ func (Projects)TableName() string {
 }
 
 /**
+ * 获取自己
+ */
+func (p *Projects) GetSelf() error {
+	return model.DB.Model(&Projects{}).Where("id = ?", p.ID).
+	First(p).
+	Error
+}
+
+/**
  * 获取待出库的订单详情
  */
 type GetProjectOrder2WorkshopDetailRes struct {
@@ -155,6 +164,17 @@ func (Projects)GetProjectList(ctx context.Context) (ps []*Projects, err error){
 type GetProjectSpecificationDetailRes struct {
 	// """ 订单规格列表 """
 	List []*order_specification.OrderSpecification
+	// 已经扫描的总量
+	Total int64
+	// 已经扫描的重量
+	Weight float64
+}
+/**
+ * 获取项目型钢详情响应格式
+ */
+type GetProjectSteelDetailRes struct {
+	// """ 订单规格列表 """
+	List []*order_specification_steel.OrderSpecificationSteel
 	// 已经扫描的总量
 	Total int64
 	// 已经扫描的重量
