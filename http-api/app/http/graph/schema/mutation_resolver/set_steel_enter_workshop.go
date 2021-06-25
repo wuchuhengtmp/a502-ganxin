@@ -62,7 +62,7 @@ func (*MutationResolver) SetSteelEnterWorkshop(ctx context.Context, input graphM
 	// 获取响应的列表
 	if res, err := steps.GetRes(ctx, input); err == nil {
 		return res, nil
-	} else  {
+	} else {
 		return orderSpecificationSteelList, errors.ServerErr(ctx, err)
 	}
 }
@@ -93,15 +93,14 @@ func (*SetSteelIntoWorkshopSteps) FlatSteel(tx *gorm.DB, ctx context.Context, in
 		// 修改订单型钢的状态和相关参数
 		orderSpecificationSteelItem.EnterWorkshopAt = time.Now()
 		orderSpecificationSteelItem.EnterRepositoryUid = me.Id
-		// 入场时间
 		err = tx.Model(&orderSpecificationSteelItem).Where("id = ?", orderSpecificationSteelItem.Id).
-			Update("enter_workshop_at", orderSpecificationSteelItem.EnterRepositoryAt).Error
-		if err != nil {
-			return err
-		}
-		// 入场用户
-		err = tx.Model(&orderSpecificationSteelItem).Where("id = ?", orderSpecificationSteelItem.Id).
-			Update("enter_workshop_uid", orderSpecificationSteelItem.EnterRepositoryUid).Error
+			// 入场用户
+			Update("enter_workshop_uid", orderSpecificationSteelItem.EnterRepositoryUid).
+			// 标记项目订单规格中的型钢的状态--待使用
+			Update("state", steels.StateProjectWillBeUsed).
+			// 入场时间
+			Update("enter_workshop_at", orderSpecificationSteelItem.EnterRepositoryAt).
+			Error
 		if err != nil {
 			return err
 		}
@@ -117,10 +116,11 @@ func (*SetSteelIntoWorkshopSteps) FlatSteel(tx *gorm.DB, ctx context.Context, in
 		}
 
 	}
-	// 标记状态
+	// 标记型钢当前的状态--待使用
 	err := tx.Model(&steels.Steels{}).
 		Where("identifier in ?", input.IdentifierList).
 		Update("state", steels.StateProjectWillBeUsed).Error
+
 	if err != nil {
 		return err
 	}

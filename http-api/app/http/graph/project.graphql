@@ -32,12 +32,29 @@ input CreateProjectInput {
     """ 开始时间 """
     startAt: Time!
 }
+"""  设备获取项目管理响应数据 """
+type GetProjectSpecificationDetailRes {
+    """ 订单规格列表 """
+    list: [OrderSpecificationItem]!
+    """ 已经扫描数量 """
+    total: Int!
+    """ 已经扫描重量 """
+    weight: Float!
+}
+""" 获取项目规格列表需要的请求参数 """
+input GetProjectSpecificationDetailInput {
+    """ 项目id """
+    projectId: Int!
+}
 extend type Mutation {
+
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {
-    """ 获取项目列表 """
+    """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取项目规格列表-手持  """
+    getProjectSpecificationDetail(input: GetProjectSpecificationDetailInput!): GetProjectSpecificationDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

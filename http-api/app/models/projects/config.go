@@ -16,6 +16,7 @@ import (
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/models/companies"
 	"http-api/app/models/logs"
+	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/roles"
@@ -42,7 +43,6 @@ type Projects struct {
 func (Projects)TableName() string {
 	return "projects"
 }
-
 
 /**
  * 获取待出库的订单详情
@@ -131,7 +131,7 @@ func (Projects)GetProjectList(ctx context.Context) (ps []*Projects, err error){
 	projectTableName := Projects{}.TableName()
 	projectLeaderTableName := project_leader.ProjectLeader{}.TableName()
 	me := auth.GetUser(ctx)
-	// 仓库管理员只能查看自己项目列表
+	// 项目管理员只能查看自己项目列表
 	if role.Tag == roles.RoleProjectAdmin {
 		err = model.DB.Model(&Projects{}).
 			Select(fmt.Sprintf("%s.*", projectTableName)).
@@ -147,4 +147,16 @@ func (Projects)GetProjectList(ctx context.Context) (ps []*Projects, err error){
 	}
 
 	return
+}
+
+/**
+ * 设备获取项目管理响应数据
+ */
+type GetProjectSpecificationDetailRes struct {
+	// """ 订单规格列表 """
+	List []*order_specification.OrderSpecification
+	// 已经扫描的总量
+	Total int64
+	// 已经扫描的重量
+	Weight float64
 }

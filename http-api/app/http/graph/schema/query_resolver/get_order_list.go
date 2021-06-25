@@ -22,6 +22,7 @@ import (
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
+	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
@@ -172,9 +173,43 @@ func (OrderItemResolver) ExpressList(ctx context.Context, obj *orders.Order) (or
 
 	return
 }
-func (OrderSpecificationItemResolver)SpecificationInfo(ctx context.Context, obj *order_specification.OrderSpecification) (*specificationinfo.SpecificationInfo, error) {
+func (OrderSpecificationItemResolver) SpecificationInfo(ctx context.Context, obj *order_specification.OrderSpecification) (*specificationinfo.SpecificationInfo, error) {
 	s := specificationinfo.SpecificationInfo{}
 	err := model.DB.Model(&s).Where("id = ?", obj.SpecificationId).First(&s).Error
 
 	return &s, err
+}
+
+// 已归库(出场并已保存到仓库中)
+func (OrderSpecificationItemResolver) StoreTotal(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error) {
+	var total int64
+	stateList := []int64{
+		steels.StateInStore,              //【仓库】-在库
+	}
+	err := model.DB.Model(&order_specification_steel.OrderSpecificationSteel{}).
+		Where("state in ?", stateList).
+		Count(&total).
+		Error
+
+	return total, err
+}
+
+//（场地）已接收过的统计
+func (OrderSpecificationItemResolver) WorkshopReceiveTotal(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error) {
+	var total int64
+	stateList := []int64{
+		steels.StateInStore,              //【仓库】-在库
+		steels.StateProjectWillBeUsed,    //【项目】-待使用
+		steels.StateProjectInUse,         //【项目】-使用中
+		steels.StateProjectException,     //【项目】-异常
+		steels.StateProjectIdle,          //【项目】-闲置
+		steels.StateProjectWillBeStore,   //【项目】-准备归库
+		steels.StateProjectOnTheStoreWay, //【项目】-归库途中
+	}
+	err := model.DB.Model(&order_specification_steel.OrderSpecificationSteel{}).
+		Where("state in ?", stateList).
+		Count(&total).
+		Error
+
+	return total, err
 }

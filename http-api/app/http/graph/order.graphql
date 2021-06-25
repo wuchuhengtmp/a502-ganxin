@@ -11,6 +11,10 @@ type OrderSpecificationItem {
     totalSend: Int!
     """ 未来出库 """
     totalToBeSend: Int!
+    """ 已归库(出场并已保存到仓库中) """
+    storeTotal: Int!
+    """ （场地）已接收"""
+    workshopReceiveTotal: Int!
     """ 重量 """
     weight: Float!
 }
@@ -229,4 +233,6 @@ extend type Query {
     getSend2WorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取送往场地的型钢订单列表详情 auth(role: project) """
     getSend2WorkshopOrderListDetail(input: GetProjectOrder2WorkshopDetailInput!): GetSend2WorkshopOrderListDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+    #    """ 获取最大的安装位置 """
+    #    getMaxLocationCode(): Int!
 }

@@ -20,6 +20,7 @@ import (
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
+	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
@@ -391,6 +392,44 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSpecification(ctx cont
 		if err != nil {
 			return fmt.Errorf("订单中没有id为: %d 的规格", *specificationId)
 		}
+	}
+
+	return nil
+}
+// 获取项目规格列表验证器验证步骤
+type ValidateGetProjectSpecificationDetailRequestSteps struct {}
+
+/**
+ * 项目的管理员是不是我
+ */
+func (v *ValidateGetProjectSpecificationDetailRequestSteps)CheckProjectLeader(ctx context.Context, projectId int64) error  {
+	me := auth.GetUser(ctx)
+	projectTable := projects.Projects{}.TableName()
+	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
+	projectItem := projects.Projects{}
+	err := model.DB.Model(&projectItem).
+		Select(fmt.Sprintf("%s.*", projectTable)).
+		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
+		Where(fmt.Sprintf("%s.uid = ?", projectLeaderTable), me.Id).
+		Where(fmt.Sprintf("%s.id = ?", projectTable), projectId).
+		First(&projectItem).
+		Error
+	if err != nil {
+		return fmt.Errorf("项目%d, 管理员不是您，您当前无权操作", projectId)
+	}
+
+	return nil
+}
+
+/**
+ * 项目是否存在
+ */
+func (*ValidateGetProjectSpecificationDetailRequestSteps)CheckProjectExists(ctx context.Context, projectId int64) error  {
+	projectItem := projects.Projects{}
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&projectItem).Where("id = ? AND company_id = ?", projectId, me.CompanyId).First(&projectItem).Error
+	if err != nil {
+		return fmt.Errorf("没有项目id为：%d 的项目", projectId)
 	}
 
 	return nil

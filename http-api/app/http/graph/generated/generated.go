@@ -131,6 +131,12 @@ type ComplexityRoot struct {
 		TotalWeight func(childComplexity int) int
 	}
 
+	GetProjectSpecificationDetailRes struct {
+		List   func(childComplexity int) int
+		Total  func(childComplexity int) int
+		Weight func(childComplexity int) int
+	}
+
 	GetRepositoryOverviewRes struct {
 		Total  func(childComplexity int) int
 		Weight func(childComplexity int) int
@@ -258,13 +264,15 @@ type ComplexityRoot struct {
 	}
 
 	OrderSpecificationItem struct {
-		Id                func(childComplexity int) int
-		Specification     func(childComplexity int) int
-		SpecificationInfo func(childComplexity int) int
-		Total             func(childComplexity int) int
-		TotalSend         func(childComplexity int) int
-		TotalToBeSend     func(childComplexity int) int
-		Weight            func(childComplexity int) int
+		Id                   func(childComplexity int) int
+		Specification        func(childComplexity int) int
+		SpecificationInfo    func(childComplexity int) int
+		StoreTotal           func(childComplexity int) int
+		Total                func(childComplexity int) int
+		TotalSend            func(childComplexity int) int
+		TotalToBeSend        func(childComplexity int) int
+		Weight               func(childComplexity int) int
+		WorkshopReceiveTotal func(childComplexity int) int
 	}
 
 	OrderSpecificationSteelItem struct {
@@ -310,6 +318,7 @@ type ComplexityRoot struct {
 		GetPrice                        func(childComplexity int) int
 		GetProjectLis                   func(childComplexity int) int
 		GetProjectOrder2WorkshopDetail  func(childComplexity int, input model.ProjectOrder2WorkshopDetailInput) int
+		GetProjectSpecificationDetail   func(childComplexity int, input model.GetProjectSpecificationDetailInput) int
 		GetRepositoryList               func(childComplexity int) int
 		GetRepositoryOverview           func(childComplexity int, input model.GetRepositoryOverviewInput) int
 		GetRoleList                     func(childComplexity int) int
@@ -478,6 +487,8 @@ type OrderSpecificationItemResolver interface {
 
 	TotalSend(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
 	TotalToBeSend(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
+	StoreTotal(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
+	WorkshopReceiveTotal(ctx context.Context, obj *order_specification.OrderSpecification) (int64, error)
 	Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error)
 }
 type OrderSpecificationSteelItemResolver interface {
@@ -510,6 +521,7 @@ type QueryResolver interface {
 	GetSend2WorkshopOrderListDetail(ctx context.Context, input model.GetProjectOrder2WorkshopDetailInput) (*projects.GetSend2WorkshopOrderListDetailRes, error)
 	GetPrice(ctx context.Context) (float64, error)
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
+	GetProjectSpecificationDetail(ctx context.Context, input model.GetProjectSpecificationDetailInput) (*projects.GetProjectSpecificationDetailRes, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -809,6 +821,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetProjectOrder2WorkshopDetailRes.TotalWeight(childComplexity), true
+
+	case "GetProjectSpecificationDetailRes.list":
+		if e.complexity.GetProjectSpecificationDetailRes.List == nil {
+			break
+		}
+
+		return e.complexity.GetProjectSpecificationDetailRes.List(childComplexity), true
+
+	case "GetProjectSpecificationDetailRes.total":
+		if e.complexity.GetProjectSpecificationDetailRes.Total == nil {
+			break
+		}
+
+		return e.complexity.GetProjectSpecificationDetailRes.Total(childComplexity), true
+
+	case "GetProjectSpecificationDetailRes.weight":
+		if e.complexity.GetProjectSpecificationDetailRes.Weight == nil {
+			break
+		}
+
+		return e.complexity.GetProjectSpecificationDetailRes.Weight(childComplexity), true
 
 	case "GetRepositoryOverviewRes.total":
 		if e.complexity.GetRepositoryOverviewRes.Total == nil {
@@ -1616,6 +1649,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OrderSpecificationItem.SpecificationInfo(childComplexity), true
 
+	case "OrderSpecificationItem.storeTotal":
+		if e.complexity.OrderSpecificationItem.StoreTotal == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.StoreTotal(childComplexity), true
+
 	case "OrderSpecificationItem.total":
 		if e.complexity.OrderSpecificationItem.Total == nil {
 			break
@@ -1643,6 +1683,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OrderSpecificationItem.Weight(childComplexity), true
+
+	case "OrderSpecificationItem.workshopReceiveTotal":
+		if e.complexity.OrderSpecificationItem.WorkshopReceiveTotal == nil {
+			break
+		}
+
+		return e.complexity.OrderSpecificationItem.WorkshopReceiveTotal(childComplexity), true
 
 	case "OrderSpecificationSteelItem.EnterRepositoryAt":
 		if e.complexity.OrderSpecificationSteelItem.EnterRepositoryAt == nil {
@@ -1925,6 +1972,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetProjectOrder2WorkshopDetail(childComplexity, args["input"].(model.ProjectOrder2WorkshopDetailInput)), true
+
+	case "Query.getProjectSpecificationDetail":
+		if e.complexity.Query.GetProjectSpecificationDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getProjectSpecificationDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetProjectSpecificationDetail(childComplexity, args["input"].(model.GetProjectSpecificationDetailInput)), true
 
 	case "Query.getRepositoryList":
 		if e.complexity.Query.GetRepositoryList == nil {
@@ -2912,6 +2971,10 @@ type OrderSpecificationItem {
     totalSend: Int!
     """ 未来出库 """
     totalToBeSend: Int!
+    """ 已归库(出场并已保存到仓库中) """
+    storeTotal: Int!
+    """ （场地）已接收"""
+    workshopReceiveTotal: Int!
     """ 重量 """
     weight: Float!
 }
@@ -3130,6 +3193,8 @@ extend type Query {
     getSend2WorkshopOrderList: [OrderItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取送往场地的型钢订单列表详情 auth(role: project) """
     getSend2WorkshopOrderListDetail(input: GetProjectOrder2WorkshopDetailInput!): GetSend2WorkshopOrderListDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+    #    """ 获取最大的安装位置 """
+    #    getMaxLocationCode(): Int!
 }
 `, BuiltIn: false},
 	{Name: "../price.graphql", Input: `extend type Query {
@@ -3176,15 +3241,33 @@ input CreateProjectInput {
     """ 开始时间 """
     startAt: Time!
 }
+"""  设备获取项目管理响应数据 """
+type GetProjectSpecificationDetailRes {
+    """ 订单规格列表 """
+    list: [OrderSpecificationItem]!
+    """ 已经扫描数量 """
+    total: Int!
+    """ 已经扫描重量 """
+    weight: Float!
+}
+""" 获取项目规格列表需要的请求参数 """
+input GetProjectSpecificationDetailInput {
+    """ 项目id """
+    projectId: Int!
+}
 extend type Mutation {
+
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {
-    """ 获取项目列表 """
+    """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
-}`, BuiltIn: false},
+    """ 获取项目规格列表-手持  """
+    getProjectSpecificationDetail(input: GetProjectSpecificationDetailInput!): GetProjectSpecificationDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+}
+`, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
     id: Int!
     name: String!
@@ -4016,6 +4099,21 @@ func (ec *executionContext) field_Query_getProjectOrder2WorkshopDetail_args(ctx 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNProjectOrder2WorkshopDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopDetailInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getProjectSpecificationDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetProjectSpecificationDetailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetProjectSpecificationDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetProjectSpecificationDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5316,6 +5414,111 @@ func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes_totalWeight(ctx c
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TotalWeight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectSpecificationDetailRes_list(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectSpecificationDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectSpecificationDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.List, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*order_specification.OrderSpecification)
+	fc.Result = res
+	return ec.marshalNOrderSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectSpecificationDetailRes_total(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectSpecificationDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectSpecificationDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectSpecificationDetailRes_weight(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectSpecificationDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectSpecificationDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9599,6 +9802,76 @@ func (ec *executionContext) _OrderSpecificationItem_totalToBeSend(ctx context.Co
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _OrderSpecificationItem_storeTotal(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderSpecificationItem().StoreTotal(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OrderSpecificationItem_workshopReceiveTotal(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OrderSpecificationItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OrderSpecificationItem().WorkshopReceiveTotal(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _OrderSpecificationItem_weight(ctx context.Context, field graphql.CollectedField, obj *order_specification.OrderSpecification) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -11304,6 +11577,78 @@ func (ec *executionContext) _Query_getProjectLis(ctx context.Context, field grap
 	res := resTmp.([]*projects.Projects)
 	fc.Result = res
 	return ec.marshalNProjectItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getProjectSpecificationDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getProjectSpecificationDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetProjectSpecificationDetail(rctx, args["input"].(model.GetProjectSpecificationDetailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*projects.GetProjectSpecificationDetailRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/projects.GetProjectSpecificationDetailRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*projects.GetProjectSpecificationDetailRes)
+	fc.Result = res
+	return ec.marshalNGetProjectSpecificationDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectSpecificationDetailRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -16116,6 +16461,26 @@ func (ec *executionContext) unmarshalInputGetProjectOrder2WorkshopDetailInput(ct
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetProjectSpecificationDetailInput(ctx context.Context, obj interface{}) (model.GetProjectSpecificationDetailInput, error) {
+	var it model.GetProjectSpecificationDetailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetRepositoryOverviewInput(ctx context.Context, obj interface{}) (model.GetRepositoryOverviewInput, error) {
 	var it model.GetRepositoryOverviewInput
 	var asMap = obj.(map[string]interface{})
@@ -16729,6 +17094,43 @@ func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes(ctx context.Conte
 			}
 		case "totalWeight":
 			out.Values[i] = ec._GetProjectOrder2WorkshopDetailRes_totalWeight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getProjectSpecificationDetailResImplementors = []string{"GetProjectSpecificationDetailRes"}
+
+func (ec *executionContext) _GetProjectSpecificationDetailRes(ctx context.Context, sel ast.SelectionSet, obj *projects.GetProjectSpecificationDetailRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getProjectSpecificationDetailResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetProjectSpecificationDetailRes")
+		case "list":
+			out.Values[i] = ec._GetProjectSpecificationDetailRes_list(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GetProjectSpecificationDetailRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._GetProjectSpecificationDetailRes_weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -17631,6 +18033,34 @@ func (ec *executionContext) _OrderSpecificationItem(ctx context.Context, sel ast
 				}
 				return res
 			})
+		case "storeTotal":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderSpecificationItem_storeTotal(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "workshopReceiveTotal":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OrderSpecificationItem_workshopReceiveTotal(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "weight":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -18078,6 +18508,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getProjectLis(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getProjectSpecificationDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getProjectSpecificationDetail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -19415,6 +19859,25 @@ func (ec *executionContext) marshalNGetProjectOrder2WorkshopDetailRes2ᚖhttpᚑ
 	return ec._GetProjectOrder2WorkshopDetailRes(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGetProjectSpecificationDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetProjectSpecificationDetailInput(ctx context.Context, v interface{}) (model.GetProjectSpecificationDetailInput, error) {
+	res, err := ec.unmarshalInputGetProjectSpecificationDetailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetProjectSpecificationDetailRes2httpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectSpecificationDetailRes(ctx context.Context, sel ast.SelectionSet, v projects.GetProjectSpecificationDetailRes) graphql.Marshaler {
+	return ec._GetProjectSpecificationDetailRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetProjectSpecificationDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectSpecificationDetailRes(ctx context.Context, sel ast.SelectionSet, v *projects.GetProjectSpecificationDetailRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetProjectSpecificationDetailRes(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNGetRepositoryOverviewInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryOverviewInput(ctx context.Context, v interface{}) (model.GetRepositoryOverviewInput, error) {
 	res, err := ec.unmarshalInputGetRepositoryOverviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -19772,6 +20235,43 @@ func (ec *executionContext) marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋord
 
 func (ec *executionContext) marshalNOrderSpecificationItem2httpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx context.Context, sel ast.SelectionSet, v order_specification.OrderSpecification) graphql.Marshaler {
 	return ec._OrderSpecificationItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOrderSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx context.Context, sel ast.SelectionSet, v []*order_specification.OrderSpecification) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOOrderSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalNOrderSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecificationᚄ(ctx context.Context, sel ast.SelectionSet, v []*order_specification.OrderSpecification) graphql.Marshaler {
@@ -20912,6 +21412,13 @@ func (ec *executionContext) marshalOOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋord
 		return graphql.Null
 	}
 	return ec._OrderItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOOrderSpecificationItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecification(ctx context.Context, sel ast.SelectionSet, v *order_specification.OrderSpecification) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._OrderSpecificationItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx context.Context, sel ast.SelectionSet, v *projects.Projects) graphql.Marshaler {

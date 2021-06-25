@@ -101,5 +101,7 @@ models:
     model: http-api/app/models/order_specification_steel.OrderSpecificationSteel
   GetSend2WorkshopOrderListDetailRes:
     model: http-api/app/models/projects.GetSend2WorkshopOrderListDetailRes
+  GetProjectSpecificationDetailRes:
+    model: http-api/app/models/projects.GetProjectSpecificationDetailRes
   OrderSpecificationSteelItem:
     model: http-api/app/models/order_specification_steel.OrderSpecificationSteel

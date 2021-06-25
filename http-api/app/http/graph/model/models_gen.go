@@ -282,6 +282,12 @@ type GetProjectOrder2WorkshopDetailInput struct {
 	OrderID int64 `json:"orderId"`
 }
 
+//  获取项目规格列表需要的请求参数
+type GetProjectSpecificationDetailInput struct {
+	//  项目id
+	ProjectID int64 `json:"projectId"`
+}
+
 type GetRepositoryOverviewInput struct {
 	//  仓库id
 	ID int64 `json:"id"`

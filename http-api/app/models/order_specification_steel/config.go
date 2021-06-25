@@ -14,8 +14,20 @@ import (
 )
 
 type OrderSpecificationSteel struct {
-	Id                    int64     `json:"id"`
-	SteelId               int64     `json:"steelId" gorm:"comment:型钢id"`
+	Id      int64 `json:"id"`
+	SteelId int64 `json:"steelId" gorm:"comment:型钢id"`
+	// 型钢在仓库和场地的流转周期状态 在库-->场地-->在库
+	State int64 `json:"state" gorm:"comment:
+100【仓库】-在库
+101【仓库】-运送至项目途中
+102【仓库】-运送至维修厂途中
+200【项目】-待使用
+201【项目】-使用中
+202【项目】-异常
+203【项目】-闲置
+204【项目】-准备归库
+205【项目】-归库途中
+"`
 	OrderSpecificationId  int64     `json:"orderSpecificationId" gorm:"comment: 订单规格id"`
 	ToWorkshopExpressId   int64     `json:"toWorkshopExpressId" gorm:"comment:从仓库出库到场地的物流单id"`
 	ToRepositoryExpressId int64     `json:"toRepositoryExpressId" gorm:"comment:从场地归库的物流单id"`

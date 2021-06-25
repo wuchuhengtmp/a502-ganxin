@@ -131,6 +131,7 @@ func (*SetProjectOrder2WorkshopSteps) CreateOrderSpecificationSteel(
 		SteelId:              steelItem.ID,
 		OrderSpecificationId: orderSpecificationRecord.Id,
 		ToWorkshopExpressId:  orderExpress.Id,
+		State: steels.StateRepository2Project,
 		OutRepositoryAt:      time.Now(),
 		EnterRepositoryUid:   me.Id,
 	}
