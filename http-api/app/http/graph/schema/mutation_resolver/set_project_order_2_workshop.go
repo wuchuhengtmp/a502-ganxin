@@ -129,7 +129,7 @@ func (*SetProjectOrder2WorkshopSteps) CreateOrderSpecificationSteel(
 	}
 	orderSpecificationSteel := order_specification_steel.OrderSpecificationSteel{
 		SteelId:              steelItem.ID,
-		OrderSpecificationId: steelItem.SpecificationId,
+		OrderSpecificationId: orderSpecificationRecord.Id,
 		ToWorkshopExpressId:  orderExpress.Id,
 		OutRepositoryAt:      time.Now(),
 		EnterRepositoryUid:   me.Id,
