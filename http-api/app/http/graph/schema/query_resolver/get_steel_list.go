@@ -102,7 +102,7 @@ func (SteelInProjectResolver)Order(ctx context.Context, obj *order_specification
 	err := model.DB.Model(&o).
 		Select(fmt.Sprintf("%s.*", orderTable)).
 		Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
-		Where(fmt.Sprintf("%s.id = ?", orderTable), obj.OrderSpecificationId).
+		Where(fmt.Sprintf("%s.id = ?",   orderSpecificationTable), obj.OrderSpecificationId).
 		First(&o).
 		Error
 
