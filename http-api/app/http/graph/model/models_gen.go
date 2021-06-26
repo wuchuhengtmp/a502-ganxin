@@ -320,6 +320,14 @@ type GraphDesc struct {
 	ErrCodes []*ErrCodes `json:"errCodes"`
 }
 
+//  安装码是否可用请求参数
+type IsAccessLocationCodeInput struct {
+	//  项目id
+	ProjectID int64 `json:"projectId"`
+	//  安装编码
+	LocationCode int64 `json:"locationCode"`
+}
+
 type LoginRes struct {
 	//  授权token
 	AccessToken string `json:"accessToken"`

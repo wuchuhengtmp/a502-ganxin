@@ -337,6 +337,7 @@ type ComplexityRoot struct {
 		GetSpecification                func(childComplexity int) int
 		GetSteelList                    func(childComplexity int, input model.PaginationInput) int
 		GetTobeSendWorkshopOrderList    func(childComplexity int) int
+		IsAccessLocationCode            func(childComplexity int, input model.IsAccessLocationCodeInput) int
 	}
 
 	RepositoryItem struct {
@@ -542,6 +543,7 @@ type QueryResolver interface {
 	GetProjectSpecificationDetail(ctx context.Context, input model.GetProjectSpecificationDetailInput) (*projects.GetProjectSpecificationDetailRes, error)
 	GetProjectSteelDetail(ctx context.Context, input model.GetProjectSteelDetailInput) (*projects.GetProjectSteelDetailRes, error)
 	GetMaxLocationCode(ctx context.Context, input model.GetMaxLocationCodeInput) (int64, error)
+	IsAccessLocationCode(ctx context.Context, input model.IsAccessLocationCodeInput) (bool, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -2135,6 +2137,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetTobeSendWorkshopOrderList(childComplexity), true
 
+	case "Query.isAccessLocationCode":
+		if e.complexity.Query.IsAccessLocationCode == nil {
+			break
+		}
+
+		args, err := ec.field_Query_isAccessLocationCode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.IsAccessLocationCode(childComplexity, args["input"].(model.IsAccessLocationCodeInput)), true
+
 	case "RepositoryItem.address":
 		if e.complexity.RepositoryItem.Address == nil {
 			break
@@ -3386,7 +3400,13 @@ input GetMaxLocationCodeInput {
     """ 项目id """
     projectId: Int!
 }
-
+""" 安装码是否可用请求参数 """
+input IsAccessLocationCodeInput {
+    """ 项目id """
+    projectId: Int!
+    """ 安装编码 """
+    locationCode: Int!
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -3396,6 +3416,8 @@ extend type Query {
     getProjectSteelDetail(input: GetProjectSteelDetailInput!):GetProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取项目最大安装码 """
     getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 安装码是否可用 """
+    isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -4319,6 +4341,21 @@ func (ec *executionContext) field_Query_getSteelList_args(ctx context.Context, r
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNPaginationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_isAccessLocationCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.IsAccessLocationCodeInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNIsAccessLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐIsAccessLocationCodeInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -12130,6 +12167,48 @@ func (ec *executionContext) _Query_getMaxLocationCode(ctx context.Context, field
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_isAccessLocationCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_isAccessLocationCode_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().IsAccessLocationCode(rctx, args["input"].(model.IsAccessLocationCodeInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -17114,6 +17193,34 @@ func (ec *executionContext) unmarshalInputGetRepositoryOverviewInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputIsAccessLocationCodeInput(ctx context.Context, obj interface{}) (model.IsAccessLocationCodeInput, error) {
+	var it model.IsAccessLocationCodeInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "locationCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locationCode"))
+			it.LocationCode, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (model.PaginationInput, error) {
 	var it model.PaginationInput
 	var asMap = obj.(map[string]interface{})
@@ -19225,6 +19332,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "isAccessLocationCode":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_isAccessLocationCode(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRepositoryList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -20751,6 +20872,11 @@ func (ec *executionContext) marshalNInt2ᚕint64ᚄ(ctx context.Context, sel ast
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNIsAccessLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐIsAccessLocationCodeInput(ctx context.Context, v interface{}) (model.IsAccessLocationCodeInput, error) {
+	res, err := ec.unmarshalInputIsAccessLocationCodeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNLoginRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐLoginRes(ctx context.Context, sel ast.SelectionSet, v model.LoginRes) graphql.Marshaler {

@@ -73,7 +73,13 @@ input GetMaxLocationCodeInput {
     """ 项目id """
     projectId: Int!
 }
-
+""" 安装码是否可用请求参数 """
+input IsAccessLocationCodeInput {
+    """ 项目id """
+    projectId: Int!
+    """ 安装编码 """
+    locationCode: Int!
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -83,4 +89,6 @@ extend type Query {
     getProjectSteelDetail(input: GetProjectSteelDetailInput!):GetProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取项目最大安装码 """
     getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 安装码是否可用 """
+    isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean!
 }
