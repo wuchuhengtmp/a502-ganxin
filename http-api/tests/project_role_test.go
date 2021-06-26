@@ -879,7 +879,7 @@ func testProjectAdminRoleGetProjectSpecificationDetail(t *testing.T) {
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
-	 assert.NoError(t, err)
+	assert.NoError(t, err)
 }
 
 /**
@@ -924,10 +924,10 @@ func testProjectAdminRoleGetProjectSteelDetail(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"projectId": 1,
-			"state": 200,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"projectId":       1,
+			"state":           200,
 			"specificationId": 1,
 		},
 	}
@@ -938,7 +938,7 @@ func testProjectAdminRoleGetProjectSteelDetail(t *testing.T) {
 /**
  * 项目管理员获取项目型钢状态列表集成测试--手机
  */
-func testProjectAdminRoleGetProjectSteelStateList(t *testing.T)  {
+func testProjectAdminRoleGetProjectSteelStateList(t *testing.T) {
 	q := `
 		query {
 		  # 获取项目型钢状态列表
@@ -950,10 +950,11 @@ func testProjectAdminRoleGetProjectSteelStateList(t *testing.T)  {
 		  }
 		}
 	`
-	v := map[string]interface{} { }
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
 /**
  * 项目管理员获取项目型钢状态列表集成测试--手机
  */
@@ -963,9 +964,9 @@ func testProjectAdminRoleGetMaxLocationCode(t *testing.T) {
 		  getMaxLocationCode(input: $input)
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"projectId": 1,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifier": "8",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
@@ -981,9 +982,9 @@ func testProjectAdminRoleIsAccessLocationCode(t *testing.T) {
 		  isAccessLocationCode(input: $input) 
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{
-			"projectId": 1,
+			"identifier":   "8",
 			"locationCode": 1,
 		},
 	}
@@ -1000,9 +1001,9 @@ func testProjectAdminRoleInstallSteel(t *testing.T) {
 		  installSteel(input: $input)
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"identifier": "8",
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifier":   "8",
 			"locationCode": 2,
 		},
 	}
