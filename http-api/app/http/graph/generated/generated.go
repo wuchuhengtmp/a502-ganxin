@@ -317,6 +317,7 @@ type ComplexityRoot struct {
 		GetExpressList                  func(childComplexity int) int
 		GetManufacturers                func(childComplexity int) int
 		GetMaterialManufacturers        func(childComplexity int) int
+		GetMaxLocationCode              func(childComplexity int, input model.GetMaxLocationCodeInput) int
 		GetMultipleSteelDetail          func(childComplexity int, input *model.GetMultipleSteelDetailInput) int
 		GetMyInfo                       func(childComplexity int) int
 		GetOneSteelDetail               func(childComplexity int, input model.GetOneSteelDetailInput) int
@@ -540,6 +541,7 @@ type QueryResolver interface {
 	GetProjectLis(ctx context.Context) ([]*projects.Projects, error)
 	GetProjectSpecificationDetail(ctx context.Context, input model.GetProjectSpecificationDetailInput) (*projects.GetProjectSpecificationDetailRes, error)
 	GetProjectSteelDetail(ctx context.Context, input model.GetProjectSteelDetailInput) (*projects.GetProjectSteelDetailRes, error)
+	GetMaxLocationCode(ctx context.Context, input model.GetMaxLocationCodeInput) (int64, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -1937,6 +1939,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMaterialManufacturers(childComplexity), true
+
+	case "Query.getMaxLocationCode":
+		if e.complexity.Query.GetMaxLocationCode == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getMaxLocationCode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMaxLocationCode(childComplexity, args["input"].(model.GetMaxLocationCodeInput)), true
 
 	case "Query.getMultipleSteelDetail":
 		if e.complexity.Query.GetMultipleSteelDetail == nil {
@@ -3367,6 +3381,11 @@ extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
 }
+""" 获取项目最大安装码需要的参数 """
+input GetMaxLocationCodeInput {
+    """ 项目id """
+    projectId: Int!
+}
 
 extend type Query {
     """ 获取项目管理列表 """
@@ -3375,6 +3394,8 @@ extend type Query {
     getProjectSpecificationDetail(input: GetProjectSpecificationDetailInput!): GetProjectSpecificationDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取项目型钢详情-设备 """
     getProjectSteelDetail(input: GetProjectSteelDetailInput!):GetProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取项目最大安装码 """
+    getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -4133,6 +4154,21 @@ func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getMaxLocationCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetMaxLocationCodeInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetMaxLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaxLocationCodeInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -12022,6 +12058,78 @@ func (ec *executionContext) _Query_getProjectSteelDetail(ctx context.Context, fi
 	return ec.marshalNGetProjectSteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectSteelDetailRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getMaxLocationCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getMaxLocationCode_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMaxLocationCode(rctx, args["input"].(model.GetMaxLocationCodeInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -16814,6 +16922,26 @@ func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetMaxLocationCodeInput(ctx context.Context, obj interface{}) (model.GetMaxLocationCodeInput, error) {
+	var it model.GetMaxLocationCodeInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetMultipleSteelDetailInput(ctx context.Context, obj interface{}) (model.GetMultipleSteelDetailInput, error) {
 	var it model.GetMultipleSteelDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -19083,6 +19211,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getMaxLocationCode":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMaxLocationCode(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRepositoryList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -20416,6 +20558,11 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNGetMaxLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaxLocationCodeInput(ctx context.Context, v interface{}) (model.GetMaxLocationCodeInput, error) {
+	res, err := ec.unmarshalInputGetMaxLocationCodeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetOneSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOneSteelDetailInput(ctx context.Context, v interface{}) (model.GetOneSteelDetailInput, error) {
