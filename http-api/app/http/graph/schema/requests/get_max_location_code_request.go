@@ -10,19 +10,19 @@ package requests
 
 import (
 	"context"
-	"http-api/app/http/graph/model"
+	graphModel "http-api/app/http/graph/model"
 )
-
-func ValidateGetMaxLocationCodeRequest(ctx context.Context, input model.GetMaxLocationCodeInput) error{
+func ValidateGetMaxLocationCodeRequest(ctx context.Context, input graphModel.GetMaxLocationCodeInput) error{
 	steps := StepsForProject{}
 	// 检验项目管理员是不是我
-	if err := steps.CheckHasProject(ctx, input.ProjectID); err != nil {
+	if err := steps.CheckHasProjectByIdentifier(input.Identifier); err != nil {
 		return err
 	}
 	// 检验项目管理员是不是我
-	if err := steps.CheckIsBelongMe(ctx, input.ProjectID); err != nil  {
+	if err := steps.CheckIsBelongMeByIdentifier(ctx, input.Identifier); err != nil  {
 		return err
 	}
 
 	return nil
 }
+

@@ -15,12 +15,16 @@ import (
 
 func ValidateIsAccessLocationCodeRequest(ctx context.Context, input graphModel.IsAccessLocationCodeInput) error {
 	steps := StepsForProject{}
+	// 检验有没有这根型钢
+	if err := steps.CheckHasSteel(ctx, input.Identifier); err != nil {
+		return err
+	}
 	// 检验有没有这个项目
-	if err := steps.CheckHasProject(ctx, input.ProjectID); err != nil {
+	if err := steps.CheckHasProjectByIdentifier(input.Identifier); err != nil {
 		return err
 	}
 	// 检验这是不是我管的项目
-	if err := steps.CheckIsBelongMe(ctx, input.ProjectID); err != nil {
+	if err := steps.CheckIsBelongMeByIdentifier(ctx, input.Identifier); err != nil {
 		return err
 	}
 

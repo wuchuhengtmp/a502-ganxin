@@ -14,10 +14,8 @@ import (
 	"http-api/app/http/graph/errors"
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
-	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
-	"http-api/app/models/orders"
-	"http-api/app/models/projects"
+	"http-api/app/models/steels"
 	"http-api/pkg/model"
 )
 
@@ -26,17 +24,13 @@ func (*QueryResolver) IsAccessLocationCode(ctx context.Context, input graphModel
 		return false, errors.ValidateErr(ctx, err)
 	}
 	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
-	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
-	orderTable := orders.Order{}.TableName()
-	projectTable := projects.Projects{}.TableName()
 	orderSpecificationSteelItem := order_specification_steel.OrderSpecificationSteel{}
+	steelTalbe := steels.Steels{ }.TableName()
 	err := model.DB.Model(&orderSpecificationSteelItem).
 		Select(fmt.Sprintf("%s.*", orderSpecificationSteelTable)).
-		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
-		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
-		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+		Joins(fmt.Sprintf("join %s ON %s.order_specification_steel_id = %s.id", steelTalbe, steelTalbe, orderSpecificationSteelTable)).
 		Where(fmt.Sprintf("%s.location_code = ?", orderSpecificationSteelTable), input.LocationCode).
-		Where(fmt.Sprintf("%s.id = ?", projectTable), input.ProjectID).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTalbe), input.Identifier).
 		First(&orderSpecificationSteelItem).
 		Error
 	if err != nil && err.Error() == "record not found" {

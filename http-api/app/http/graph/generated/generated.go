@@ -3407,13 +3407,13 @@ input GetProjectSteelDetailInput {
 }
 """ 获取项目最大安装码需要的参数 """
 input GetMaxLocationCodeInput {
-    """ 项目id """
-    projectId: Int!
+    """ 型钢识别码 """
+    identifier: String!
 }
 """ 安装码是否可用请求参数 """
 input IsAccessLocationCodeInput {
-    """ 项目id """
-    projectId: Int!
+    """ 型钢识别码 """
+    identifier: String!
     """ 安装编码 """
     locationCode: Int!
 }
@@ -17147,11 +17147,11 @@ func (ec *executionContext) unmarshalInputGetMaxLocationCodeInput(ctx context.Co
 
 	for k, v := range asMap {
 		switch k {
-		case "projectId":
+		case "identifier":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17367,11 +17367,11 @@ func (ec *executionContext) unmarshalInputIsAccessLocationCodeInput(ctx context.
 
 	for k, v := range asMap {
 		switch k {
-		case "projectId":
+		case "identifier":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
