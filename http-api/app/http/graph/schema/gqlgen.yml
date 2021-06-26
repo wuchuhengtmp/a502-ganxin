@@ -111,3 +111,7 @@ models:
   # StateItem 状态项说明
   StateItem:
     model: http-api/app/models/steels.StateItem
+  # 消息格式
+  MsgItem:
+    model: http-api/app/models/msg.Msg
+

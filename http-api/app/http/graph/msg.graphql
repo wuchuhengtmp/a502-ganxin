@@ -1,0 +1,12 @@
+type MsgItem {
+    id: Int!
+    """ 是否已读 """
+    isRead: Boolean!
+    """ 内容 """
+    content: String!
+}
+extend type Query {
+    """ 获取消息列表 """
+    getMsgList: [MsgItem]! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
+
+}

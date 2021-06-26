@@ -13,6 +13,7 @@ import (
 	"http-api/app/models/devices"
 	"http-api/app/models/maintenance"
 	"http-api/app/models/maintenance_record"
+	"http-api/app/models/msg"
 	"http-api/app/models/order_express"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
@@ -205,6 +206,12 @@ type ComplexityRoot struct {
 		Remark    func(childComplexity int) int
 	}
 
+	MsgItem struct {
+		Content func(childComplexity int) int
+		Id      func(childComplexity int) int
+		IsRead  func(childComplexity int) int
+	}
+
 	Mutation struct {
 		ConfirmOrRejectOrder       func(childComplexity int, input model.ConfirmOrderInput) int
 		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
@@ -319,6 +326,7 @@ type ComplexityRoot struct {
 		GetManufacturers                func(childComplexity int) int
 		GetMaterialManufacturers        func(childComplexity int) int
 		GetMaxLocationCode              func(childComplexity int, input model.GetMaxLocationCodeInput) int
+		GetMsgList                      func(childComplexity int) int
 		GetMultipleSteelDetail          func(childComplexity int, input *model.GetMultipleSteelDetailInput) int
 		GetMyInfo                       func(childComplexity int) int
 		GetOneSteelDetail               func(childComplexity int, input model.GetOneSteelDetailInput) int
@@ -533,6 +541,7 @@ type QueryResolver interface {
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
+	GetMsgList(ctx context.Context) ([]*msg.Msg, error)
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
 	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
@@ -1132,6 +1141,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MaterialManufacturerItem.Remark(childComplexity), true
+
+	case "MsgItem.content":
+		if e.complexity.MsgItem.Content == nil {
+			break
+		}
+
+		return e.complexity.MsgItem.Content(childComplexity), true
+
+	case "MsgItem.id":
+		if e.complexity.MsgItem.Id == nil {
+			break
+		}
+
+		return e.complexity.MsgItem.Id(childComplexity), true
+
+	case "MsgItem.isRead":
+		if e.complexity.MsgItem.IsRead == nil {
+			break
+		}
+
+		return e.complexity.MsgItem.IsRead(childComplexity), true
 
 	case "Mutation.confirmOrRejectOrder":
 		if e.complexity.Mutation.ConfirmOrRejectOrder == nil {
@@ -1967,6 +1997,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMaxLocationCode(childComplexity, args["input"].(model.GetMaxLocationCodeInput)), true
+
+	case "Query.getMsgList":
+		if e.complexity.Query.GetMsgList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetMsgList(childComplexity), true
 
 	case "Query.getMultipleSteelDetail":
 		if e.complexity.Query.GetMultipleSteelDetail == nil {
@@ -3079,6 +3116,18 @@ extend type  Mutation {
     setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
 }
 `, BuiltIn: false},
+	{Name: "../msg.graphql", Input: `type MsgItem {
+    id: Int!
+    """ 是否已读 """
+    isRead: Boolean!
+    """ 内容 """
+    content: String!
+}
+extend type Query {
+    """ 获取消息列表 """
+    getMsgList: [MsgItem]! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
+
+}`, BuiltIn: false},
 	{Name: "../order.graphql", Input: `""" 订单规格 """
 type OrderSpecificationItem {
     id: Int!
@@ -7086,6 +7135,111 @@ func (ec *executionContext) _MaterialManufacturerItem_isDefault(ctx context.Cont
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MsgItem_id(ctx context.Context, field graphql.CollectedField, obj *msg.Msg) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MsgItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MsgItem_isRead(ctx context.Context, field graphql.CollectedField, obj *msg.Msg) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MsgItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsRead, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MsgItem_content(ctx context.Context, field graphql.CollectedField, obj *msg.Msg) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MsgItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -11518,6 +11672,71 @@ func (ec *executionContext) _Query_getMyInfo(ctx context.Context, field graphql.
 	res := resTmp.(*users.Users)
 	fc.Result = res
 	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getMsgList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMsgList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "repositoryAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*msg.Msg); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/msg.Msg`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*msg.Msg)
+	fc.Result = res
+	return ec.marshalNMsgItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmsgᚐMsg(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getOrderList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -18450,6 +18669,43 @@ func (ec *executionContext) _MaterialManufacturerItem(ctx context.Context, sel a
 	return out
 }
 
+var msgItemImplementors = []string{"MsgItem"}
+
+func (ec *executionContext) _MsgItem(ctx context.Context, sel ast.SelectionSet, obj *msg.Msg) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, msgItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MsgItem")
+		case "id":
+			out.Values[i] = ec._MsgItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isRead":
+			out.Values[i] = ec._MsgItem_isRead(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "content":
+			out.Values[i] = ec._MsgItem_content(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -19332,6 +19588,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getMyInfo(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getMsgList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMsgList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -21224,6 +21494,43 @@ func (ec *executionContext) marshalNMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 	return ec._MaterialManufacturerItem(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNMsgItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmsgᚐMsg(ctx context.Context, sel ast.SelectionSet, v []*msg.Msg) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMsgItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmsgᚐMsg(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) unmarshalNOrderExpressDirection2httpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpressDirection(ctx context.Context, v interface{}) (order_express.OrderExpressDirection, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := order_express.OrderExpressDirection(tmp)
@@ -22500,6 +22807,13 @@ func (ec *executionContext) marshalOMaterialManufacturerItem2ᚖhttpᚑapiᚋapp
 		return graphql.Null
 	}
 	return ec._MaterialManufacturerItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOMsgItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmsgᚐMsg(ctx context.Context, sel ast.SelectionSet, v *msg.Msg) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MsgItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOOrderExpressItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpress(ctx context.Context, sel ast.SelectionSet, v []*order_express.OrderExpress) graphql.Marshaler {
