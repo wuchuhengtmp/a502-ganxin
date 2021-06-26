@@ -954,3 +954,20 @@ func testProjectAdminRoleGetProjectSteelStateList(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+/**
+ * 项目管理员获取项目型钢状态列表集成测试--手机
+ */
+func testProjectAdminRoleGetMaxLocationCode(t *testing.T) {
+	q := `
+		query ($input: GetMaxLocationCodeInput!){
+		  getMaxLocationCode(input: $input)
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"projectId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

@@ -1244,6 +1244,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("项目管理员获取项目规格列表集成测试--手机", testProjectAdminRoleGetProjectSpecificationDetail)
 	t.Run("项目管理员获取项目详情列表集成测试--手机", testProjectAdminRoleGetProjectSteelDetail)
 	t.Run("项目管理员获取项目型钢状态列表集成测试", testProjectAdminRoleGetProjectSteelStateList)
+	t.Run("项目管理员获取项目型钢状态列表集成测试--手机", testProjectAdminRoleGetMaxLocationCode)
 }
 
 /**
