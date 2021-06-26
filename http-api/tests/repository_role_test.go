@@ -1471,3 +1471,20 @@ func TestRepositoryAdminRoleGetMultipleSteelDetail(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+/**
+ *仓库管理员获取消息列表集成测试-手持机
+ */
+func TestRepositoryAdminRoleGetMsgList(t *testing.T) {
+	q := `
+		query {
+		  getMsgList{
+			id
+			isRead
+			content
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

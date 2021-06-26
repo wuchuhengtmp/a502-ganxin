@@ -1010,3 +1010,21 @@ func testProjectAdminRoleInstallSteel(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ *项目管理员获取消息列表集成测试-手持机
+ */
+func TestProjectAdminRoleGetMsgList(t *testing.T) {
+	q := `
+		query {
+		  getMsgList{
+			id
+			isRead
+			content
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

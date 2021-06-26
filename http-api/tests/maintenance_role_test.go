@@ -21,9 +21,9 @@ import (
 
 // 仓库管理员测试上下文
 var maintenanceAdminTestCtx = struct {
-	Token string
-	Username string
-	Password string
+	Token       string
+	Username    string
+	Password    string
 	DeviceToken string
 }{
 	Username: seeders.MaintenanceAdmin.Username,
@@ -44,8 +44,8 @@ func TestMaintenanceAdminRoleLogin(t *testing.T) {
 		  }
 		}
 	`
-	variables :=  map[string]interface{} {
-		"phone": maintenanceAdminTestCtx.Username,
+	variables := map[string]interface{}{
+		"phone":    maintenanceAdminTestCtx.Username,
 		"password": maintenanceAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleMaintenanceAdmin)
@@ -67,9 +67,9 @@ func TestMaintenceAdminRoleDeviceLogin(t *testing.T) {
 		}
 	`
 	variables := map[string]interface{}{
-		"phone":maintenanceAdminTestCtx.Username,
-		"password":maintenanceAdminTestCtx.Password,
-		"mac": "123:1242:1242:12412",
+		"phone":    maintenanceAdminTestCtx.Username,
+		"password": maintenanceAdminTestCtx.Password,
+		"mac":      "123:1242:1242:12412",
 	}
 	res, err := graphReqClient(query, variables, roles.RoleProjectAdmin)
 	hasError(t, err)
@@ -81,7 +81,7 @@ func TestMaintenceAdminRoleDeviceLogin(t *testing.T) {
 /**
  * 维修管理员获取公司列表集成测试
  */
-func TestMaintenanceAdminRoleGetAllCompany(t *testing.T)  {
+func TestMaintenanceAdminRoleGetAllCompany(t *testing.T) {
 	q := `query {
 			  getAllCompany {
 				id
@@ -113,17 +113,16 @@ func TestMaintenanceAdminRoleGetAllCompany(t *testing.T)  {
 	`
 	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
-	hasError(t, err )
+	hasError(t, err)
 	if len(res) != 1 {
-		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题") )
+		hasError(t, fmt.Errorf("期望返回一条公司数据，结果不是，要么是没有数据， 要么是数据权限作用域限制出了问题"))
 	}
 }
-
 
 /**
  * 维修管理员获取公司人员列表集成测试
  */
-func TestMaintenanceAdminRoleGetCompanyUsers(t *testing.T)  {
+func TestMaintenanceAdminRoleGetCompanyUsers(t *testing.T) {
 	q := `
 		query getCompanyUserQuery {
 		  getCompanyUser{
@@ -151,7 +150,7 @@ func TestMaintenanceAdminRoleGetCompanyUsers(t *testing.T)  {
 /**
  * 维修管理员获取仓库列表集成测试
  */
-func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
+func TestMaintenanceAdminRoleGetRepository(t *testing.T) {
 	q := `
 		 query {
 		  getRepositoryList {
@@ -175,7 +174,7 @@ func TestMaintenanceAdminRoleGetRepository(t *testing.T)  {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {},
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	assert.NoError(t, err)
@@ -197,7 +196,7 @@ func TestMaintenanceAdminRoleGetSpecification(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	hasError(t, err)
 }
@@ -215,7 +214,7 @@ func TestMaintenanceAdminRoleGetMaterialManufacturers(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	hasError(t, err)
 }
@@ -232,7 +231,7 @@ func TestMaintenanceProjectRoleGetManufacturer(t *testing.T) {
 		remark
 	  }
 	}`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	if err != nil {
 		t.Fatal("failed:维修管理员获取材料商列表集成测试")
@@ -261,7 +260,7 @@ func TestMaintenanceAdminRoleGetExpressList(t *testing.T) {
 	}
 	me, _ := GetUserByToken(maintenanceAdminTestCtx.Token)
 	items := res["getExpressList"].([]interface{})
-	for _,item := range items {
+	for _, item := range items {
 		express := item.(map[string]interface{})
 		id := express["id"].(float64)
 		record := codeinfo.CodeInfo{}
@@ -269,6 +268,7 @@ func TestMaintenanceAdminRoleGetExpressList(t *testing.T) {
 		assert.Equal(t, record.CompanyId, me.CompanyId)
 	}
 }
+
 /**
  * 维修管理员获取价格集成测试
  */
@@ -278,12 +278,13 @@ func TestMaintenanceAdminRoleGetPrice(t *testing.T) {
 		  getPrice
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	if err != nil {
 		t.Fatal("failed:维修管理员获取集成测试")
 	}
 }
+
 /**
  * 维修管理员登录设备集成测试
  */
@@ -298,16 +299,17 @@ func TestMaintenanceAdminRoleLoginDevice(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"phone": "13427969608",
+	v := map[string]interface{}{
+		"phone":    "13427969608",
 		"password": "12345678",
-		"mac": "123:1242:1242:12412",
+		"mac":      "123:1242:1242:12412",
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	if err != nil {
 		t.Fatal("failed:维修管理员登录设备集成测试")
 	}
 }
+
 /**
  * 维修管理员获取设备列表集成测试
  */
@@ -325,7 +327,7 @@ func TestMaintenanceAdminGetDeviceList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	if err != nil {
 		t.Fatal("failed:维修管理员获取设备列表集成测试")
@@ -344,6 +346,7 @@ func TestMaintenanceAdminGetDeviceList(t *testing.T) {
 		assert.Equal(t, u.CompanyId, me.CompanyId)
 	}
 }
+
 /**
  * 维修管理员获取型钢列表集成测试
  */
@@ -380,9 +383,9 @@ func TestMaintenanceAdminGetSteelList(t *testing.T) {
 	  }  
 	}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
-			"page": 1,
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"page":     1,
 			"pageSize": 10,
 		},
 	}
@@ -401,8 +404,8 @@ func TestMaintenanceAdminSetPasswordList(t *testing.T) {
 		  setPassword(input: $input)
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"password": "12345678",
 		},
 	}
@@ -411,6 +414,7 @@ func TestMaintenanceAdminSetPasswordList(t *testing.T) {
 		t.Fatal("维修管理员设置密码集成测试")
 	}
 }
+
 /**
  * 维修管理员获取我的信息集成测试
  */
@@ -433,14 +437,15 @@ func TestMaintenanceAdminGetMyInfo(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface {} { },
+	v := map[string]interface{}{
+		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	if err != nil {
 		t.Fatal("维修管理员获取我的信息集成测试")
 	}
 }
+
 /**
  * 项目管理员获取项目列表集成测试
  */
@@ -462,10 +467,11 @@ func TestMaintenanceAdminGetProjectList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
 	assert.NoError(t, err)
 }
+
 /**
  * 维修管理员获取订单列表集成测试
  */
@@ -526,7 +532,7 @@ func TestMaintenanceAdminGetOrderList(t *testing.T) {
 		}
 
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{},
 	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
@@ -536,7 +542,7 @@ func TestMaintenanceAdminGetOrderList(t *testing.T) {
 /**
  * 项目管理员型钢快速查询集成测试-手持机
  */
-func TestMaintanceAdminGetSteelDetail(t *testing.T)  {
+func TestMaintanceAdminGetSteelDetail(t *testing.T) {
 	q := `query ($input: GetOneSteelDetailInput!){
 		  getOneSteelDetail(input: $input) {
 			id
@@ -592,11 +598,29 @@ func TestMaintanceAdminGetSteelDetail(t *testing.T)  {
 		  }
 		} 
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"identifier": "8",
 		},
 	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ *项目管理员获取消息列表集成测试-手持机
+ */
+func TestMaintenanceAdminRoleGetMsgList(t *testing.T) {
+	q := `
+		query {
+		  getMsgList{
+			id
+			isRead
+			content
+		  }
+		}
+	`
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
