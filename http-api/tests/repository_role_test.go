@@ -1246,6 +1246,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("项目管理员获取项目型钢状态列表集成测试", testProjectAdminRoleGetProjectSteelStateList)
 	t.Run("项目管理员获取项目型钢状态列表集成测试--手机", testProjectAdminRoleGetMaxLocationCode)
 	t.Run("项目管理员安装码是否可用集成测试--手持机", testProjectAdminRoleIsAccessLocationCode)
+	t.Run("项目管理员安装型钢集成测试-手持机", testProjectAdminRoleInstallSteel)
 }
 
 /**
@@ -1469,3 +1470,4 @@ func TestRepositoryAdminRoleGetMultipleSteelDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+

@@ -990,3 +990,22 @@ func testProjectAdminRoleIsAccessLocationCode(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员安装型钢集成测试-手持机
+ */
+func testProjectAdminRoleInstallSteel(t *testing.T) {
+	q := `
+		mutation ($input: InstallLocationInput!) {
+		  installSteel(input: $input)
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifier": "8",
+			"locationCode": 2,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
