@@ -971,3 +971,22 @@ func testProjectAdminRoleGetMaxLocationCode(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员安装码是否可用集成测试--手持机
+ */
+func testProjectAdminRoleIsAccessLocationCode(t *testing.T) {
+	q := `
+		query ($input: IsAccessLocationCodeInput!){
+		  isAccessLocationCode(input: $input) 
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{
+			"projectId": 1,
+			"locationCode": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
