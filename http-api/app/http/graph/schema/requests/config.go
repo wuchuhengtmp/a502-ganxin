@@ -455,6 +455,14 @@ func (*ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectExists(ctx
 type StepsForProject struct{}
 
 /**
+ * 检验项目的安装码是否有效
+ */
+func (*StepsForProject) CheckLocationCodeValid(ctx context.Context, ) error {
+
+	return nil
+}
+
+/**
  * 检验有没有这个项目
  */
 func (*StepsForProject) CheckHasProject(ctx context.Context, projectId int64) error {
@@ -506,6 +514,39 @@ func (*StepsForProject) CheckSteelState(ctx context.Context, state int64) error 
 }
 
 /**
+ * 检验有没有这根型钢
+ */
+func (*StepsForProject) CheckHasSteel(ctx context.Context, identifier string) error {
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(steels.Steels{}).Where("identifier = ?", identifier).
+		Where("company_id = ?", me.CompanyId).
+		First(&steels.Steels{}).Error
+	if err != nil {
+		return fmt.Errorf("没有标识码为:%s 的型钢", identifier)
+	}
+
+	return nil
+}
+
+/**
+ * 检验型钢在不在项目中
+ */
+func (s *StepsForProject) CheckIsProjectSteel(ctx context.Context, identifier string) error {
+	me := auth.GetUser(ctx)
+	// 有没有在项目中
+	steelItem := steels.Steels{}
+	err := model.DB.Model(&steelItem).Where("identifier = ? AND order_specification_steel_id != ?", identifier, 0).
+		Where("company_id = ?", me.CompanyId).
+		First(&steelItem).
+		Error
+	if err != nil {
+		return fmt.Errorf("当前标识码为:%s  的型钢并没有应用到项目中", identifier)
+	}
+
+	return nil
+}
+
+/**
  *  检验规格id
  */
 func (s *StepsForProject) CheckSpecification(ctx context.Context, specificationId int64, projectId int64) error {
@@ -516,7 +557,7 @@ func (s *StepsForProject) CheckSpecification(ctx context.Context, specificationI
 	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
 	orderTable := orders.Order{}.TableName()
 	projectTable := projects.Projects{}.TableName()
-	var orderSpecificationList  []order_specification.OrderSpecification
+	var orderSpecificationList []order_specification.OrderSpecification
 	err := model.DB.Model(&orderSpecificationItem).
 		Select(fmt.Sprintf("%s.*", orderSpecificationItem.TableName())).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
@@ -532,4 +573,111 @@ func (s *StepsForProject) CheckSpecification(ctx context.Context, specificationI
 	}
 
 	return fmt.Errorf("项目id为: %d中没有规格id为: %d", projectId, specificationId)
+}
+
+/**
+ * 检验型钢归属于我管理的项目名下
+ */
+func (s *StepsForProject) CheckSteelBelong2MyProject(ctx context.Context, identifier string) (*order_specification_steel.OrderSpecificationSteel, error) {
+	me := auth.GetUser(ctx)
+	steelTable := steels.Steels{}.TableName()
+	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
+	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	projectTable := projects.Projects{}.TableName()
+	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
+	orderSpecificationSteelItem := order_specification_steel.OrderSpecificationSteel{}
+	err := model.DB.Model(&orderSpecificationSteelItem).
+		Select(fmt.Sprintf("%s.*", orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.order_specification_steel_id = %s.id", steelTable, steelTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
+		Where(fmt.Sprintf("%s.uid = ?", projectLeaderTable), me.Id).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		First(&orderSpecificationSteelItem).
+		Error
+	if err != nil {
+		return nil, fmt.Errorf("您的项目中没有标识码为:%s 的型钢", identifier)
+	}
+
+	return &orderSpecificationSteelItem, nil
+}
+
+/**
+ * 检验安装码是不是被占用了
+ */
+func (*StepsForProject) CheckLocationExists(identifier string, locationCode int64) error {
+	orderSpecificationSteelItem := order_specification_steel.OrderSpecificationSteel{}
+	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
+	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	steelTable := steels.Steels{}.TableName()
+	projectTable := projects.Projects{}.TableName()
+	projectItem := projects.Projects{}
+	// 找出归属的项目
+	err := model.DB.Model(&orderSpecificationSteelItem).
+		Select(fmt.Sprintf("%s.*", projectTable)).
+		Joins(fmt.Sprintf("join %s ON %s.order_specification_steel_id = %s.id", steelTable, steelTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		First(&projectItem).
+		Error
+	if err != nil {
+		return err
+	}
+	// 如果这个项目下有相同的安装码，则说明安装码被占用了
+	err = model.DB.Model(&orderSpecificationSteelItem).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+		Where(fmt.Sprintf("%s.id = ?", projectTable), projectItem.ID).
+		Where(fmt.Sprintf("%s.location_code = ?", orderSpecificationSteelTable), locationCode).
+		First(&orderSpecificationSteelItem).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return nil
+		}
+		return err
+	} else {
+		return fmt.Errorf("安装码:%d 已经被占用", locationCode)
+	}
+}
+
+
+/**
+ * 型钢是否归我管理
+ */
+func (*StepsForProject) CheckSteelBelong2Me(ctx context.Context, identifier string) error {
+	steelItem := steels.Steels{}
+	steelTable := steelItem.TableName()
+	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
+	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	projectTable := projects.Projects{}.TableName()
+	projectLeaderTable := project_leader.ProjectLeader{}.TableName()
+	me := auth.GetUser(ctx)
+
+	err := model.DB.Model(&steelItem).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_steel_id", orderSpecificationSteelTable, orderSpecificationSteelTable, steelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
+		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", projectLeaderTable, projectLeaderTable, projectTable)).
+		Where(fmt.Sprintf("%s.uid = ?", projectLeaderTable), me.Id).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		First(&steelItem).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("标识码为:%s 的型钢不在你管理的项目之中， 您无权操作")
+		}
+		return err
+	} else {
+		return nil
+	}
 }

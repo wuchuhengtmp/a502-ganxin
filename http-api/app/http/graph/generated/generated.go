@@ -232,6 +232,7 @@ type ComplexityRoot struct {
 		EditMaterialManufacturer   func(childComplexity int, input model.EditMaterialManufacturerInput) int
 		EditPrice                  func(childComplexity int, price float64) int
 		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
+		InstallSteel               func(childComplexity int, input model.InstallLocationInput) int
 		Login                      func(childComplexity int, phone string, password string, mac *string) int
 		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
 		SetProjectOrder2Workshop   func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
@@ -472,6 +473,7 @@ type MutationResolver interface {
 	SetProjectOrder2Workshop(ctx context.Context, input model.ProjectOrder2WorkshopInput) (*orders.Order, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
+	InstallSteel(ctx context.Context, input model.InstallLocationInput) (bool, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
@@ -1442,6 +1444,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditSpecification(childComplexity, args["input"].(model.EditSpecificationInput)), true
+
+	case "Mutation.installSteel":
+		if e.complexity.Mutation.InstallSteel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_installSteel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.InstallSteel(childComplexity, args["input"].(model.InstallLocationInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -3391,10 +3405,6 @@ input GetProjectSteelDetailInput {
     """ 型钢状态 """
     state: Int
 }
-extend type Mutation {
-    """ 创建项目 (auth: admin)"""
-    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
-}
 """ 获取项目最大安装码需要的参数 """
 input GetMaxLocationCodeInput {
     """ 项目id """
@@ -3407,6 +3417,19 @@ input IsAccessLocationCodeInput {
     """ 安装编码 """
     locationCode: Int!
 }
+""" 安装型钢需要的参数 """
+input InstallLocationInput {
+    """ 安装编码 """
+    locationCode: Int!
+    """ 识别码 """
+    identifier: String!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 安装型钢 """
+    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -3417,7 +3440,7 @@ extend type Query {
     """ 获取项目最大安装码 """
     getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 安装码是否可用 """
-    isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean!
+    isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -4053,6 +4076,21 @@ func (ec *executionContext) field_Mutation_editSpecification_args(ctx context.Co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNEditSpecificationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditSpecificationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_installSteel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.InstallLocationInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNInstallLocationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐInstallLocationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8628,6 +8666,78 @@ func (ec *executionContext) _Mutation_createProject(ctx context.Context, field g
 	return ec.marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_installSteel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_installSteel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().InstallSteel(rctx, args["input"].(model.InstallLocationInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -12191,8 +12301,38 @@ func (ec *executionContext) _Query_isAccessLocationCode(ctx context.Context, fie
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().IsAccessLocationCode(rctx, args["input"].(model.IsAccessLocationCodeInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().IsAccessLocationCode(rctx, args["input"].(model.IsAccessLocationCodeInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17193,6 +17333,34 @@ func (ec *executionContext) unmarshalInputGetRepositoryOverviewInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputInstallLocationInput(ctx context.Context, obj interface{}) (model.InstallLocationInput, error) {
+	var it model.InstallLocationInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "locationCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locationCode"))
+			it.LocationCode, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "identifier":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputIsAccessLocationCodeInput(ctx context.Context, obj interface{}) (model.IsAccessLocationCodeInput, error) {
 	var it model.IsAccessLocationCodeInput
 	var asMap = obj.(map[string]interface{})
@@ -18414,6 +18582,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createProject":
 			out.Values[i] = ec._Mutation_createProject(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "installSteel":
+			out.Values[i] = ec._Mutation_installSteel(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -20827,6 +21000,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNInstallLocationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐInstallLocationInput(ctx context.Context, v interface{}) (model.InstallLocationInput, error) {
+	res, err := ec.unmarshalInputInstallLocationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v interface{}) (int64, error) {

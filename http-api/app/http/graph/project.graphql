@@ -64,10 +64,6 @@ input GetProjectSteelDetailInput {
     """ 型钢状态 """
     state: Int
 }
-extend type Mutation {
-    """ 创建项目 (auth: admin)"""
-    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
-}
 """ 获取项目最大安装码需要的参数 """
 input GetMaxLocationCodeInput {
     """ 项目id """
@@ -80,6 +76,19 @@ input IsAccessLocationCodeInput {
     """ 安装编码 """
     locationCode: Int!
 }
+""" 安装型钢需要的参数 """
+input InstallLocationInput {
+    """ 安装编码 """
+    locationCode: Int!
+    """ 识别码 """
+    identifier: String!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 安装型钢 """
+    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -90,5 +99,5 @@ extend type Query {
     """ 获取项目最大安装码 """
     getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 安装码是否可用 """
-    isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean!
+    isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

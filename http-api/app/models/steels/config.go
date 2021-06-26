@@ -43,16 +43,17 @@ type Steels struct {
 400丢失
 500报废
 `
-	SpecificationId        int64     `json:"specificationId" gorm:"comment:规格表id"`
-	CompanyId              int64     `json:"companyId" gorm:"comment:所属的公司id"`
-	RepositoryId           int64     `json:"repositoryId" gorm:"comment:当前存放的仓库id"`
-	MaterialManufacturerId int64     `json:"materialManufacturerId" gorm:"comment:code表的材料商类型id"`
-	ManufacturerId         int64     `json:"manufacturerId" gorm:"comment:code表的制造商id"`
-	Turnover               int64     `json:"turnover" gorm:"comment:周转次数"`
-	UsageYearRate          float64   `json:"usageYearRate" gorm:"comment:年使用率"`
-	TotalUsageRate         float64   `json:"totalUsageRate" gorm:"comment:总使用率"`
-	Code                   string    `json:"code gorm:comment:编码"`
-	ProducedDate           time.Time `json:"producedDate" gorm:"comment:生产时间"`
+	SpecificationId           int64     `json:"specificationId" gorm:"comment:规格表id"`
+	CompanyId                 int64     `json:"companyId" gorm:"comment:所属的公司id"`
+	RepositoryId              int64     `json:"repositoryId" gorm:"comment:当前存放的仓库id"`
+	MaterialManufacturerId    int64     `json:"materialManufacturerId" gorm:"comment:code表的材料商类型id"`
+	ManufacturerId            int64     `json:"manufacturerId" gorm:"comment:code表的制造商id"`
+	Turnover                  int64     `json:"turnover" gorm:"comment:周转次数"`
+	UsageYearRate             float64   `json:"usageYearRate" gorm:"comment:年使用率"`
+	TotalUsageRate            float64   `json:"totalUsageRate" gorm:"comment:总使用率"`
+	Code                      string    `json:"code gorm:comment:编码"`
+	ProducedDate              time.Time `json:"producedDate" gorm:"comment:生产时间"`
+	OrderSpecificationSteelId int64     `json:"orderSpecificationSteelId" gorm:"comment:当前这根型钢应用在哪个哪个项目的订单的规格列表中的型钢id"`
 	gorm.Model
 }
 

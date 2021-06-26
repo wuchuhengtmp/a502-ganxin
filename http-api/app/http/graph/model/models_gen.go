@@ -320,6 +320,14 @@ type GraphDesc struct {
 	ErrCodes []*ErrCodes `json:"errCodes"`
 }
 
+//  安装型钢需要的参数
+type InstallLocationInput struct {
+	//  安装编码
+	LocationCode int64 `json:"locationCode"`
+	//  识别码
+	Identifier string `json:"identifier"`
+}
+
 //  安装码是否可用请求参数
 type IsAccessLocationCodeInput struct {
 	//  项目id

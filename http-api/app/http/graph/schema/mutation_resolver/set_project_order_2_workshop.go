@@ -56,13 +56,21 @@ func (*MutationResolver) SetProjectOrder2Workshop(ctx context.Context, input gra
 			return err
 		}
 		for _, steelItem := range steelsList {
-			// 标记型钢为【仓库】-运送至项目途中 状态
-			tx.Model(&steels.Steels{}).Where("id = ?", steelItem.ID).Update("state", steels.StateRepository2Project)
 			// 在订单规格中创建新记录
-			_, err := steps.CreateOrderSpecificationSteel(tx, ctx, input, steelItem, orderExpress)
+			newOrderSpecificationSteel, err := steps.CreateOrderSpecificationSteel(tx, ctx, input, steelItem, orderExpress)
 			if err != nil {
 				return err
 			}
+			err = tx.Model(&steels.Steels{}).Where("id = ?", steelItem.ID).
+				// 标记型钢为【仓库】-运送至项目途中 状态
+				Update("state", steels.StateRepository2Project).
+				// 标记型钢当前应用在哪个订单规格型钢下
+				Update("order_specification_steel_id", newOrderSpecificationSteel.Id).
+				Error
+			if err != nil {
+				return err
+			}
+
 			// 添加型钢日志
 			if err := steps.CreateSteelLog(tx, ctx, steelItem); err != nil {
 				return err

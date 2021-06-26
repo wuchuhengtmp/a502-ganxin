@@ -21,8 +21,9 @@ type SteelLogType string
 
 const (
 	CreateType SteelLogType = "create" // 创建
-	OutSteelType SteelLogType = "out steel" //  出库了
-	EnterWorkshopType SteelLogType = "enter workshop"  // 入场了
+	OutSteelType SteelLogType = "outSteel" //  出库了
+	EnterWorkshopType SteelLogType = "enterWorkshop"  // 入场了
+	InstallationType SteelLogType = "InstallationType" // 安装
 )
 
 // 操作类型映射说明

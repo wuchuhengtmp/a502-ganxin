@@ -33,6 +33,7 @@ type OrderSpecificationSteel struct {
 	ToRepositoryExpressId int64     `json:"toRepositoryExpressId" gorm:"comment:从场地归库的物流单id"`
 	LocationCode          int64     `json:"locationCode" gorm:"comment:安装位置编码"`
 	EnterRepositoryUid    int64     `json:"enterRepositoryUid" gorm:"comment:出库用户id"`
+	InstallationUid       int64     `json:"installationUid" gorm:"comment:安装用户id"`
 	InstallationAt        time.Time `json:"installationAt" gorm:"comment:安装时间"`
 	EnterWorkshopAt       time.Time `json:"intoWorkshopAt" gorm:"comment:入场时间"`
 	EnterWorkshopUid      int64     `json:"enterWorkshopUid" gorm:"comment:入场用户"`
