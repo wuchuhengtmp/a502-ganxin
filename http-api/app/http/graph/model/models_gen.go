@@ -294,6 +294,12 @@ type GetProjectSpecificationDetailInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  待修改武钢信息请求参数
+type GetProjectSteel2BeChangeInput struct {
+	//  识别码
+	Identifier string `json:"identifier"`
+}
+
 //  获取项目型钢详情需要的参数
 type GetProjectSteelDetailInput struct {
 	//  项目id

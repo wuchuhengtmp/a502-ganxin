@@ -101,6 +101,11 @@ type GetProjectSteel2BeChangeDetailRes {
     """ 重量 """
     weightTotal: Float!
 }
+""" 待修改武钢信息请求参数 """
+input GetProjectSteel2BeChangeInput {
+    """ 识别码 """
+    identifier: String!
+}
 extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
@@ -118,6 +123,8 @@ extend type Query {
     getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 安装码是否可用 """
     isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """" 待修改武钢详细信息 """
+    """" 获取待修改武钢详细信息 """
     getProjectSteel2BeChangeDetail(input: ProjectSteel2BeChangeInput!): GetProjectSteel2BeChangeDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取待修改武钢信息 """
+    getProjectSteel2BeChange(input: GetProjectSteel2BeChangeInput!): OrderSpecificationSteelItem! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
