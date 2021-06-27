@@ -1028,3 +1028,54 @@ func TestProjectAdminRoleGetMsgList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ *项目管理员待修改型钢详细信息集成测试-手持机
+ */
+func testProjectAdminRoleGetProjectSteel2BeChangeDetail(t *testing.T) {
+	q := `
+		query ($input: ProjectSteel2BeChangeInput!) {
+		  getProjectSteel2BeChangeDetail(input: $input) {
+			list {
+			   id
+				# 需求单号
+				orderSpecification {
+				  order{
+					orderNo
+				  }
+				}
+				# 当前状态
+				stateInfo{
+				  state
+				  desc
+				}
+				# 规格尺寸
+				orderSpecification {
+				  specificationInfo{
+					specification
+				  }
+				}
+				# 周转次数
+				steel{
+				  turnover
+				}
+			}
+			
+			#数量
+			total
+			# 重量
+			weightTotal
+			}
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{
+				"8",
+			},
+		},
+
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

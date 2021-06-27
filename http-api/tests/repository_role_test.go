@@ -1247,6 +1247,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("项目管理员获取最大安装码表集成测试--手机", testProjectAdminRoleGetMaxLocationCode)
 	t.Run("项目管理员安装码是否可用集成测试--手持机", testProjectAdminRoleIsAccessLocationCode)
 	t.Run("项目管理员安装型钢集成测试-手持机", testProjectAdminRoleInstallSteel)
+	t.Run("项目管理员待修改型钢详细信息集成测试-手持机", testProjectAdminRoleGetProjectSteel2BeChangeDetail)
 }
 
 /**
@@ -1475,8 +1476,7 @@ func TestRepositoryAdminRoleGetMultipleSteelDetail(t *testing.T) {
  *仓库管理员获取消息列表集成测试-手持机
  */
 func TestRepositoryAdminRoleGetMsgList(t *testing.T) {
-	q := `
-		query {
+	q := `query {
 		  getMsgList{
 			id
 			isRead
