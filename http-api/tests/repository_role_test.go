@@ -1248,6 +1248,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("项目管理员安装码是否可用集成测试--手持机", testProjectAdminRoleIsAccessLocationCode)
 	t.Run("项目管理员安装型钢集成测试-手持机", testProjectAdminRoleInstallSteel)
 	t.Run("项目管理员待修改型钢详细信息集成测试-手持机", testProjectAdminRoleGetProjectSteel2BeChangeDetail)
+	t.Run("项目管理员 项目中的型钢查询 集成测试-手持机", testProjectAdminRoleGetProjectSteel2BeChange)
 }
 
 /**

@@ -1079,3 +1079,32 @@ func testProjectAdminRoleGetProjectSteel2BeChangeDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员 项目中的型钢查询 集成测试-手持机
+ */
+func testProjectAdminRoleGetProjectSteel2BeChange(t *testing.T) {
+	q := `
+		query ($input:  GetProjectSteel2BeChangeInput!){
+		  getProjectSteel2BeChange(input: $input) {
+			id
+			# 规格
+			orderSpecification{
+			  specificationInfo{
+				specification
+				id 
+				# 重量
+				weight
+			  }
+			}
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifier": "8",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
