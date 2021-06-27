@@ -106,6 +106,28 @@ var StateCodeMapDes = map[int64]string{
 }
 
 /**
+ * 获取全部的状态
+ */
+func GetAllStateList() []int64  {
+	return []int64{
+		StateInStore,
+		StateRepository2Project,
+		StateRepository2Maintainer,
+		StateProjectWillBeUsed,
+		StateProjectInUse,
+		StateProjectException,
+		StateProjectIdle,
+		StateProjectWillBeStore,
+		StateProjectOnTheStoreWay,
+		StateMaintainerWillBeMaintained,
+		StateMaintainerBeMaintaining,
+		StateMaintainerWillBeStore,
+		StateMaintainerOnTheStoreWay,
+		StateLost,
+		StateScrap,
+	}
+}
+/**
  * 获取项目中会用到的型钢状态合集
  */
 func GetStateForProject() []int64 {

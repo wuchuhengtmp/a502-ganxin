@@ -25,7 +25,7 @@ func ValidateGetProjectSteelDetailRequest(ctx context.Context, input graphModel.
 	}
 	// 检验型钢状态
 	if input.State != nil {
-		if err := steps.CheckSteelState(ctx, *input.State); err != nil {
+		if err := steps.CheckSteelState(*input.State); err != nil {
 			return err
 		}
 	}

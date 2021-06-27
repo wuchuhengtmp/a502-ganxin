@@ -379,6 +379,16 @@ type ProjectOrder2WorkshopInput struct {
 	ExpressNo string `json:"expressNo"`
 }
 
+// " 待修改武钢详细信息请求参数
+type ProjectSteel2BeChangeInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  规格尺寸id
+	SpecificationID *int64 `json:"specificationId"`
+	//  状态
+	State *int64 `json:"state"`
+}
+
 type RepositoryLeaderItem struct {
 	ID     int64  `json:"id"`
 	Name   string `json:"name"`

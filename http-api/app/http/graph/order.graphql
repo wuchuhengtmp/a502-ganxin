@@ -23,6 +23,8 @@ type OrderSpecificationItem {
 """ 订单中规格列表中的一个型钢 """
 type OrderSpecificationSteelItem {
     id: Int!
+   """ 状态项 """
+    stateInfo: StateItem!
     """ 型钢基本信息 """
     steel: SteelItem!
     """订单规格"""

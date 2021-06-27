@@ -180,3 +180,15 @@ type GetProjectSteelDetailRes struct {
 	// 已经扫描的重量
 	Weight float64
 }
+
+/**
+ * 待修改武钢详细信息 响应格式
+*/
+type GetProjectSteel2BeChangeDetailRes struct {
+	// """ 型钢列表 """
+	List []*order_specification_steel.OrderSpecificationSteel
+	// """ 数量 """
+	Total int64
+	// """ 重量 """
+	WeightTotal float64
+}

@@ -28,6 +28,15 @@ func (OrderSpecificationSteelItemResolver)Steel(ctx context.Context, obj *order_
 	return &s, err
 }
 
+func (OrderSpecificationSteelItemResolver)StateInfo(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*steels.StateItem, error) {
+	item := steels.StateItem{
+		State: obj.State,
+		Desc: steels.StateCodeMapDes[obj.State],
+	}
+
+	return &item, nil
+}
+
 func (OrderSpecificationSteelItemResolver)OrderSpecification(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*order_specification.OrderSpecification, error) {
 	o := order_specification.OrderSpecification{}
 	err := model.DB.Model(&o).Where("id = ?", obj.OrderSpecificationId).First(&o).Error

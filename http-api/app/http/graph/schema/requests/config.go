@@ -501,7 +501,7 @@ func (s *StepsForProject) CheckIsBelongMe(ctx context.Context, projectId int64) 
 /**
  * 检验项目型钢状态
  */
-func (*StepsForProject) CheckSteelState(ctx context.Context, state int64) error {
+func (*StepsForProject) CheckSteelState(state int64) error {
 	// 允许项目过滤查询的合法状态合集
 	allowStateList := steels.GetStateForProject()
 	for _, stateItem := range allowStateList {

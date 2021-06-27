@@ -51,7 +51,7 @@ type GetProjectSteelDetailRes {
     """ 订单规格列表 """
     list: [OrderSpecificationSteelItem]!
     """ 已经扫描数量 """
-    total: Int!
+    total: Int !
     """ 已经扫描重量 """
     weight: Float!
 }
@@ -83,6 +83,24 @@ input InstallLocationInput {
     """ 识别码 """
     identifier: String!
 }
+"""" 待修改武钢详细信息请求参数 """
+input ProjectSteel2BeChangeInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格尺寸id """
+    specificationId: Int
+    """ 状态 """
+    state: Int
+}
+"""" 待修改武钢详细信息响应数据 """
+type GetProjectSteel2BeChangeDetailRes {
+    """ 型钢列表 """
+    list :[OrderSpecificationSteelItem]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weightTotal: Float!
+}
 extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
@@ -100,4 +118,6 @@ extend type Query {
     getMaxLocationCode(input: GetMaxLocationCodeInput!): Int! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 安装码是否可用 """
     isAccessLocationCode(input: IsAccessLocationCodeInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """" 待修改武钢详细信息 """
+    getProjectSteel2BeChangeDetail(input: ProjectSteel2BeChangeInput!): GetProjectSteel2BeChangeDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
