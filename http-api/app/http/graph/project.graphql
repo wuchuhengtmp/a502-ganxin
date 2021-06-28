@@ -106,11 +106,20 @@ input GetProjectSteel2BeChangeInput {
     """ 识别码 """
     identifier: String!
 }
+""" 修改项目型钢需要的参数 """
+input SetProjectSteelInput {
+    """ 标识码列表 """
+    identifierList: [String!]
+    """ 型钢状态 """
+    state: Int!
+}
 extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
     """ 安装型钢 """
     installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 修改项目的型钢状态 """
+    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 extend type Query {
     """ 获取项目管理列表 """

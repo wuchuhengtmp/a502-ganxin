@@ -407,6 +407,14 @@ type SetPasswordInput struct {
 	Password string `json:"password"`
 }
 
+//  修改项目型钢需要的参数
+type SetProjectSteelInput struct {
+	//  标识码列表
+	IdentifierList []string `json:"identifierList"`
+	//  型钢状态
+	State int64 `json:"state"`
+}
+
 type SetSteelIntoWorkshopInput struct {
 	//  型钢标识码列表
 	IdentifierList []string `json:"identifierList"`
