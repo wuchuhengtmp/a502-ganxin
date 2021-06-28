@@ -1108,3 +1108,23 @@ func testProjectAdminRoleGetProjectSteel2BeChange(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+/**
+ * 项目管理员 修改项目型钢状态 集成测试-手持机
+ */
+func testProjectAdminRoleSetProjectSteelState(t *testing.T) {
+	q := `
+		mutation ($input: SetProjectSteelInput!){
+		  setProjectSteelState(input: $input)
+		}
+	`
+	v :=  map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{
+				"8",
+			},
+			"state": 200,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
