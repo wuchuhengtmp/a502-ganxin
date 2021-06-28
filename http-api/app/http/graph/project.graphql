@@ -136,4 +136,6 @@ extend type Query {
     getProjectSteel2BeChangeDetail(input: ProjectSteel2BeChangeInput!): GetProjectSteel2BeChangeDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取待修改武钢信息 """
     getProjectSteel2BeChange(input: GetProjectSteel2BeChangeInput!): OrderSpecificationSteelItem! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取型钢出场的项目列表 """
+    getOutOfWorkshopProjectList: [ProjectItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

@@ -14,7 +14,6 @@ import (
 // Mutation returns generated.MutationResolver implementation.
 func (*Resolver) Mutation() generated.MutationResolver { return &mutationResolver{} }
 
-// Query returns generated.QueryResolver implementation.
 func (*Resolver) Query() generated.QueryResolver {
 	return &queryResolver{ }
 }

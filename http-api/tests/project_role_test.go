@@ -1128,3 +1128,20 @@ func testProjectAdminRoleSetProjectSteelState(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 获取可出场的项目列表
+ */
+func testProjectAdminRoleGetOutOfWorkshopProjectList(t *testing.T)  {
+	q := `
+		query {
+		  getOutOfWorkshopProjectList {
+			id
+			name
+		  }
+		}
+	`
+	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

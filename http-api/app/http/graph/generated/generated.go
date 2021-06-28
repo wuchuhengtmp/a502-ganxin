@@ -340,6 +340,7 @@ type ComplexityRoot struct {
 		GetOneSteelDetail               func(childComplexity int, input model.GetOneSteelDetailInput) int
 		GetOrderDetail                  func(childComplexity int, input model.GetOrderDetailInput) int
 		GetOrderList                    func(childComplexity int, input model.GetOrderListInput) int
+		GetOutOfWorkshopProjectList     func(childComplexity int) int
 		GetPrice                        func(childComplexity int) int
 		GetProjectLis                   func(childComplexity int) int
 		GetProjectOrder2WorkshopDetail  func(childComplexity int, input model.ProjectOrder2WorkshopDetailInput) int
@@ -569,6 +570,7 @@ type QueryResolver interface {
 	IsAccessLocationCode(ctx context.Context, input model.IsAccessLocationCodeInput) (bool, error)
 	GetProjectSteel2BeChangeDetail(ctx context.Context, input model.ProjectSteel2BeChangeInput) (*projects.GetProjectSteel2BeChangeDetailRes, error)
 	GetProjectSteel2BeChange(ctx context.Context, input model.GetProjectSteel2BeChangeInput) (*order_specification_steel.OrderSpecificationSteel, error)
+	GetOutOfWorkshopProjectList(ctx context.Context) ([]*projects.Projects, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -2114,6 +2116,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetOrderList(childComplexity, args["input"].(model.GetOrderListInput)), true
 
+	case "Query.getOutOfWorkshopProjectList":
+		if e.complexity.Query.GetOutOfWorkshopProjectList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetOutOfWorkshopProjectList(childComplexity), true
+
 	case "Query.getPrice":
 		if e.complexity.Query.GetPrice == nil {
 			break
@@ -3606,6 +3615,8 @@ extend type Query {
     getProjectSteel2BeChangeDetail(input: ProjectSteel2BeChangeInput!): GetProjectSteel2BeChangeDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取待修改武钢信息 """
     getProjectSteel2BeChange(input: GetProjectSteel2BeChangeInput!): OrderSpecificationSteelItem! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取型钢出场的项目列表 """
+    getOutOfWorkshopProjectList: [ProjectItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -13085,6 +13096,71 @@ func (ec *executionContext) _Query_getProjectSteel2BeChange(ctx context.Context,
 	return ec.marshalNOrderSpecificationSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specification_steelᚐOrderSpecificationSteel(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getOutOfWorkshopProjectList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetOutOfWorkshopProjectList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*projects.Projects); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/projects.Projects`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*projects.Projects)
+	fc.Result = res
+	return ec.marshalNProjectItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -20469,6 +20545,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getProjectSteel2BeChange(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getOutOfWorkshopProjectList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getOutOfWorkshopProjectList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
