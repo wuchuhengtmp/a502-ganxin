@@ -1074,7 +1074,6 @@ func testProjectAdminRoleGetProjectSteel2BeChangeDetail(t *testing.T) {
 				"8",
 			},
 		},
-
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
@@ -1101,13 +1100,14 @@ func testProjectAdminRoleGetProjectSteel2BeChange(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifier": "8",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
 /**
  * 项目管理员 修改项目型钢状态 集成测试-手持机
  */
@@ -1117,7 +1117,7 @@ func testProjectAdminRoleSetProjectSteelState(t *testing.T) {
 		  setProjectSteelState(input: $input)
 		}
 	`
-	v :=  map[string]interface{}{
+	v := map[string]interface{}{
 		"input": map[string]interface{}{
 			"identifierList": []string{
 				"8",
@@ -1130,9 +1130,9 @@ func testProjectAdminRoleSetProjectSteelState(t *testing.T) {
 }
 
 /**
- * 获取可出场的项目列表
+ * 基础上管理员获取可出场的项目列表集成测试--手持机
  */
-func testProjectAdminRoleGetOutOfWorkshopProjectList(t *testing.T)  {
+func testProjectAdminRoleGetOutOfWorkshopProjectList(t *testing.T) {
 	q := `
 		query {
 		  getOutOfWorkshopProjectList {
@@ -1142,6 +1142,27 @@ func testProjectAdminRoleGetOutOfWorkshopProjectList(t *testing.T)  {
 		}
 	`
 	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 项目管理员获取可出场的项目列表集成测试--手持机
+ */
+func testProjectAdminRoleSetProjectSteelOutOfWorkshop(t *testing.T) {
+	q := `
+		mutation ($input: SetProjectSteelOutOfWorkshopInput!){
+		  setProjectSteelOutOfWorkshop(input: $input)
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"projectId": 1,
+			"identifierList": []string{
+				"8",
+			},
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
