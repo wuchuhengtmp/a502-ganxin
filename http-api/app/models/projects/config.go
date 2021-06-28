@@ -192,3 +192,15 @@ type GetProjectSteel2BeChangeDetailRes struct {
 	// """ 重量 """
 	WeightTotal float64
 }
+
+/**
+ * 获取型钢单根型钢出场详情响应格式
+ */
+type GetOutOfWorkshopProjectSteelDetailRes struct {
+	// """" 订单型钢信息 """
+	OrderSteel order_specification_steel.OrderSpecificationSteel
+	// """ 待归库数量 """
+	ToBeStoreTotal int64
+	// """ 已归库数量 """
+	StoreTotal int64
+}

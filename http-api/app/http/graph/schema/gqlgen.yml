@@ -114,7 +114,10 @@ models:
   # 消息格式
   MsgItem:
     model: http-api/app/models/msg.Msg
-    # 待修改武钢详细信息 响应格式
+  # 待修改武钢详细信息 响应格式
   GetProjectSteel2BeChangeDetailRes:
     model: http-api/app/models/projects.GetProjectSteel2BeChangeDetailRes
+  # 获取型钢单根型钢出场详情响应格式
+  GetOutOfWorkshopProjectSteelDetailRes:
+    model: http-api/app/models/projects.GetOutOfWorkshopProjectSteelDetailRes
 

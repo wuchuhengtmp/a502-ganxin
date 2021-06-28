@@ -113,6 +113,13 @@ input SetProjectSteelInput {
     """ 型钢状态 """
     state: Int!
 }
+""" 获取型钢单根型钢出场详情参数 """
+input GetOutOfWorkshopProjectSteelDetail {
+    """ 标识码 """
+    identifier: String!
+    """ 项目id """
+    projectId: Int!
+}
 extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
@@ -120,6 +127,15 @@ extend type Mutation {
     installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 修改项目的型钢状态 """
     setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+}
+""" 获取型钢单根型钢出场详情响应格式 """
+type GetOutOfWorkshopProjectSteelDetailRes {
+    """" 订单型钢信息 """
+    orderSteel: OrderSpecificationSteelItem!
+    """ 待归库数量 """
+    toBeStoreTotal: Int!
+    """ 已归库数量 """
+    storeTotal: Int!
 }
 extend type Query {
     """ 获取项目管理列表 """
@@ -138,4 +154,6 @@ extend type Query {
     getProjectSteel2BeChange(input: GetProjectSteel2BeChangeInput!): OrderSpecificationSteelItem! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取型钢出场的项目列表 """
     getOutOfWorkshopProjectList: [ProjectItem]! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 获取型钢单根型钢出场详情 """
+    getOutOfWorkshopProjectSteelDetail(input: GetOutOfWorkshopProjectSteelDetail!): GetOutOfWorkshopProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
 }

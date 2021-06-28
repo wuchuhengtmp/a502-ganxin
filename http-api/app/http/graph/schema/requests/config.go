@@ -510,7 +510,7 @@ func (*StepsForProject) CheckSteelState(state int64) error {
 		}
 	}
 
-	return fmt.Errorf("状态为:%d 不合法", state)
+	return fmt.Errorf("型钢状态为:%d 不合法", state)
 }
 
 /**
