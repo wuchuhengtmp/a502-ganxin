@@ -18,9 +18,12 @@ import (
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/http/graph/util/helper"
 	"http-api/app/models/msg"
+	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
-	"http-api/app/models/project_leader"
+	"http-api/app/models/orders"
 	"http-api/app/models/projects"
+	"http-api/app/models/repositories"
+	"http-api/app/models/repository_leader"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steel_logs"
 	"http-api/app/models/steels"
@@ -74,25 +77,34 @@ func (*MutationResolver) SetProjectSteelOutOfWorkshop(ctx context.Context, input
 			}
 			weithTotal += specificationInfoItem.Weight
 		}
-
 		// 通知仓库管理员
 		projectItem := projects.Projects{}
 		tx.Model(&projectItem).Where("id = ?", input.ProjectID).First(&projectItem)
-		contente := fmt.Sprintf(
+		contents := fmt.Sprintf(
 			"%s 项目于 %s 从场地往仓库发一批型钢,总数: %d根，重量: %.2f, 请注意查收!",
 			projectItem.Name,
 			helper.Time2Str(time.Now()),
 			total,
 			weithTotal,
 		)
-		var leaders []*project_leader.ProjectLeader
-		err := tx.Model(&project_leader.ProjectLeader{}).Where("project_id = ?", input.ProjectID).Find(&leaders).Error
+		var repositoryLeaders []*repository_leader.RepositoryLeader
+		orderTable := orders.Order{}.TableName()
+		repositoryTable := repositories.Repositories{}.TableName()
+		repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+		orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+		orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
+		err := tx.Model(&repository_leader.RepositoryLeader{}).
+			Joins(fmt.Sprintf("join %s ON %s.id = %s.repository_id", repositoryTable, repositoryTable, repositoryLeaderTable)).
+			Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.id", orderTable, orderTable, repositoryTable)).
+			Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
+			Joins(fmt.Sprintf("join %s ON %s.order_specification_id = %s.id", orderSpecificationSteelTable, orderSpecificationSteelTable, orderSpecificationTable)).
+			Scan(&repositoryLeaders).Error
 		if err != nil {
 			return err
 		}
-		for _, leaderItem := range leaders {
+		for _, leaderItem := range repositoryLeaders {
 			msgItem := msg.Msg{
-				Content: contente,
+				Content: contents,
 				Uid:     leaderItem.Uid,
 				Type:    msg.OutOfWorkshop,
 			}
