@@ -423,6 +423,14 @@ type SetProjectSteelInput struct {
 	State int64 `json:"state"`
 }
 
+//  型钢出场请求参数
+type SetProjectSteelOutOfWorkshopInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  项目id
+	ProjectID int64 `json:"projectId"`
+}
+
 type SetSteelIntoWorkshopInput struct {
 	//  型钢标识码列表
 	IdentifierList []string `json:"identifierList"`

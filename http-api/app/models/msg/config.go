@@ -28,6 +28,7 @@ const (
 	RejectOrderType       string = "rejectOrderType"            // 拒绝订单类型
 	OutProject2Workshop   string = "outOfProjectToWorkshopType" // 出库到项目场地
 	EnterProject2Workshop string = "enter project to Workshop"  // 项目入场
+	OutOfWorkshop         string = "OutOfWorkshop"              // 型钢出场
 )
 
 func (Msg) TableName() string {

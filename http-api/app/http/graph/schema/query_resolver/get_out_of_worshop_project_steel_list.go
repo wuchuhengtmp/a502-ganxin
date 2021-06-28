@@ -80,6 +80,7 @@ func (*QueryResolver) GetOutOfWorkshopProjectList(ctx context.Context) (res []*p
 					allProjectInWorkshopChan <- projectItem
 				}
 			}
+			<-limiter
 		}()
 	}
 	wg.Wait()                       // 检验完毕

@@ -25,6 +25,7 @@ const (
 	EnterWorkshopType SteelLogType = "enterWorkshop"  // 入场了
 	InstallationType SteelLogType = "InstallationType" // 安装
 	ChangeType SteelLogType = "changeType" // 修改型钢状态
+	OutOfWorkshop SteelLogType = "SteelLogType" //  出场
 )
 
 // 操作类型映射说明

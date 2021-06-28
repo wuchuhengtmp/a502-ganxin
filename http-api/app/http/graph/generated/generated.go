@@ -225,39 +225,40 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ConfirmOrRejectOrder       func(childComplexity int, input model.ConfirmOrderInput) int
-		CreateCompany              func(childComplexity int, input model.CreateCompanyInput) int
-		CreateCompanyUser          func(childComplexity int, input model.CreateCompanyUserInput) int
-		CreateExpress              func(childComplexity int, input model.CreateExpressInput) int
-		CreateManufacturer         func(childComplexity int, input model.CreateManufacturerInput) int
-		CreateMaterialManufacturer func(childComplexity int, input model.CreateMaterialManufacturerInput) int
-		CreateOrder                func(childComplexity int, input model.CreateOrderInput) int
-		CreateProject              func(childComplexity int, input model.CreateProjectInput) int
-		CreateRepository           func(childComplexity int, input model.CreateRepositoryInput) int
-		CreateSpecification        func(childComplexity int, input model.CreateSpecificationInput) int
-		CreateSteel                func(childComplexity int, input model.CreateSteelInput) int
-		DeleteCompany              func(childComplexity int, id int64) int
-		DeleteCompanyUser          func(childComplexity int, uid int64) int
-		DeleteExpress              func(childComplexity int, id int64) int
-		DeleteManufacturer         func(childComplexity int, id int64) int
-		DeleteMaterialManufacturer func(childComplexity int, id int64) int
-		DeleteRepository           func(childComplexity int, repositoryID int64) int
-		DeleteSpecification        func(childComplexity int, id int64) int
-		EditCompany                func(childComplexity int, input model.EditCompanyInput) int
-		EditCompanyUser            func(childComplexity int, input *model.EditCompanyUserInput) int
-		EditDevice                 func(childComplexity int, input model.EditDeviceInput) int
-		EditExpress                func(childComplexity int, input model.EditExpressInput) int
-		EditManufacturer           func(childComplexity int, input model.EditManufacturerInput) int
-		EditMaterialManufacturer   func(childComplexity int, input model.EditMaterialManufacturerInput) int
-		EditPrice                  func(childComplexity int, price float64) int
-		EditSpecification          func(childComplexity int, input model.EditSpecificationInput) int
-		InstallSteel               func(childComplexity int, input model.InstallLocationInput) int
-		Login                      func(childComplexity int, phone string, password string, mac *string) int
-		SetPassword                func(childComplexity int, input *model.SetPasswordInput) int
-		SetProjectOrder2Workshop   func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
-		SetProjectSteelState       func(childComplexity int, input model.SetProjectSteelInput) int
-		SetSteelEnterWorkshop      func(childComplexity int, input model.SetSteelIntoWorkshopInput) int
-		SingleUpload               func(childComplexity int, file graphql.Upload) int
+		ConfirmOrRejectOrder         func(childComplexity int, input model.ConfirmOrderInput) int
+		CreateCompany                func(childComplexity int, input model.CreateCompanyInput) int
+		CreateCompanyUser            func(childComplexity int, input model.CreateCompanyUserInput) int
+		CreateExpress                func(childComplexity int, input model.CreateExpressInput) int
+		CreateManufacturer           func(childComplexity int, input model.CreateManufacturerInput) int
+		CreateMaterialManufacturer   func(childComplexity int, input model.CreateMaterialManufacturerInput) int
+		CreateOrder                  func(childComplexity int, input model.CreateOrderInput) int
+		CreateProject                func(childComplexity int, input model.CreateProjectInput) int
+		CreateRepository             func(childComplexity int, input model.CreateRepositoryInput) int
+		CreateSpecification          func(childComplexity int, input model.CreateSpecificationInput) int
+		CreateSteel                  func(childComplexity int, input model.CreateSteelInput) int
+		DeleteCompany                func(childComplexity int, id int64) int
+		DeleteCompanyUser            func(childComplexity int, uid int64) int
+		DeleteExpress                func(childComplexity int, id int64) int
+		DeleteManufacturer           func(childComplexity int, id int64) int
+		DeleteMaterialManufacturer   func(childComplexity int, id int64) int
+		DeleteRepository             func(childComplexity int, repositoryID int64) int
+		DeleteSpecification          func(childComplexity int, id int64) int
+		EditCompany                  func(childComplexity int, input model.EditCompanyInput) int
+		EditCompanyUser              func(childComplexity int, input *model.EditCompanyUserInput) int
+		EditDevice                   func(childComplexity int, input model.EditDeviceInput) int
+		EditExpress                  func(childComplexity int, input model.EditExpressInput) int
+		EditManufacturer             func(childComplexity int, input model.EditManufacturerInput) int
+		EditMaterialManufacturer     func(childComplexity int, input model.EditMaterialManufacturerInput) int
+		EditPrice                    func(childComplexity int, price float64) int
+		EditSpecification            func(childComplexity int, input model.EditSpecificationInput) int
+		InstallSteel                 func(childComplexity int, input model.InstallLocationInput) int
+		Login                        func(childComplexity int, phone string, password string, mac *string) int
+		SetPassword                  func(childComplexity int, input *model.SetPasswordInput) int
+		SetProjectOrder2Workshop     func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
+		SetProjectSteelOutOfWorkshop func(childComplexity int, input model.SetProjectSteelOutOfWorkshopInput) int
+		SetProjectSteelState         func(childComplexity int, input model.SetProjectSteelInput) int
+		SetSteelEnterWorkshop        func(childComplexity int, input model.SetSteelIntoWorkshopInput) int
+		SingleUpload                 func(childComplexity int, file graphql.Upload) int
 	}
 
 	OrderExpressItem struct {
@@ -501,6 +502,7 @@ type MutationResolver interface {
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	InstallSteel(ctx context.Context, input model.InstallLocationInput) (bool, error)
 	SetProjectSteelState(ctx context.Context, input model.SetProjectSteelInput) (bool, error)
+	SetProjectSteelOutOfWorkshop(ctx context.Context, input model.SetProjectSteelOutOfWorkshopInput) (bool, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
@@ -1588,6 +1590,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetProjectOrder2Workshop(childComplexity, args["input"].(model.ProjectOrder2WorkshopInput)), true
+
+	case "Mutation.setProjectSteelOutOfWorkshop":
+		if e.complexity.Mutation.SetProjectSteelOutOfWorkshop == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setProjectSteelOutOfWorkshop_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetProjectSteelOutOfWorkshop(childComplexity, args["input"].(model.SetProjectSteelOutOfWorkshopInput)), true
 
 	case "Mutation.setProjectSteelState":
 		if e.complexity.Mutation.SetProjectSteelState == nil {
@@ -3640,14 +3654,6 @@ input GetOutOfWorkshopProjectSteelDetail {
     """ 项目id """
     projectId: Int!
 }
-extend type Mutation {
-    """ 创建项目 (auth: admin)"""
-    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
-    """ 安装型钢 """
-    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 修改项目的型钢状态 """
-    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-}
 """ 获取型钢单根型钢出场详情响应格式 """
 type GetOutOfWorkshopProjectSteelDetailRes {
     """" 订单型钢信息 """
@@ -3656,6 +3662,23 @@ type GetOutOfWorkshopProjectSteelDetailRes {
     toBeStoreTotal: Int!
     """ 已归库数量 """
     storeTotal: Int!
+}
+""" 型钢出场请求参数 """
+input SetProjectSteelOutOfWorkshopInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 项目id """
+    projectId: Int!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 安装型钢 """
+    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 修改项目的型钢状态 """
+    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 型钢出场 """
+    setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 extend type Query {
     """ 获取项目管理列表 """
@@ -4389,6 +4412,21 @@ func (ec *executionContext) field_Mutation_setProjectOrder2Workshop_args(ctx con
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNProjectOrder2WorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐProjectOrder2WorkshopInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setProjectSteelOutOfWorkshop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetProjectSteelOutOfWorkshopInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetProjectSteelOutOfWorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectSteelOutOfWorkshopInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9375,6 +9413,78 @@ func (ec *executionContext) _Mutation_setProjectSteelState(ctx context.Context, 
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
 			return ec.resolvers.Mutation().SetProjectSteelState(rctx, args["input"].(model.SetProjectSteelInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setProjectSteelOutOfWorkshop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setProjectSteelOutOfWorkshop_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetProjectSteelOutOfWorkshop(rctx, args["input"].(model.SetProjectSteelOutOfWorkshopInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
@@ -18715,6 +18825,34 @@ func (ec *executionContext) unmarshalInputSetProjectSteelInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetProjectSteelOutOfWorkshopInput(ctx context.Context, obj interface{}) (model.SetProjectSteelOutOfWorkshopInput, error) {
+	var it model.SetProjectSteelOutOfWorkshopInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetSteelIntoWorkshopInput(ctx context.Context, obj interface{}) (model.SetSteelIntoWorkshopInput, error) {
 	var it model.SetSteelIntoWorkshopInput
 	var asMap = obj.(map[string]interface{})
@@ -19878,6 +20016,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "setProjectSteelState":
 			out.Values[i] = ec._Mutation_setProjectSteelState(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setProjectSteelOutOfWorkshop":
+			out.Values[i] = ec._Mutation_setProjectSteelOutOfWorkshop(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -23197,6 +23340,11 @@ func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrole
 
 func (ec *executionContext) unmarshalNSetProjectSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectSteelInput(ctx context.Context, v interface{}) (model.SetProjectSteelInput, error) {
 	res, err := ec.unmarshalInputSetProjectSteelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetProjectSteelOutOfWorkshopInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectSteelOutOfWorkshopInput(ctx context.Context, v interface{}) (model.SetProjectSteelOutOfWorkshopInput, error) {
+	res, err := ec.unmarshalInputSetProjectSteelOutOfWorkshopInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
