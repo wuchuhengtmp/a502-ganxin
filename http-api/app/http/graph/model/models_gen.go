@@ -280,6 +280,12 @@ type GetOrderListInput struct {
 	QueryType *GetOrderListInputType `json:"queryType"`
 }
 
+//  获取订单型钢详情需要的参数
+type GetOrderSteelDertailInput struct {
+	//  识别码
+	Identifier string `json:"identifier"`
+}
+
 //  获取型钢单根型钢出场详情参数
 type GetOutOfWorkshopProjectSteelDetail struct {
 	//  标识码
