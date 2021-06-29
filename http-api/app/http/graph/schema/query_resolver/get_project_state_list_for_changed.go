@@ -20,7 +20,6 @@ func (*QueryResolver) GetProjectStateListForChanged(ctx context.Context) (res []
 		steels.StateProjectInUse,         //【项目】-使用中
 		steels.StateProjectException,     //【项目】-异常
 		steels.StateProjectIdle,          //【项目】-闲置
-		steels.StateProjectWillBeStore,   //【项目】-准备归库
 		steels.StateProjectOnTheStoreWay, //【项目】-归库途中
 	} {
 		tmp := steels.StateItem{
