@@ -338,6 +338,7 @@ type ComplexityRoot struct {
 		GetCompanyUser                     func(childComplexity int, input *model.GetCompanyUserInput) int
 		GetDeviceList                      func(childComplexity int) int
 		GetEnterRepositoryProjectList      func(childComplexity int) int
+		GetEnterRepositorySteelDetail      func(childComplexity int, input model.GetEnterRepostiroySteelDettailInput) int
 		GetExpressList                     func(childComplexity int) int
 		GetManufacturers                   func(childComplexity int) int
 		GetMaterialManufacturers           func(childComplexity int) int
@@ -587,6 +588,7 @@ type QueryResolver interface {
 	GetOrderSteelDetail(ctx context.Context, input model.GetOrderSteelDetailInput) (*order_specification_steel.OrderSpecificationSteel, error)
 	GetProjectStateListForChanged(ctx context.Context) ([]*steels.StateItem, error)
 	GetEnterRepositoryProjectList(ctx context.Context) ([]*projects.Projects, error)
+	GetEnterRepositorySteelDetail(ctx context.Context, input model.GetEnterRepostiroySteelDettailInput) (*order_specification_steel.OrderSpecificationSteel, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -2076,6 +2078,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetEnterRepositoryProjectList(childComplexity), true
+
+	case "Query.getEnterRepositorySteelDetail":
+		if e.complexity.Query.GetEnterRepositorySteelDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getEnterRepositorySteelDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetEnterRepositorySteelDetail(childComplexity, args["input"].(model.GetEnterRepostiroySteelDettailInput)), true
 
 	case "Query.getExpressList":
 		if e.complexity.Query.GetExpressList == nil {
@@ -3717,14 +3731,13 @@ input GetOrderSteelDetailInput {
     """ 识别码 """
     identifier: String!
 }
-# todo
-#""" 项目归库的型钢查询参数 """
-#input GetEnterRepostiroySteelDettailInput{
-#    """ 识别码 """
-#    identifier: String!
-#    """ 项目列表 """
-#    projectId: Int!
-#}
+""" 项目归库的型钢查询参数 """
+input GetEnterRepostiroySteelDettailInput{
+    """ 识别码 """
+    identifier: String!
+    """ 项目列表 """
+    projectId: Int!
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -3748,11 +3761,10 @@ extend type Query {
     getOrderSteelDetail(input: GetOrderSteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
     """ 获取修改型钢状态码的列表 """
     getProjectStateListForChanged: [StateItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
-    # todo
-#    """ 项目归库的型钢查询 """
-#    getEnterRepostiroySteelDettail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 获取可归库的项目列表 """
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    """ 项目归库的型钢查询 """
+    getEnterRepositorySteelDetail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -4556,6 +4568,21 @@ func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOGetCompanyUserInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompanyUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getEnterRepositorySteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetEnterRepostiroySteelDettailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetEnterRepostiroySteelDettailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepostiroySteelDettailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -13793,6 +13820,78 @@ func (ec *executionContext) _Query_getEnterRepositoryProjectList(ctx context.Con
 	return ec.marshalNProjectItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjectsᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getEnterRepositorySteelDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getEnterRepositorySteelDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetEnterRepositorySteelDetail(rctx, args["input"].(model.GetEnterRepostiroySteelDettailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive1, role)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*order_specification_steel.OrderSpecificationSteel); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/order_specification_steel.OrderSpecificationSteel`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*order_specification_steel.OrderSpecificationSteel)
+	fc.Result = res
+	return ec.marshalNOrderSpecificationSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋorder_specification_steelᚐOrderSpecificationSteel(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -18585,6 +18684,34 @@ func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetEnterRepostiroySteelDettailInput(ctx context.Context, obj interface{}) (model.GetEnterRepostiroySteelDettailInput, error) {
+	var it model.GetEnterRepostiroySteelDettailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifier":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetMaxLocationCodeInput(ctx context.Context, obj interface{}) (model.GetMaxLocationCodeInput, error) {
 	var it model.GetMaxLocationCodeInput
 	var asMap = obj.(map[string]interface{})
@@ -21370,6 +21497,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getEnterRepositorySteelDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getEnterRepositorySteelDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRepositoryList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -22703,6 +22844,11 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNGetEnterRepostiroySteelDettailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepostiroySteelDettailInput(ctx context.Context, v interface{}) (model.GetEnterRepostiroySteelDettailInput, error) {
+	res, err := ec.unmarshalInputGetEnterRepostiroySteelDettailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetMaxLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaxLocationCodeInput(ctx context.Context, v interface{}) (model.GetMaxLocationCodeInput, error) {

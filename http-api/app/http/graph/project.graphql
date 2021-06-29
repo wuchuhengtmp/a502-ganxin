@@ -151,14 +151,13 @@ input GetOrderSteelDetailInput {
     """ 识别码 """
     identifier: String!
 }
-# todo
-#""" 项目归库的型钢查询参数 """
-#input GetEnterRepostiroySteelDettailInput{
-#    """ 识别码 """
-#    identifier: String!
-#    """ 项目列表 """
-#    projectId: Int!
-#}
+""" 项目归库的型钢查询参数 """
+input GetEnterRepostiroySteelDettailInput{
+    """ 识别码 """
+    identifier: String!
+    """ 项目列表 """
+    projectId: Int!
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -182,9 +181,8 @@ extend type Query {
     getOrderSteelDetail(input: GetOrderSteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
     """ 获取修改型钢状态码的列表 """
     getProjectStateListForChanged: [StateItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
-    # todo
-#    """ 项目归库的型钢查询 """
-#    getEnterRepostiroySteelDettail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 获取可归库的项目列表 """
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    """ 项目归库的型钢查询 """
+    getEnterRepositorySteelDetail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
 }

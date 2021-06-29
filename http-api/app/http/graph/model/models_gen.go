@@ -259,6 +259,14 @@ type GetCompanyUserInput struct {
 	RoleID *int64 `json:"roleId"`
 }
 
+//  项目归库的型钢查询参数
+type GetEnterRepostiroySteelDettailInput struct {
+	//  识别码
+	Identifier string `json:"identifier"`
+	//  项目列表
+	ProjectID int64 `json:"projectId"`
+}
+
 //  获取项目最大安装码需要的参数
 type GetMaxLocationCodeInput struct {
 	//  型钢识别码
