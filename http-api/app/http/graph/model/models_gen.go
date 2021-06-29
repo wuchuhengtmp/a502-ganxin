@@ -281,7 +281,7 @@ type GetOrderListInput struct {
 }
 
 //  获取订单型钢详情需要的参数
-type GetOrderSteelDertailInput struct {
+type GetOrderSteelDetailInput struct {
 	//  识别码
 	Identifier string `json:"identifier"`
 }

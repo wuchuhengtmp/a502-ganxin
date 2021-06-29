@@ -147,7 +147,7 @@ extend type Mutation {
     setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 """ 获取订单型钢详情需要的参数 """
-input GetOrderSteelDertailInput {
+input GetOrderSteelDetailInput {
     """ 识别码 """
     identifier: String!
 }
@@ -171,5 +171,5 @@ extend type Query {
     """ 获取型钢单根型钢出场详情 """
     getOutOfWorkshopProjectSteelDetail(input: GetOutOfWorkshopProjectSteelDetail!): GetOutOfWorkshopProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取订单型钢详情 """
-    getOrderSteelDetail(input: GetOrderSteelDertailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
+    getOrderSteelDetail(input: GetOrderSteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
 }

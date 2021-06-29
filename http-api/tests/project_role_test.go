@@ -1166,3 +1166,33 @@ func testProjectAdminRoleSetProjectSteelOutOfWorkshop(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员获取订单型钢详情集成测试--手持机
+ */
+func testProjectAdminRoleGetOrderSteelDetail(t *testing.T) {
+	q := `
+	query ($input: GetOrderSteelDetailInput!){
+	  getOrderSteelDetail(input: $input) {
+		id
+		steel {id   
+		  # 规格
+		  specifcation{
+			specification
+		  }
+		  # 型钢编码
+		  code
+		}
+		#位置编码
+		locationCode
+	  }
+	}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{
+			"identifier": "8",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

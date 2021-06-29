@@ -347,7 +347,7 @@ type ComplexityRoot struct {
 		GetOneSteelDetail                  func(childComplexity int, input model.GetOneSteelDetailInput) int
 		GetOrderDetail                     func(childComplexity int, input model.GetOrderDetailInput) int
 		GetOrderList                       func(childComplexity int, input model.GetOrderListInput) int
-		GetOrderSteelDetail                func(childComplexity int, input model.GetOrderSteelDertailInput) int
+		GetOrderSteelDetail                func(childComplexity int, input model.GetOrderSteelDetailInput) int
 		GetOutOfWorkshopProjectList        func(childComplexity int) int
 		GetOutOfWorkshopProjectSteelDetail func(childComplexity int, input model.GetOutOfWorkshopProjectSteelDetail) int
 		GetPrice                           func(childComplexity int) int
@@ -582,7 +582,7 @@ type QueryResolver interface {
 	GetProjectSteel2BeChange(ctx context.Context, input model.GetProjectSteel2BeChangeInput) (*order_specification_steel.OrderSpecificationSteel, error)
 	GetOutOfWorkshopProjectList(ctx context.Context) ([]*projects.Projects, error)
 	GetOutOfWorkshopProjectSteelDetail(ctx context.Context, input model.GetOutOfWorkshopProjectSteelDetail) (*projects.GetOutOfWorkshopProjectSteelDetailRes, error)
-	GetOrderSteelDetail(ctx context.Context, input model.GetOrderSteelDertailInput) (*order_specification_steel.OrderSpecificationSteel, error)
+	GetOrderSteelDetail(ctx context.Context, input model.GetOrderSteelDetailInput) (*order_specification_steel.OrderSpecificationSteel, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -2171,7 +2171,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetOrderSteelDetail(childComplexity, args["input"].(model.GetOrderSteelDertailInput)), true
+		return e.complexity.Query.GetOrderSteelDetail(childComplexity, args["input"].(model.GetOrderSteelDetailInput)), true
 
 	case "Query.getOutOfWorkshopProjectList":
 		if e.complexity.Query.GetOutOfWorkshopProjectList == nil {
@@ -3695,7 +3695,7 @@ extend type Mutation {
     setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
 }
 """ 获取订单型钢详情需要的参数 """
-input GetOrderSteelDertailInput {
+input GetOrderSteelDetailInput {
     """ 识别码 """
     identifier: String!
 }
@@ -3719,7 +3719,7 @@ extend type Query {
     """ 获取型钢单根型钢出场详情 """
     getOutOfWorkshopProjectSteelDetail(input: GetOutOfWorkshopProjectSteelDetail!): GetOutOfWorkshopProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取订单型钢详情 """
-    getOrderSteelDetail(input: GetOrderSteelDertailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
+    getOrderSteelDetail(input: GetOrderSteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -4609,10 +4609,10 @@ func (ec *executionContext) field_Query_getOrderList_args(ctx context.Context, r
 func (ec *executionContext) field_Query_getOrderSteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetOrderSteelDertailInput
+	var arg0 model.GetOrderSteelDetailInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetOrderSteelDertailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderSteelDertailInput(ctx, tmp)
+		arg0, err = ec.unmarshalNGetOrderSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderSteelDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -13584,7 +13584,7 @@ func (ec *executionContext) _Query_getOrderSteelDetail(ctx context.Context, fiel
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetOrderSteelDetail(rctx, args["input"].(model.GetOrderSteelDertailInput))
+			return ec.resolvers.Query().GetOrderSteelDetail(rctx, args["input"].(model.GetOrderSteelDetailInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.MustBeDevice == nil {
@@ -18502,8 +18502,8 @@ func (ec *executionContext) unmarshalInputGetOrderListInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputGetOrderSteelDertailInput(ctx context.Context, obj interface{}) (model.GetOrderSteelDertailInput, error) {
-	var it model.GetOrderSteelDertailInput
+func (ec *executionContext) unmarshalInputGetOrderSteelDetailInput(ctx context.Context, obj interface{}) (model.GetOrderSteelDetailInput, error) {
+	var it model.GetOrderSteelDetailInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -22529,8 +22529,8 @@ func (ec *executionContext) unmarshalNGetOrderListInput2httpᚑapiᚋappᚋhttp�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNGetOrderSteelDertailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderSteelDertailInput(ctx context.Context, v interface{}) (model.GetOrderSteelDertailInput, error) {
-	res, err := ec.unmarshalInputGetOrderSteelDertailInput(ctx, v)
+func (ec *executionContext) unmarshalNGetOrderSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetOrderSteelDetailInput(ctx context.Context, v interface{}) (model.GetOrderSteelDetailInput, error) {
+	res, err := ec.unmarshalInputGetOrderSteelDetailInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

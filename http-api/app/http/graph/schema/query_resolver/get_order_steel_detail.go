@@ -19,7 +19,7 @@ import (
 	"http-api/pkg/model"
 )
 
-func (*QueryResolver)GetOrderSteelDetail(ctx context.Context, input graphModel.GetOrderSteelDertailInput) (*order_specification_steel.OrderSpecificationSteel, error) {
+func (*QueryResolver)GetOrderSteelDetail(ctx context.Context, input graphModel.GetOrderSteelDetailInput) (*order_specification_steel.OrderSpecificationSteel, error) {
 	if err := requests.ValidateGetOrderSteelDetailRequest(ctx, input); err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
