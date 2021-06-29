@@ -180,6 +180,8 @@ extend type Query {
     getOutOfWorkshopProjectSteelDetail(input: GetOutOfWorkshopProjectSteelDetail!): GetOutOfWorkshopProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取订单型钢详情 """
     getOrderSteelDetail(input: GetOrderSteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
+    """ 获取修改型钢状态码的列表 """
+    getProjectStateListForChanged: [StateItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
     # todo
 #    """ 项目归库的型钢查询 """
 #    getEnterRepostiroySteelDettail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
