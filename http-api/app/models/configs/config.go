@@ -28,6 +28,10 @@ type Configs struct {
 	gorm.Model
 }
 
+func (Configs)TableName() string {
+	return "configs"
+}
+
 const (
 	PRICE_NAME = "PRICE"
 )

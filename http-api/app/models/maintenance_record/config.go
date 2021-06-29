@@ -23,3 +23,6 @@ type MaintenanceRecord struct {
 	EnterRepositoryAt time.Time `json:"enterRepositoryAt" gorm:"comment:入库时间"`
 	gorm.Model
 }
+func(MaintenanceRecord)TableName() string {
+	return "maintenance_record"
+}

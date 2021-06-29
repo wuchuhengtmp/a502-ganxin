@@ -35,6 +35,9 @@ type CodeInfo struct {
 	CompanyId int64  `json:"companyId" gorm:"comment:公司id"`
 	gorm.Model
 }
+func(CodeInfo)TableName() string {
+	return "code_info"
+}
 
 /**
  * 添加一个新的材料商家

@@ -23,6 +23,10 @@ type Role struct {
 	gorm.Model
 }
 
+func (Role)TableName() string  {
+	return "roles"
+}
+
 func (r *Role) GetSelfById(id int64) error {
 	db := model.DB
 	return db.Model(r).Where("id = ?", id).First(r).Error

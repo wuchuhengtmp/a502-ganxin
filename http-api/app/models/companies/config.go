@@ -28,6 +28,9 @@ type Companies struct {
 	EndedAt          time.Time `json:"ended_at" gorm:"comment:结束时间"`
 	gorm.Model
 }
+func(Companies)TableName() string {
+	return "companies"
+}
 
 func (Companies)GetAll() (cs []*Companies, err error) {
 	err = model.DB.Model(&Companies{}).Find(&cs).Error

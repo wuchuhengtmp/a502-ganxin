@@ -19,6 +19,9 @@ type Maintenance struct {
 	CompanyId int64  `json:"companyId" gorm:"comment:公司id"`
 	gorm.Model
 }
+func(Maintenance)TableName() string {
+	return "maintenance"
+}
 
 
 

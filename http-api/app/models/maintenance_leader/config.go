@@ -13,3 +13,6 @@ type MaintenanceLeader struct {
 	MaintenanceId int64 `json:"maintenanceId" gorm:"comment:维修厂id"`
 	Uid           int64 `json:"uid" gorm:"comment:用户id"`
 }
+func(MaintenanceLeader)TableName() string {
+	return "maintenance_leader"
+}

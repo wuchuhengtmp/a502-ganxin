@@ -25,6 +25,9 @@ type Device struct {
 	IsAble bool   `json:"is_able" gorm:"comment:是否启用"`
 	gorm.Model
 }
+func(Device)TableName() string {
+	return "device"
+}
 
 /**
  * 获取用户信息

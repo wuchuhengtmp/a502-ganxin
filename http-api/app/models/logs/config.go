@@ -20,6 +20,9 @@ type Logos struct {
 	Uid     int64  `json:"uid" gorm:"comment:用户id"`
 	gorm.Model
 }
+func(Logos)TableName() string {
+	return "logos"
+}
 type ActionType string
 
 const (

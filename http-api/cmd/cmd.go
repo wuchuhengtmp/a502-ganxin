@@ -10,7 +10,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"http-api/app/http/middlewares"
 	"http-api/bootstrap"
 	"http-api/config"
@@ -28,16 +28,24 @@ func Run ()  {
 	app.Name = "the back end for A502-钢型平台后端服务"
 	app.Version = "0.0.1"
 	app.Usage = "A502-钢型平台后端服务"
-	app.Commands = []cli.Command{
-		cli.Command{
+	app.Commands = []*cli.Command{
+		&cli.Command{
 			Name: "http_api",
 			Usage: "up the http server for api",
 			Action: RunWeb,
 		},
-		cli.Command{
+		&cli.Command{
 			Name: "seeds",
 			Usage: "To generate seeds within the database",
 			Action: RunMigrateSeed,
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name: "force",
+					Usage: "强制清除数据并重新生成，慎用!!!",
+					Value: false,
+					Aliases: []string{"f"},
+				},
+			},
 		},
 	}
 
@@ -55,7 +63,7 @@ func init()  {
 var router = mux.NewRouter().StrictSlash(true)
 
 // 启动web服务
-func RunWeb (c *cli.Context)  {
+func RunWeb (c *cli.Context) error {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
 	go func() {
@@ -73,11 +81,30 @@ func RunWeb (c *cli.Context)  {
 	select{}
 }
 
-func RunMigrateSeed(c *cli.Context) {
+func RunMigrateSeed(c *cli.Context) error {
 	bootstrap.SetupDB()
+	// 强制清空数据表并重新生成
+	if c.Bool("force") {
+		var tables string
+		for i, item := range bootstrap.MigrationTables {
+			var flag  string
+			if i + 1 != len(bootstrap.MigrationTables ) {
+				flag = " , "
+			} else {
+				flag = " "
+			}
+			tables +=  item.TableName() + flag
+		}
+		sql := fmt.Sprintf("DROP TABLE %s", tables)
+		model.DB.Exec(sql)
+		for _, item := range bootstrap.MigrationTables {
+			_ = model.DB.AutoMigrate(item)
+		}
+	}
 	for _, seed := range seeders.All() {
 		log.Println(seed.Name)
 		err := seed.Run(model.DB)
 		logger.LogError(err)
 	}
+	return nil
 }

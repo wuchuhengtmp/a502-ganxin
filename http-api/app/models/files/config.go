@@ -20,6 +20,9 @@ type File struct {
 	Disk string `json:"disk" gorm:"comment:硬盘,default:local"`
 	gorm.Model
 }
+func(File)TableName() string {
+	return "files"
+}
 
 func (file *File)GetSelfById(id int64) error {
 	db := model.DB

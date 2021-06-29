@@ -40,6 +40,34 @@ func SetupRoute() *mux.Router {
 	route.SetRoute(router)
 	return router
 }
+type MigrationTablesInterface interface {
+	TableName() string
+}
+var MigrationTables = []MigrationTablesInterface {
+	configs.Configs{},
+	users.Users{},
+	repositories.Repositories{},
+	roles.Role{},
+	specificationinfo.SpecificationInfo{},
+	codeinfo.CodeInfo{},
+	files.File{},
+	devices.Device{},
+	companies.Companies{},
+	steels.Steels{},
+	projects.Projects{},
+	order_details.OrderSpecification{},
+	orders.Order{},
+	logs.Logos{},
+	msg.Msg{},
+	maintenance_leader.MaintenanceLeader{},
+	maintenance_record.MaintenanceRecord{},
+	maintenance.Maintenance{},
+	repository_leader.RepositoryLeader{},
+	project_leader.ProjectLeader{},
+	steel_logs.SteelLog{},
+	order_specification_steel.OrderSpecificationSteel{},
+	order_express.OrderExpress{},
+}
 
 func SetupDB() {
 	db := model.ConnectDB()
@@ -52,31 +80,7 @@ func SetupDB() {
 	// 设置每个链接的过期时间
 	sqlDB.SetConnMaxLifetime(time.Duration(config.GetInt("database.mysql.max_life_seconds")) * time.Second)
 	// 迁移结构
-	db.AutoMigrate(
-		configs.Configs{},
-		users.Users{},
-		repositories.Repositories{},
-		roles.Role{},
-		specificationinfo.SpecificationInfo{},
-		codeinfo.CodeInfo{},
-		files.File{},
-		repositories.Repositories{},
-		devices.Device{},
-		companies.Companies{},
-		logs.Logos{},
-		steels.Steels{},
-		projects.Projects{},
-		order_details.OrderSpecification{},
-		orders.Order{},
-		logs.Logos{},
-		msg.Msg{},
-		maintenance_leader.MaintenanceLeader{},
-		maintenance_record.MaintenanceRecord{},
-		maintenance.Maintenance{},
-		repository_leader.RepositoryLeader{},
-		project_leader.ProjectLeader{},
-		steel_logs.SteelLog{},
-		order_specification_steel.OrderSpecificationSteel{},
-		order_express.OrderExpress{},
-	)
+	for _, item := range MigrationTables {
+		db.AutoMigrate(item)
+	}
 }

@@ -25,6 +25,9 @@ type OrderExpress struct {
 	ReceiveAt        time.Time             `json:"receiveAt" gorm:"comment:收货时间"`
 	gorm.Model
 }
+func(OrderExpress)TableName() string {
+	return "order_express"
+}
 
 //  物流方向
 type OrderExpressDirection string
