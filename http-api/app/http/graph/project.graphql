@@ -151,6 +151,14 @@ input GetOrderSteelDetailInput {
     """ 识别码 """
     identifier: String!
 }
+# todo
+#""" 项目归库的型钢查询参数 """
+#input GetEnterRepostiroySteelDettailInput{
+#    """ 识别码 """
+#    identifier: String!
+#    """ 项目列表 """
+#    projectId: Int!
+#}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -172,4 +180,9 @@ extend type Query {
     getOutOfWorkshopProjectSteelDetail(input: GetOutOfWorkshopProjectSteelDetail!): GetOutOfWorkshopProjectSteelDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取订单型钢详情 """
     getOrderSteelDetail(input: GetOrderSteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [projectAdmin])
+    # todo
+#    """ 项目归库的型钢查询 """
+#    getEnterRepostiroySteelDettail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    """ 获取可归库的项目列表 """
+    getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
 }
