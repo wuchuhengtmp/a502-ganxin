@@ -178,7 +178,7 @@ func (*SetSteelIntoWorkshopSteps) ChangeExpressState(tx *gorm.DB, ctx context.Co
 	err := tx.Model(&orderSpecificationSteelItem).
 		Select(fmt.Sprintf("%s.*", orderSpecificationSteelTable)).
 		Joins(fmt.Sprintf("join %s on %s.id = %s.steel_id", steelTable, steelTable, orderSpecificationSteelTable)).
-		Where(fmt.Sprintf("%s.identifier = %s", steelTable, input.IdentifierList[0])).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable ), input.IdentifierList[0]).
 		First(&orderSpecificationSteelItem).
 		Error
 	if err != nil {

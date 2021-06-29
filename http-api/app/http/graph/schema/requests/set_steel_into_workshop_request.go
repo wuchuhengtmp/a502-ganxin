@@ -82,7 +82,7 @@ func ValidateSetSteelIntoWorkshopRequest(ctx context.Context, input graphModel.S
 			Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelsTable, steelsTable, orderSpecificationSteelTable)).
 			Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
 			Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
-			Where(fmt.Sprintf("%s.identifier = %s", steelsTable, steelIdentifier)).
+			Where(fmt.Sprintf("%s.identifier = '%s'", steelsTable , steelIdentifier) ).
 			First(&orderSpecificationSteelItem).
 			Error
 		if err != nil {
