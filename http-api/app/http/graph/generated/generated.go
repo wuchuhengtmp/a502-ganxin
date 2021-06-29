@@ -338,7 +338,7 @@ type ComplexityRoot struct {
 		GetCompanyUser                     func(childComplexity int, input *model.GetCompanyUserInput) int
 		GetDeviceList                      func(childComplexity int) int
 		GetEnterRepositoryProjectList      func(childComplexity int) int
-		GetEnterRepositorySteelDetail      func(childComplexity int, input model.GetEnterRepostiroySteelDettailInput) int
+		GetEnterRepositorySteelDetail      func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
 		GetExpressList                     func(childComplexity int) int
 		GetManufacturers                   func(childComplexity int) int
 		GetMaterialManufacturers           func(childComplexity int) int
@@ -588,7 +588,7 @@ type QueryResolver interface {
 	GetOrderSteelDetail(ctx context.Context, input model.GetOrderSteelDetailInput) (*order_specification_steel.OrderSpecificationSteel, error)
 	GetProjectStateListForChanged(ctx context.Context) ([]*steels.StateItem, error)
 	GetEnterRepositoryProjectList(ctx context.Context) ([]*projects.Projects, error)
-	GetEnterRepositorySteelDetail(ctx context.Context, input model.GetEnterRepostiroySteelDettailInput) (*order_specification_steel.OrderSpecificationSteel, error)
+	GetEnterRepositorySteelDetail(ctx context.Context, input model.GetEnterRepositorySteelDetailInput) (*order_specification_steel.OrderSpecificationSteel, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -2089,7 +2089,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetEnterRepositorySteelDetail(childComplexity, args["input"].(model.GetEnterRepostiroySteelDettailInput)), true
+		return e.complexity.Query.GetEnterRepositorySteelDetail(childComplexity, args["input"].(model.GetEnterRepositorySteelDetailInput)), true
 
 	case "Query.getExpressList":
 		if e.complexity.Query.GetExpressList == nil {
@@ -3732,7 +3732,7 @@ input GetOrderSteelDetailInput {
     identifier: String!
 }
 """ 项目归库的型钢查询参数 """
-input GetEnterRepostiroySteelDettailInput{
+input GetEnterRepositorySteelDetailInput{
     """ 识别码 """
     identifier: String!
     """ 项目列表 """
@@ -3764,7 +3764,7 @@ extend type Query {
     """ 获取可归库的项目列表 """
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 项目归库的型钢查询 """
-    getEnterRepositorySteelDetail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -4579,10 +4579,10 @@ func (ec *executionContext) field_Query_getCompanyUser_args(ctx context.Context,
 func (ec *executionContext) field_Query_getEnterRepositorySteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetEnterRepostiroySteelDettailInput
+	var arg0 model.GetEnterRepositorySteelDetailInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetEnterRepostiroySteelDettailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepostiroySteelDettailInput(ctx, tmp)
+		arg0, err = ec.unmarshalNGetEnterRepositorySteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepositorySteelDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -13846,7 +13846,7 @@ func (ec *executionContext) _Query_getEnterRepositorySteelDetail(ctx context.Con
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetEnterRepositorySteelDetail(rctx, args["input"].(model.GetEnterRepostiroySteelDettailInput))
+			return ec.resolvers.Query().GetEnterRepositorySteelDetail(rctx, args["input"].(model.GetEnterRepositorySteelDetailInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.MustBeDevice == nil {
@@ -18684,8 +18684,8 @@ func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputGetEnterRepostiroySteelDettailInput(ctx context.Context, obj interface{}) (model.GetEnterRepostiroySteelDettailInput, error) {
-	var it model.GetEnterRepostiroySteelDettailInput
+func (ec *executionContext) unmarshalInputGetEnterRepositorySteelDetailInput(ctx context.Context, obj interface{}) (model.GetEnterRepositorySteelDetailInput, error) {
+	var it model.GetEnterRepositorySteelDetailInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -22846,8 +22846,8 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNGetEnterRepostiroySteelDettailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepostiroySteelDettailInput(ctx context.Context, v interface{}) (model.GetEnterRepostiroySteelDettailInput, error) {
-	res, err := ec.unmarshalInputGetEnterRepostiroySteelDettailInput(ctx, v)
+func (ec *executionContext) unmarshalNGetEnterRepositorySteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepositorySteelDetailInput(ctx context.Context, v interface{}) (model.GetEnterRepositorySteelDetailInput, error) {
+	res, err := ec.unmarshalInputGetEnterRepositorySteelDetailInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

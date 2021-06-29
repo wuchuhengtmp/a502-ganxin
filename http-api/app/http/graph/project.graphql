@@ -152,7 +152,7 @@ input GetOrderSteelDetailInput {
     identifier: String!
 }
 """ 项目归库的型钢查询参数 """
-input GetEnterRepostiroySteelDettailInput{
+input GetEnterRepositorySteelDetailInput{
     """ 识别码 """
     identifier: String!
     """ 项目列表 """
@@ -184,5 +184,5 @@ extend type Query {
     """ 获取可归库的项目列表 """
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 项目归库的型钢查询 """
-    getEnterRepositorySteelDetail(input: GetEnterRepostiroySteelDettailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
 }

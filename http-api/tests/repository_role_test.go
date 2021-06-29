@@ -1513,3 +1513,24 @@ func testRepositoryAdminRoleGetEnterRepositoryProjectList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理中获取可归库的项目列表集成测试--手持机
+ */
+func testRepositoryAdminRole(t *testing.T) {
+	q := `
+		query ($input: GetEnterRepositorySteelDetailInput!){
+		  getEnterRepositorySteelDetail(input: $input) {
+			id
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifier": "8",
+			"projectId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

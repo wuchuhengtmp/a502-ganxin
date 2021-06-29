@@ -13,7 +13,7 @@ import (
 	graphModel "http-api/app/http/graph/model"
 )
 
-func ValidateGetEnterRepositorySteelDetailRequest(ctx context.Context, input graphModel.GetEnterRepostiroySteelDettailInput)  error {
+func ValidateGetEnterRepositorySteelDetailRequest(ctx context.Context, input graphModel.GetEnterRepositorySteelDetailInput)  error {
 	steps := StepsForProject{}
 	// 检验有没有这根型钢
 	if err := steps.CheckHasSteel(ctx, input.Identifier); err != nil {

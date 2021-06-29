@@ -260,7 +260,7 @@ type GetCompanyUserInput struct {
 }
 
 //  项目归库的型钢查询参数
-type GetEnterRepostiroySteelDettailInput struct {
+type GetEnterRepositorySteelDetailInput struct {
 	//  识别码
 	Identifier string `json:"identifier"`
 	//  项目列表
