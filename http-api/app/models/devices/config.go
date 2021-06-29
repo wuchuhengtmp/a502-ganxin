@@ -63,15 +63,13 @@ func (d *Device) CreateSelf() error {
  */
 func (Device) GetAll(ctx context.Context) (ds []*Device, err error) {
 	me := auth.GetUser(ctx)
-	err = model.DB.Raw(`
-		SELECT
-			devices.* 
-		FROM
-			devices
-			JOIN users ON users.id = devices.uid 
-		WHERE
-			users.company_id = ?
-	`, me.CompanyId).Scan(&ds).Error
+	deviceTable := Device{}.TableName()
+	ut := users.Users{}.TableName()
+	err = model.DB.Model(&Device{}).
+		Select(fmt.Sprintf("%s.*", deviceTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", ut, ut, deviceTable)).
+		Where(fmt.Sprintf("%s.company_id = ?", ut), me.CompanyId).
+		Find(&ds).Error
 
 	return
 }

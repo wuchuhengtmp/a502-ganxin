@@ -996,9 +996,7 @@ func TestCompanyAdminGetDeviceList(t *testing.T) {
 	`
 	v := map[string]interface{}{}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
-	if err != nil {
-		t.Fatal("failed:公司管理员获取设备列表集成测试")
-	}
+	assert.NoError(t, err)
 	// 断言响应的数据就是用户的公司名下的
 	me, _ := GetUserByToken(companyAdminTestCtx.Token)
 	items := res["getDeviceList"].([]interface{})
