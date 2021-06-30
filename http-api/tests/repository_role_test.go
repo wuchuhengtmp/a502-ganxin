@@ -1254,7 +1254,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("项目管理员获取可出场的项目列表集成测试--手持机", testProjectAdminRoleSetProjectSteelOutOfWorkshop)
 	t.Run("项目管理员获取订单型钢详情集成测试--手持机", testProjectAdminRoleGetOrderSteelDetail)
 	t.Run("仓库管理中获取可归库的项目列表集成测试--手持机", testRepositoryAdminRoleGetEnterRepositoryProjectList)
-	t.Run("项目管理员获取修改项目状态列表集成测试--手持机", testProjectAdminRoleGetProjectStateListForChanged)
+	t.Run("仓库管理中获取可归库的型钢详情集成测试--手持机", testRepositoryAdminRoleGetEnterRepositorySteelDetail)
 }
 
 /**
@@ -1515,13 +1515,27 @@ func testRepositoryAdminRoleGetEnterRepositoryProjectList(t *testing.T) {
 }
 
 /**
- * 仓库管理中获取可归库的项目列表集成测试--手持机
+ * 仓库管理中获取可归库的型钢详情集成测试--手持机
  */
-func testRepositoryAdminRole(t *testing.T) {
+func testRepositoryAdminRoleGetEnterRepositorySteelDetail(t *testing.T) {
 	q := `
 		query ($input: GetEnterRepositorySteelDetailInput!){
 		  getEnterRepositorySteelDetail(input: $input) {
-			id
+			orderSteel {
+			   id
+			   steel{
+				specifcation{
+				  # 规格
+				  specification
+				  # 重量
+				  weight
+				}
+			  }
+			}
+			# 已归库 
+			storedTotal
+			  # 待归库
+			 toBeStoreTotal
 		  }
 		}
 	`

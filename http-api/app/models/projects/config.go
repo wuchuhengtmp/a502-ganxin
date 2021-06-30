@@ -63,6 +63,15 @@ type GetProjectOrder2WorkshopDetailRes struct {
 	//""" 重置吨 """
 	TotalWeight float64
 }
+// """ 项目归库的型钢查询响应 """
+type GetEnterRepositorySteelDetailRes struct {
+	//""" 型钢订单 """
+	OrderSteel order_specification_steel.OrderSpecificationSteel
+	//""" 已归库  """
+	StoredTotal int64
+	//""" 待定归库 """
+	ToBeStoreTotal int64
+}
 
 /**
  * 获取待入场的订单详情

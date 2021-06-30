@@ -120,4 +120,6 @@ models:
   # 获取型钢单根型钢出场详情响应格式
   GetOutOfWorkshopProjectSteelDetailRes:
     model: http-api/app/models/projects.GetOutOfWorkshopProjectSteelDetailRes
-
+  # 项目归库的型钢查询响应
+  GetEnterRepositorySteelDetailRes:
+    model: http-api/app/models/projects.GetEnterRepositorySteelDetailRes

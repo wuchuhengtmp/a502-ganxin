@@ -158,6 +158,15 @@ input GetEnterRepositorySteelDetailInput{
     """ 项目列表 """
     projectId: Int!
 }
+""" 项目归库的型钢查询响应 """
+type GetEnterRepositorySteelDetailRes {
+    """ 型钢订单 """
+    orderSteel: OrderSpecificationSteelItem!
+    """ 已归库  """
+    storedTotal: Int!
+    """ 待定归库 """
+    toBeStoreTotal: Int
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -184,5 +193,5 @@ extend type Query {
     """ 获取可归库的项目列表 """
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 项目归库的型钢查询 """
-    getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): OrderSpecificationSteelItem! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): GetEnterRepositorySteelDetailRes! @mustBeDevice @hasRole(role: [repositoryAdmin])
 }
