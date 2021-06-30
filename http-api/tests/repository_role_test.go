@@ -1660,3 +1660,19 @@ func testRepositoryAdminRoleSetProjectSteelEnterRepository(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员获取仓库列表集成测试--手持机
+ */
+func TestRepositoryAdminRoleGetRepositoryListByDevice(t *testing.T) {
+	q := `
+		query {
+		  getRepositoryList {
+			id
+			name
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

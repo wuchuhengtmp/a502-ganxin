@@ -28,6 +28,8 @@ var bashUrl string
 // graphql 请求客户端
 var client  *graphql.Client
 
+var v map[string]interface{}
+
 func init() {
 	config.Initialize()
 	bootstrap.SetupDB()
