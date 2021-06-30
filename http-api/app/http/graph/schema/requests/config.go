@@ -601,6 +601,29 @@ func (*StepsForProject) CheckSteelState(state int64) error {
 }
 
 /**
+ * 检验是不是归库的状态码
+ */
+func (*StepsForProject)CheckIsEnterRepositoryState(state int64) error {
+	isExists := false
+	for _, s := range steels.GetStateListForEnterRepository() {
+		if  s == state {
+			isExists = true
+			break
+		}
+	}
+	if !isExists {
+		for _, s := range steels.GetAllStateList() {
+			if s == state {
+				return fmt.Errorf("状态为: %s 不是合法的归库的状态", steels.StateCodeMapDes[s])
+			}
+		}
+		return fmt.Errorf("不合法状态")
+	}
+
+	return nil
+}
+
+/**
  * 检验有没有这根型钢
  */
 func (*StepsForProject) CheckHasSteel(ctx context.Context, identifier string) error {

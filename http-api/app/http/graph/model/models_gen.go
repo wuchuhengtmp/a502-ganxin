@@ -339,6 +339,16 @@ type GetRepositoryOverviewInput struct {
 	SpecificationID *int64 `json:"specificationId"`
 }
 
+//  获取待归库详情参数
+type GetToBeEnterRepositoryDetailInput struct {
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+	//  型钢状态
+	State *int64 `json:"state"`
+	//  项目ID
+	ProjectID int64 `json:"projectId"`
+}
+
 //  获取待归库的尺寸列表请求参数
 type GetToBeEnterRepositorySpecificationListInput struct {
 	//  项目id

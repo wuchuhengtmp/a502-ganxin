@@ -67,6 +67,7 @@ type GetSteelListRes struct {
 	List  []*Steels `json:"list"`
 }
 
+
 // 状态码声明
 const (
 	StateInStore                    int64 = 100 //【仓库】-在库
@@ -143,6 +144,23 @@ func GetStateForProject() []int64 {
 	}
 
 	return list
+}
+
+/**
+ * 型钢入库的状态列表
+ */
+func GetStateListForEnterRepository()  []int64 {
+	return []int64 {
+		StateInStore,               //【仓库】-在库
+		StateRepository2Project,    //【仓库】-运送至项目途中
+		StateRepository2Maintainer, //【仓库】-运送至维修厂途中
+		StateProjectWillBeUsed,     //【项目】-待使用
+		StateProjectInUse,          //【项目】-使用中
+		StateProjectException,      //【项目】-异常
+		StateProjectIdle,           //【项目】-闲置
+		StateProjectWillBeStore,    //【项目】-准备归库
+		StateProjectOnTheStoreWay,  //【项目】-归库途中
+	}
 }
 
 /**

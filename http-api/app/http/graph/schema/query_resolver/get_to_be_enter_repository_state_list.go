@@ -14,17 +14,7 @@ import (
 )
 
 func (*QueryResolver)GetToBeEnterRepositoryStateList(ctx context.Context) (res []*steels.StateItem, err error) {
-	for _, state := range []int64{
-		steels.StateInStore,               //【仓库】-在库
-		steels.StateRepository2Project,    //【仓库】-运送至项目途中
-		steels.StateRepository2Maintainer, //【仓库】-运送至维修厂途中
-		steels.StateProjectWillBeUsed,     //【项目】-待使用
-		steels.StateProjectInUse,          //【项目】-使用中
-		steels.StateProjectException,      //【项目】-异常
-		steels.StateProjectIdle,           //【项目】-闲置
-		steels.StateProjectWillBeStore,    //【项目】-准备归库
-		steels.StateProjectOnTheStoreWay,  //【项目】-归库途中
-	} {
+	for _, state := range steels.GetStateListForEnterRepository() {
 		res = append(res, &steels.StateItem{
 			Desc: steels.StateCodeMapDes[state],
 			State: state,

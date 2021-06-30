@@ -172,6 +172,15 @@ input GetToBeEnterRepositorySpecificationListInput {
     """ 项目id """
     projectId: Int!
 }
+""" 获取待归库详情参数 """
+input GetToBeEnterRepositoryDetailInput {
+    """ 规格id """
+    specificationId: Int
+    """ 型钢状态 """
+    state: Int
+    """ 项目ID """
+    projectId: Int!
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -203,4 +212,6 @@ extend type Query {
     getToBeEnterRepositoryStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取待归库的尺寸列表  """
     getToBeEnterRepositorySpecificationList(input: GetToBeEnterRepositorySpecificationListInput!): [SpecificationItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取待归库详情 """
+    getToBeEnterRepositoryDetail(input: GetToBeEnterRepositoryDetailInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
