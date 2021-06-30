@@ -339,6 +339,12 @@ type GetRepositoryOverviewInput struct {
 	SpecificationID *int64 `json:"specificationId"`
 }
 
+//  获取待归库的尺寸列表请求参数
+type GetToBeEnterRepositorySpecificationListInput struct {
+	//  项目id
+	ProjectID int64 `json:"projectId"`
+}
+
 type GraphDesc struct {
 	//  接口错码说明
 	Title string `json:"title"`

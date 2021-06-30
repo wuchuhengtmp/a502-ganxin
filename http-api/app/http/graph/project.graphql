@@ -167,6 +167,11 @@ type GetEnterRepositorySteelDetailRes {
     """ 待定归库 """
     toBeStoreTotal: Int
 }
+""" 获取待归库的尺寸列表请求参数  """
+input GetToBeEnterRepositorySpecificationListInput {
+    """ 项目id """
+    projectId: Int!
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -196,4 +201,6 @@ extend type Query {
     getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): GetEnterRepositorySteelDetailRes! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 获取待归库的状态列表 """
     getToBeEnterRepositoryStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取待归库的尺寸列表  """
+    getToBeEnterRepositorySpecificationList(input: GetToBeEnterRepositorySpecificationListInput!): [SpecificationItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }

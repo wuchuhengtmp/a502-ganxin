@@ -23,6 +23,7 @@ import (
 	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
+	"http-api/app/models/repository_leader"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
@@ -472,6 +473,41 @@ func (*StepsForProject) CheckHasProject(ctx context.Context, projectId int64) er
 		return fmt.Errorf("项目id为：%d 不存在", projectId)
 	}
 
+	return nil
+}
+
+/**
+ * 检验项目是否包含有这个仓库的型钢
+ */
+func (*StepsForProject) CheckIsIncludeMyRepository(ctx context.Context, projectId int64) error {
+	me := auth.GetUser(ctx)
+	repositoryItem := repositories.Repositories{}
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+	err := model.DB.Model(&repositoryItem).
+		Select(fmt.Sprintf("%s.*", repositoryItem.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.id", repositoryLeaderTable, repositoryLeaderTable, repositoryItem.TableName())).
+		Where(fmt.Sprintf("%s.uid = ?", repositoryLeaderTable), me.Id).
+		First(&repositoryItem).Error
+	if err != nil {
+		return err
+	}
+	projectItem := projects.Projects{}
+	if err := model.DB.Model(&projectItem).Where("id = ?", projectId).First(&projectItem).Error; err != nil {
+		return err
+	}
+	projectTable := projects.Projects{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	err = model.DB.Model(&projects.Projects{}).
+		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", orderTable, orderTable, projectTable)).
+		Where(fmt.Sprintf("%s.id = ?", projectTable), projectId).
+		Where(fmt.Sprintf("%s.repository_id = ?", orderTable), repositoryItem.ID).
+		First(&projects.Projects{}).Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("项目：%s 不包含我管理的%s仓库的型钢", projectItem.Name, repositoryItem.Name)
+		}
+		return err
+	}
 	return nil
 }
 
