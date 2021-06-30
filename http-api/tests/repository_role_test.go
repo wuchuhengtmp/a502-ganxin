@@ -1257,6 +1257,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("仓库管理中获取可归库的型钢详情集成测试--手持机", testRepositoryAdminRoleGetEnterRepositorySteelDetail)
 	t.Run("仓库管理中获取能待归库的状态列表集成测试--手持机", testRepositoryAdminRoleGetToBeEnterRepositoryStateList)
 	t.Run("仓库管理中获取待归库的尺寸列表集成测试--手持机", testRepositoryAdminRoleGetToBeEnterRepositorySpecificationList)
+	t.Run("仓库管理中获取归库详情集成测试--手持机", testRepositoryAdminRoleGetToBeEnterRepositoryDetail)
 }
 
 /**
@@ -1580,6 +1581,53 @@ func testRepositoryAdminRoleGetToBeEnterRepositorySpecificationList(t *testing.T
 			specification
 		  }
 		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"projectId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理中获取归库详情集成测试--手持机
+ */
+func testRepositoryAdminRoleGetToBeEnterRepositoryDetail(t *testing.T) {
+	q := `
+			query ($input: GetToBeEnterRepositoryDetailInput!){
+			   getToBeEnterRepositoryDetail(input: $input){
+				id
+				orderSpecification {
+				  order{
+					# 需求订单号
+					orderNo
+				  }
+				}
+				steel {
+				   # 型钢编码
+				  code
+				  specifcation {
+					# 规格尺寸
+					specification
+				  }
+				  # 周转次数
+				  turnover
+				}
+			   # 当前状态
+			   stateInfo{
+				state
+				desc
+			  }
+				# 出库时间
+			   outRepositoryAt
+				# 入场时间 
+				enterWorkshopAt
+				# 出场时间
+				outWorkshopAt
+			  }
+			}
 	`
 	v := map[string]interface{}{
 		"input": map[string]interface{} {
