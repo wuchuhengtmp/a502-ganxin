@@ -1256,6 +1256,7 @@ func TestRepositoryAdminConfirmOrRejectOrder(t *testing.T) {
 	t.Run("仓库管理中获取可归库的项目列表集成测试--手持机", testRepositoryAdminRoleGetEnterRepositoryProjectList)
 	t.Run("仓库管理中获取可归库的型钢详情集成测试--手持机", testRepositoryAdminRoleGetEnterRepositorySteelDetail)
 	t.Run("仓库管理中获取能待归库的状态列表集成测试--手持机", testRepositoryAdminRoleGetToBeEnterRepositoryStateList)
+	t.Run("仓库管理中获取待归库的尺寸列表集成测试--手持机", testRepositoryAdminRoleGetToBeEnterRepositorySpecificationList)
 }
 
 /**
@@ -1564,6 +1565,27 @@ func testRepositoryAdminRoleGetToBeEnterRepositoryStateList(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{ }
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理中获取待归库的尺寸列表集成测试--手持机
+ */
+func testRepositoryAdminRoleGetToBeEnterRepositorySpecificationList(t *testing.T) {
+	q := `
+		query ($input: GetToBeEnterRepositorySpecificationListInput!){
+		  getToBeEnterRepositorySpecificationList(input: $input) {
+			id
+			specification
+		  }
+		}
+	`
+	v := map[string]interface{}{
+		"input": map[string]interface{} {
+			"projectId": 1,
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
