@@ -92,10 +92,10 @@ func (*SetSteelIntoWorkshopSteps) FlatSteel(tx *gorm.DB, ctx context.Context, in
 		}
 		// 修改订单型钢的状态和相关参数
 		orderSpecificationSteelItem.EnterWorkshopAt = time.Now()
-		orderSpecificationSteelItem.EnterRepositoryUid = me.Id
+		orderSpecificationSteelItem.EnterWorkshopUid= me.Id
 		err = tx.Model(&orderSpecificationSteelItem).Where("id = ?", orderSpecificationSteelItem.Id).
 			// 入场用户
-			Update("enter_workshop_uid", orderSpecificationSteelItem.EnterRepositoryUid).
+			Update("enter_workshop_uid", orderSpecificationSteelItem.EnterWorkshopUid).
 			// 标记项目订单规格中的型钢的状态--待使用
 			Update("state", steels.StateProjectWillBeUsed).
 			// 入场时间

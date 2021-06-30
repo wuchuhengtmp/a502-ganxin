@@ -603,10 +603,10 @@ func (*StepsForProject) CheckSteelState(state int64) error {
 /**
  * 检验是不是归库的状态码
  */
-func (*StepsForProject)CheckIsEnterRepositoryState(state int64) error {
+func (*StepsForProject) CheckIsEnterRepositoryState(state int64) error {
 	isExists := false
 	for _, s := range steels.GetStateListForEnterRepository() {
-		if  s == state {
+		if s == state {
 			isExists = true
 			break
 		}
@@ -633,6 +633,64 @@ func (*StepsForProject) CheckHasSteel(ctx context.Context, identifier string) er
 		First(&steels.Steels{}).Error
 	if err != nil {
 		return fmt.Errorf("没有标识码为:%s 的型钢", identifier)
+	}
+
+	return nil
+}
+
+/**
+ * 是否是归库状态
+ */
+func (*StepsForProject) CheckIsToBeEnterRepositoryState(ctx context.Context, identifier string) error {
+	orderSpecificationSteel := order_specification_steel.OrderSpecificationSteel{}
+	steelTable := steels.Steels{}.TableName()
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&orderSpecificationSteel).
+		Select(fmt.Sprintf("%s.*", orderSpecificationSteel.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.order_specification_steel_id = %s.id", steelTable, steelTable, orderSpecificationSteel.TableName())).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		Where(fmt.Sprintf("%s.company_id = ?", steelTable), me.CompanyId).
+		Where(fmt.Sprintf("%s.state = ?", orderSpecificationSteel.TableName()), steels.StateProjectOnTheStoreWay).
+		First(&orderSpecificationSteel).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("标识码为: %s 的型钢不是为归库途中的状态,不能入库", identifier)
+		}
+		return err
+	}
+
+	return nil
+}
+
+/**
+ * 检验型钢是不是我能入库的
+ */
+func (*StepsForProject) CheckIsSteelEnterMyRepository(ctx context.Context, identifier string) error {
+	steelTable := steels.Steels{}.TableName()
+	steelItem := steels.Steels{}
+	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
+	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	repositoryTable := repositories.Repositories{}.TableName()
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&steelItem).
+		Select(fmt.Sprintf("%s.*", steelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_steel_id", orderSpecificationSteelTable, orderSpecificationSteelTable, steelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, orderSpecificationSteelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.repository_id", repositoryTable, repositoryTable, orderTable)).
+		Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.id", repositoryLeaderTable, repositoryLeaderTable, repositoryTable)).
+		Where(fmt.Sprintf("%s.uid = ?", repositoryLeaderTable), me.Id).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		First(&steelItem).
+		Error
+	if err != nil  {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("型钢标识码")
+		}
+		return err
 	}
 
 	return nil

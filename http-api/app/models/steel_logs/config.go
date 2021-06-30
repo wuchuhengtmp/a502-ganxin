@@ -26,6 +26,7 @@ const (
 	InstallationType SteelLogType = "InstallationType" // 安装
 	ChangeType SteelLogType = "changeType" // 修改型钢状态
 	OutOfWorkshop SteelLogType = "SteelLogType" //  出场
+	EnterRepositoryType SteelLogType  = "EnterRepositoryType" // 入场状态
 )
 
 // 操作类型映射说明

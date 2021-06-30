@@ -141,7 +141,7 @@ func (*SetProjectOrder2WorkshopSteps) CreateOrderSpecificationSteel(
 		ToWorkshopExpressId:  orderExpress.Id,
 		State: steels.StateRepository2Project,
 		OutRepositoryAt:      time.Now(),
-		EnterRepositoryUid:   me.Id,
+		OutOfRepositoryUid:   me.Id,
 	}
 	err = tx.Create(&orderSpecificationSteel).Error
 
