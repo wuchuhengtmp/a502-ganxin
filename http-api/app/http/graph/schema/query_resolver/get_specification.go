@@ -10,6 +10,7 @@ package query_resolver
 
 import (
 	"context"
+	"http-api/app/http/graph/auth"
 	"http-api/app/models/specificationinfo"
 	"http-api/pkg/model"
 )
@@ -18,7 +19,10 @@ type SpecificationItemResolver struct { }
 
 func (*QueryResolver)GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error) {
 	var ss  []*specificationinfo.SpecificationInfo
-	model.DB.Model(&specificationinfo.SpecificationInfo{}).Find(&ss)
+	me := auth.GetUser(ctx)
+	model.DB.Model(&specificationinfo.SpecificationInfo{}).
+		Where("company_id = ?", me.CompanyId).
+		Find(&ss)
 
 	return ss, nil
 }
