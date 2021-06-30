@@ -374,6 +374,7 @@ type ComplexityRoot struct {
 		GetSend2WorkshopOrderListDetail    func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
 		GetSpecification                   func(childComplexity int) int
 		GetSteelList                       func(childComplexity int, input model.PaginationInput) int
+		GetToBeEnterRepositoryStateList    func(childComplexity int) int
 		GetTobeSendWorkshopOrderList       func(childComplexity int) int
 		IsAccessLocationCode               func(childComplexity int, input model.IsAccessLocationCodeInput) int
 	}
@@ -595,6 +596,7 @@ type QueryResolver interface {
 	GetProjectStateListForChanged(ctx context.Context) ([]*steels.StateItem, error)
 	GetEnterRepositoryProjectList(ctx context.Context) ([]*projects.Projects, error)
 	GetEnterRepositorySteelDetail(ctx context.Context, input model.GetEnterRepositorySteelDetailInput) (*projects.GetEnterRepositorySteelDetailRes, error)
+	GetToBeEnterRepositoryStateList(ctx context.Context) ([]*steels.StateItem, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
@@ -2396,6 +2398,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetSteelList(childComplexity, args["input"].(model.PaginationInput)), true
 
+	case "Query.getToBeEnterRepositoryStateList":
+		if e.complexity.Query.GetToBeEnterRepositoryStateList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetToBeEnterRepositoryStateList(childComplexity), true
+
 	case "Query.getTobeSendWorkshopOrderList":
 		if e.complexity.Query.GetTobeSendWorkshopOrderList == nil {
 			break
@@ -3801,6 +3810,8 @@ extend type Query {
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 项目归库的型钢查询 """
     getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): GetEnterRepositorySteelDetailRes! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    """ 获取待归库的状态列表 """
+    getToBeEnterRepositoryStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -14030,6 +14041,71 @@ func (ec *executionContext) _Query_getEnterRepositorySteelDetail(ctx context.Con
 	return ec.marshalNGetEnterRepositorySteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetEnterRepositorySteelDetailRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getToBeEnterRepositoryStateList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetToBeEnterRepositoryStateList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.StateItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.StateItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.StateItem)
+	fc.Result = res
+	return ec.marshalNStateItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐStateItemᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -21678,6 +21754,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getEnterRepositorySteelDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getToBeEnterRepositoryStateList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getToBeEnterRepositoryStateList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

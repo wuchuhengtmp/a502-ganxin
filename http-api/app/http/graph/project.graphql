@@ -194,4 +194,6 @@ extend type Query {
     getEnterRepositoryProjectList: [ProjectItem!]! @mustBeDevice @hasRole(role: [repositoryAdmin])
     """ 项目归库的型钢查询 """
     getEnterRepositorySteelDetail(input: GetEnterRepositorySteelDetailInput!): GetEnterRepositorySteelDetailRes! @mustBeDevice @hasRole(role: [repositoryAdmin])
+    """ 获取待归库的状态列表 """
+    getToBeEnterRepositoryStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
