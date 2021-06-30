@@ -174,7 +174,7 @@ input GetToBeEnterRepositoryDetailInput {
 """ 型钢归库参数 """
 input SetProjectSteelEnterRepositoryInput {
     """ 识别码列表 """
-    identifierListr: [String!]!
+    identifierList: [String!]!
     """ 项目id """
     projectId: Int!
 

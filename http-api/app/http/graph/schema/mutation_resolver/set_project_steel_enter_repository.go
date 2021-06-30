@@ -29,7 +29,7 @@ func (*MutationResolver) SetProjectSteelEnterRepository(ctx context.Context, inp
 	}
 	me := auth.GetUser(ctx)
 	err := model.DB.Transaction(func(tx *gorm.DB) error {
-		for _, identifier := range input.IdentifierListr {
+		for _, identifier := range input.IdentifierList {
 			// 修改型钢状态
 			steelItem := steels.Steels{}
 			err := tx.Model(&steelItem).Where("identifier = ?", identifier).Update("state", steels.StateInStore).Error

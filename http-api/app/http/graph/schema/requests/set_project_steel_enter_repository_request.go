@@ -19,7 +19,7 @@ func ValidateSetProjectSteelEnterRepositoryRequest(ctx context.Context, input gr
 	if err := steps.CheckHasProject(ctx, input.ProjectID); err != nil {
 		return err
 	}
-	for _, identifier := range input.IdentifierListr {
+	for _, identifier := range input.IdentifierList {
 		// 检验有没有这根型钢
 		if err := steps.CheckHasSteel(ctx, identifier); err != nil {
 			return err

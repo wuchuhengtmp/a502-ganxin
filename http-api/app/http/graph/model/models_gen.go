@@ -448,7 +448,7 @@ type SetPasswordInput struct {
 //  型钢归库参数
 type SetProjectSteelEnterRepositoryInput struct {
 	//  识别码列表
-	IdentifierListr []string `json:"identifierListr"`
+	IdentifierList []string `json:"identifierList"`
 	//  项目id
 	ProjectID int64 `json:"projectId"`
 }

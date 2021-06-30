@@ -3832,7 +3832,7 @@ input GetToBeEnterRepositoryDetailInput {
 """ 型钢归库参数 """
 input SetProjectSteelEnterRepositoryInput {
     """ 识别码列表 """
-    identifierListr: [String!]!
+    identifierList: [String!]!
     """ 项目id """
     projectId: Int!
 
@@ -19822,11 +19822,11 @@ func (ec *executionContext) unmarshalInputSetProjectSteelEnterRepositoryInput(ct
 
 	for k, v := range asMap {
 		switch k {
-		case "identifierListr":
+		case "identifierList":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierListr"))
-			it.IdentifierListr, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
