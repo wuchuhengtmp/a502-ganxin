@@ -71,7 +71,7 @@ func (*MutationResolver) SetProjectSteelOutOfWorkshop(ctx context.Context, input
 			// 统计
 			total++
 			specificationInfoItem := specificationinfo.SpecificationInfo{}
-			err = tx.Model(&specificationInfoItem).Where("id = ?", steelItem.ID).First(&specificationInfoItem).Error
+			err = tx.Model(&specificationInfoItem).Where("id = ?", steelItem.SpecificationId).First(&specificationInfoItem).Error
 			if err != nil {
 				return err
 			}
