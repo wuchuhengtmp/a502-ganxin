@@ -24,6 +24,7 @@ import (
 	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/repository_leader"
+	"http-api/app/models/roles"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
@@ -454,6 +455,9 @@ func (*ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectExists(ctx
  * 项目相关的证步骤
  */
 type StepsForProject struct{}
+
+
+
 
 /**
  * 检验项目的安装码是否有效
@@ -907,4 +911,36 @@ func (*StepsForProject) CheckSteelBelong2Me(ctx context.Context, identifier stri
 	} else {
 		return nil
 	}
+}
+
+/**
+ * 维修厂相关的检验步骤
+ */
+type StepsForMaintenance struct{}
+
+/**
+ * 检验有没有这个用户
+ */
+func (*StepsForMaintenance) CheckHasUser(uid int64) error {
+	u := users.Users{}
+	if err := u.GetSelfById(uid); err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("用户id为:%d 不存在", uid)
+		}
+		return err
+	}
+	return nil
+}
+
+/**
+ * 是否是维修厂角色
+ */
+func ( *StepsForMaintenance)CheckIsMaintenanceRole(uid int64) error {
+	u := users.Users{Id: uid}
+	_ = u.GetSelfById(uid);
+	if u.RoleId != roles.RoleMaintenanceAdminId {
+		return fmt.Errorf("管理员不是维修员角色")
+	}
+
+	return nil
 }

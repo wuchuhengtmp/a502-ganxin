@@ -7,6 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"http-api/app/http/graph/directives"
 	"http-api/app/http/graph/generated"
+	"http-api/app/http/graph/schema/extends_resolver"
 	"http-api/app/http/graph/schema/mutation_resolver"
 	"http-api/app/http/graph/schema/query_resolver"
 )
@@ -70,6 +71,10 @@ func(*Resolver) SteelInProject() generated.SteelInProjectResolver {
 }
 func (*Resolver) OrderSpecificationSteelItem() generated.OrderSpecificationSteelItemResolver{
 	return query_resolver.OrderSpecificationSteelItemResolver{}
+}
+func (*Resolver)MaintenanceItem() generated.MaintenanceItemResolver {
+	return extends_resolver.MaintenanceItemResolver{}
+
 }
 
 /**

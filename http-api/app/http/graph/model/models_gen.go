@@ -69,6 +69,18 @@ type CreateExpressInput struct {
 	IsDefault bool   `json:"isDefault"`
 }
 
+//  创建维修厂参数
+type CreateMaintenanceInput struct {
+	//  维修员id
+	UID int64 `json:"uid"`
+	//  维修厂名称
+	Name string `json:"name"`
+	//  地址
+	Address string `json:"address"`
+	//  备注
+	Remark *string `json:"remark"`
+}
+
 //  添加制造商参数
 type CreateManufacturerInput struct {
 	Name      string `json:"name"`

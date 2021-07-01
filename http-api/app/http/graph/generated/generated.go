@@ -55,6 +55,7 @@ type Config struct {
 type ResolverRoot interface {
 	CompanyItem() CompanyItemResolver
 	DeviceItem() DeviceItemResolver
+	MaintenanceItem() MaintenanceItemResolver
 	MaintenanceRecordItem() MaintenanceRecordItemResolver
 	Mutation() MutationResolver
 	OrderExpressItem() OrderExpressItemResolver
@@ -193,6 +194,7 @@ type ComplexityRoot struct {
 
 	MaintenanceItem struct {
 		Address func(childComplexity int) int
+		Admin   func(childComplexity int) int
 		Id      func(childComplexity int) int
 		IsAble  func(childComplexity int) int
 		Name    func(childComplexity int) int
@@ -235,6 +237,7 @@ type ComplexityRoot struct {
 		CreateCompany                  func(childComplexity int, input model.CreateCompanyInput) int
 		CreateCompanyUser              func(childComplexity int, input model.CreateCompanyUserInput) int
 		CreateExpress                  func(childComplexity int, input model.CreateExpressInput) int
+		CreateMaintenance              func(childComplexity int, input model.CreateMaintenanceInput) int
 		CreateManufacturer             func(childComplexity int, input model.CreateManufacturerInput) int
 		CreateMaterialManufacturer     func(childComplexity int, input model.CreateMaterialManufacturerInput) int
 		CreateOrder                    func(childComplexity int, input model.CreateOrderInput) int
@@ -485,6 +488,9 @@ type CompanyItemResolver interface {
 type DeviceItemResolver interface {
 	UserInfo(ctx context.Context, obj *devices.Device) (*users.Users, error)
 }
+type MaintenanceItemResolver interface {
+	Admin(ctx context.Context, obj *maintenance.Maintenance) ([]*users.Users, error)
+}
 type MaintenanceRecordItemResolver interface {
 	Maintenance(ctx context.Context, obj *maintenance_record.MaintenanceRecord) (*maintenance.Maintenance, error)
 	Steel(ctx context.Context, obj *maintenance_record.MaintenanceRecord) (*steels.Steels, error)
@@ -502,6 +508,7 @@ type MutationResolver interface {
 	CreateExpress(ctx context.Context, input model.CreateExpressInput) (*codeinfo.CodeInfo, error)
 	EditExpress(ctx context.Context, input model.EditExpressInput) (*codeinfo.CodeInfo, error)
 	DeleteExpress(ctx context.Context, id int64) (bool, error)
+	CreateMaintenance(ctx context.Context, input model.CreateMaintenanceInput) (*maintenance.Maintenance, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -1115,6 +1122,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MaintenanceItem.Address(childComplexity), true
 
+	case "MaintenanceItem.admin":
+		if e.complexity.MaintenanceItem.Admin == nil {
+			break
+		}
+
+		return e.complexity.MaintenanceItem.Admin(childComplexity), true
+
 	case "MaintenanceItem.id":
 		if e.complexity.MaintenanceItem.Id == nil {
 			break
@@ -1323,6 +1337,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateExpress(childComplexity, args["input"].(model.CreateExpressInput)), true
+
+	case "Mutation.createMaintenance":
+		if e.complexity.Mutation.CreateMaintenance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createMaintenance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateMaintenance(childComplexity, args["input"].(model.CreateMaintenanceInput)), true
 
 	case "Mutation.createManufacturer":
 		if e.complexity.Mutation.CreateManufacturer == nil {
@@ -3305,8 +3331,24 @@ type MaintenanceItem {
     address: String!
     remark: String!
     isAble: Boolean!
+    admin:[UserItem]!
 }
-`, BuiltIn: false},
+
+""" 创建维修厂参数 """
+input CreateMaintenanceInput {
+    """ 维修员id """
+    uid: Int!
+    """ 维修厂名称 """
+    name: String!
+    """ 地址 """
+    address: String!
+    """ 备注 """
+    remark: String
+}
+extend  type Mutation {
+    """ 创建维修厂 """
+    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+}`, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
 """ 添加制造商参数 """
 input CreateManufacturerInput {
@@ -3939,6 +3981,9 @@ extend type Query {
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
     """ 获取全部状态列表 """
     getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+
+#    """ 获取仓库型钢信息 """ todo
+#    getRepositorySteel(): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
@@ -4198,6 +4243,21 @@ func (ec *executionContext) field_Mutation_createExpress_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateExpressInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createMaintenance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateMaintenanceInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateMaintenanceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7454,6 +7514,41 @@ func (ec *executionContext) _MaintenanceItem_isAble(ctx context.Context, field g
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _MaintenanceItem_admin(ctx context.Context, field graphql.CollectedField, obj *maintenance.Maintenance) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MaintenanceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MaintenanceItem().Admin(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _MaintenanceRecordItem_id(ctx context.Context, field graphql.CollectedField, obj *maintenance_record.MaintenanceRecord) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8807,6 +8902,72 @@ func (ec *executionContext) _Mutation_deleteExpress(ctx context.Context, field g
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createMaintenance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createMaintenance_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateMaintenance(rctx, args["input"].(model.CreateMaintenanceInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*maintenance.Maintenance); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/maintenance.Maintenance`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*maintenance.Maintenance)
+	fc.Result = res
+	return ec.marshalNMaintenanceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createManufacturer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -18505,6 +18666,50 @@ func (ec *executionContext) unmarshalInputCreateExpressInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateMaintenanceInput(ctx context.Context, obj interface{}) (model.CreateMaintenanceInput, error) {
+	var it model.CreateMaintenanceInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "uid":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uid"))
+			it.UID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateManufacturerInput(ctx context.Context, obj interface{}) (model.CreateManufacturerInput, error) {
 	var it model.CreateManufacturerInput
 	var asMap = obj.(map[string]interface{})
@@ -20800,28 +21005,42 @@ func (ec *executionContext) _MaintenanceItem(ctx context.Context, sel ast.Select
 		case "id":
 			out.Values[i] = ec._MaintenanceItem_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._MaintenanceItem_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "address":
 			out.Values[i] = ec._MaintenanceItem_address(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "remark":
 			out.Values[i] = ec._MaintenanceItem_remark(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "isAble":
 			out.Values[i] = ec._MaintenanceItem_isAble(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "admin":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MaintenanceItem_admin(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -21098,6 +21317,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteExpress":
 			out.Values[i] = ec._Mutation_deleteExpress(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createMaintenance":
+			out.Values[i] = ec._Mutation_createMaintenance(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -23385,6 +23609,11 @@ func (ec *executionContext) unmarshalNCreateInputUserRole2httpᚑapiᚋappᚋhtt
 
 func (ec *executionContext) marshalNCreateInputUserRole2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateInputUserRole(ctx context.Context, sel ast.SelectionSet, v model.CreateInputUserRole) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNCreateMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateMaintenanceInput(ctx context.Context, v interface{}) (model.CreateMaintenanceInput, error) {
+	res, err := ec.unmarshalInputCreateMaintenanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateManufacturerInput(ctx context.Context, v interface{}) (model.CreateManufacturerInput, error) {
