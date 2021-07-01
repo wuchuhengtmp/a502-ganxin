@@ -42,6 +42,8 @@ extend type Query {
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
     """ 获取仓库概览(auth:projectAdmin) """
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
+    """ 获取全部状态列表 """
+    getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
