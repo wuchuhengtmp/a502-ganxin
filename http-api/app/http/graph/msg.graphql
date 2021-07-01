@@ -4,6 +4,8 @@ type MsgItem {
     isRead: Boolean!
     """ 内容 """
     content: String!
+    """ 创建时间 """
+    createdAt: Time!
 }
 extend type Query {
     """ 获取消息列表 """
