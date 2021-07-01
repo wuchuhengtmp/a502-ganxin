@@ -48,9 +48,26 @@ input CreateMaintenanceInput {
     """ 备注 """
     remark: String
 }
+""" 编辑维修厂参数 """
+input EditMaintenanceInput {
+    id: Int!
+    """ 维修厂名 """
+    name: String!
+    """ 地址 """
+    address: String!
+    """ 管理员id """
+    adminIdList: [Int!]!
+    """ 备注 """
+    remark: String
+    """ 是否启用 """
+    isAble: Boolean
+}
 extend  type Mutation {
+
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """  修改维修厂 """
+    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {

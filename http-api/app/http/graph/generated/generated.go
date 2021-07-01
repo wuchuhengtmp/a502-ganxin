@@ -259,6 +259,7 @@ type ComplexityRoot struct {
 		EditCompanyUser                func(childComplexity int, input *model.EditCompanyUserInput) int
 		EditDevice                     func(childComplexity int, input model.EditDeviceInput) int
 		EditExpress                    func(childComplexity int, input model.EditExpressInput) int
+		EditMaintenance                func(childComplexity int, input model.EditMaintenanceInput) int
 		EditManufacturer               func(childComplexity int, input model.EditManufacturerInput) int
 		EditMaterialManufacturer       func(childComplexity int, input model.EditMaterialManufacturerInput) int
 		EditPrice                      func(childComplexity int, price float64) int
@@ -515,6 +516,7 @@ type MutationResolver interface {
 	EditExpress(ctx context.Context, input model.EditExpressInput) (*codeinfo.CodeInfo, error)
 	DeleteExpress(ctx context.Context, id int64) (bool, error)
 	CreateMaintenance(ctx context.Context, input model.CreateMaintenanceInput) (*maintenance.Maintenance, error)
+	EditMaintenance(ctx context.Context, input model.EditMaintenanceInput) (*maintenance.Maintenance, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -1593,6 +1595,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditExpress(childComplexity, args["input"].(model.EditExpressInput)), true
+
+	case "Mutation.editMaintenance":
+		if e.complexity.Mutation.EditMaintenance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editMaintenance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditMaintenance(childComplexity, args["input"].(model.EditMaintenanceInput)), true
 
 	case "Mutation.editManufacturer":
 		if e.complexity.Mutation.EditManufacturer == nil {
@@ -3389,9 +3403,26 @@ input CreateMaintenanceInput {
     """ 备注 """
     remark: String
 }
+""" 编辑维修厂参数 """
+input EditMaintenanceInput {
+    id: Int!
+    """ 维修厂名 """
+    name: String!
+    """ 地址 """
+    address: String!
+    """ 管理员id """
+    adminIdList: [Int!]!
+    """ 备注 """
+    remark: String
+    """ 是否启用 """
+    isAble: Boolean
+}
 extend  type Mutation {
+
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """  修改维修厂 """
+    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {
@@ -4579,6 +4610,21 @@ func (ec *executionContext) field_Mutation_editExpress_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNEditExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditExpressInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editMaintenance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.EditMaintenanceInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEditMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditMaintenanceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9087,6 +9133,72 @@ func (ec *executionContext) _Mutation_createMaintenance(ctx context.Context, fie
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
 			return ec.resolvers.Mutation().CreateMaintenance(rctx, args["input"].(model.CreateMaintenanceInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*maintenance.Maintenance); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/maintenance.Maintenance`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*maintenance.Maintenance)
+	fc.Result = res
+	return ec.marshalNMaintenanceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_editMaintenance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editMaintenance_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditMaintenance(rctx, args["input"].(model.EditMaintenanceInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
@@ -19565,6 +19677,66 @@ func (ec *executionContext) unmarshalInputEditExpressInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEditMaintenanceInput(ctx context.Context, obj interface{}) (model.EditMaintenanceInput, error) {
+	var it model.EditMaintenanceInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "adminIdList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adminIdList"))
+			it.AdminIDList, err = ec.unmarshalNInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isAble":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAble"))
+			it.IsAble, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditManufacturerInput(ctx context.Context, obj interface{}) (model.EditManufacturerInput, error) {
 	var it model.EditManufacturerInput
 	var asMap = obj.(map[string]interface{})
@@ -21570,6 +21742,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createMaintenance":
 			out.Values[i] = ec._Mutation_createMaintenance(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editMaintenance":
+			out.Values[i] = ec._Mutation_editMaintenance(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -23988,6 +24165,11 @@ func (ec *executionContext) unmarshalNEditDeviceInput2httpᚑapiᚋappᚋhttpᚋ
 
 func (ec *executionContext) unmarshalNEditExpressInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditExpressInput(ctx context.Context, v interface{}) (model.EditExpressInput, error) {
 	res, err := ec.unmarshalInputEditExpressInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNEditMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditMaintenanceInput(ctx context.Context, v interface{}) (model.EditMaintenanceInput, error) {
+	res, err := ec.unmarshalInputEditMaintenanceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -14,8 +14,6 @@ import (
 	"http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/models/companies"
-	"http-api/app/models/files"
-	"http-api/app/models/roles"
 	"http-api/app/models/users"
 )
 
@@ -30,25 +28,5 @@ func (m *MutationResolver) CreateCompanyUser(ctx context.Context, input model.Cr
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	role := roles.Role{}
-	_ = role.GetSelfById(newUser.RoleId)
-	avatar := files.File{}
-	_ = avatar.GetSelfById(newUser.AvatarFileId)
-	userItem := users.Users{
-		Id: newUser.Id,
-		//Role: &roles.RoleItem{
-		//	ID: role.ID,
-		//	Tag: role.Tag,
-		//	Name: role.Name,
-		//},
-		Phone: newUser.Phone,
-		Wechat: newUser.Wechat,
-		//Avatar: &model.FileItem {
-		//	ID: avatar.ID,
-		//	URL: avatar.GetUrl(),
-		//},
-		IsAble: newUser.IsAble,
-	}
-
-	return &userItem, nil
+	return newUser, nil
 }

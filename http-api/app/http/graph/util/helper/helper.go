@@ -34,3 +34,29 @@ func FormatTime(t time.Time) string {
 	s := t.Second()
 	return fmt.Sprintf("%d-%d-%d %d:%d:%d", year, month, day, h, i, s)
 }
+
+/**
+ * 比较2个数据合集
+ */
+func CompareCollect(newCollect []int64, oldCollect []int64) (addItems []int64, deleteItem []int64) {
+	newIdMapId := make(map[int64]int64)
+	oldIdMapId := make(map[int64]int64)
+	for _, i := range newCollect {
+		newIdMapId[i] = i
+	}
+	for _, i := range oldCollect {
+		oldIdMapId[i] = i
+	}
+	for _, i := range newCollect {
+		if _, ok := oldIdMapId[i]; !ok {
+			addItems = append(addItems, i)
+		}
+	}
+	for _, i := range oldCollect {
+		if _, ok := newIdMapId[i]; !ok {
+			 deleteItem = append(deleteItem,  i)
+		}
+	}
+
+	return
+}

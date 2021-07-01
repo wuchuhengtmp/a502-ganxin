@@ -17,6 +17,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
+	"http-api/app/models/maintenance"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
@@ -309,7 +310,7 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckRedundancyIdentificati
 	identificationMapTotal := make(map[string]int64)
 	for _, item := range list {
 		if _, ok := identificationMapTotal[item]; ok {
-			return fmt.Errorf("识别码出现冗余，%s 不能输入多个同样的", item)
+			return fmt.Errorf("识别码出现，%s 不能输入多个同样的", item)
 		} else {
 			identificationMapTotal[item] = 1
 		}
@@ -455,9 +456,6 @@ func (*ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectExists(ctx
  * 项目相关的证步骤
  */
 type StepsForProject struct{}
-
-
-
 
 /**
  * 检验项目的安装码是否有效
@@ -690,7 +688,7 @@ func (*StepsForProject) CheckIsSteelEnterMyRepository(ctx context.Context, ident
 		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
 		First(&steelItem).
 		Error
-	if err != nil  {
+	if err != nil {
 		if err.Error() == "record not found" {
 			return fmt.Errorf("型钢标识码")
 		}
@@ -935,11 +933,39 @@ func (*StepsForMaintenance) CheckHasUser(uid int64) error {
 /**
  * 是否是维修厂角色
  */
-func ( *StepsForMaintenance)CheckIsMaintenanceRole(uid int64) error {
+func (*StepsForMaintenance) CheckIsMaintenanceRole(uid int64) error {
 	u := users.Users{Id: uid}
-	_ = u.GetSelfById(uid);
+	_ = u.GetSelfById(uid)
 	if u.RoleId != roles.RoleMaintenanceAdminId {
-		return fmt.Errorf("管理员不是维修员角色")
+		return fmt.Errorf("用户id为: %d 不是维修员", uid)
+	}
+
+	return nil
+}
+
+func (*StepsForMaintenance) CheckHashMaintenance(id int64) error {
+	err := model.DB.Model(&maintenance.Maintenance{}).
+		Where("id = ?", id).
+		First(&maintenance.Maintenance{}).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("id为:%d的维修厂不存在", id)
+		}
+		return err
+	}
+
+	return nil
+}
+/**
+ * 检验uid是否冗余
+ */
+func (*StepsForMaintenance) CheckRedundancyUid(uidList []int64) error {
+	uidMapBool := make(map[int64]bool)
+	for _, uid := range uidList {
+		if _, ok := uidMapBool[uid]; ok {
+			return fmt.Errorf("用户id: %d 出现重复", uid)
+		}
 	}
 
 	return nil

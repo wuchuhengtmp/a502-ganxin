@@ -227,6 +227,21 @@ type EditExpressInput struct {
 	IsDefault bool   `json:"isDefault"`
 }
 
+//  编辑维修厂参数
+type EditMaintenanceInput struct {
+	ID int64 `json:"id"`
+	//  维修厂名
+	Name string `json:"name"`
+	//  地址
+	Address string `json:"address"`
+	//  管理员id
+	AdminIDList []int64 `json:"adminIdList"`
+	//  备注
+	Remark *string `json:"remark"`
+	//  是否启用
+	IsAble *bool `json:"isAble"`
+}
+
 //  编辑制作商需要的参数
 type EditManufacturerInput struct {
 	ID        int64  `json:"id"`
