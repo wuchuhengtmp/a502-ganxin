@@ -1299,3 +1299,35 @@ func TestCompanyAdminRoleCreateMaintenance(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 公司管理员 编辑维修厂  集成测试
+ */
+func TestCompanyAdminRoleEditMaintenance(t *testing.T) {
+	q := `
+		mutation ($input: EditMaintenanceInput!) {
+		  editMaintenance(input: $input) {
+			 id
+			# 备注
+			remark
+			# 地址
+
+			address
+			# 维修厂名
+			name
+			# 管理员列表
+			admin{
+			  id
+			   #名字
+			  name
+			  #电话
+			  phone
+			  # 微信 
+			  wechat
+			}     
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
