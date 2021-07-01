@@ -193,12 +193,14 @@ type ComplexityRoot struct {
 	}
 
 	MaintenanceItem struct {
-		Address func(childComplexity int) int
-		Admin   func(childComplexity int) int
-		Id      func(childComplexity int) int
-		IsAble  func(childComplexity int) int
-		Name    func(childComplexity int) int
-		Remark  func(childComplexity int) int
+		Address     func(childComplexity int) int
+		Admin       func(childComplexity int) int
+		Id          func(childComplexity int) int
+		IsAble      func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Remark      func(childComplexity int) int
+		Total       func(childComplexity int) int
+		WeightTotal func(childComplexity int) int
 	}
 
 	MaintenanceRecordItem struct {
@@ -352,6 +354,7 @@ type ComplexityRoot struct {
 		GetEnterRepositoryProjectList           func(childComplexity int) int
 		GetEnterRepositorySteelDetail           func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
 		GetExpressList                          func(childComplexity int) int
+		GetMaintenanceList                      func(childComplexity int) int
 		GetManufacturers                        func(childComplexity int) int
 		GetMaterialManufacturers                func(childComplexity int) int
 		GetMaxLocationCode                      func(childComplexity int, input model.GetMaxLocationCodeInput) int
@@ -491,6 +494,8 @@ type DeviceItemResolver interface {
 }
 type MaintenanceItemResolver interface {
 	Admin(ctx context.Context, obj *maintenance.Maintenance) ([]*users.Users, error)
+	Total(ctx context.Context, obj *maintenance.Maintenance) (int64, error)
+	WeightTotal(ctx context.Context, obj *maintenance.Maintenance) (float64, error)
 }
 type MaintenanceRecordItemResolver interface {
 	Maintenance(ctx context.Context, obj *maintenance_record.MaintenanceRecord) (*maintenance.Maintenance, error)
@@ -584,6 +589,7 @@ type QueryResolver interface {
 	GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
+	GetMaintenanceList(ctx context.Context) ([]*maintenance.Maintenance, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
@@ -1157,6 +1163,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MaintenanceItem.Remark(childComplexity), true
+
+	case "MaintenanceItem.total":
+		if e.complexity.MaintenanceItem.Total == nil {
+			break
+		}
+
+		return e.complexity.MaintenanceItem.Total(childComplexity), true
+
+	case "MaintenanceItem.weightTotal":
+		if e.complexity.MaintenanceItem.WeightTotal == nil {
+			break
+		}
+
+		return e.complexity.MaintenanceItem.WeightTotal(childComplexity), true
 
 	case "MaintenanceRecordItem.enterRepositoryAt":
 		if e.complexity.MaintenanceRecordItem.EnterRepositoryAt == nil {
@@ -2187,6 +2207,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetExpressList(childComplexity), true
+
+	case "Query.getMaintenanceList":
+		if e.complexity.Query.GetMaintenanceList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetMaintenanceList(childComplexity), true
 
 	case "Query.getManufacturers":
 		if e.complexity.Query.GetManufacturers == nil {
@@ -3335,11 +3362,20 @@ type MaintenanceRecordItem {
 """  维修厂 """
 type MaintenanceItem {
     id: Int!
+    """ 名称 """
     name: String!
+    """ 地址 """
     address: String!
+    """ 备注 """
     remark: String!
+    """ 是否启用 """
     isAble: Boolean!
+    """ 管理员列表 """
     admin:[UserItem]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weightTotal: Float!
 }
 
 """ 创建维修厂参数 """
@@ -3356,6 +3392,11 @@ input CreateMaintenanceInput {
 extend  type Mutation {
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+}
+
+extend type Query {
+    """ 获取维修厂列表 """
+    getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
 }`, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
 """ 添加制造商参数 """
@@ -7557,6 +7598,76 @@ func (ec *executionContext) _MaintenanceItem_admin(ctx context.Context, field gr
 	res := resTmp.([]*users.Users)
 	fc.Result = res
 	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MaintenanceItem_total(ctx context.Context, field graphql.CollectedField, obj *maintenance.Maintenance) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MaintenanceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MaintenanceItem().Total(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MaintenanceItem_weightTotal(ctx context.Context, field graphql.CollectedField, obj *maintenance.Maintenance) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "MaintenanceItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MaintenanceItem().WeightTotal(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _MaintenanceRecordItem_id(ctx context.Context, field graphql.CollectedField, obj *maintenance_record.MaintenanceRecord) (ret graphql.Marshaler) {
@@ -12817,6 +12928,65 @@ func (ec *executionContext) _Query_getExpressList(ctx context.Context, field gra
 	res := resTmp.([]*codeinfo.CodeInfo)
 	fc.Result = res
 	return ec.marshalNExpressItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getMaintenanceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMaintenanceList(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*maintenance.Maintenance); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/maintenance.Maintenance`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*maintenance.Maintenance)
+	fc.Result = res
+	return ec.marshalNMaintenanceItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getManufacturers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -21086,6 +21256,34 @@ func (ec *executionContext) _MaintenanceItem(ctx context.Context, sel ast.Select
 				}
 				return res
 			})
+		case "total":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MaintenanceItem_total(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "weightTotal":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MaintenanceItem_weightTotal(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22174,6 +22372,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getExpressList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getMaintenanceList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMaintenanceList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -24218,6 +24430,43 @@ func (ec *executionContext) marshalNMaintenanceItem2httpᚑapiᚋappᚋmodelsᚋ
 	return ec._MaintenanceItem(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNMaintenanceItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v []*maintenance.Maintenance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMaintenanceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalNMaintenanceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v *maintenance.Maintenance) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -25757,6 +26006,13 @@ func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	return graphql.MarshalInt64(*v)
+}
+
+func (ec *executionContext) marshalOMaintenanceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v *maintenance.Maintenance) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MaintenanceItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOMaintenanceRecordItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenance_recordᚐMaintenanceRecord(ctx context.Context, sel ast.SelectionSet, v *maintenance_record.MaintenanceRecord) graphql.Marshaler {

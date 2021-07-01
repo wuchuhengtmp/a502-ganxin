@@ -31,3 +31,12 @@ func (MaintenanceItemResolver) Admin(ctx context.Context, obj *maintenance.Maint
 	return
 
 }
+// todo 维修厂数量
+func (MaintenanceItemResolver)Total(ctx context.Context, obj *maintenance.Maintenance) (int64, error) {
+
+	return 0, nil
+}
+// todo 维修厂重量
+func (MaintenanceItemResolver)WeightTotal(ctx context.Context, obj *maintenance.Maintenance) (float64, error) {
+	return 0, nil
+}

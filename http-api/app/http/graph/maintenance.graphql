@@ -21,11 +21,20 @@ type MaintenanceRecordItem {
 """  维修厂 """
 type MaintenanceItem {
     id: Int!
+    """ 名称 """
     name: String!
+    """ 地址 """
     address: String!
+    """ 备注 """
     remark: String!
+    """ 是否启用 """
     isAble: Boolean!
+    """ 管理员列表 """
     admin:[UserItem]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weightTotal: Float!
 }
 
 """ 创建维修厂参数 """
@@ -42,4 +51,9 @@ input CreateMaintenanceInput {
 extend  type Mutation {
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+}
+
+extend type Query {
+    """ 获取维修厂列表 """
+    getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
 }

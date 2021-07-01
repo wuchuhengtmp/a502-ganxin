@@ -17,6 +17,18 @@ import (
 	"http-api/pkg/model"
 )
 
+
+
+func (*QueryResolver) GetMaintenanceList(ctx context.Context) (res []*maintenance.Maintenance, err error) {
+	me := auth.GetUser(ctx)
+	err = model.DB.Model(&maintenance.Maintenance{}).
+		Where("company_id = ?", me.CompanyId).
+		Find(&res).
+		Error
+
+	return
+}
+
 type MaintenanceRecordItemResolver struct { }
 
 func (MaintenanceRecordItemResolver) Maintenance(ctx context.Context, obj *maintenance_record.MaintenanceRecord) (*maintenance.Maintenance, error) {
