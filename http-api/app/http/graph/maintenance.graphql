@@ -62,12 +62,17 @@ input EditMaintenanceInput {
     """ 是否启用 """
     isAble: Boolean
 }
+input DelMaintenanceInput {
+    """ 工厂id """
+    id: Int!
+}
 extend  type Mutation {
-
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
     """  修改维修厂 """
     editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """ 删除维修厂 """
+    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {

@@ -29,6 +29,7 @@ const (
 	OutProject2Workshop   string = "outOfProjectToWorkshopType" // 出库到项目场地
 	EnterProject2Workshop string = "enter project to Workshop"  // 项目入场
 	OutOfWorkshop         string = "OutOfWorkshop"              // 型钢出场
+	DelMaintenance        string = "DelMaintenance"             // 删除维修厂（下岗了呗）
 )
 
 func (Msg) TableName() string {

@@ -24,7 +24,7 @@ import (
 )
 
 func (*MutationResolver) EditMaintenance(ctx context.Context, input graphModel.EditMaintenanceInput) (*maintenance.Maintenance, error) {
-	if err := requests.ValidateEditMaintenanceRequest(input); err != nil {
+	if err := requests.ValidateEditMaintenanceRequest(ctx, input); err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
 	res := maintenance.Maintenance{}

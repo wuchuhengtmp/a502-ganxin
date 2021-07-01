@@ -943,9 +943,11 @@ func (*StepsForMaintenance) CheckIsMaintenanceRole(uid int64) error {
 	return nil
 }
 
-func (*StepsForMaintenance) CheckHashMaintenance(id int64) error {
+func (*StepsForMaintenance) CheckHashMaintenance(ctx context.Context, id int64) error {
+	me := auth.GetUser(ctx)
 	err := model.DB.Model(&maintenance.Maintenance{}).
 		Where("id = ?", id).
+		Where("company_id = ?", me.CompanyId).
 		First(&maintenance.Maintenance{}).
 		Error
 	if err != nil {

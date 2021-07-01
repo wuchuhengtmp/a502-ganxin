@@ -168,6 +168,11 @@ type CreateSteelInput struct {
 	ProducedDate time.Time `json:"producedDate"`
 }
 
+type DelMaintenanceInput struct {
+	//  工厂id
+	ID int64 `json:"id"`
+}
+
 //  修改公司参数
 type EditCompanyInput struct {
 	//  公司ID

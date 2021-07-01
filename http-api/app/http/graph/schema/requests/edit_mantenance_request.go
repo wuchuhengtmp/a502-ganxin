@@ -9,13 +9,14 @@
 package requests
 
 import (
+	"context"
 	graphModel "http-api/app/http/graph/model"
 )
 
-func ValidateEditMaintenanceRequest(input graphModel.EditMaintenanceInput) error {
+func ValidateEditMaintenanceRequest(ctx context.Context, input graphModel.EditMaintenanceInput) error {
 	steps := StepsForMaintenance{}
 	// 检验有没这个厂
-	if err := steps.CheckHashMaintenance(input.ID); err != nil {
+	if err := steps.CheckHashMaintenance(ctx, input.ID); err != nil {
 		return err
 	}
 	for _, uid := range input.AdminIDList {
