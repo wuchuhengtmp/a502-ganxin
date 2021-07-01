@@ -1328,6 +1328,33 @@ func TestCompanyAdminRoleEditMaintenance(t *testing.T) {
 		  }
 		}
 	`
+	v = map[string]interface{} {
+		"input": map[string]interface{}{
+			"address": "edit address",
+			"adminIdList": []int64{
+				5,
+			},
+			"id": 1,
+			"isAble": true,
+			"name": "edit name",
+			"remark": "",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
+
+func TestCompanyAdminRoleDelMaintenance(t *testing.T) {
+	q := `
+		mutation ($input: DelMaintenanceInput!){
+		  delMaintenance(input: $input)
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"id": 1,
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
