@@ -1114,7 +1114,7 @@ func TestCompanyAdminCreateProject(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"roleId": roles.RoleProjectAdminId,
 		},
 	}
@@ -1143,10 +1143,10 @@ func TestCompanyAdminCreateProject(t *testing.T) {
 		  }
 		}
 	`
-	s := time.Unix(time.Now().Unix() + 1000, 0)
+	s := time.Unix(time.Now().Unix()+1000, 0)
 	timeStr := s.Format(time.RFC3339)
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"address":   "address_for_companyCreateProjectTest",
 			"city":      "city_for_companyCreateProjectTest",
 			"leaderIdS": userIds,
@@ -1162,7 +1162,7 @@ func TestCompanyAdminCreateProject(t *testing.T) {
 	// 日志新增断言
 	var currentTotalLogs int64
 	model.DB.Model(&logs.Logos{}).Count(&currentTotalLogs)
-	assert.Equal(t, totalLogs + 1, currentTotalLogs)
+	assert.Equal(t, totalLogs+1, currentTotalLogs)
 }
 
 /**
@@ -1186,10 +1186,11 @@ func TestCompanyAdminGetProjectList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
 /**
  * 公司管理员获取订单列表集成测试
  */
@@ -1253,8 +1254,47 @@ func TestCompanyAdminGetOrderList(t *testing.T) {
 		}
 
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 公司管理员添加维修厂集成测试
+ */
+func TestCompanyAdminRoleCreateMaintenance(t *testing.T) {
+	q := `
+		mutation ($input: CreateMaintenanceInput!){
+		   createMaintenance(input: $input) {
+			id
+			# 备注
+			remark
+			# 地址
+
+			address
+			# 维修厂名
+			name
+			# 管理员列表
+			admin{
+			  id
+			   #名字
+			  name
+			  #电话
+			  phone
+			  # 微信 
+			  wechat
+			}
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"address": "测试地址1",
+			"name":    "测试名1",
+			"uid":     5,
+		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
