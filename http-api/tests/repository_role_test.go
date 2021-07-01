@@ -1692,3 +1692,34 @@ func TestRepositoryAdminRoleGetAllStateList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin,  repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+func TestRepositoryAdminRoleGetMaintenanceList(t *testing.T) {
+	q := `
+		query {
+			getMaintenanceList {
+			  id
+			  # 维修厂名称
+			  name
+			  # 地址
+			  address
+			  # 管理员列表 
+			  admin {
+				id
+				name
+				phone
+				wechat
+			  }
+			  # 备注
+			  remark
+			  # 是否可用
+			  isAble
+			  # 重量
+			  weightTotal
+			  # 数量 
+			  total
+			}
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	assert.NoError(t, err)
+}
