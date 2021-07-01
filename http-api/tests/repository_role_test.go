@@ -1676,3 +1676,19 @@ func TestRepositoryAdminRoleGetRepositoryListByDevice(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员获取全部状态列表集成测试--手持机
+ */
+func TestRepositoryAdminRoleGetAllStateList(t *testing.T) {
+	q := `
+		query{
+		  getAllStateList{
+			desc
+			state
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin,  repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
