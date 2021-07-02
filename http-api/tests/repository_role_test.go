@@ -1957,3 +1957,23 @@ func TestRepositoryAdminRoleGet2BeScrapRepositorySteelDetail(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员 型钢待定报废详情 集成测试 --手持机
+ */
+func TestRepositoryAdminRoleSetBatchOfRepositorySteelScrap(t *testing.T) {
+	q := `
+		mutation ($input: SetBatchOfRepositorySteelScrapInput!){
+		  setBatchOfRepositorySteelScrap(input: $input){
+			id
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{"8"},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
