@@ -1049,3 +1049,15 @@ func (*StepsForRepository) CheckHasSpecification(ctx context.Context, specificat
 
 	return nil
 }
+
+func (*StepsForRepository) CheckHasSteel(ctx context.Context, identifier string) error {
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&steels.Steels{}).Where("company_id = ?", me.CompanyId).
+		Where( "identifier = ?", identifier).
+		First(&steels.Steels{}).
+		Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("标识码为:%s 的型钢不存在", identifier)
+	}
+	return err
+}
