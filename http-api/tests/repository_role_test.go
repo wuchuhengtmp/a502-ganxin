@@ -1692,7 +1692,9 @@ func TestRepositoryAdminRoleGetAllStateList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin,  repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
-
+/**
+ * 仓库管理员获取维修厂列表集成测试
+ */
 func TestRepositoryAdminRoleGetMaintenanceList(t *testing.T) {
 	q := `
 		query {
@@ -1721,5 +1723,42 @@ func TestRepositoryAdminRoleGetMaintenanceList(t *testing.T) {
 		}
 	`
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	assert.NoError(t, err)
+}
+/**
+ * 仓库管理员获取仓库型钢列表集成测试
+ */
+func  TestRepositoryAdminRoleGetRepositorySteel(t *testing.T) {
+	q := `
+		query ($input: GetRepositorySteelInput!) {
+		  getRepositorySteel(input: $input){
+			# 列表
+			list {
+			  # 数量
+			  total
+			  # 重量
+			  weight
+			  # 规格信息
+			  specificationInfo{
+				id
+				# 规格
+				specification
+			  }
+			}
+			# 总重量
+			weight
+			# 总数量
+			total
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"reposirotyId": 1,
+			"specificationId": 2,
+			"state": 100,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
