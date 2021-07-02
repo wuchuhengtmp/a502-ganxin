@@ -20,19 +20,20 @@ type SteelLog struct {
 type SteelLogType string
 
 const (
-	CreateType SteelLogType = "create" // 创建
-	OutSteelType SteelLogType = "outSteel" //  出库了
-	EnterWorkshopType SteelLogType = "enterWorkshop"  // 入场了
-	InstallationType SteelLogType = "InstallationType" // 安装
-	ChangeType SteelLogType = "changeType" // 修改型钢状态
-	OutOfWorkshop SteelLogType = "SteelLogType" //  出场
-	EnterRepositoryType SteelLogType  = "EnterRepositoryType" // 入场状态
-	CrapSteelType SteelLogType = "CrapSteelType" // 型钢报废
+	CreateType          SteelLogType = "create"              // 创建
+	OutSteelType        SteelLogType = "outSteel"            //  出库了
+	EnterWorkshopType   SteelLogType = "enterWorkshop"       // 入场了
+	InstallationType    SteelLogType = "InstallationType"    // 安装
+	ChangeType          SteelLogType = "changeType"          // 修改型钢状态
+	OutOfWorkshop       SteelLogType = "SteelLogType"        //  出场
+	EnterRepositoryType SteelLogType = "EnterRepositoryType" // 入场状态
+	CrapSteelType       SteelLogType = "CrapSteelType"       // 型钢报废
+	EditType            SteelLogType = "editType"            // 修改
 )
 
 // 操作类型映射说明
-var TypeMapName = map[SteelLogType]string {
-	CreateType: "型钢入库",
+var TypeMapName = map[SteelLogType]string{
+	CreateType:   "型钢入库",
 	OutSteelType: "型钢出库",
 }
 
