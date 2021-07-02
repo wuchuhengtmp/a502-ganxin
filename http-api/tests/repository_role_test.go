@@ -1888,3 +1888,26 @@ func TestRepositoryAdminRoleSetBatchOfRepositorySteel(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+func TestRepositoryAdminRoleGet2BeScrapRepositorySteel(t *testing.T)  {
+	q := `
+		query ($input: Get2BeScrapRepositorySteelInput!) {
+		  get2BeScrapRepositorySteel(input: $input) {
+			id
+			#规格信息
+			specifcation {
+			  id
+			  # 重量
+			  weight
+			}
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifier": "8",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
