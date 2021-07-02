@@ -20,6 +20,8 @@ type SteelInProject {
     enterRepositoryAt: Time
     """ 使用天数 """
     useDays: Int
+    """ 项目名 """
+    projectName: String!
 }
 
 """ 型钢数据项 """
@@ -47,6 +49,8 @@ type SteelItem {
     500报废
     """
     state: Int!
+    """ 状态信息 """
+    stateInfo: StateItem!
     """ 所属的公司id """
     companyId: Int!
     """ 当前存放的仓库 """

@@ -1,5 +1,5 @@
 /**
- * @Desc    获取仓库型钢详情请求验证器
+ * @Desc    The requests is part of http-api
  * @Author  wuchuheng<root@wuchuheng.com>
  * @Blog    https://wuchuheng.com
  * @wechat  wc20030318
@@ -13,7 +13,7 @@ import (
 	graphModel "http-api/app/http/graph/model"
 )
 
-func ValidateGetRepositorySteelDetailRequest(ctx context.Context, input graphModel.GetRepositorySteelInput) error {
+func ValidateGetRepositorySteelRequest(ctx context.Context, input graphModel.GetRepositorySteelInput) error {
 	steps := StepsForRepository{}
 	// 检验有没有这个仓库
 	if err := steps.CheckHasRepository(ctx, input.ReposirotyID); err != nil {

@@ -63,6 +63,14 @@ type GetRepositorySteelRes {
     """ 重量 """
     weight: Float!
 }
+type GetRepositorySteelDetailRes {
+    """ 型钢列表 """
+    list: [SteelItem]!
+    """  数量 """
+    total: Int!
+    """  重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -72,6 +80,8 @@ extend type Query {
     getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库型钢信息 """
     getRepositorySteel(input: GetRepositorySteelInput!): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取仓库型钢信息详情 """
+    getRepositorySteelDetail(input: GetRepositorySteelInput!): GetRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""

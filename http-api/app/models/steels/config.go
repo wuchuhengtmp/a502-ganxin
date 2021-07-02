@@ -323,3 +323,13 @@ type StateItem struct {
 	// 状态说明
 	Desc string
 }
+
+// 获取仓库型钢信息详情响应
+type GetRepositorySteelDetailRes struct {
+	// 型钢列表
+	List []*Steels
+	// 数量
+	Total int64
+	// 重量
+	Weight float64
+}

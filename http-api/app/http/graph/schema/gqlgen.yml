@@ -128,3 +128,5 @@ models:
     model: http-api/app/models/repositories.GetRepositorySteelRes
   GetRepositorySteelListItemRes:
     model: http-api/app/models/repositories.GetRepositorySteelListItemRes
+  GetRepositorySteelDetailRes:
+    model: http-api/app/models/steels.GetRepositorySteelDetailRes

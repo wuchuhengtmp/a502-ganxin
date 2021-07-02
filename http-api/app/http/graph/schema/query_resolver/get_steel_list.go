@@ -19,6 +19,7 @@ import (
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
+	"http-api/app/models/projects"
 	"http-api/app/models/repositories"
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
@@ -26,41 +27,47 @@ import (
 	"http-api/pkg/model"
 )
 
-
-func (*QueryResolver)GetSteelList(ctx context.Context, input grpahModel.PaginationInput) (*steels.GetSteelListRes, error) {
+func (*QueryResolver) GetSteelList(ctx context.Context, input grpahModel.PaginationInput) (*steels.GetSteelListRes, error) {
 	if err := requests.ValidateGetSteelListRequest(ctx, input); err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
 	s := steels.Steels{}
 	list, err := s.GetPagination(ctx, input.Page, input.PageSize, input.RepositoryID, input.SpecificationID)
-	if  err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	res := steels.GetSteelListRes {
-		List: list,
+	res := steels.GetSteelListRes{
+		List:  list,
 		Total: s.GetTotal(ctx, input.RepositoryID, input.SpecificationID),
 	}
 
 	return &res, nil
 }
 
-type SteelItemResolver struct { }
+type SteelItemResolver struct{}
+
+func (SteelItemResolver) StateInfo(ctx context.Context, obj *steels.Steels) (*steels.StateItem, error) {
+	return &steels.StateItem{
+		State: obj.State,
+		Desc:  steels.StateCodeMapDes[obj.State],
+	}, nil
+}
 
 func (SteelItemResolver) Specifcation(ctx context.Context, obj *steels.Steels) (*specificationinfo.SpecificationInfo, error) {
 	return obj.GetSpecification()
 }
 
-func (SteelItemResolver)MaterialManufacturer(ctx context.Context, obj *steels.Steels) (*codeinfo.CodeInfo, error) {
+func (SteelItemResolver) MaterialManufacturer(ctx context.Context, obj *steels.Steels) (*codeinfo.CodeInfo, error) {
 	return obj.GetMaterialManufacturer()
 }
-func (SteelItemResolver)Manufacturer(ctx context.Context, obj *steels.Steels) (*codeinfo.CodeInfo, error) {
+func (SteelItemResolver) Manufacturer(ctx context.Context, obj *steels.Steels) (*codeinfo.CodeInfo, error) {
 	return obj.GetManufacturer()
 }
-func (SteelItemResolver)Repository(ctx context.Context, obj *steels.Steels) (*repositories.Repositories, error) {
+func (SteelItemResolver) Repository(ctx context.Context, obj *steels.Steels) (*repositories.Repositories, error) {
 	return obj.GetRepository()
 }
-func (SteelItemResolver)CreateUser(ctx context.Context, obj *steels.Steels) (*users.Users, error) {
+func (SteelItemResolver) CreateUser(ctx context.Context, obj *steels.Steels) (*users.Users, error) {
 	u := users.Users{}
 	err := model.DB.Model(&users.Users{}).Where("id = ?", obj.CreatedUid).First(&u).Error
 	if err != nil {
@@ -70,7 +77,7 @@ func (SteelItemResolver)CreateUser(ctx context.Context, obj *steels.Steels) (*us
 	return &u, nil
 }
 
-func (SteelItemResolver)SteelInMaintenance(ctx context.Context, obj *steels.Steels) ([]*maintenance_record.MaintenanceRecord, error) {
+func (SteelItemResolver) SteelInMaintenance(ctx context.Context, obj *steels.Steels) ([]*maintenance_record.MaintenanceRecord, error) {
 	var recordList []*maintenance_record.MaintenanceRecord
 	m := maintenance_record.MaintenanceRecord{}
 	err := model.DB.Model(&m).Where("steel_id = ?", obj.ID).Find(&recordList).Error
@@ -80,14 +87,16 @@ func (SteelItemResolver)SteelInMaintenance(ctx context.Context, obj *steels.Stee
 
 	return recordList, nil
 }
-func (SteelItemResolver)SteelInProject(ctx context.Context, obj *steels.Steels) ([]*order_specification_steel.OrderSpecificationSteel, error) {
+func (SteelItemResolver) SteelInProject(ctx context.Context, obj *steels.Steels) ([]*order_specification_steel.OrderSpecificationSteel, error) {
 	o := order_specification_steel.OrderSpecificationSteel{}
 	var orderList []*order_specification_steel.OrderSpecificationSteel
 	err := model.DB.Model(&o).Where("steel_id = ?", obj.ID).Find(&orderList).Error
 
 	return orderList, err
 }
-type SteelInProjectResolver struct {}
+
+type SteelInProjectResolver struct{}
+
 func (SteelInProjectResolver) Steel(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*steels.Steels, error) {
 	s := steels.Steels{}
 	err := model.DB.Model(&s).Where("id = ?", obj.SteelId).First(&s).Error
@@ -95,21 +104,38 @@ func (SteelInProjectResolver) Steel(ctx context.Context, obj *order_specificatio
 	return &s, err
 }
 
-func (SteelInProjectResolver)Order(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*orders.Order, error) {
+func (SteelInProjectResolver) Order(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*orders.Order, error) {
 	o := orders.Order{}
 	orderTable := o.TableName()
 	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
 	err := model.DB.Model(&o).
 		Select(fmt.Sprintf("%s.*", orderTable)).
 		Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
-		Where(fmt.Sprintf("%s.id = ?",   orderSpecificationTable), obj.OrderSpecificationId).
+		Where(fmt.Sprintf("%s.id = ?", orderSpecificationTable), obj.OrderSpecificationId).
 		First(&o).
 		Error
 
 	return &o, err
 }
-func (SteelInProjectResolver)UseDays(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*int64, error) {
+func (SteelInProjectResolver) UseDays(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*int64, error) {
 	var days int64
 	// todo 使用天数
 	return &days, nil
+}
+func (SteelInProjectResolver)ProjectName(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (string, error) {
+	item := projects.Projects{}
+	projectsTable := projects.Projects{}.TableName()
+	orderTable := orders.Order{}.TableName()
+	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
+	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
+
+	err := model.DB.Model(&item).
+		Select(fmt.Sprintf("%s.*", projectsTable)).
+		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", orderTable, orderTable, projectsTable)).
+		Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
+		Joins(fmt.Sprintf("join %s ON %s.order_specification_id = %s.id", orderSpecificationSteelTable, orderSpecificationSteelTable, orderSpecificationTable)).
+		Where(fmt.Sprintf("%s.id = ?", orderSpecificationSteelTable), obj.Id).
+		First(&item).
+		Error
+	return item.Name, err
 }
