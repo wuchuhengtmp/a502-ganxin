@@ -1728,7 +1728,7 @@ func TestRepositoryAdminRoleGetMaintenanceList(t *testing.T) {
 /**
  * 仓库管理员获取仓库型钢列表集成测试
  */
-func  TestRepositoryAdminRoleGetRepositorySteel(t *testing.T) {
+func TestRepositoryAdminRoleGetRepositorySteel(t *testing.T) {
 	q := `
 		query ($input: GetRepositorySteelInput!) {
 		  getRepositorySteel(input: $input){
@@ -1757,6 +1757,77 @@ func  TestRepositoryAdminRoleGetRepositorySteel(t *testing.T) {
 			"reposirotyId": 1,
 			"specificationId": 2,
 			"state": 100,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理员 获取仓库型钢详情 集成测试
+ */
+func TestRepositoryAdminRoleGetRepositorySteelDetail(t *testing.T)  {
+	q := `
+		query ($input: GetRepositorySteelInput!){
+		  getRepositorySteelDetail(input: $input){
+			list{
+			  id
+			  # 型钢编码
+			  code
+			  specifcation{
+				# 规格尺寸
+				specification
+			  }
+			  # 当前信息
+			  stateInfo{
+				state
+				desc
+			  }
+			  # 项目经历
+			  steelInProject{
+				id
+				#出库时间
+				outRepositoryAt
+				# 项目名
+				projectName
+			  }
+			  #维修经历
+			  steelInMaintenance{
+				id
+				# 出库时间
+				outRepositoryAt
+				maintenance {
+				  # 维修厂名
+				  name
+				}
+			  }
+			  # 材料商
+			  materialManufacturer{
+				id
+				name
+			  }
+			  # 生产商
+			  manufacturer{
+				id
+				name
+			  }
+			  # 生产日期
+			  createdAt
+			  # 周转次数
+			  turnover
+			}
+			# 数量
+			total
+			# 重量
+			weight
+		  }
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"reposirotyId": 1,
+			"state": 100,
+			"specificationId": 1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
