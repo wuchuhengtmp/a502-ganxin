@@ -1833,3 +1833,32 @@ func TestRepositoryAdminRoleGetRepositorySteelDetail(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+
+/**
+ * 仓库管理员  仓库型钢修改查询 集成测试 --手持机
+ */
+func TestRepositoryAdminRoleGet2BeChangedRepositorySteel(t *testing.T)  {
+	q := `
+		query ($input: Get2BeChangedRepositorySteelInput!){
+		  get2BeChangedRepositorySteel(input: $input) {
+			id
+			# 规格信息
+			specifcation {
+			  id
+			  # 规格
+			  specification
+			  # 重量
+			  weight
+			}
+		  }
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifier": "8",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
