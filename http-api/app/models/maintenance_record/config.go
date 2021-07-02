@@ -24,5 +24,5 @@ type MaintenanceRecord struct {
 	gorm.Model
 }
 func(MaintenanceRecord)TableName() string {
-	return "maintenance_record"
+	return "maintenance_records"
 }

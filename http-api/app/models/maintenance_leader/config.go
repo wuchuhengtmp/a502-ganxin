@@ -14,5 +14,5 @@ type MaintenanceLeader struct {
 	Uid           int64 `json:"uid" gorm:"comment:用户id"`
 }
 func(MaintenanceLeader)TableName() string {
-	return "maintenance_leader"
+	return "maintenance_leaders"
 }

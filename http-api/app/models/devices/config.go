@@ -26,7 +26,7 @@ type Device struct {
 	gorm.Model
 }
 func(Device)TableName() string {
-	return "device"
+	return "devices"
 }
 
 /**

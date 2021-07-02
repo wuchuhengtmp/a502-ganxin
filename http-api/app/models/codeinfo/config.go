@@ -36,7 +36,7 @@ type CodeInfo struct {
 	gorm.Model
 }
 func(CodeInfo)TableName() string {
-	return "code_info"
+	return "code_infos"
 }
 
 /**

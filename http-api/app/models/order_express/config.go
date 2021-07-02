@@ -26,7 +26,7 @@ type OrderExpress struct {
 	gorm.Model
 }
 func(OrderExpress)TableName() string {
-	return "order_express"
+	return "order_expresses"
 }
 
 //  物流方向
