@@ -333,3 +333,12 @@ type GetRepositorySteelDetailRes struct {
 	// 重量
 	Weight float64
 }
+
+// 获取用于报废的仓库型钢详情响应数据
+type Get2BeScrapRepositorySteelDetailRes struct {
+	List []*Steels
+	//""" 数量 """
+	Total int64
+	//""" 重量 """
+	Weight float64
+}

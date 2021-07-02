@@ -82,6 +82,35 @@ input  Get2BeScrapRepositorySteelInput {
     """ 型钢标识码 """
     identifier: String!
 }
+input SetBatchOfRepositorySteelInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格id """
+    specificationId: Int!
+    """ 材料商id """
+    materialManufacturersId: Int!
+    """ 生产商id """
+    manufacturerId: Int!
+    """ 生产日期 """
+    producedAt: Time!
+}
+
+""" 获取用于报废的仓库型钢详情响应数据 """
+type Get2BeScrapRepositorySteelDetailRes {
+    list: [SteelItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
+
+""" 获取用于报废的仓库型钢详情参数 """
+input Get2BeScrapRepositorySteelDetailInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格id """
+    specificationId: Int
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -97,18 +126,8 @@ extend type Query {
     get2BeChangedRepositorySteel(input: Get2BeChangedRepositorySteelInput!): SteelItem! @hasRole(role: [repositoryAdmin] ) @mustBeDevice
     """ 获取用于报废的仓库型钢 """
     get2BeScrapRepositorySteel(input: Get2BeScrapRepositorySteelInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
-input SetBatchOfRepositorySteelInput {
-    """ 识别码列表 """
-    identifierList: [String!]!
-    """ 规格id """
-    specificationId: Int!
-    """ 材料商id """
-    materialManufacturersId: Int!
-    """ 生产商id """
-    manufacturerId: Int!
-    """ 生产日期 """
-    producedAt: Time!
+    """ 获取用于报废的仓库型钢详情 """
+    get2BeScrapRepositorySteelDetail(input: Get2BeScrapRepositorySteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
 extend type Mutation {

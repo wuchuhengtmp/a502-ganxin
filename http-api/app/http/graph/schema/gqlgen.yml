@@ -130,3 +130,6 @@ models:
     model: http-api/app/models/repositories.GetRepositorySteelListItemRes
   GetRepositorySteelDetailRes:
     model: http-api/app/models/steels.GetRepositorySteelDetailRes
+  # 获取用于报废的仓库型钢详情响应数据
+  Get2BeScrapRepositorySteelDetailRes:
+    model: http-api/app/models/steels.Get2BeScrapRepositorySteelDetailRes
