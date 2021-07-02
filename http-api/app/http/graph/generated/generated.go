@@ -285,6 +285,7 @@ type ComplexityRoot struct {
 		EditSpecification              func(childComplexity int, input model.EditSpecificationInput) int
 		InstallSteel                   func(childComplexity int, input model.InstallLocationInput) int
 		Login                          func(childComplexity int, phone string, password string, mac *string) int
+		SetBatchOfRepositorySteel      func(childComplexity int, input model.SetBatchOfRepositorySteelInput) int
 		SetPassword                    func(childComplexity int, input *model.SetPasswordInput) int
 		SetProjectOrder2Workshop       func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
 		SetProjectSteelEnterRepository func(childComplexity int, input model.SetProjectSteelEnterRepositoryInput) int
@@ -561,6 +562,7 @@ type MutationResolver interface {
 	SetProjectSteelEnterRepository(ctx context.Context, input model.SetProjectSteelEnterRepositoryInput) (bool, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
+	SetBatchOfRepositorySteel(ctx context.Context, input model.SetBatchOfRepositorySteelInput) ([]*steels.Steels, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	EditSpecification(ctx context.Context, input model.EditSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	DeleteSpecification(ctx context.Context, id int64) (bool, error)
@@ -1785,6 +1787,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
+
+	case "Mutation.setBatchOfRepositorySteel":
+		if e.complexity.Mutation.SetBatchOfRepositorySteel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setBatchOfRepositorySteel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetBatchOfRepositorySteel(childComplexity, args["input"].(model.SetBatchOfRepositorySteelInput)), true
 
 	case "Mutation.setPassword":
 		if e.complexity.Mutation.SetPassword == nil {
@@ -3671,7 +3685,7 @@ extend type Query {
 }
 extend type  Mutation {
     """ 设置密码 (auth: repositoryAdmin projectAdmin maintenanceAdmin) """
-    setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
+    setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin admin companyAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../msg.graphql", Input: `type MsgItem {
@@ -4270,11 +4284,26 @@ extend type Query {
     """ 获取用于修改的仓库型钢详情 """
     get2BeChangedRepositorySteel(input: Get2BeChangedRepositorySteelInput!): SteelItem! @hasRole(role: [repositoryAdmin] ) @mustBeDevice
 }
+input SetBatchOfRepositorySteelInput {
+    """ 识别码列表 """
+    identiferList: [String!]!
+    """ 规格id """
+    specificationId: Int!
+    """ 材料商id """
+    materialManufacturersId: Int!
+    """ 生产商id """
+    manufacturerId: Int!
+    """ 生产日期 """
+    producedAt: Time!
+}
+
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
     """ 删除仓库 """
     deleteRepository(repositoryId: Int!): Boolean! @hasRole(role: [companyAdmin])
+    """ 批量修改型钢 """
+    setBatchOfRepositorySteel(input: SetBatchOfRepositorySteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 `, BuiltIn: false},
 	{Name: "../roles.graphql", Input: `extend type Query {
@@ -4960,6 +4989,21 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		}
 	}
 	args["mac"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setBatchOfRepositorySteel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetBatchOfRepositorySteelInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetBatchOfRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetBatchOfRepositorySteelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -10311,7 +10355,7 @@ func (ec *executionContext) _Mutation_setPassword(ctx context.Context, field gra
 			return ec.resolvers.Mutation().SetPassword(rctx, args["input"].(*model.SetPasswordInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin", "projectAdmin", "maintenanceAdmin", "admin", "companyAdmin"})
 			if err != nil {
 				return nil, err
 			}
@@ -11180,6 +11224,78 @@ func (ec *executionContext) _Mutation_deleteRepository(ctx context.Context, fiel
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setBatchOfRepositorySteel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setBatchOfRepositorySteel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetBatchOfRepositorySteel(rctx, args["input"].(model.SetBatchOfRepositorySteelInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.Steels); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.Steels`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteelsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -21474,6 +21590,58 @@ func (ec *executionContext) unmarshalInputProjectSteel2BeChangeInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetBatchOfRepositorySteelInput(ctx context.Context, obj interface{}) (model.SetBatchOfRepositorySteelInput, error) {
+	var it model.SetBatchOfRepositorySteelInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identiferList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identiferList"))
+			it.IdentiferList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "materialManufacturersId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("materialManufacturersId"))
+			it.MaterialManufacturersID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "manufacturerId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("manufacturerId"))
+			it.ManufacturerID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "producedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("producedAt"))
+			it.ProducedAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
 	var it model.SetPasswordInput
 	var asMap = obj.(map[string]interface{})
@@ -22968,6 +23136,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteRepository":
 			out.Values[i] = ec._Mutation_deleteRepository(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setBatchOfRepositorySteel":
+			out.Values[i] = ec._Mutation_setBatchOfRepositorySteel(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -26677,6 +26850,11 @@ func (ec *executionContext) marshalNRoleItem2ᚖhttpᚑapiᚋappᚋmodelsᚋrole
 		return graphql.Null
 	}
 	return ec._RoleItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSetBatchOfRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetBatchOfRepositorySteelInput(ctx context.Context, v interface{}) (model.SetBatchOfRepositorySteelInput, error) {
+	res, err := ec.unmarshalInputSetBatchOfRepositorySteelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNSetProjectSteelEnterRepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectSteelEnterRepositoryInput(ctx context.Context, v interface{}) (model.SetProjectSteelEnterRepositoryInput, error) {

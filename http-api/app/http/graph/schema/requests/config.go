@@ -1050,14 +1050,53 @@ func (*StepsForRepository) CheckHasSpecification(ctx context.Context, specificat
 	return nil
 }
 
+/**
+ * 检验有没有这根型钢
+ */
 func (*StepsForRepository) CheckHasSteel(ctx context.Context, identifier string) error {
 	me := auth.GetUser(ctx)
 	err := model.DB.Model(&steels.Steels{}).Where("company_id = ?", me.CompanyId).
-		Where( "identifier = ?", identifier).
+		Where("identifier = ?", identifier).
 		First(&steels.Steels{}).
 		Error
 	if err != nil && err.Error() == "record not found" {
 		return fmt.Errorf("标识码为:%s 的型钢不存在", identifier)
+	}
+	return err
+}
+
+/**
+ * 检验有没有家材料商
+ */
+func (*StepsForRepository) CheckHasMaterialManufacturer(ctx context.Context, materialManufacturersID int64) error {
+	c := codeinfo.CodeInfo{}
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&c).
+		Where("company_id = ?", me.CompanyId).
+		Where("type = ?", codeinfo.MaterialManufacturer).
+		Where("id = ?", materialManufacturersID).
+		First(&c).
+		Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("id为：%d 材料商不存在", materialManufacturersID)
+	}
+	return err
+}
+
+/**
+ * 检验有没有这个制造商
+ */
+func (*StepsForRepository)CheckHasManufacturer(ctx context.Context, manufacturerId int64) error {
+	c := codeinfo.CodeInfo{}
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&c).
+		Where("company_id = ?", me.CompanyId).
+		Where("type = ?", codeinfo.Manufacturer).
+		Where("id = ?", manufacturerId).
+		First(&c).
+		Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("id为：%d 制造商不存在", manufacturerId)
 	}
 	return err
 }

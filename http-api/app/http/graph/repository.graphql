@@ -90,9 +90,24 @@ extend type Query {
     """ 获取用于修改的仓库型钢详情 """
     get2BeChangedRepositorySteel(input: Get2BeChangedRepositorySteelInput!): SteelItem! @hasRole(role: [repositoryAdmin] ) @mustBeDevice
 }
+input SetBatchOfRepositorySteelInput {
+    """ 识别码列表 """
+    identiferList: [String!]!
+    """ 规格id """
+    specificationId: Int!
+    """ 材料商id """
+    materialManufacturersId: Int!
+    """ 生产商id """
+    manufacturerId: Int!
+    """ 生产日期 """
+    producedAt: Time!
+}
+
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
     """ 删除仓库 """
     deleteRepository(repositoryId: Int!): Boolean! @hasRole(role: [companyAdmin])
+    """ 批量修改型钢 """
+    setBatchOfRepositorySteel(input: SetBatchOfRepositorySteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }

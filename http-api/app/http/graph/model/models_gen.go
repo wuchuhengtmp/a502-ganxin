@@ -488,6 +488,19 @@ type RepositoryLeaderItem struct {
 	Wechat string `json:"wechat"`
 }
 
+type SetBatchOfRepositorySteelInput struct {
+	//  识别码列表
+	IdentiferList []string `json:"identiferList"`
+	//  规格id
+	SpecificationID int64 `json:"specificationId"`
+	//  材料商id
+	MaterialManufacturersID int64 `json:"materialManufacturersId"`
+	//  生产商id
+	ManufacturerID int64 `json:"manufacturerId"`
+	//  生产日期
+	ProducedAt time.Time `json:"producedAt"`
+}
+
 //  设置密码的参数
 type SetPasswordInput struct {
 	Password string `json:"password"`

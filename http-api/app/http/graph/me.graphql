@@ -8,5 +8,5 @@ extend type Query {
 }
 extend type  Mutation {
     """ 设置密码 (auth: repositoryAdmin projectAdmin maintenanceAdmin) """
-    setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin])
+    setPassword(input: SetPasswordInput): Boolean! @hasRole(role: [repositoryAdmin projectAdmin maintenanceAdmin admin companyAdmin])
 }
