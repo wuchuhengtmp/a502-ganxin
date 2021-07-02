@@ -292,6 +292,12 @@ type Get2BeChangedRepositorySteelInput struct {
 	Identifier string `json:"identifier"`
 }
 
+//  获取用于报废的仓库型钢参数
+type Get2BeScrapRepositorySteelInput struct {
+	//  型钢标识码
+	Identifier string `json:"identifier"`
+}
+
 type GetCompanyUserInput struct {
 	//  角色id
 	RoleID *int64 `json:"roleId"`
