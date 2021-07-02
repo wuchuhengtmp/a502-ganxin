@@ -490,7 +490,7 @@ type RepositoryLeaderItem struct {
 
 type SetBatchOfRepositorySteelInput struct {
 	//  识别码列表
-	IdentiferList []string `json:"identiferList"`
+	IdentifierList []string `json:"identifierList"`
 	//  规格id
 	SpecificationID int64 `json:"specificationId"`
 	//  材料商id

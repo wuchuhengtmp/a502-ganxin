@@ -92,7 +92,7 @@ extend type Query {
 }
 input SetBatchOfRepositorySteelInput {
     """ 识别码列表 """
-    identiferList: [String!]!
+    identifierList: [String!]!
     """ 规格id """
     specificationId: Int!
     """ 材料商id """

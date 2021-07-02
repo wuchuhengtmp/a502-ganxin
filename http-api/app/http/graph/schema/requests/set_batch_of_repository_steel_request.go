@@ -15,7 +15,7 @@ import (
 
 func ValidateSetBatchOfRepositorySteelRequest(ctx context.Context, input graphModel.SetBatchOfRepositorySteelInput) error {
 	steps := StepsForRepository{}
-	for _, identifier := range input.IdentiferList {
+	for _, identifier := range input.IdentifierList {
 		// 检验有没有这根型钢
 		if err := steps.CheckHasSteel(ctx, identifier); err != nil {
 			return err

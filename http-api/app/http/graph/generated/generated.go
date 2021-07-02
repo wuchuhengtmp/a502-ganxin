@@ -4286,7 +4286,7 @@ extend type Query {
 }
 input SetBatchOfRepositorySteelInput {
     """ 识别码列表 """
-    identiferList: [String!]!
+    identifierList: [String!]!
     """ 规格id """
     specificationId: Int!
     """ 材料商id """
@@ -21596,11 +21596,11 @@ func (ec *executionContext) unmarshalInputSetBatchOfRepositorySteelInput(ctx con
 
 	for k, v := range asMap {
 		switch k {
-		case "identiferList":
+		case "identifierList":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identiferList"))
-			it.IdentiferList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

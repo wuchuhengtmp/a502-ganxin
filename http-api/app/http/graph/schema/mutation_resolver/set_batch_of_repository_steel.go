@@ -22,7 +22,7 @@ func (*MutationResolver) SetBatchOfRepositorySteel(ctx context.Context, input gr
 		return res, errors.ValidateErr(ctx, err)
 	}
 	err = model.DB.Model(&steels.Steels{}).
-		Where("identifier IN ?", input.IdentiferList).
+		Where("identifier IN ?", input.IdentifierList).
 		Update("manufacturer_id", input.ManufacturerID).
 		Update("material_manufacturer_id", input.MaterialManufacturersID).
 		Update("produced_date", input.ProducedAt).
@@ -32,7 +32,7 @@ func (*MutationResolver) SetBatchOfRepositorySteel(ctx context.Context, input gr
 		return res, errors.ServerErr(ctx, err)
 	}
 	err = model.DB.Model(&steels.Steels{}).
-		Where("identifier in ?", input.IdentiferList).
+		Where("identifier in ?", input.IdentifierList).
 		Find(&res).Error
 	if err != nil {
 		return res, errors.ServerErr(ctx, err)

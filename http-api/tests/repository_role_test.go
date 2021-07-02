@@ -1862,3 +1862,29 @@ func TestRepositoryAdminRoleGet2BeChangedRepositorySteel(t *testing.T)  {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员  修改仓库型钢 集成测试 --手持机
+ */
+func TestRepositoryAdminRoleSetBatchOfRepositorySteel(t *testing.T)  {
+	q := `
+		mutation ($input: SetBatchOfRepositorySteelInput!) {
+		  setBatchOfRepositorySteel(input: $input) {
+			id
+		  }
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifierList": []string{
+				"8",
+			},
+			"manufacturerId": 4,
+			"materialManufacturersId": 1,
+			"producedAt": "2006-01-02T15:04:05+07:00",
+			"specificationId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
