@@ -130,6 +130,11 @@ extend type Query {
     get2BeScrapRepositorySteelDetail(input: Get2BeScrapRepositorySteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
+""" 批量报废型钢参数 """
+input SetBatchOfRepositorySteelScrapInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
@@ -137,4 +142,6 @@ extend type Mutation {
     deleteRepository(repositoryId: Int!): Boolean! @hasRole(role: [companyAdmin])
     """ 批量修改型钢 """
     setBatchOfRepositorySteel(input: SetBatchOfRepositorySteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 批量报废型钢 """
+    setBatchOfRepositorySteelScrap(input: SetBatchOfRepositorySteelScrapInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }

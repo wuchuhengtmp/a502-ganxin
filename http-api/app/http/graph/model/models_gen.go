@@ -515,6 +515,12 @@ type SetBatchOfRepositorySteelInput struct {
 	ProducedAt time.Time `json:"producedAt"`
 }
 
+//  批量报废型钢参数
+type SetBatchOfRepositorySteelScrapInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+}
+
 //  设置密码的参数
 type SetPasswordInput struct {
 	Password string `json:"password"`
