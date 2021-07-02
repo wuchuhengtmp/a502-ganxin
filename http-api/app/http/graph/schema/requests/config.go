@@ -959,6 +959,7 @@ func (*StepsForMaintenance) CheckHashMaintenance(ctx context.Context, id int64) 
 
 	return nil
 }
+
 /**
  * 检验uid是否冗余
  */
@@ -968,6 +969,82 @@ func (*StepsForMaintenance) CheckRedundancyUid(uidList []int64) error {
 		if _, ok := uidMapBool[uid]; ok {
 			return fmt.Errorf("用户id: %d 出现重复", uid)
 		}
+	}
+
+	return nil
+}
+
+/**
+ * 仓库相关的检验步骤
+ */
+type StepsForRepository struct{}
+
+/**
+ * 检验有没有这个仓库
+ */
+func (*StepsForRepository) CheckHasRepository(ctx context.Context, id int64) error {
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&repositories.Repositories{}).Where("company_id = ?", me.CompanyId).
+		Where("id = ?", id).
+		First(&repositories.Repositories{}).Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("没有id为:%d 的仓库", id)
+		}
+		return nil
+	}
+
+	return nil
+}
+
+/**
+ * 检验仓库是否归属我
+ */
+func (*StepsForRepository) CheckRepositoryBelongMe(ctx context.Context, id int64) error {
+	repositoryLeaderTable := repository_leader.RepositoryLeader{}.TableName()
+	repositoriesTable := repositories.Repositories{}.TableName()
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&repositories.Repositories{}).
+		Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.id", repositoryLeaderTable, repositoryLeaderTable, repositoriesTable)).
+		Where(fmt.Sprintf("%s.id = ?", repositoriesTable), id).
+		Where(fmt.Sprintf("%s.uid = ?", repositoryLeaderTable), me.Id).
+		First(&repositories.Repositories{}).
+		Error
+	if err != nil {
+		if err.Error() != "record not found" {
+			return fmt.Errorf("仓库id为:%d 的仓库不归你管，您无权操作", id)
+		}
+		return err
+	}
+
+	return nil
+}
+
+/**
+ * 检验有没有这个状态
+ */
+func (*StepsForRepository) CheckHasState(state int64) error {
+	for _, record := range steels.GetAllStateList() {
+		if record == state {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("状态码为:%d 不存在", state)
+}
+
+func (*StepsForRepository) CheckHasSpecification(ctx context.Context, specificationId int64) error {
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&specificationinfo.SpecificationInfo{}).
+		Where("company_id = ?", me.CompanyId).
+		Where("id = ?", specificationId).
+		First(&specificationinfo.SpecificationInfo{}).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("没有id为：%d 的规格", specificationId)
+		}
+		return err
 	}
 
 	return nil

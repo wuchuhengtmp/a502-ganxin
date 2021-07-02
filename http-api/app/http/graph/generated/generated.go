@@ -168,6 +168,18 @@ type ComplexityRoot struct {
 		Weight func(childComplexity int) int
 	}
 
+	GetRepositorySteelListItemRes struct {
+		SpecificationInfo func(childComplexity int) int
+		Total             func(childComplexity int) int
+		Weight            func(childComplexity int) int
+	}
+
+	GetRepositorySteelRes struct {
+		List   func(childComplexity int) int
+		Total  func(childComplexity int) int
+		Weight func(childComplexity int) int
+	}
+
 	GetSend2WorkshopOrderListDetailRes struct {
 		List        func(childComplexity int) int
 		Total       func(childComplexity int) int
@@ -380,6 +392,7 @@ type ComplexityRoot struct {
 		GetProjectSteelStateList                func(childComplexity int) int
 		GetRepositoryList                       func(childComplexity int) int
 		GetRepositoryOverview                   func(childComplexity int, input model.GetRepositoryOverviewInput) int
+		GetRepositorySteel                      func(childComplexity int, input model.GetRepositorySteelInput) int
 		GetRoleList                             func(childComplexity int) int
 		GetSend2WorkshopOrderList               func(childComplexity int) int
 		GetSend2WorkshopOrderListDetail         func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
@@ -625,6 +638,7 @@ type QueryResolver interface {
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetAllStateList(ctx context.Context) ([]*steels.StateItem, error)
+	GetRepositorySteel(ctx context.Context, input model.GetRepositorySteelInput) (*repositories.GetRepositorySteelRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 	GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error)
@@ -1041,6 +1055,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetRepositoryOverviewRes.Weight(childComplexity), true
+
+	case "GetRepositorySteelListItemRes.specificationInfo":
+		if e.complexity.GetRepositorySteelListItemRes.SpecificationInfo == nil {
+			break
+		}
+
+		return e.complexity.GetRepositorySteelListItemRes.SpecificationInfo(childComplexity), true
+
+	case "GetRepositorySteelListItemRes.total":
+		if e.complexity.GetRepositorySteelListItemRes.Total == nil {
+			break
+		}
+
+		return e.complexity.GetRepositorySteelListItemRes.Total(childComplexity), true
+
+	case "GetRepositorySteelListItemRes.weight":
+		if e.complexity.GetRepositorySteelListItemRes.Weight == nil {
+			break
+		}
+
+		return e.complexity.GetRepositorySteelListItemRes.Weight(childComplexity), true
+
+	case "GetRepositorySteelRes.list":
+		if e.complexity.GetRepositorySteelRes.List == nil {
+			break
+		}
+
+		return e.complexity.GetRepositorySteelRes.List(childComplexity), true
+
+	case "GetRepositorySteelRes.total":
+		if e.complexity.GetRepositorySteelRes.Total == nil {
+			break
+		}
+
+		return e.complexity.GetRepositorySteelRes.Total(childComplexity), true
+
+	case "GetRepositorySteelRes.weight":
+		if e.complexity.GetRepositorySteelRes.Weight == nil {
+			break
+		}
+
+		return e.complexity.GetRepositorySteelRes.Weight(childComplexity), true
 
 	case "GetSend2WorkshopOrderListDetailRes.list":
 		if e.complexity.GetSend2WorkshopOrderListDetailRes.List == nil {
@@ -2468,6 +2524,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetRepositoryOverview(childComplexity, args["input"].(model.GetRepositoryOverviewInput)), true
+
+	case "Query.getRepositorySteel":
+		if e.complexity.Query.GetRepositorySteel == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getRepositorySteel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRepositorySteel(childComplexity, args["input"].(model.GetRepositorySteelInput)), true
 
 	case "Query.getRoleList":
 		if e.complexity.Query.GetRoleList == nil {
@@ -4075,6 +4143,32 @@ input GetRepositoryOverviewInput {
     """ 规格ID """
     specificationId: Int
 }
+""" 获取仓库型钢信息参数 """
+input GetRepositorySteelInput {
+    """ 仓库id """
+    reposirotyId: Int!
+    """ 规格尺寸"""
+    specificationId: Int
+    """ 当前状态 """
+    state: Int
+}
+type GetRepositorySteelListItemRes {
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+    """ 规格 """
+    specificationInfo: SpecificationItem!
+}
+""" 获取仓库型钢信息响应 """
+type GetRepositorySteelRes {
+    """ 型钢规格列表 """
+    list:[GetRepositorySteelListItemRes!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -4082,9 +4176,8 @@ extend type Query {
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
     """ 获取全部状态列表 """
     getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-
-#    """ 获取仓库型钢信息 """ todo
-#    getRepositorySteel(): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取仓库型钢信息 """
+    getRepositorySteel(input: GetRepositorySteelInput!): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
@@ -5112,6 +5205,21 @@ func (ec *executionContext) field_Query_getRepositoryOverview_args(ctx context.C
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNGetRepositoryOverviewInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryOverviewInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getRepositorySteel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetRepositorySteelInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositorySteelInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7024,6 +7132,216 @@ func (ec *executionContext) _GetRepositoryOverviewRes_weight(ctx context.Context
 	}()
 	fc := &graphql.FieldContext{
 		Object:     "GetRepositoryOverviewRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetRepositorySteelListItemRes_total(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositorySteelListItemRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetRepositorySteelListItemRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetRepositorySteelListItemRes_weight(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositorySteelListItemRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetRepositorySteelListItemRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetRepositorySteelListItemRes_specificationInfo(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositorySteelListItemRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetRepositorySteelListItemRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SpecificationInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(specificationinfo.SpecificationInfo)
+	fc.Result = res
+	return ec.marshalNSpecificationItem2httpᚑapiᚋappᚋmodelsᚋspecificationinfoᚐSpecificationInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetRepositorySteelRes_list(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositorySteelRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetRepositorySteelRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.List, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*repositories.GetRepositorySteelListItemRes)
+	fc.Result = res
+	return ec.marshalNGetRepositorySteelListItemRes2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelListItemResᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetRepositorySteelRes_total(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositorySteelRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetRepositorySteelRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetRepositorySteelRes_weight(ctx context.Context, field graphql.CollectedField, obj *repositories.GetRepositorySteelRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetRepositorySteelRes",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -15226,6 +15544,78 @@ func (ec *executionContext) _Query_getAllStateList(ctx context.Context, field gr
 	return ec.marshalNStateItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐStateItemᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getRepositorySteel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getRepositorySteel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetRepositorySteel(rctx, args["input"].(model.GetRepositorySteelInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*repositories.GetRepositorySteelRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/repositories.GetRepositorySteelRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repositories.GetRepositorySteelRes)
+	fc.Result = res
+	return ec.marshalNGetRepositorySteelRes2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -20305,6 +20695,42 @@ func (ec *executionContext) unmarshalInputGetRepositoryOverviewInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetRepositorySteelInput(ctx context.Context, obj interface{}) (model.GetRepositorySteelInput, error) {
+	var it model.GetRepositorySteelInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "reposirotyId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reposirotyId"))
+			it.ReposirotyID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "state":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
+			it.State, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetToBeEnterRepositoryDetailInput(ctx context.Context, obj interface{}) (model.GetToBeEnterRepositoryDetailInput, error) {
 	var it model.GetToBeEnterRepositoryDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -21336,6 +21762,80 @@ func (ec *executionContext) _GetRepositoryOverviewRes(ctx context.Context, sel a
 			}
 		case "weight":
 			out.Values[i] = ec._GetRepositoryOverviewRes_weight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getRepositorySteelListItemResImplementors = []string{"GetRepositorySteelListItemRes"}
+
+func (ec *executionContext) _GetRepositorySteelListItemRes(ctx context.Context, sel ast.SelectionSet, obj *repositories.GetRepositorySteelListItemRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getRepositorySteelListItemResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetRepositorySteelListItemRes")
+		case "total":
+			out.Values[i] = ec._GetRepositorySteelListItemRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._GetRepositorySteelListItemRes_weight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "specificationInfo":
+			out.Values[i] = ec._GetRepositorySteelListItemRes_specificationInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getRepositorySteelResImplementors = []string{"GetRepositorySteelRes"}
+
+func (ec *executionContext) _GetRepositorySteelRes(ctx context.Context, sel ast.SelectionSet, obj *repositories.GetRepositorySteelRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getRepositorySteelResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetRepositorySteelRes")
+		case "list":
+			out.Values[i] = ec._GetRepositorySteelRes_list(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GetRepositorySteelRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._GetRepositorySteelRes_weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -23127,6 +23627,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getRepositorySteel":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getRepositorySteel(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRoleList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -24600,6 +25114,72 @@ func (ec *executionContext) marshalNGetRepositoryOverviewRes2ᚖhttpᚑapiᚋapp
 		return graphql.Null
 	}
 	return ec._GetRepositoryOverviewRes(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositorySteelInput(ctx context.Context, v interface{}) (model.GetRepositorySteelInput, error) {
+	res, err := ec.unmarshalInputGetRepositorySteelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetRepositorySteelListItemRes2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelListItemResᚄ(ctx context.Context, sel ast.SelectionSet, v []*repositories.GetRepositorySteelListItemRes) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGetRepositorySteelListItemRes2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelListItemRes(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNGetRepositorySteelListItemRes2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelListItemRes(ctx context.Context, sel ast.SelectionSet, v *repositories.GetRepositorySteelListItemRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetRepositorySteelListItemRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGetRepositorySteelRes2httpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelRes(ctx context.Context, sel ast.SelectionSet, v repositories.GetRepositorySteelRes) graphql.Marshaler {
+	return ec._GetRepositorySteelRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetRepositorySteelRes2ᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐGetRepositorySteelRes(ctx context.Context, sel ast.SelectionSet, v *repositories.GetRepositorySteelRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetRepositorySteelRes(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNGetSend2WorkshopOrderListDetailRes2httpᚑapiᚋappᚋmodelsᚋprojectsᚐGetSend2WorkshopOrderListDetailRes(ctx context.Context, sel ast.SelectionSet, v projects.GetSend2WorkshopOrderListDetailRes) graphql.Marshaler {

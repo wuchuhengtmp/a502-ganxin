@@ -371,6 +371,16 @@ type GetRepositoryOverviewInput struct {
 	SpecificationID *int64 `json:"specificationId"`
 }
 
+//  获取仓库型钢信息参数
+type GetRepositorySteelInput struct {
+	//  仓库id
+	ReposirotyID int64 `json:"reposirotyId"`
+	//  规格尺寸
+	SpecificationID *int64 `json:"specificationId"`
+	//  当前状态
+	State *int64 `json:"state"`
+}
+
 //  获取待归库详情参数
 type GetToBeEnterRepositoryDetailInput struct {
 	//  规格id

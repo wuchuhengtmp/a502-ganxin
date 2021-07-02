@@ -37,6 +37,32 @@ input GetRepositoryOverviewInput {
     """ 规格ID """
     specificationId: Int
 }
+""" 获取仓库型钢信息参数 """
+input GetRepositorySteelInput {
+    """ 仓库id """
+    reposirotyId: Int!
+    """ 规格尺寸"""
+    specificationId: Int
+    """ 当前状态 """
+    state: Int
+}
+type GetRepositorySteelListItemRes {
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+    """ 规格 """
+    specificationInfo: SpecificationItem!
+}
+""" 获取仓库型钢信息响应 """
+type GetRepositorySteelRes {
+    """ 型钢规格列表 """
+    list:[GetRepositorySteelListItemRes!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -44,9 +70,8 @@ extend type Query {
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
     """ 获取全部状态列表 """
     getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-
-#    """ 获取仓库型钢信息 """ todo
-#    getRepositorySteel(): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取仓库型钢信息 """
+    getRepositorySteel(input: GetRepositorySteelInput!): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""

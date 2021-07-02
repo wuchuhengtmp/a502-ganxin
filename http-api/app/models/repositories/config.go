@@ -15,6 +15,7 @@ import (
 	"http-api/app/http/graph/auth"
 	"http-api/app/models/logs"
 	"http-api/app/models/repository_leader"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
 	sqlModel "http-api/pkg/model"
 )
@@ -129,4 +130,19 @@ func GetLeaders(tx *gorm.DB, repositoryId int64) (userList []*users.Users, err e
 		Where(fmt.Sprintf("%s.repository_id = %d", repositoryLeaderTable, repositoryId)).
 		Find(&userList).Error
 	return
+}
+
+type GetRepositorySteelListItemRes struct {
+	Total int64 `json:"total"`
+	Weight float64 `json:"weight"`
+	SpecificationInfo specificationinfo.SpecificationInfo
+}
+// 获取仓库型钢信息响应
+type GetRepositorySteelRes struct {
+	// 型钢规格列表
+	List []*GetRepositorySteelListItemRes
+	// 数量
+	Total int64
+	// 重量
+	Weight float64
 }

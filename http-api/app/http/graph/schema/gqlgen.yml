@@ -123,3 +123,8 @@ models:
   # 项目归库的型钢查询响应
   GetEnterRepositorySteelDetailRes:
     model: http-api/app/models/projects.GetEnterRepositorySteelDetailRes
+  # 获取仓库型钢信息响应
+  GetRepositorySteelRes:
+    model: http-api/app/models/repositories.GetRepositorySteelRes
+  GetRepositorySteelListItemRes:
+    model: http-api/app/models/repositories.GetRepositorySteelListItemRes
