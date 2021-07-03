@@ -21,6 +21,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func Run ()  {
@@ -67,9 +68,11 @@ func RunWeb (c *cli.Context) error {
 	bootstrap.SetupDB()
 	router = bootstrap.SetupRoute()
 	go func() {
-		// :xxx 这里可能有个端口占用的异常，要捕获后，进行更友好的提示
-		http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
+		err := http.ListenAndServe(":" + pkgC.GetString("APP_PORT"), middlewares.RemoveTrailingSlash(router))
+		log.Fatalln(err)
 	}()
+	// :xxx 这里的端口占用采用延时，判断，还是不好， 最好能拿到服务启动后的后续hook才能更友好，更准确
+	time.Sleep(time.Second * 1)
 	fmt.Printf(`
 		🚀 🚀 🚀 Server is running!
 		Listening on port %s
