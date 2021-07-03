@@ -1977,3 +1977,75 @@ func TestRepositoryAdminRoleSetBatchOfRepositorySteelScrap(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员 获取待修改仓库型钢详细信息 集成测试 --手持机
+ */
+func TestRepositoryAdminRoleGet2BeChangedRepositorySteelDetail(t *testing.T) {
+	q := `
+		query ($input: Get2BeChangedRepositorySteelDetailInput!){
+		  get2BeChangedRepositorySteelDetail(input: $input){
+			   list{
+			  id
+			  # 型钢编码
+			  code
+			  specifcation{
+				# 规格尺寸
+				specification
+			  }
+			  # 当前信息
+			  stateInfo{
+				state
+				desc
+			  }
+			  # 项目经历
+			  steelInProject{
+				id
+				#出库时间
+				outRepositoryAt
+				# 项目名
+				projectName
+			  }
+			  #维修经历
+			  steelInMaintenance{
+				id
+				# 出库时间
+				outRepositoryAt
+				maintenance {
+				  # 维修厂名
+				  name
+				}
+			  }
+			  # 材料商
+			  materialManufacturer{
+				id
+				name
+			  }
+			  # 生产商
+			  manufacturer{
+				id
+				name
+			  }
+			  # 生产日期
+			  createdAt
+			  # 周转次数
+			  turnover
+			}
+			# 数量
+			total
+			# 重量
+			weight
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string {
+				"9",
+			},
+			"specificationId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
