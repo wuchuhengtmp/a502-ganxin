@@ -19,7 +19,6 @@ var MaintenanceSeeder = []seed.Seed{
 		Name: "create maintenance",
 		Run: func(db *gorm.DB) error {
 			return createMaintenance(db,
-				2,
 				"edit name",
 				"edit address",
 				"",
@@ -32,7 +31,6 @@ var MaintenanceSeeder = []seed.Seed{
 
 func createMaintenance(
 	db *gorm.DB,
-	Id int64,
 	Name string,
 	Address string,
 	Remark string,
@@ -41,7 +39,6 @@ func createMaintenance(
 ) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		r := maintenance.Maintenance{
-			Id:        Id,
 			Name:      Name,
 			Address:   Address,
 			Remark:    Remark,

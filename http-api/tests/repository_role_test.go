@@ -2116,3 +2116,26 @@ func TestRepositoryAdminRoleGet2BeMaintainSteelDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员  集成测试--手持机
+ */
+func TestRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
+	q := `
+		mutation ($input: SetBatchOfMaintenanceSteelInput!){
+		  setBatchOfMaintenanceSteel(input: $input) {
+			id
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifierList": []string{
+				"9",
+			},
+			"maintenanceId": 2,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
