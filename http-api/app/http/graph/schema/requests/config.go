@@ -1173,3 +1173,28 @@ func (s *StepsForRepository) CheckIsChangeAccess(ctx context.Context, identifier
 
 	return nil
 }
+
+/**
+ * 检验型钢能不能出库维修
+ */
+func (s *StepsForRepository) CheckIs2BeMaintainAccess(ctx context.Context, identifier string) error {
+	if err := s.CheckHasSteel(ctx, identifier); err != nil {
+		return err
+	}
+	me := auth.GetUser(ctx)
+	steelItem := steels.Steels{}
+	err := model.DB.Model(&steels.Steels{}).Where("identifier = ?", identifier).
+		Where("company_id = ?", me.CompanyId).
+		First(&steelItem).
+		Error
+	if err != nil {
+		return err
+	}
+	if steelItem.State == steels.StateScrap {
+		return fmt.Errorf("标识码为:%s 的型钢已经报废，不能维修了", identifier)
+	} else if steelItem.State != steels.StateInStore {
+		return fmt.Errorf("当前型钢 %s 状态为:%s 必须为%s状态 才能出库维修", identifier, steels.StateCodeMapDes[steelItem.State], steels.StateCodeMapDes[steels.StateInStore])
+	}
+
+	return nil
+}

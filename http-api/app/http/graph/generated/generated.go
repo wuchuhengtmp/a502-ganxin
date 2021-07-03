@@ -383,6 +383,7 @@ type ComplexityRoot struct {
 		ErrorCodeDesc                           func(childComplexity int) int
 		Get2BeChangedRepositorySteel            func(childComplexity int, input model.Get2BeChangedRepositorySteelInput) int
 		Get2BeChangedRepositorySteelDetail      func(childComplexity int, input model.Get2BeChangedRepositorySteelDetailInput) int
+		Get2BeMaintainSteel                     func(childComplexity int, input model.Get2BeMaintainSteelInput) int
 		Get2BeScrapRepositorySteel              func(childComplexity int, input model.Get2BeScrapRepositorySteelInput) int
 		Get2BeScrapRepositorySteelDetail        func(childComplexity int, input model.Get2BeScrapRepositorySteelDetailInput) int
 		GetAllCompany                           func(childComplexity int) int
@@ -673,6 +674,7 @@ type QueryResolver interface {
 	Get2BeChangedRepositorySteelDetail(ctx context.Context, input model.Get2BeChangedRepositorySteelDetailInput) (*steels.Get2BeChangedRepositorySteelDetailRes, error)
 	Get2BeScrapRepositorySteel(ctx context.Context, input model.Get2BeScrapRepositorySteelInput) (*steels.Steels, error)
 	Get2BeScrapRepositorySteelDetail(ctx context.Context, input model.Get2BeScrapRepositorySteelDetailInput) (*steels.Get2BeScrapRepositorySteelDetailRes, error)
+	Get2BeMaintainSteel(ctx context.Context, input model.Get2BeMaintainSteelInput) (*steels.Steels, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 	GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error)
@@ -2380,6 +2382,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Get2BeChangedRepositorySteelDetail(childComplexity, args["input"].(model.Get2BeChangedRepositorySteelDetailInput)), true
+
+	case "Query.get2BeMaintainSteel":
+		if e.complexity.Query.Get2BeMaintainSteel == nil {
+			break
+		}
+
+		args, err := ec.field_Query_get2BeMaintainSteel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Get2BeMaintainSteel(childComplexity, args["input"].(model.Get2BeMaintainSteelInput)), true
 
 	case "Query.get2BeScrapRepositorySteel":
 		if e.complexity.Query.Get2BeScrapRepositorySteel == nil {
@@ -4432,6 +4446,19 @@ type Get2BeChangedRepositorySteelDetailRes {
     """ 重量 """
     weight: Float!
 }
+""" 获取型钢维修出库参数 """
+input Get2BeMaintainSteelInput {
+    """ 识别码 """
+    identifier: String!
+}
+
+""" 获取型钢维修出库详情参数 """
+input Get2BeMaintainSteelDetailInput {
+    """ 识别码 """
+    identifier: String!
+    """ 规格 ID """
+    specificationId: Int
+}
 
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
@@ -4452,6 +4479,10 @@ extend type Query {
     get2BeScrapRepositorySteel(input: Get2BeScrapRepositorySteelInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取用于报废的仓库型钢详情 """
     get2BeScrapRepositorySteelDetail(input: Get2BeScrapRepositorySteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取出库维修的型钢 """
+    get2BeMaintainSteel(input: Get2BeMaintainSteelInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+#    """ 获取出库维修的型钢详情 """
+#    get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
 """ 批量报废型钢参数 """
@@ -5328,6 +5359,21 @@ func (ec *executionContext) field_Query_get2BeChangedRepositorySteel_args(ctx co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNGet2BeChangedRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGet2BeChangedRepositorySteelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_get2BeMaintainSteel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.Get2BeMaintainSteelInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGet2BeMaintainSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGet2BeMaintainSteelInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -16828,6 +16874,78 @@ func (ec *executionContext) _Query_get2BeScrapRepositorySteelDetail(ctx context.
 	return ec.marshalNGet2BeScrapRepositorySteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐGet2BeScrapRepositorySteelDetailRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_get2BeMaintainSteel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_get2BeMaintainSteel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Get2BeMaintainSteel(rctx, args["input"].(model.Get2BeMaintainSteelInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*steels.Steels); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/steels.Steels`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*steels.Steels)
+	fc.Result = res
+	return ec.marshalNSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -21717,6 +21835,54 @@ func (ec *executionContext) unmarshalInputGet2BeChangedRepositorySteelInput(ctx 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGet2BeMaintainSteelDetailInput(ctx context.Context, obj interface{}) (model.Get2BeMaintainSteelDetailInput, error) {
+	var it model.Get2BeMaintainSteelDetailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifier":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGet2BeMaintainSteelInput(ctx context.Context, obj interface{}) (model.Get2BeMaintainSteelInput, error) {
+	var it model.Get2BeMaintainSteelInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifier":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGet2BeScrapRepositorySteelDetailInput(ctx context.Context, obj interface{}) (model.Get2BeScrapRepositorySteelDetailInput, error) {
 	var it model.Get2BeScrapRepositorySteelDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -25282,6 +25448,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "get2BeMaintainSteel":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_get2BeMaintainSteel(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRoleList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -26653,6 +26833,11 @@ func (ec *executionContext) marshalNGet2BeChangedRepositorySteelDetailRes2ᚖhtt
 
 func (ec *executionContext) unmarshalNGet2BeChangedRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGet2BeChangedRepositorySteelInput(ctx context.Context, v interface{}) (model.Get2BeChangedRepositorySteelInput, error) {
 	res, err := ec.unmarshalInputGet2BeChangedRepositorySteelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNGet2BeMaintainSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGet2BeMaintainSteelInput(ctx context.Context, v interface{}) (model.Get2BeMaintainSteelInput, error) {
+	res, err := ec.unmarshalInputGet2BeMaintainSteelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
