@@ -303,7 +303,7 @@ type Get2BeChangedRepositorySteelInput struct {
 //  获取型钢维修出库详情参数
 type Get2BeMaintainSteelDetailInput struct {
 	//  识别码
-	Identifier string `json:"identifier"`
+	IdentifierList []string `json:"identifierList"`
 	//  规格 ID
 	SpecificationID *int64 `json:"specificationId"`
 }

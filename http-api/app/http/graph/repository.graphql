@@ -137,7 +137,7 @@ input Get2BeMaintainSteelInput {
 """ 获取型钢维修出库详情参数 """
 input Get2BeMaintainSteelDetailInput {
     """ 识别码 """
-    identifier: String!
+    identifierList: [String!]!
     """ 规格 ID """
     specificationId: Int
 }
@@ -163,8 +163,8 @@ extend type Query {
     get2BeScrapRepositorySteelDetail(input: Get2BeScrapRepositorySteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取出库维修的型钢 """
     get2BeMaintainSteel(input: Get2BeMaintainSteelInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-#    """ 获取出库维修的型钢详情 """
-#    get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取出库维修的型钢详情 """
+    get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
 """ 批量报废型钢参数 """
