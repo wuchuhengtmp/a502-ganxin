@@ -1065,7 +1065,6 @@ func (*StepsForRepository) CheckHasSteel(ctx context.Context, identifier string)
 	return err
 }
 
-
 /**
  * 检验型钢是否归属我
  */
@@ -1078,7 +1077,7 @@ func (*StepsForRepository) CheckIsSteelBeLongMe(ctx context.Context, identifier 
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.repository_id", repositoryTable, repositoryTable, steelTable)).
 		Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.id", leaderTable, leaderTable, repositoryTable)).
 		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
-		Where( fmt.Sprintf("%s.company_id = ?", steelTable), me.CompanyId).
+		Where(fmt.Sprintf("%s.company_id = ?", steelTable), me.CompanyId).
 		First(&steels.Steels{}).
 		Error
 	if err != nil {
@@ -1112,7 +1111,7 @@ func (*StepsForRepository) CheckHasMaterialManufacturer(ctx context.Context, mat
 /**
  * 检验有没有这个制造商
  */
-func (*StepsForRepository)CheckHasManufacturer(ctx context.Context, manufacturerId int64) error {
+func (*StepsForRepository) CheckHasManufacturer(ctx context.Context, manufacturerId int64) error {
 	c := codeinfo.CodeInfo{}
 	me := auth.GetUser(ctx)
 	err := model.DB.Model(&c).
@@ -1126,6 +1125,25 @@ func (*StepsForRepository)CheckHasManufacturer(ctx context.Context, manufacturer
 	}
 	return err
 }
+
+/**
+ * 检验有没有这个维修厂
+ */
+func (*StepsForRepository) CheckHasMaintenance(ctx context.Context, maintenanceId int64) error {
+	me := auth.GetUser(ctx)
+	item := maintenance.Maintenance{}
+	err := model.DB.Model(&item).
+		Where("company_id = ?", me.CompanyId).
+		Where("id = ?", maintenanceId).
+		First(&item).
+		Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("维修厂id为:%d 不存在", maintenanceId)
+	}
+
+	return err
+}
+
 /**
  * 检验型钢能不能报废
  */
@@ -1161,15 +1179,15 @@ func (s *StepsForRepository) CheckIsChangeAccess(ctx context.Context, identifier
 	}
 	me := auth.GetUser(ctx)
 	steelItem := steels.Steels{}
-	 err := model.DB.Model(steels.Steels{}).Where("identifier = ?", identifier).
+	err := model.DB.Model(steels.Steels{}).Where("identifier = ?", identifier).
 		Where("company_id = ?", me.CompanyId).
 		First(&steelItem).Error
-	 if err != nil {
+	if err != nil {
 		return err
-	 }
-	 if steelItem.State != steels.StateInStore {
-		return fmt.Errorf( "标识码为%s 的型钢状态为: %s 无法修改", identifier, steels.StateCodeMapDes[steelItem.State])
-	 }
+	}
+	if steelItem.State != steels.StateInStore {
+		return fmt.Errorf("标识码为%s 的型钢状态为: %s 无法修改", identifier, steels.StateCodeMapDes[steelItem.State])
+	}
 
 	return nil
 }

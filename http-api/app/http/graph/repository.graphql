@@ -172,6 +172,14 @@ input SetBatchOfRepositorySteelScrapInput {
     """ 识别码列表 """
     identifierList: [String!]!
 }
+
+""" 批量维修出库参数 """
+input SetBatchOfMaintenanceSteelInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 维修厂 id """
+    maintenanceId: Int!
+}
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
@@ -181,4 +189,6 @@ extend type Mutation {
     setBatchOfRepositorySteel(input: SetBatchOfRepositorySteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 批量报废型钢 """
     setBatchOfRepositorySteelScrap(input: SetBatchOfRepositorySteelScrapInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 批量维修出库 """
+    setBatchOfMaintenanceSteel(input: SetBatchOfMaintenanceSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }

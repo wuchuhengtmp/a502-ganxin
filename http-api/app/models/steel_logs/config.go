@@ -29,6 +29,7 @@ const (
 	EnterRepositoryType SteelLogType = "EnterRepositoryType" // 入场状态
 	CrapSteelType       SteelLogType = "CrapSteelType"       // 型钢报废
 	EditType            SteelLogType = "editType"            // 修改
+	ToBeMaintenanceType SteelLogType = "ToBeMaintenanceType" // 待维修
 )
 
 // 操作类型映射说明

@@ -15,6 +15,7 @@ import (
 
 type MaintenanceRecord struct {
 	Id                int64     `json:"id"`
+	State             int64     `json:"state" gorm:"comment:维修周期的状态"`
 	MaintenanceId     int64     `json:"maintenance_id" gorm:"comment:维修厂id"`
 	SteelId           int64     `json:"steel_id" gorm:"comment:型钢id"`
 	OutedAt           time.Time `json:"outed_at" gorm:"comment:出厂时间"`
@@ -23,6 +24,7 @@ type MaintenanceRecord struct {
 	EnterRepositoryAt time.Time `json:"enterRepositoryAt" gorm:"comment:入库时间"`
 	gorm.Model
 }
-func(MaintenanceRecord)TableName() string {
+
+func (MaintenanceRecord) TableName() string {
 	return "maintenance_records"
 }

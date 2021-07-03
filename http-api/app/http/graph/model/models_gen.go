@@ -524,6 +524,14 @@ type RepositoryLeaderItem struct {
 	Wechat string `json:"wechat"`
 }
 
+//  批量维修出库参数
+type SetBatchOfMaintenanceSteelInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  维修厂 id
+	MaintenanceID int64 `json:"maintenanceId"`
+}
+
 type SetBatchOfRepositorySteelInput struct {
 	//  识别码列表
 	IdentifierList []string `json:"identifierList"`
