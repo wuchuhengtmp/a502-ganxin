@@ -2049,3 +2049,30 @@ func TestRepositoryAdminRoleGet2BeChangedRepositorySteelDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员 获取待出库的型钢 集成测试 --手持机
+ */
+func TestRepositoryAdminRoleGet2BeMaintainSteel(t *testing.T) {
+	q := `
+		query ($input: Get2BeMaintainSteelInput!){
+		  get2BeMaintainSteel (input: $input){
+			id
+			# 规格信息
+			specifcation {
+			  id
+			  specification #规格
+			  weight # 重量
+			  
+			}
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifier": "9",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
