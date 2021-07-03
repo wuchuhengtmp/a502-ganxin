@@ -2051,7 +2051,7 @@ func TestRepositoryAdminRoleGet2BeChangedRepositorySteelDetail(t *testing.T) {
 }
 
 /**
- * 仓库管理员 获取待出库的型钢 集成测试 --手持机
+ * 仓库管理员  集成测试 --手持机
  */
 func TestRepositoryAdminRoleGet2BeMaintainSteel(t *testing.T) {
 	q := `
@@ -2071,6 +2071,46 @@ func TestRepositoryAdminRoleGet2BeMaintainSteel(t *testing.T) {
 	v = map[string]interface{}{
 		"input": map[string]interface{} {
 			"identifier": "9",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理员 获取待出库维修的型钢详情 集成测试 --手持机
+ */
+func TestRepositoryAdminRoleGet2BeMaintainSteelDetail(t *testing.T) {
+	q := `
+		query ($input: Get2BeMaintainSteelDetailInput!){
+		  get2BeMaintainSteelDetail(input: $input){
+			list{
+			  id
+			  # 编码
+			  code
+			  # 规格信息
+			  specifcation {
+				specification
+			  }
+			  # 状态信息
+			  stateInfo {
+				state
+				desc
+			  }
+			  # 周转次数
+			  turnover
+			}
+			# 数量
+			total
+			# 重量
+			weight
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifierList": []string{"9"},
+			"specificationId": 1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
