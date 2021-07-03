@@ -286,7 +286,15 @@ type FileItem struct {
 	URL string `json:"url"`
 }
 
-//  获取用于修改的仓库型钢详情参数
+//  获取待修改的仓库型钢详情参数
+type Get2BeChangedRepositorySteelDetailInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+}
+
+//  获取用于修改的仓库型钢参数
 type Get2BeChangedRepositorySteelInput struct {
 	//  识别码
 	Identifier string `json:"identifier"`

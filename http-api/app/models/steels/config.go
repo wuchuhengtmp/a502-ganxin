@@ -342,3 +342,12 @@ type Get2BeScrapRepositorySteelDetailRes struct {
 	//""" 重量 """
 	Weight float64
 }
+
+//  获取待修改型钢详情
+type Get2BeChangedRepositorySteelDetailRes struct {
+	List []*Steels
+	//""" 数量 """
+	Total int64
+	//""" 重量 """
+	Weight float64
+}

@@ -133,3 +133,5 @@ models:
   # 获取用于报废的仓库型钢详情响应数据
   Get2BeScrapRepositorySteelDetailRes:
     model: http-api/app/models/steels.Get2BeScrapRepositorySteelDetailRes
+  Get2BeChangedRepositorySteelDetailRes:
+    model: http-api/app/models/steels.Get2BeChangedRepositorySteelDetailRes

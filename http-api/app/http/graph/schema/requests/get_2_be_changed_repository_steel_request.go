@@ -15,9 +15,13 @@ import (
 
 func Get2BeChangedRepositorySteelRequest(ctx context.Context, input graphModel.Get2BeChangedRepositorySteelInput) error {
 	steps := StepsForRepository{}
+	// 检验有没有这根型钢
 	if err := steps.CheckHasSteel(ctx, input.Identifier); err != nil {
 		return err
 	}
-
+	// 检验是不是归属我
+	if err := steps.CheckIsSteelBeLongMe(ctx, input.Identifier); err != nil {
+		return err
+	}
 	return nil
 }

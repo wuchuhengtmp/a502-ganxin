@@ -1065,6 +1065,32 @@ func (*StepsForRepository) CheckHasSteel(ctx context.Context, identifier string)
 	return err
 }
 
+
+/**
+ * 检验型钢是否归属我
+ */
+func (*StepsForRepository) CheckIsSteelBeLongMe(ctx context.Context, identifier string) error {
+	me := auth.GetUser(ctx)
+	repositoryTable := repositories.Repositories{}.TableName()
+	leaderTable := repository_leader.RepositoryLeader{}.TableName()
+	steelTable := steels.Steels{}.TableName()
+	err := model.DB.Model(&steels.Steels{}).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.repository_id", repositoryTable, repositoryTable, steelTable)).
+		Joins(fmt.Sprintf("join %s ON %s.repository_id = %s.id", leaderTable, leaderTable, repositoryTable)).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		Where( fmt.Sprintf("%s.company_id = ?", steelTable), me.CompanyId).
+		First(&steels.Steels{}).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("标识码为: %s 的型钢: 不归属于您管理的仓库下，你无权操作", identifier)
+		}
+		return err
+	}
+
+	return nil
+}
+
 /**
  * 检验有没有家材料商
  */
@@ -1122,6 +1148,28 @@ func (s *StepsForRepository) CheckIsScrapAccess(ctx context.Context, identifier 
 	} else if steelItem.State != steels.StateInStore {
 		return fmt.Errorf("当前型钢 %s 状态为:%s 必须为%s状态 才能报废", identifier, steels.StateCodeMapDes[steelItem.State], steels.StateCodeMapDes[steels.StateInStore])
 	}
+
+	return nil
+}
+
+/**
+ * 检验能否修改
+ */
+func (s *StepsForRepository) CheckIsChangeAccess(ctx context.Context, identifier string) error {
+	if err := s.CheckHasSteel(ctx, identifier); err != nil {
+		return err
+	}
+	me := auth.GetUser(ctx)
+	steelItem := steels.Steels{}
+	 err := model.DB.Model(steels.Steels{}).Where("identifier = ?", identifier).
+		Where("company_id = ?", me.CompanyId).
+		First(&steelItem).Error
+	 if err != nil {
+		return err
+	 }
+	 if steelItem.State != steels.StateInStore {
+		return fmt.Errorf( "标识码为%s 的型钢状态为: %s 无法修改", identifier, steels.StateCodeMapDes[steelItem.State])
+	 }
 
 	return nil
 }
