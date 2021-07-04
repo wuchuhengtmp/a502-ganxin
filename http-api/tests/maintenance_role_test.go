@@ -647,8 +647,59 @@ func testMaintenanceAdminRoleGetEnterMaintenanceSteel(t *testing.T) {
 		}
 	`
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifier": "9",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 维修管理员待入厂详细信息列表集成测试--手持机
+ */
+func testMaintenanceAdminRoleGetEnterMaintenanceSteelDetail(t *testing.T) {
+	q := `
+		query ($input: GetEnterMaintenanceSteelDetailInput!){
+		  getEnterMaintenanceSteelDetail(input: $input){
+			list{
+			  id
+			  outRepositoryAt # 出库时间
+			  steel {
+				code # 型钢编码
+				specifcation {
+				  specification # 规格
+				}
+				# 项目
+				steelInMaintenance {
+				  outRepositoryAt # 出库时间
+				  maintenance {
+					name # 维修厂名称
+				  }
+				}
+				manufacturer {
+				  name # 生产商
+				}
+				producedDate # 生产日期
+				turnover # 周转次数
+			  }
+			  stateInfo{ # 状态信息
+				  desc
+				  state
+			  }
+			  
+			}
+			total 
+			weight
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{
+				"9",
+			},
+			"specificationId": 1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
