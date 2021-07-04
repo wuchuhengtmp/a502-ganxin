@@ -1273,7 +1273,7 @@ func (s *StepsForMaintenance) CheckIsEnterMaintenanceAccess(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	if record.State != steels.StateMaintainerWillBeMaintained {
+	if record.State != steels.StateRepository2Maintainer {
 		return fmt.Errorf("型钢状态为:%s 不能入厂", steels.StateCodeMapDes[record.State])
 
 	}

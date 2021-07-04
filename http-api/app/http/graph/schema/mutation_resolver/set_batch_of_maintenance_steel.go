@@ -100,7 +100,7 @@ func (s *SetBatchOfMaintenanceSteelSteps) CreateDetail(ctx context.Context, tx *
 		return err
 	}
 	i := maintenance_record.MaintenanceRecord{
-		State:           steels.StateMaintainerWillBeMaintained,
+		State:           steels.StateRepository2Maintainer,
 		MaintenanceId:   maintenanceId,
 		SteelId:         steelItem.ID,
 		OutRepositoryAt: time.Now(),
@@ -143,7 +143,7 @@ func (s *SetBatchOfMaintenanceSteelSteps) FlagMaintenance(ctx context.Context, t
 	}
 	// 标记为维修
 	err = tx.Model(&steels.Steels{}).Where("id = ?", steelItem.ID).
-		Update("state", steels.StateMaintainerWillBeMaintained).
+		Update("state", steels.StateRepository2Maintainer).
 		Error
 	return nil
 }
