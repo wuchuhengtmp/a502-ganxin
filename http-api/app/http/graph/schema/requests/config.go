@@ -18,6 +18,8 @@ import (
 	"http-api/app/models/devices"
 	"http-api/app/models/files"
 	"http-api/app/models/maintenance"
+	"http-api/app/models/maintenance_leader"
+	"http-api/app/models/maintenance_record"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
@@ -1212,6 +1214,68 @@ func (s *StepsForRepository) CheckIs2BeMaintainAccess(ctx context.Context, ident
 		return fmt.Errorf("标识码为:%s 的型钢已经报废，不能维修了", identifier)
 	} else if steelItem.State != steels.StateInStore {
 		return fmt.Errorf("当前型钢 %s 状态为:%s 必须为%s状态 才能出库维修", identifier, steels.StateCodeMapDes[steelItem.State], steels.StateCodeMapDes[steels.StateInStore])
+	}
+
+	return nil
+}
+
+/**
+ * 检验型钢是否归属我
+ */
+func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identifier string) error {
+	r := StepsForRepository{}
+	if err := r.CheckHasSteel(ctx, identifier); err != nil {
+		return err
+	}
+	leaderTable := maintenance_leader.MaintenanceLeader{}.TableName()
+	record := maintenance_record.MaintenanceRecord{}
+	maintenanceTable := maintenance.Maintenance{}.TableName()
+	steelTable := steels.Steels{}.TableName()
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&record).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, record.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.maintenance_id", maintenanceTable, maintenanceTable, record.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.maintenance_id = %s.id", leaderTable, leaderTable, maintenanceTable)).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		Where(fmt.Sprintf("%s.uid = ?", leaderTable), me.Id).
+		First(&record).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/**
+ * 检验有没有这个根型钢
+ */
+func (*StepsForMaintenance) CheckHasSteel(ctx context.Context, identifier string) error {
+	steps := StepsForRepository{}
+
+	return steps.CheckHasSteel(ctx, identifier)
+}
+
+/**
+ * 检验能否入厂
+ */
+func (s *StepsForMaintenance) CheckIsEnterMaintenanceAccess(ctx context.Context, identifier string) error {
+	if err := s.CheckHasSteel(ctx, identifier); err != nil {
+		return err
+	}
+	steelTable := steels.Steels{}.TableName()
+	record := maintenance_record.MaintenanceRecord{}
+	err := model.DB.Model(&record).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, record.TableName())).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		First(&record).
+		Error
+	if err != nil {
+		return err
+	}
+	if record.State != steels.StateMaintainerWillBeMaintained {
+		return fmt.Errorf("型钢状态为:%s 不能入厂", steels.StateCodeMapDes[record.State])
+
 	}
 
 	return nil

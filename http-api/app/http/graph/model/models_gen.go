@@ -272,6 +272,12 @@ type EditSpecificationInput struct {
 	IsDefault bool    `json:"isDefault"`
 }
 
+//  型钢入厂输入
+type EnterMaintenanceInput struct {
+	//  识别码
+	Identifier string `json:"identifier"`
+}
+
 type ErrCodes struct {
 	//  错误码编号
 	Code int64 `json:"code"`

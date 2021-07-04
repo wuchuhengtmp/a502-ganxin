@@ -66,6 +66,11 @@ input DelMaintenanceInput {
     """ 工厂id """
     id: Int!
 }
+""" 型钢入厂输入 """
+input EnterMaintenanceInput {
+    """ 识别码 """
+    identifier: String!
+}
 extend  type Mutation {
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
@@ -78,4 +83,6 @@ extend  type Mutation {
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
+    """ 型钢入厂查询 """
+    getEnterMaintenanceSteel(input: EnterMaintenanceInput!): MaintenanceRecordItem ! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }
