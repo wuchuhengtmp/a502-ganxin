@@ -135,3 +135,6 @@ models:
     model: http-api/app/models/steels.Get2BeScrapRepositorySteelDetailRes
   Get2BeChangedRepositorySteelDetailRes:
     model: http-api/app/models/steels.Get2BeChangedRepositorySteelDetailRes
+  # 获取待入厂详细信息参数
+  GetEnterMaintenanceSteelDetailRes:
+    model: http-api/app/models/maintenance.GetEnterMaintenanceSteelDetailRes

@@ -31,6 +31,13 @@ func (*QueryResolver) GetMaintenanceList(ctx context.Context) (res []*maintenanc
 
 type MaintenanceRecordItemResolver struct { }
 
+func (MaintenanceRecordItemResolver)StateInfo(ctx context.Context, obj *maintenance_record.MaintenanceRecord) (*steels.StateItem, error) {
+	return &steels.StateItem{
+		State: obj.State,
+		Desc: steels.StateCodeMapDes[obj.State],
+	}, nil
+}
+
 func (MaintenanceRecordItemResolver) Maintenance(ctx context.Context, obj *maintenance_record.MaintenanceRecord) (*maintenance.Maintenance, error) {
 	me := auth.GetUser(ctx)
 	m := maintenance.Maintenance{}

@@ -8,7 +8,10 @@
  */
 package maintenance
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"http-api/app/models/maintenance_record"
+)
 
 type Maintenance struct {
 	Id        int64  `json:"id"`
@@ -21,6 +24,15 @@ type Maintenance struct {
 }
 func(Maintenance)TableName() string {
 	return "maintenance"
+}
+//""" 获取待入厂详细信息参数 """
+type GetEnterMaintenanceSteelDetailRes struct {
+	//""" 入厂型钢列表 """
+	List []*maintenance_record.MaintenanceRecord
+	//""" 数量 """
+	Total int64
+	//""" 重量 """
+	Weight float64
 }
 
 

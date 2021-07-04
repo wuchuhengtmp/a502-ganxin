@@ -6,6 +6,8 @@ type MaintenanceRecordItem {
     maintenance: MaintenanceItem!
     """ 型钢 """
     steel: SteelItem!
+    """ 状态信息 """
+    stateInfo: StateItem!
     """ 维修天数 """
     useDays: Int
     """ 出厂时间 """
@@ -71,6 +73,13 @@ input EnterMaintenanceInput {
     """ 识别码 """
     identifier: String!
 }
+""" 待入厂详细信息参数 """
+input GetEnterMaintenanceSteelDetailInput {
+    """ 识别码 """
+    identifierList: [String!]!
+    """ 规格id """
+    specificationId: Int
+}
 extend  type Mutation {
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
@@ -79,10 +88,20 @@ extend  type Mutation {
     """ 删除维修厂 """
     delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
 }
-
+""" 获取待入厂详细信息参数 """
+type GetEnterMaintenanceSteelDetailRes {
+    """ 入厂型钢列表 """
+    list: [MaintenanceRecordItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
     """ 型钢入厂查询 """
     getEnterMaintenanceSteel(input: EnterMaintenanceInput!): MaintenanceRecordItem ! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取待入厂详细信息 """
+    getEnterMaintenanceSteelDetail(input: GetEnterMaintenanceSteelDetailInput!): GetEnterMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }

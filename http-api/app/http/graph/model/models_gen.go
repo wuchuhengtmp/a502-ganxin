@@ -339,6 +339,14 @@ type GetCompanyUserInput struct {
 	RoleID *int64 `json:"roleId"`
 }
 
+//  待入厂详细信息参数
+type GetEnterMaintenanceSteelDetailInput struct {
+	//  识别码
+	IdentifierList []string `json:"identifierList"`
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+}
+
 //  项目归库的型钢查询参数
 type GetEnterRepositorySteelDetailInput struct {
 	//  识别码

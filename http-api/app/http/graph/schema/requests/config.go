@@ -1241,6 +1241,9 @@ func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identif
 		First(&record).
 		Error
 	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("")
+		}
 		return err
 	}
 
@@ -1252,8 +1255,34 @@ func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identif
  */
 func (*StepsForMaintenance) CheckHasSteel(ctx context.Context, identifier string) error {
 	steps := StepsForRepository{}
+	if err := steps.CheckHasSteel(ctx, identifier); err != nil {
+		return err
+	}
+	steelTable := steels.Steels{}.TableName()
+	maintenanceRecordTable := maintenance_record.MaintenanceRecord{}.TableName()
+	item := maintenance_record.MaintenanceRecord{}
+	err := model.DB.Model(&item).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, maintenanceRecordTable)).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		First(&item).
+		Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("维修厂没有识别码为: %s 的型钢", identifier)
+		}
+		return err
+	}
 
-	return steps.CheckHasSteel(ctx, identifier)
+	return nil
+}
+
+/**
+ * 检验有没有这个规格
+ */
+func (*StepsForMaintenance) CheckSpecification(ctx context.Context, specificationId int64) error {
+	steps := StepsForRepository{}
+
+	return steps.CheckHasSpecification(ctx, specificationId)
 }
 
 /**
