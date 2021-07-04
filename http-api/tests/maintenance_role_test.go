@@ -447,7 +447,7 @@ func TestMaintenanceAdminGetMyInfo(t *testing.T) {
 }
 
 /**
- * 项目管理员获取项目列表集成测试
+ * 维修管理员获取项目列表集成测试
  */
 func TestMaintenanceAdminGetProjectList(t *testing.T) {
 	q := `
@@ -540,7 +540,7 @@ func TestMaintenanceAdminGetOrderList(t *testing.T) {
 }
 
 /**
- * 项目管理员型钢快速查询集成测试-手持机
+ * 维修管理员型钢快速查询集成测试-手持机
  */
 func TestMaintanceAdminGetSteelDetail(t *testing.T) {
 	q := `query ($input: GetOneSteelDetailInput!){
@@ -608,7 +608,7 @@ func TestMaintanceAdminGetSteelDetail(t *testing.T) {
 }
 
 /**
- *项目管理员获取消息列表集成测试-手持机
+ * 维修管理员获取消息列表集成测试-手持机
  */
 func TestMaintenanceAdminRoleGetMsgList(t *testing.T) {
 	q := `
@@ -621,6 +621,36 @@ func TestMaintenanceAdminRoleGetMsgList(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 维修管理员获取要入厂的型钢信息--手持机
+ */
+func testMaintenanceAdminRoleGetEnterMaintenanceSteel(t *testing.T) {
+	q := `
+		query ($input: EnterMaintenanceInput!) {
+		  getEnterMaintenanceSteel(input: $input) {
+			id
+			steel {
+			  # 规格信息
+			  specifcation {
+				id
+				# 规格
+				specification
+				# 重量
+				weight
+			  }
+			}
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"identifier": "9",
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }

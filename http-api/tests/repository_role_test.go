@@ -2118,9 +2118,9 @@ func TestRepositoryAdminRoleGet2BeMaintainSteelDetail(t *testing.T) {
 }
 
 /**
- * 仓库管理员  集成测试--手持机
+ * 仓库管理员型钢维修出库集成测试--手持机
  */
-func TestRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
+func testRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
 	q := `
 		mutation ($input: SetBatchOfMaintenanceSteelInput!){
 		  setBatchOfMaintenanceSteel(input: $input) {
@@ -2138,4 +2138,12 @@ func TestRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
+}
+
+/**
+ *  仓库到维修厂测试流程--手持机
+ */
+func TestRepositoryAdminRoleRepository2MaintenancePipeline(t *testing.T)  {
+	t.Run("仓库管理员型钢维修出库集成测试--手持机", testRepositoryAdminRoleSetBatchOfMaintenanceSteel)
+	t.Run("维修管理员获取要入厂的型钢信息--手持机", testMaintenanceAdminRoleGetEnterMaintenanceSteel)
 }
