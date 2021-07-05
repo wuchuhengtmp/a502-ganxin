@@ -28,7 +28,6 @@ func ValidateGetChangedMaintenanceSteelDetailRequest(ctx context.Context, input 
 		if err := steps.CheckIsChangedMaintenanceSteelAccess(ctx, identifier); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
