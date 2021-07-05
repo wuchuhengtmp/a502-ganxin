@@ -744,3 +744,29 @@ func testMaintenanceAdminRoleGetMaintenanceStateForChanged(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 维修管理员型钢修改状态查询集成测试--手持机
+ */
+func testMaintenanceAdminRoleGetChangedMaintenanceSteel(t *testing.T) {
+	q := `
+		query ($input: GetChangedMaintenanceSteelInput!) {
+		  getChangedMaintenanceSteel(input: $input) {
+			id
+			 steel {
+			   specifcation {
+				specification # 规格
+				weight # 重量
+			  }
+			}
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifier": "9",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
