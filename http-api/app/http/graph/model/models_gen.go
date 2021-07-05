@@ -588,6 +588,14 @@ type SetMaintenanceInput struct {
 	IdentifierList []string `json:"identifierList"`
 }
 
+//  修改维修型钢状态参数
+type SetMaintenanceSteelStateInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  状态id
+	State int64 `json:"state"`
+}
+
 //  设置密码的参数
 type SetPasswordInput struct {
 	Password string `json:"password"`

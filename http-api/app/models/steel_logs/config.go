@@ -31,6 +31,7 @@ const (
 	EditType                      SteelLogType = "editType"                      // 修改
 	ToBeMaintenanceType           SteelLogType = "ToBeMaintenanceType"           // 待维修
 	OutOfRepositoryForMaintenance SteelLogType = "OutOfRepositoryForMaintenance" // 型钢出库
+	ChangedMaintenanceSteel       SteelLogType = "ChangedMaintenanceSteel"       // 修改维修型钢状态
 )
 
 // 操作类型映射说明

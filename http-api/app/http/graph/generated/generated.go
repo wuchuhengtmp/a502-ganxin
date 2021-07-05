@@ -314,6 +314,7 @@ type ComplexityRoot struct {
 		SetBatchOfRepositorySteel      func(childComplexity int, input model.SetBatchOfRepositorySteelInput) int
 		SetBatchOfRepositorySteelScrap func(childComplexity int, input model.SetBatchOfRepositorySteelScrapInput) int
 		SetEnterMaintenance            func(childComplexity int, input model.SetMaintenanceInput) int
+		SetMaintenanceSteelState       func(childComplexity int, input model.SetMaintenanceSteelStateInput) int
 		SetPassword                    func(childComplexity int, input *model.SetPasswordInput) int
 		SetProjectOrder2Workshop       func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
 		SetProjectSteelEnterRepository func(childComplexity int, input model.SetProjectSteelEnterRepositoryInput) int
@@ -583,6 +584,7 @@ type MutationResolver interface {
 	EditMaintenance(ctx context.Context, input model.EditMaintenanceInput) (*maintenance.Maintenance, error)
 	DelMaintenance(ctx context.Context, input model.DelMaintenanceInput) (bool, error)
 	SetEnterMaintenance(ctx context.Context, input model.SetMaintenanceInput) ([]*maintenance_record.MaintenanceRecord, error)
+	SetMaintenanceSteelState(ctx context.Context, input model.SetMaintenanceSteelStateInput) ([]*maintenance_record.MaintenanceRecord, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -1978,6 +1980,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetEnterMaintenance(childComplexity, args["input"].(model.SetMaintenanceInput)), true
+
+	case "Mutation.setMaintenanceSteelState":
+		if e.complexity.Mutation.SetMaintenanceSteelState == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setMaintenanceSteelState_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetMaintenanceSteelState(childComplexity, args["input"].(model.SetMaintenanceSteelStateInput)), true
 
 	case "Mutation.setPassword":
 		if e.complexity.Mutation.SetPassword == nil {
@@ -3912,17 +3926,6 @@ type GetEnterMaintenanceSteelDetailRes {
 input SetMaintenanceInput {
     identifierList: [String!]!
 }
-extend type Mutation {
-    """ 创建维修厂 """
-    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """  修改维修厂 """
-    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """ 删除维修厂 """
-    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
-    """" 型钢入厂 """
-    setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin])
-
-}
 """ 修改维修型钢状态查询参数 """
 input GetChangedMaintenanceSteelInput {
     """ 识别码 """
@@ -3942,6 +3945,25 @@ type GetChangedMaintenanceSteelDetailRes {
     total: Int!
     """ 重量 """
     weight: Float!
+}
+""" 修改维修型钢状态参数 """
+input SetMaintenanceSteelStateInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 状态id """
+    state: Int!
+}
+extend type Mutation {
+    """ 创建维修厂 """
+    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """  修改维修厂 """
+    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """ 删除维修厂 """
+    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
+    """" 型钢入厂 """
+    setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 修改维修型钢状态 """
+    setMaintenanceSteelState(input: SetMaintenanceSteelStateInput!): [MaintenanceRecordItem!]! @mustBeDevice @hasRole(role: [maintenanceAdmin])
 }
 extend type Query {
     """ 获取维修厂列表 """
@@ -5483,6 +5505,21 @@ func (ec *executionContext) field_Mutation_setEnterMaintenance_args(ctx context.
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSetMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setMaintenanceSteelState_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetMaintenanceSteelStateInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetMaintenanceSteelStateInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceSteelStateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -11042,8 +11079,86 @@ func (ec *executionContext) _Mutation_setEnterMaintenance(ctx context.Context, f
 			}
 			return ec.directives.HasRole(ctx, nil, directive0, role)
 		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*maintenance_record.MaintenanceRecord); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/maintenance_record.MaintenanceRecord`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*maintenance_record.MaintenanceRecord)
+	fc.Result = res
+	return ec.marshalNMaintenanceRecordItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmaintenance_recordᚐMaintenanceRecordᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setMaintenanceSteelState(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setMaintenanceSteelState_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetMaintenanceSteelState(rctx, args["input"].(model.SetMaintenanceSteelStateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive1, role)
+		}
+
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -23927,6 +24042,34 @@ func (ec *executionContext) unmarshalInputSetMaintenanceInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetMaintenanceSteelStateInput(ctx context.Context, obj interface{}) (model.SetMaintenanceSteelStateInput, error) {
+	var it model.SetMaintenanceSteelStateInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "state":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
+			it.State, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
 	var it model.SetPasswordInput
 	var asMap = obj.(map[string]interface{})
@@ -25493,6 +25636,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "setEnterMaintenance":
 			out.Values[i] = ec._Mutation_setEnterMaintenance(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setMaintenanceSteelState":
+			out.Values[i] = ec._Mutation_setMaintenanceSteelState(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -29623,6 +29771,11 @@ func (ec *executionContext) unmarshalNSetBatchOfRepositorySteelScrapInput2http�
 
 func (ec *executionContext) unmarshalNSetMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceInput(ctx context.Context, v interface{}) (model.SetMaintenanceInput, error) {
 	res, err := ec.unmarshalInputSetMaintenanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetMaintenanceSteelStateInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceSteelStateInput(ctx context.Context, v interface{}) (model.SetMaintenanceSteelStateInput, error) {
+	res, err := ec.unmarshalInputSetMaintenanceSteelStateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

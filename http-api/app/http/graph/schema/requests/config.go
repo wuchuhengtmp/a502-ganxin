@@ -1237,6 +1237,19 @@ func (s *StepsForRepository) CheckIs2BeMaintainAccess(ctx context.Context, ident
 }
 
 /**
+ * 检验修改的状态是否合法
+ */
+func (s *StepsForMaintenance) CheckStateForChanged(state int64) error {
+	for _, ruleState := range steels.GetMaintenanceStateListForChanged() {
+		if state == ruleState {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("状态为:%d 不合法", state)
+}
+
+/**
  * 检验型钢是否归属我
  */
 func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identifier string) error {

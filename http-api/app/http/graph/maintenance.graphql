@@ -93,17 +93,6 @@ type GetEnterMaintenanceSteelDetailRes {
 input SetMaintenanceInput {
     identifierList: [String!]!
 }
-extend type Mutation {
-    """ 创建维修厂 """
-    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """  修改维修厂 """
-    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """ 删除维修厂 """
-    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
-    """" 型钢入厂 """
-    setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin])
-
-}
 """ 修改维修型钢状态查询参数 """
 input GetChangedMaintenanceSteelInput {
     """ 识别码 """
@@ -123,6 +112,25 @@ type GetChangedMaintenanceSteelDetailRes {
     total: Int!
     """ 重量 """
     weight: Float!
+}
+""" 修改维修型钢状态参数 """
+input SetMaintenanceSteelStateInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 状态id """
+    state: Int!
+}
+extend type Mutation {
+    """ 创建维修厂 """
+    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """  修改维修厂 """
+    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """ 删除维修厂 """
+    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
+    """" 型钢入厂 """
+    setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 修改维修型钢状态 """
+    setMaintenanceSteelState(input: SetMaintenanceSteelStateInput!): [MaintenanceRecordItem!]! @mustBeDevice @hasRole(role: [maintenanceAdmin])
 }
 extend type Query {
     """ 获取维修厂列表 """
