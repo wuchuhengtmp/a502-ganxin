@@ -1255,6 +1255,7 @@ func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identif
 		Joins(fmt.Sprintf("join %s ON %s.maintenance_id = %s.id", leaderTable, leaderTable, maintenanceTable)).
 		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
 		Where(fmt.Sprintf("%s.uid = ?", leaderTable), me.Id).
+		Where(fmt.Sprintf("%s.state = ?", record.TableName()), steels.StateRepository2Maintainer).
 		First(&record).
 		Error
 	if err != nil {

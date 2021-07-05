@@ -307,6 +307,7 @@ type ComplexityRoot struct {
 		SetBatchOfMaintenanceSteel     func(childComplexity int, input model.SetBatchOfMaintenanceSteelInput) int
 		SetBatchOfRepositorySteel      func(childComplexity int, input model.SetBatchOfRepositorySteelInput) int
 		SetBatchOfRepositorySteelScrap func(childComplexity int, input model.SetBatchOfRepositorySteelScrapInput) int
+		SetEnterMaintenance            func(childComplexity int, input model.SetMaintenanceInput) int
 		SetPassword                    func(childComplexity int, input *model.SetPasswordInput) int
 		SetProjectOrder2Workshop       func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
 		SetProjectSteelEnterRepository func(childComplexity int, input model.SetProjectSteelEnterRepositoryInput) int
@@ -572,6 +573,7 @@ type MutationResolver interface {
 	CreateMaintenance(ctx context.Context, input model.CreateMaintenanceInput) (*maintenance.Maintenance, error)
 	EditMaintenance(ctx context.Context, input model.EditMaintenanceInput) (*maintenance.Maintenance, error)
 	DelMaintenance(ctx context.Context, input model.DelMaintenanceInput) (bool, error)
+	SetEnterMaintenance(ctx context.Context, input model.SetMaintenanceInput) ([]*maintenance_record.MaintenanceRecord, error)
 	CreateManufacturer(ctx context.Context, input model.CreateManufacturerInput) (*codeinfo.CodeInfo, error)
 	EditManufacturer(ctx context.Context, input model.EditManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteManufacturer(ctx context.Context, id int64) (bool, error)
@@ -1931,6 +1933,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetBatchOfRepositorySteelScrap(childComplexity, args["input"].(model.SetBatchOfRepositorySteelScrapInput)), true
+
+	case "Mutation.setEnterMaintenance":
+		if e.complexity.Mutation.SetEnterMaintenance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setEnterMaintenance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetEnterMaintenance(childComplexity, args["input"].(model.SetMaintenanceInput)), true
 
 	case "Mutation.setPassword":
 		if e.complexity.Mutation.SetPassword == nil {
@@ -3821,14 +3835,6 @@ input GetEnterMaintenanceSteelDetailInput {
     """ 规格id """
     specificationId: Int
 }
-extend  type Mutation {
-    """ 创建维修厂 """
-    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """  修改维修厂 """
-    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """ 删除维修厂 """
-    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
-}
 """ 获取待入厂详细信息参数 """
 type GetEnterMaintenanceSteelDetailRes {
     """ 入厂型钢列表 """
@@ -3837,6 +3843,20 @@ type GetEnterMaintenanceSteelDetailRes {
     total: Int!
     """ 重量 """
     weight: Float!
+}
+"""" 型钢入厂参数 """
+input SetMaintenanceInput {
+    identifierList: [String!]!
+}
+extend  type Mutation {
+    """ 创建维修厂 """
+    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """  修改维修厂 """
+    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """ 删除维修厂 """
+    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
+    """" 型钢入厂 """
+    setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin])
 }
 extend type Query {
     """ 获取维修厂列表 """
@@ -5357,6 +5377,21 @@ func (ec *executionContext) field_Mutation_setBatchOfRepositorySteel_args(ctx co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSetBatchOfRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetBatchOfRepositorySteelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setEnterMaintenance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetMaintenanceInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -10741,6 +10776,72 @@ func (ec *executionContext) _Mutation_delMaintenance(ctx context.Context, field 
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setEnterMaintenance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setEnterMaintenance_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetEnterMaintenance(rctx, args["input"].(model.SetMaintenanceInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*maintenance_record.MaintenanceRecord); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/maintenance_record.MaintenanceRecord`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*maintenance_record.MaintenanceRecord)
+	fc.Result = res
+	return ec.marshalNMaintenanceRecordItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmaintenance_recordᚐMaintenanceRecordᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createManufacturer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -23323,6 +23424,26 @@ func (ec *executionContext) unmarshalInputSetBatchOfRepositorySteelScrapInput(ct
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetMaintenanceInput(ctx context.Context, obj interface{}) (model.SetMaintenanceInput, error) {
+	var it model.SetMaintenanceInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
 	var it model.SetPasswordInput
 	var asMap = obj.(map[string]interface{})
@@ -24847,6 +24968,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "delMaintenance":
 			out.Values[i] = ec._Mutation_delMaintenance(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setEnterMaintenance":
+			out.Values[i] = ec._Mutation_setEnterMaintenance(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -28906,6 +29032,11 @@ func (ec *executionContext) unmarshalNSetBatchOfRepositorySteelInput2httpᚑapi�
 
 func (ec *executionContext) unmarshalNSetBatchOfRepositorySteelScrapInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetBatchOfRepositorySteelScrapInput(ctx context.Context, v interface{}) (model.SetBatchOfRepositorySteelScrapInput, error) {
 	res, err := ec.unmarshalInputSetBatchOfRepositorySteelScrapInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceInput(ctx context.Context, v interface{}) (model.SetMaintenanceInput, error) {
+	res, err := ec.unmarshalInputSetMaintenanceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

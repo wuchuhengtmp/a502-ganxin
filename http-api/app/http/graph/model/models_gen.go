@@ -570,6 +570,11 @@ type SetBatchOfRepositorySteelScrapInput struct {
 	IdentifierList []string `json:"identifierList"`
 }
 
+// " 型钢入厂参数
+type SetMaintenanceInput struct {
+	IdentifierList []string `json:"identifierList"`
+}
+
 //  设置密码的参数
 type SetPasswordInput struct {
 	Password string `json:"password"`

@@ -122,7 +122,7 @@ func (s *SetBatchOfMaintenanceSteelSteps) CreateSteelLog(ctx context.Context, tx
 		return err
 	}
 	logItem := steel_logs.SteelLog{
-		Type:    steel_logs.ToBeMaintenanceType,
+		Type:    steel_logs.OutOfRepositoryForMaintenance,
 		SteelId: steelItem.ID,
 		Uid:     me.Id,
 	}

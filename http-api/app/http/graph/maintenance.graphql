@@ -80,14 +80,6 @@ input GetEnterMaintenanceSteelDetailInput {
     """ 规格id """
     specificationId: Int
 }
-extend  type Mutation {
-    """ 创建维修厂 """
-    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """  修改维修厂 """
-    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
-    """ 删除维修厂 """
-    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
-}
 """ 获取待入厂详细信息参数 """
 type GetEnterMaintenanceSteelDetailRes {
     """ 入厂型钢列表 """
@@ -96,6 +88,20 @@ type GetEnterMaintenanceSteelDetailRes {
     total: Int!
     """ 重量 """
     weight: Float!
+}
+"""" 型钢入厂参数 """
+input SetMaintenanceInput {
+    identifierList: [String!]!
+}
+extend  type Mutation {
+    """ 创建维修厂 """
+    createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """  修改维修厂 """
+    editMaintenance(input: EditMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
+    """ 删除维修厂 """
+    delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
+    """" 型钢入厂 """
+    setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin])
 }
 extend type Query {
     """ 获取维修厂列表 """
