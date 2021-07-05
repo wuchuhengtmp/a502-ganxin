@@ -22,3 +22,6 @@ $ go test http-api/tests -v -count=1
 #### 程序设计弊端:  
 * &emsp;模型层的各个文件不在同一个包命下，导致模型中读写业务过于复杂的话，容易导致循环依赖的情况，这才导致不得不在模型层之上再抽象一层服务层来避免这个情况。本来
 是没这个必要一，如果模型文件都在一个包名下的话,处理起来会更加简单，但相对的，业务集中在一个文件可能导致文件过大，而又不好拆分。
+
+#### 数据表关系图
+https://viewer.diagrams.net/?highlight=0000ff&edit=_blank&layers=1&nav=1&title=a0502-%E5%9E%8B%E9%92%A2.drawio#Uhttps%3A%2F%2Fraw.githubusercontent.com%2Fwuchuheng%2Fgateway_demo%2Fmaster%2Fa0502-%25E5%259E%258B%25E9%2592%25A2.drawio

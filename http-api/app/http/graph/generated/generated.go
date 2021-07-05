@@ -139,6 +139,12 @@ type ComplexityRoot struct {
 		Weight func(childComplexity int) int
 	}
 
+	GetChangedMaintenanceSteelDetailRes struct {
+		List   func(childComplexity int) int
+		Total  func(childComplexity int) int
+		Weight func(childComplexity int) int
+	}
+
 	GetEnterMaintenanceSteelDetailRes struct {
 		List   func(childComplexity int) int
 		Total  func(childComplexity int) int
@@ -399,6 +405,7 @@ type ComplexityRoot struct {
 		GetAllCompany                           func(childComplexity int) int
 		GetAllStateList                         func(childComplexity int) int
 		GetChangedMaintenanceSteel              func(childComplexity int, input model.GetChangedMaintenanceSteelInput) int
+		GetChangedMaintenanceSteelDetail        func(childComplexity int, input model.GetChangedMaintenanceSteelDetailInput) int
 		GetCompanyUser                          func(childComplexity int, input *model.GetCompanyUserInput) int
 		GetDeviceList                           func(childComplexity int) int
 		GetEnterMaintenanceSteel                func(childComplexity int, input model.EnterMaintenanceInput) int
@@ -658,6 +665,7 @@ type QueryResolver interface {
 	GetEnterMaintenanceSteelDetail(ctx context.Context, input model.GetEnterMaintenanceSteelDetailInput) (*maintenance.GetEnterMaintenanceSteelDetailRes, error)
 	GetMaintenanceStateForChanged(ctx context.Context) ([]*steels.StateItem, error)
 	GetChangedMaintenanceSteel(ctx context.Context, input model.GetChangedMaintenanceSteelInput) (*maintenance_record.MaintenanceRecord, error)
+	GetChangedMaintenanceSteelDetail(ctx context.Context, input model.GetChangedMaintenanceSteelDetailInput) (*maintenance.GetChangedMaintenanceSteelDetailRes, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
@@ -1018,6 +1026,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Get2BeScrapRepositorySteelDetailRes.Weight(childComplexity), true
+
+	case "GetChangedMaintenanceSteelDetailRes.list":
+		if e.complexity.GetChangedMaintenanceSteelDetailRes.List == nil {
+			break
+		}
+
+		return e.complexity.GetChangedMaintenanceSteelDetailRes.List(childComplexity), true
+
+	case "GetChangedMaintenanceSteelDetailRes.total":
+		if e.complexity.GetChangedMaintenanceSteelDetailRes.Total == nil {
+			break
+		}
+
+		return e.complexity.GetChangedMaintenanceSteelDetailRes.Total(childComplexity), true
+
+	case "GetChangedMaintenanceSteelDetailRes.weight":
+		if e.complexity.GetChangedMaintenanceSteelDetailRes.Weight == nil {
+			break
+		}
+
+		return e.complexity.GetChangedMaintenanceSteelDetailRes.Weight(childComplexity), true
 
 	case "GetEnterMaintenanceSteelDetailRes.list":
 		if e.complexity.GetEnterMaintenanceSteelDetailRes.List == nil {
@@ -2531,6 +2560,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetChangedMaintenanceSteel(childComplexity, args["input"].(model.GetChangedMaintenanceSteelInput)), true
 
+	case "Query.getChangedMaintenanceSteelDetail":
+		if e.complexity.Query.GetChangedMaintenanceSteelDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getChangedMaintenanceSteelDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetChangedMaintenanceSteelDetail(childComplexity, args["input"].(model.GetChangedMaintenanceSteelDetailInput)), true
+
 	case "Query.getCompanyUser":
 		if e.complexity.Query.GetCompanyUser == nil {
 			break
@@ -3887,6 +3928,21 @@ input GetChangedMaintenanceSteelInput {
     """ 识别码 """
     identifier: String!
 }
+input GetChangedMaintenanceSteelDetailInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格列表 """
+    specificationId: Int
+}
+""" 待维修型钢详情响应 """
+type GetChangedMaintenanceSteelDetailRes {
+    """ 维修型钢列表 """
+    list: [MaintenanceRecordItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -3896,8 +3952,10 @@ extend type Query {
     getEnterMaintenanceSteelDetail(input: GetEnterMaintenanceSteelDetailInput!): GetEnterMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取用于修改维修型钢状态的状态列表"""
     getMaintenanceStateForChanged: [StateItem!]! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
-    """ 修改维修型钢状态查询 """
+    """ 待修改维修型钢状态查询 """
     getChangedMaintenanceSteel(input: GetChangedMaintenanceSteelInput!): MaintenanceRecordItem ! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 待维修型钢详情 """
+    getChangedMaintenanceSteelDetail(input: GetChangedMaintenanceSteelDetailInput!): GetChangedMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }`, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
 """ 添加制造商参数 """
@@ -5643,6 +5701,21 @@ func (ec *executionContext) field_Query_get2BeScrapRepositorySteel_args(ctx cont
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getChangedMaintenanceSteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetChangedMaintenanceSteelDetailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetChangedMaintenanceSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetChangedMaintenanceSteelDetailInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getChangedMaintenanceSteel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -7360,6 +7433,111 @@ func (ec *executionContext) _Get2BeScrapRepositorySteelDetailRes_weight(ctx cont
 	}()
 	fc := &graphql.FieldContext{
 		Object:     "Get2BeScrapRepositorySteelDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetChangedMaintenanceSteelDetailRes_list(ctx context.Context, field graphql.CollectedField, obj *maintenance.GetChangedMaintenanceSteelDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetChangedMaintenanceSteelDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.List, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*maintenance_record.MaintenanceRecord)
+	fc.Result = res
+	return ec.marshalNMaintenanceRecordItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmaintenance_recordᚐMaintenanceRecordᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetChangedMaintenanceSteelDetailRes_total(ctx context.Context, field graphql.CollectedField, obj *maintenance.GetChangedMaintenanceSteelDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetChangedMaintenanceSteelDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetChangedMaintenanceSteelDetailRes_weight(ctx context.Context, field graphql.CollectedField, obj *maintenance.GetChangedMaintenanceSteelDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetChangedMaintenanceSteelDetailRes",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -15252,6 +15430,78 @@ func (ec *executionContext) _Query_getChangedMaintenanceSteel(ctx context.Contex
 	return ec.marshalNMaintenanceRecordItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenance_recordᚐMaintenanceRecord(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getChangedMaintenanceSteelDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getChangedMaintenanceSteelDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetChangedMaintenanceSteelDetail(rctx, args["input"].(model.GetChangedMaintenanceSteelDetailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*maintenance.GetChangedMaintenanceSteelDetailRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/maintenance.GetChangedMaintenanceSteelDetailRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*maintenance.GetChangedMaintenanceSteelDetailRes)
+	fc.Result = res
+	return ec.marshalNGetChangedMaintenanceSteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetChangedMaintenanceSteelDetailRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getManufacturers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -22858,6 +23108,34 @@ func (ec *executionContext) unmarshalInputGet2BeScrapRepositorySteelInput(ctx co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetChangedMaintenanceSteelDetailInput(ctx context.Context, obj interface{}) (model.GetChangedMaintenanceSteelDetailInput, error) {
+	var it model.GetChangedMaintenanceSteelDetailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetChangedMaintenanceSteelInput(ctx context.Context, obj interface{}) (model.GetChangedMaintenanceSteelInput, error) {
 	var it model.GetChangedMaintenanceSteelInput
 	var asMap = obj.(map[string]interface{})
@@ -24224,6 +24502,43 @@ func (ec *executionContext) _Get2BeScrapRepositorySteelDetailRes(ctx context.Con
 			}
 		case "weight":
 			out.Values[i] = ec._Get2BeScrapRepositorySteelDetailRes_weight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getChangedMaintenanceSteelDetailResImplementors = []string{"GetChangedMaintenanceSteelDetailRes"}
+
+func (ec *executionContext) _GetChangedMaintenanceSteelDetailRes(ctx context.Context, sel ast.SelectionSet, obj *maintenance.GetChangedMaintenanceSteelDetailRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getChangedMaintenanceSteelDetailResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetChangedMaintenanceSteelDetailRes")
+		case "list":
+			out.Values[i] = ec._GetChangedMaintenanceSteelDetailRes_list(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GetChangedMaintenanceSteelDetailRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._GetChangedMaintenanceSteelDetailRes_weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -26065,6 +26380,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getChangedMaintenanceSteel(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getChangedMaintenanceSteelDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getChangedMaintenanceSteelDetail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -28027,6 +28356,25 @@ func (ec *executionContext) marshalNGet2BeScrapRepositorySteelDetailRes2ᚖhttp�
 func (ec *executionContext) unmarshalNGet2BeScrapRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGet2BeScrapRepositorySteelInput(ctx context.Context, v interface{}) (model.Get2BeScrapRepositorySteelInput, error) {
 	res, err := ec.unmarshalInputGet2BeScrapRepositorySteelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNGetChangedMaintenanceSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetChangedMaintenanceSteelDetailInput(ctx context.Context, v interface{}) (model.GetChangedMaintenanceSteelDetailInput, error) {
+	res, err := ec.unmarshalInputGetChangedMaintenanceSteelDetailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetChangedMaintenanceSteelDetailRes2httpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetChangedMaintenanceSteelDetailRes(ctx context.Context, sel ast.SelectionSet, v maintenance.GetChangedMaintenanceSteelDetailRes) graphql.Marshaler {
+	return ec._GetChangedMaintenanceSteelDetailRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetChangedMaintenanceSteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetChangedMaintenanceSteelDetailRes(ctx context.Context, sel ast.SelectionSet, v *maintenance.GetChangedMaintenanceSteelDetailRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetChangedMaintenanceSteelDetailRes(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGetChangedMaintenanceSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetChangedMaintenanceSteelInput(ctx context.Context, v interface{}) (model.GetChangedMaintenanceSteelInput, error) {

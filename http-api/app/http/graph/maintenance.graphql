@@ -109,6 +109,21 @@ input GetChangedMaintenanceSteelInput {
     """ 识别码 """
     identifier: String!
 }
+input GetChangedMaintenanceSteelDetailInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格列表 """
+    specificationId: Int
+}
+""" 待维修型钢详情响应 """
+type GetChangedMaintenanceSteelDetailRes {
+    """ 维修型钢列表 """
+    list: [MaintenanceRecordItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -118,6 +133,8 @@ extend type Query {
     getEnterMaintenanceSteelDetail(input: GetEnterMaintenanceSteelDetailInput!): GetEnterMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取用于修改维修型钢状态的状态列表"""
     getMaintenanceStateForChanged: [StateItem!]! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
-    """ 修改维修型钢状态查询 """
+    """ 待修改维修型钢状态查询 """
     getChangedMaintenanceSteel(input: GetChangedMaintenanceSteelInput!): MaintenanceRecordItem ! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 待维修型钢详情 """
+    getChangedMaintenanceSteelDetail(input: GetChangedMaintenanceSteelDetailInput!): GetChangedMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }

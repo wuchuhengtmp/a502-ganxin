@@ -54,6 +54,7 @@ type Steels struct {
 	Code                      string    `json:"code gorm:comment:编码"`
 	ProducedDate              time.Time `json:"producedDate" gorm:"comment:生产时间"`
 	OrderSpecificationSteelId int64     `json:"orderSpecificationSteelId" gorm:"comment:当前这根型钢应用在哪个哪个项目的订单的规格列表中的型钢id"`
+	MaintenanceRecordSteelId        int64     `json:"maintenanceSteelId" gorm:"comment:当前维修型钢对应的id"`
 	gorm.Model
 }
 
@@ -66,7 +67,6 @@ type GetSteelListRes struct {
 	Total int64     `json:"total"`
 	List  []*Steels `json:"list"`
 }
-
 
 // 状态码声明
 const (
@@ -109,7 +109,7 @@ var StateCodeMapDes = map[int64]string{
 /**
  * 获取全部的状态
  */
-func GetAllStateList() []int64  {
+func GetAllStateList() []int64 {
 	return []int64{
 		StateInStore,
 		StateRepository2Project,
@@ -132,14 +132,13 @@ func GetAllStateList() []int64  {
 /**
  * 获取用于修改维修型钢的状态列表
  */
-func GetMaintenanceStateListForChanged() []int64  {
+func GetMaintenanceStateListForChanged() []int64 {
 	return []int64{
 		StateMaintainerWillBeMaintained,
 		StateMaintainerBeMaintaining,
 		StateMaintainerWillBeStore,
 	}
 }
-
 
 /**
  * 获取项目中会用到的型钢状态合集
@@ -162,8 +161,8 @@ func GetStateForProject() []int64 {
 /**
  * 型钢入库的状态列表
  */
-func GetStateListForEnterRepository()  []int64 {
-	return []int64 {
+func GetStateListForEnterRepository() []int64 {
+	return []int64{
 		StateInStore,               //【仓库】-在库
 		StateRepository2Project,    //【仓库】-运送至项目途中
 		StateRepository2Maintainer, //【仓库】-运送至维修厂途中

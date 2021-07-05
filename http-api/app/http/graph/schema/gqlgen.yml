@@ -138,3 +138,7 @@ models:
   # 获取待入厂详细信息参数
   GetEnterMaintenanceSteelDetailRes:
     model: http-api/app/models/maintenance.GetEnterMaintenanceSteelDetailRes
+  # 待维修型钢详情响应
+  GetChangedMaintenanceSteelDetailRes:
+    model: http-api/app/models/maintenance.GetChangedMaintenanceSteelDetailRes
+

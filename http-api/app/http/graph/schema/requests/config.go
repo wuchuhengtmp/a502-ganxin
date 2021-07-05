@@ -1054,8 +1054,8 @@ func (*StepsForRepository) CheckHasSpecification(ctx context.Context, specificat
 
 /**
  * 检验有没有这个用户
-*/
-func (*StepsForRepository) CheckHasUser(ctx context.Context, uid int64 ) error {
+ */
+func (*StepsForRepository) CheckHasUser(ctx context.Context, uid int64) error {
 	me := auth.GetUser(ctx)
 	err := model.DB.Model(&users.Users{}).Where("id = ?", uid).
 		Where("company_id = ?", me.CompanyId).
@@ -1255,7 +1255,6 @@ func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identif
 		Joins(fmt.Sprintf("join %s ON %s.maintenance_id = %s.id", leaderTable, leaderTable, maintenanceTable)).
 		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
 		Where(fmt.Sprintf("%s.uid = ?", leaderTable), me.Id).
-		Where(fmt.Sprintf("%s.state = ?", record.TableName()), steels.StateRepository2Maintainer).
 		First(&record).
 		Error
 	if err != nil {
@@ -1279,9 +1278,11 @@ func (*StepsForMaintenance) CheckHasSteel(ctx context.Context, identifier string
 	steelTable := steels.Steels{}.TableName()
 	maintenanceRecordTable := maintenance_record.MaintenanceRecord{}.TableName()
 	item := maintenance_record.MaintenanceRecord{}
+	me := auth.GetUser(ctx)
 	err := model.DB.Model(&item).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, maintenanceRecordTable)).
 		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		Where(fmt.Sprintf("%s.company_id = ?", steelTable), me.CompanyId).
 		First(&item).
 		Error
 	if err != nil {
@@ -1327,6 +1328,7 @@ func (s *StepsForMaintenance) CheckIsEnterMaintenanceAccess(ctx context.Context,
 
 	return nil
 }
+
 /**
  * 检验能否修改型钢状态
  */
@@ -1340,7 +1342,7 @@ func (s *StepsForMaintenance) CheckIsChangedMaintenanceSteelAccess(ctx context.C
 	maintenanceTable := maintenance.Maintenance{}.TableName()
 
 	me := auth.GetUser(ctx)
-	err := model.DB.Debug().Model(&record).
+	err := model.DB.Model(&record).
 		Select(fmt.Sprintf("%s.*", record.TableName())).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, record.TableName())).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.maintenance_id", maintenanceTable, maintenanceTable, record.TableName())).

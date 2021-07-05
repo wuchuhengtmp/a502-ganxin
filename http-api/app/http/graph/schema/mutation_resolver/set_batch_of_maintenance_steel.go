@@ -108,6 +108,16 @@ func (s *SetBatchOfMaintenanceSteelSteps) CreateDetail(ctx context.Context, tx *
 	if err := tx.Create(&i).Error; err != nil {
 		return err
 	}
+	// 标记当前维修的型钢详情id 对应到 型钢表中
+	me := auth.GetUser(ctx)
+	steelItem = steels.Steels{}
+	err = tx.Model(&steelItem).Where("identifier = ?", identifier).
+		Where("company_id = ?", me.CompanyId).
+		Update("maintenance_record_steel_id", i.Id).
+		Error
+	if err != nil {
+		return  err
+	}
 
 	return nil
 }

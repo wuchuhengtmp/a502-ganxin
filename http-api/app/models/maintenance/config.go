@@ -35,5 +35,15 @@ type GetEnterMaintenanceSteelDetailRes struct {
 	Weight float64
 }
 
-
+/**
+ * 待维修型钢详情响应
+ */
+type GetChangedMaintenanceSteelDetailRes struct {
+	//""" 维修型钢列表 """
+	List []*maintenance_record.MaintenanceRecord
+	//""" 数量 """
+	Total int64
+	// 重量
+	Weight float64
+}
 
