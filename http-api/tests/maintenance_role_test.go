@@ -705,3 +705,25 @@ func testMaintenanceAdminRoleGetEnterMaintenanceSteelDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 维修管理员入厂型钢集成测试--手持机
+ */
+func testMaintenanceAdminRoleSetEnterMaintenance(t *testing.T) {
+	q := `
+		mutation ($input: SetMaintenanceInput!){
+		   setEnterMaintenance(input: $input) {
+			id
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{
+				"9",
+			},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
