@@ -727,3 +727,20 @@ func testMaintenanceAdminRoleSetEnterMaintenance(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 维修管理员入厂型钢集成测试--手持机
+ */
+func testMaintenanceAdminRoleGetMaintenanceStateForChanged(t *testing.T) {
+	q := `
+		query {
+		   getMaintenanceStateForChanged {
+			state
+			desc
+		  }
+		}
+	`
+	v = map[string]interface{}{}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
