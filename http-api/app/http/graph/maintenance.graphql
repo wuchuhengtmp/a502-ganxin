@@ -132,6 +132,11 @@ extend type Mutation {
     """ 修改维修型钢状态 """
     setMaintenanceSteelState(input: SetMaintenanceSteelStateInput!): [MaintenanceRecordItem!]! @mustBeDevice @hasRole(role: [maintenanceAdmin])
 }
+""" 获取可能出厂的型钢参数 """
+input GetSteelForOutOfMaintenanceInput {
+    """ 识别码 """
+   identifier: String!
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -145,4 +150,6 @@ extend type Query {
     getChangedMaintenanceSteel(input: GetChangedMaintenanceSteelInput!): MaintenanceRecordItem ! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 待维修型钢详情 """
     getChangedMaintenanceSteelDetail(input: GetChangedMaintenanceSteelDetailInput!): GetChangedMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取可能出厂的型钢 """
+    getSteelForOutOfMaintenance(input: GetSteelForOutOfMaintenanceInput!): MaintenanceRecordItem! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }

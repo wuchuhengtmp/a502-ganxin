@@ -455,6 +455,12 @@ type GetRepositorySteelInput struct {
 	State *int64 `json:"state"`
 }
 
+//  获取可能出厂的型钢参数
+type GetSteelForOutOfMaintenanceInput struct {
+	//  识别码
+	Identifier string `json:"identifier"`
+}
+
 //  获取待归库详情参数
 type GetToBeEnterRepositoryDetailInput struct {
 	//  规格id

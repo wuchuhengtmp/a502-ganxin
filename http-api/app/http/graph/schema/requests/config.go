@@ -1375,3 +1375,31 @@ func (s *StepsForMaintenance) CheckIsChangedMaintenanceSteelAccess(ctx context.C
 
 	return fmt.Errorf("当前型钢状态为: %s 不能修改", steels.StateCodeMapDes[record.State])
 }
+
+/**
+ * 检验能不能出厂
+ */
+func (s *StepsForMaintenance) CheckIsOutOfMaintenanceAccess(ctx context.Context, identifier string) error {
+	steelsTable := steels.Steels{}.TableName()
+	recordItem := maintenance_record.MaintenanceRecord{}
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&recordItem).
+		Joins(fmt.Sprintf("join %s ON %s.maintenance_record_steel_id = %s.id", steelsTable, steelsTable, recordItem.TableName())).
+		Where(fmt.Sprintf("%s.identifier = ?", steelsTable), identifier).
+		Where(fmt.Sprintf("%s.company_id = ?", steelsTable), me.CompanyId).
+		First(&recordItem).
+		Error
+	if err != nil && err.Error() == "record not found"{
+		return fmt.Errorf("没有标识码为:%s 的维修型钢", identifier)
+	}
+	if recordItem.State != steels.StateMaintainerWillBeStore {
+		return fmt.Errorf(
+			"型钢识别码为：%s 的状态为: %s, 需要型钢状态为: %s 才能出厂",
+			identifier,
+			steels.StateCodeMapDes[recordItem.State],
+			steels.StateCodeMapDes[steels.StateMaintainerWillBeStore],
+		)
+	}
+
+	return err
+}
