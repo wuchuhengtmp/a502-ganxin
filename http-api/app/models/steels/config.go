@@ -128,6 +128,19 @@ func GetAllStateList() []int64  {
 		StateScrap,
 	}
 }
+
+/**
+ * 获取用于修改维修型钢的状态列表
+ */
+func GetMaintenanceStateListForChanged() []int64  {
+	return []int64{
+		StateMaintainerWillBeMaintained,
+		StateMaintainerBeMaintaining,
+		StateMaintainerWillBeStore,
+	}
+}
+
+
 /**
  * 获取项目中会用到的型钢状态合集
  */

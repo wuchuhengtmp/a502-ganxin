@@ -406,6 +406,7 @@ type ComplexityRoot struct {
 		GetEnterRepositorySteelDetail           func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
 		GetExpressList                          func(childComplexity int) int
 		GetMaintenanceList                      func(childComplexity int) int
+		GetMaintenanceStateForChanged           func(childComplexity int) int
 		GetManufacturers                        func(childComplexity int) int
 		GetMaterialManufacturers                func(childComplexity int) int
 		GetMaxLocationCode                      func(childComplexity int, input model.GetMaxLocationCodeInput) int
@@ -654,6 +655,7 @@ type QueryResolver interface {
 	GetMaintenanceList(ctx context.Context) ([]*maintenance.Maintenance, error)
 	GetEnterMaintenanceSteel(ctx context.Context, input model.EnterMaintenanceInput) (*maintenance_record.MaintenanceRecord, error)
 	GetEnterMaintenanceSteelDetail(ctx context.Context, input model.GetEnterMaintenanceSteelDetailInput) (*maintenance.GetEnterMaintenanceSteelDetailRes, error)
+	GetMaintenanceStateForChanged(ctx context.Context) ([]*steels.StateItem, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
@@ -2591,6 +2593,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetMaintenanceList(childComplexity), true
 
+	case "Query.getMaintenanceStateForChanged":
+		if e.complexity.Query.GetMaintenanceStateForChanged == nil {
+			break
+		}
+
+		return e.complexity.Query.GetMaintenanceStateForChanged(childComplexity), true
+
 	case "Query.getManufacturers":
 		if e.complexity.Query.GetManufacturers == nil {
 			break
@@ -3848,7 +3857,7 @@ type GetEnterMaintenanceSteelDetailRes {
 input SetMaintenanceInput {
     identifierList: [String!]!
 }
-extend  type Mutation {
+extend type Mutation {
     """ 创建维修厂 """
     createMaintenance(input: CreateMaintenanceInput! ): MaintenanceItem! @hasRole(role: [companyAdmin])
     """  修改维修厂 """
@@ -3857,6 +3866,7 @@ extend  type Mutation {
     delMaintenance(input: DelMaintenanceInput!): Boolean! @hasRole(role: [companyAdmin])
     """" 型钢入厂 """
     setEnterMaintenance(input: SetMaintenanceInput!): [MaintenanceRecordItem!]!@hasRole(role: [maintenanceAdmin])
+
 }
 extend type Query {
     """ 获取维修厂列表 """
@@ -3865,6 +3875,8 @@ extend type Query {
     getEnterMaintenanceSteel(input: EnterMaintenanceInput!): MaintenanceRecordItem ! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取待入厂详细信息 """
     getEnterMaintenanceSteelDetail(input: GetEnterMaintenanceSteelDetailInput!): GetEnterMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取用于修改维修型钢状态的状态列表"""
+    getMaintenanceStateForChanged: [StateItem!]! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }`, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
 """ 添加制造商参数 """
@@ -15067,6 +15079,71 @@ func (ec *executionContext) _Query_getEnterMaintenanceSteelDetail(ctx context.Co
 	return ec.marshalNGetEnterMaintenanceSteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetEnterMaintenanceSteelDetailRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getMaintenanceStateForChanged(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMaintenanceStateForChanged(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.StateItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.StateItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.StateItem)
+	fc.Result = res
+	return ec.marshalNStateItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐStateItemᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getManufacturers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -25832,6 +25909,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getEnterMaintenanceSteelDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getMaintenanceStateForChanged":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMaintenanceStateForChanged(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
