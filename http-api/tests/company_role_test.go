@@ -1293,7 +1293,7 @@ func TestCompanyAdminRoleCreateMaintenance(t *testing.T) {
 		"input": map[string]interface{}{
 			"address": "测试地址1",
 			"name":    "测试名1",
-			"uid":     5,
+			"uid":     []int64{5},
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)

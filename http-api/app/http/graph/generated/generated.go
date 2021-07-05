@@ -3783,7 +3783,7 @@ type MaintenanceItem {
 """ 创建维修厂参数 """
 input CreateMaintenanceInput {
     """ 维修员id """
-    uid: Int!
+    uid: [Int!]!
     """ 维修厂名称 """
     name: String!
     """ 地址 """
@@ -21509,7 +21509,7 @@ func (ec *executionContext) unmarshalInputCreateMaintenanceInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uid"))
-			it.UID, err = ec.unmarshalNInt2int64(ctx, v)
+			it.UID, err = ec.unmarshalNInt2ᚕint64ᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

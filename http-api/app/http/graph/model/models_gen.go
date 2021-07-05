@@ -72,7 +72,7 @@ type CreateExpressInput struct {
 //  创建维修厂参数
 type CreateMaintenanceInput struct {
 	//  维修员id
-	UID int64 `json:"uid"`
+	UID []int64 `json:"uid"`
 	//  维修厂名称
 	Name string `json:"name"`
 	//  地址

@@ -14,14 +14,15 @@ import (
 
 func ValidateCreateMaintenanceRequest(input graphModel.CreateMaintenanceInput) error {
 	steps := StepsForMaintenance{}
-
-	// 检验有没有这个用户
-	if err := steps.CheckHasUser(input.UID); err != nil {
-		return err
-	}
-	//检验用户角色
-	if err := steps.CheckIsMaintenanceRole(input.UID); err != nil {
-		return err
+	for _, uid := range input.UID {
+		// 检验有没有这个用户
+		if err := steps.CheckHasUser(uid); err != nil {
+			return err
+		}
+		//检验用户角色
+		if err := steps.CheckIsMaintenanceRole(uid); err != nil {
+			return err
+		}
 	}
 
 	return nil

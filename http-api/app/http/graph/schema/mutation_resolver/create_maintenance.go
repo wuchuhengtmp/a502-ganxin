@@ -42,10 +42,12 @@ func (*MutationResolver) CreateMaintenance(ctx context.Context, input graphModel
 		if err := tx.Create(&m).Error; err != nil {
 			return err
 		}
-		tx.Create(&maintenance_leader.MaintenanceLeader{
-			MaintenanceId: m.Id,
-			Uid:           input.UID,
-		})
+		for _, uid := range input.UID {
+			tx.Create(&maintenance_leader.MaintenanceLeader{
+				MaintenanceId: m.Id,
+				Uid: uid,
+			})
+		}
 		// 操作日志
 		l := logs.Logos{
 			Type:    logs.CreateActionType,

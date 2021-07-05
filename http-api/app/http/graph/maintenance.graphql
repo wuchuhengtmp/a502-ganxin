@@ -42,7 +42,7 @@ type MaintenanceItem {
 """ 创建维修厂参数 """
 input CreateMaintenanceInput {
     """ 维修员id """
-    uid: Int!
+    uid: [Int!]!
     """ 维修厂名称 """
     name: String!
     """ 地址 """
