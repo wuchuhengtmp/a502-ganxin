@@ -13,8 +13,8 @@ import (
 	graphModel "http-api/app/http/graph/model"
 )
 
-func ValidateGetChangedMaintenanceSteelDetailRequest(ctx context.Context, input graphModel.GetChangedMaintenanceSteelDetailInput) error  {
-	steps  := StepsForMaintenance{}
+func ValidateGetChangedMaintenanceSteelDetailRequest(ctx context.Context, input graphModel.GetChangedMaintenanceSteelDetailInput) error {
+	steps := StepsForMaintenance{}
 	for _, identifier := range input.IdentifierList {
 		// 检验有没有这根型钢
 		if err := steps.CheckHasSteel(ctx, identifier); err != nil {
@@ -26,6 +26,11 @@ func ValidateGetChangedMaintenanceSteelDetailRequest(ctx context.Context, input 
 		}
 		// 检验型钢能否修改状态
 		if err := steps.CheckIsChangedMaintenanceSteelAccess(ctx, identifier); err != nil {
+			return err
+		}
+	}
+	if input.SpecificationID != nil {
+		if err := steps.CheckSpecification(ctx, *input.SpecificationID); err != nil {
 			return err
 		}
 	}

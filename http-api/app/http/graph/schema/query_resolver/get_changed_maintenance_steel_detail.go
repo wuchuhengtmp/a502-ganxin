@@ -31,10 +31,15 @@ func (*QueryResolver) GetChangedMaintenanceSteelDetail(ctx context.Context, inpu
 	steelTable := steels.Steels{}.TableName()
 	recordItem := maintenance_record.MaintenanceRecord{}
 	me := auth.GetUser(ctx)
+	specificationTable := specificationinfo.SpecificationInfo{}.TableName()
 	modelInstance := model.DB.Model(&recordItem).
 		Joins(fmt.Sprintf("join %s ON %s.maintenance_record_steel_id = %s.id", steelTable, steelTable, recordItem.TableName())).
 		Where(fmt.Sprintf("%s.identifier IN ?", steelTable), input.IdentifierList).
 		Where(fmt.Sprintf("%s.company_id = ?", steelTable), me.CompanyId)
+	if input.SpecificationID != nil {
+		modelInstance = modelInstance.
+			Where(fmt.Sprintf("%s.specification_id = ?", steelTable), *input.SpecificationID)
+	}
 	if err := modelInstance.Select(fmt.Sprintf("%s.*", recordItem.TableName())).Scan(&res.List).Error; err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
@@ -43,7 +48,6 @@ func (*QueryResolver) GetChangedMaintenanceSteelDetail(ctx context.Context, inpu
 		Weight float64
 	}
 
-	specificationTable := specificationinfo.SpecificationInfo{}.TableName()
 	err := modelInstance.Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", specificationTable, specificationTable, steelTable)).
 		Select("sum(weight) as Weight").Scan(&weightInfo).Error
 	if err != nil {
