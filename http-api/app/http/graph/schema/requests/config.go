@@ -1327,3 +1327,36 @@ func (s *StepsForMaintenance) CheckIsEnterMaintenanceAccess(ctx context.Context,
 
 	return nil
 }
+/**
+ * 检验能否修改型钢状态
+ */
+func (s *StepsForMaintenance) CheckIsChangedMaintenanceSteelAccess(ctx context.Context, identifier string) error {
+	if err := s.CheckHasSteel(ctx, identifier); err != nil {
+		return err
+	}
+	steelTable := steels.Steels{}.TableName()
+	record := maintenance_record.MaintenanceRecord{}
+	leaderTable := maintenance_leader.MaintenanceLeader{}.TableName()
+	maintenanceTable := maintenance.Maintenance{}.TableName()
+
+	me := auth.GetUser(ctx)
+	err := model.DB.Debug().Model(&record).
+		Select(fmt.Sprintf("%s.*", record.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, record.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.maintenance_id", maintenanceTable, maintenanceTable, record.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.maintenance_id = %s.id", leaderTable, leaderTable, maintenanceTable)).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), identifier).
+		Where(fmt.Sprintf("%s.uid = ?", leaderTable), me.Id).
+		First(&record).
+		Error
+	if err != nil {
+		return err
+	}
+	for _, state := range steels.GetMaintenanceStateListForChanged() {
+		if record.State == state {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("当前型钢状态为: %s 不能修改", steels.StateCodeMapDes[record.State])
+}

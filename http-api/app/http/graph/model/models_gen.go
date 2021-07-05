@@ -339,6 +339,12 @@ type Get2BeScrapRepositorySteelInput struct {
 	Identifier string `json:"identifier"`
 }
 
+//  修改维修型钢状态查询参数
+type GetChangedMaintenanceSteelInput struct {
+	//  识别码
+	Identifier string `json:"identifier"`
+}
+
 type GetCompanyUserInput struct {
 	//  角色id
 	RoleID *int64 `json:"roleId"`
