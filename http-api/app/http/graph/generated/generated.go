@@ -4455,10 +4455,15 @@ type RepositoryItem {
 }
 """  创建仓库需要提交的参数"""
 input CreateRepositoryInput {
+    """ 名称 """
     name: String!
+    """ 地址 """
     address: String!
-    repositoryAdminId: Int!
+    """ 管理员id """
+    repositoryAdminId: [Int!]!
+    """ 备注 """
     remark: String!
+    """ 拼音 """
     pinYin: String!
 }
 type GetRepositoryOverviewRes {
@@ -21789,7 +21794,7 @@ func (ec *executionContext) unmarshalInputCreateRepositoryInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryAdminId"))
-			it.RepositoryAdminID, err = ec.unmarshalNInt2int64(ctx, v)
+			it.RepositoryAdminID, err = ec.unmarshalNInt2ᚕint64ᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

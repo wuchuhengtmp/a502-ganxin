@@ -19,10 +19,15 @@ type RepositoryItem {
 }
 """  创建仓库需要提交的参数"""
 input CreateRepositoryInput {
+    """ 名称 """
     name: String!
+    """ 地址 """
     address: String!
-    repositoryAdminId: Int!
+    """ 管理员id """
+    repositoryAdminId: [Int!]!
+    """ 备注 """
     remark: String!
+    """ 拼音 """
     pinYin: String!
 }
 type GetRepositoryOverviewRes {

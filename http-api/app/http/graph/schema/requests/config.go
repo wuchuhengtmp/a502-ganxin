@@ -1053,6 +1053,23 @@ func (*StepsForRepository) CheckHasSpecification(ctx context.Context, specificat
 }
 
 /**
+ * 检验有没有这个用户
+*/
+func (*StepsForRepository) CheckHasUser(ctx context.Context, uid int64 ) error {
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&users.Users{}).Where("id = ?", uid).
+		Where("company_id = ?", me.CompanyId).
+		First(&users.Users{}).
+		Error
+
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("用户id为: %d 的用户不存在", uid)
+	}
+
+	return err
+}
+
+/**
  * 检验有没有这根型钢
  */
 func (*StepsForRepository) CheckHasSteel(ctx context.Context, identifier string) error {

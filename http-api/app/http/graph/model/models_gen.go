@@ -137,11 +137,16 @@ type CreateProjectInput struct {
 
 //   创建仓库需要提交的参数
 type CreateRepositoryInput struct {
-	Name              string `json:"name"`
-	Address           string `json:"address"`
-	RepositoryAdminID int64  `json:"repositoryAdminId"`
-	Remark            string `json:"remark"`
-	PinYin            string `json:"pinYin"`
+	//  名称
+	Name string `json:"name"`
+	//  地址
+	Address string `json:"address"`
+	//  管理员id
+	RepositoryAdminID []int64 `json:"repositoryAdminId"`
+	//  备注
+	Remark string `json:"remark"`
+	//  拼音
+	PinYin string `json:"pinYin"`
 }
 
 //  创建规格需要提交的参数

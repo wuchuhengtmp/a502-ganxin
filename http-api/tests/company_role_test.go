@@ -326,7 +326,7 @@ func TestCompanyAdminRoleCreateRepository(t *testing.T) {
 			"name":              "reposistory_name_for_test",
 			"remark":            "",
 			"address":           "address_for_createAddress",
-			"repositoryAdminId": 3,
+			"repositoryAdminId": []int64{3},
 			"pinYin":            "pintYin_for_createTest",
 		},
 	}
@@ -1328,15 +1328,15 @@ func TestCompanyAdminRoleEditMaintenance(t *testing.T) {
 		  }
 		}
 	`
-	v = map[string]interface{} {
+	v = map[string]interface{}{
 		"input": map[string]interface{}{
 			"address": "edit address",
 			"adminIdList": []int64{
 				5,
 			},
-			"id": 1,
+			"id":     1,
 			"isAble": true,
-			"name": "edit name",
+			"name":   "edit name",
 			"remark": "",
 		},
 	}
@@ -1350,8 +1350,8 @@ func TestCompanyAdminRoleDelMaintenance(t *testing.T) {
 		  delMaintenance(input: $input)
 		}
 	`
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
 			"id": 1,
 		},
 	}

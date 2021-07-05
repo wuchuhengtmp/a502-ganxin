@@ -35,13 +35,16 @@ func CreateRepository(ctx context.Context, input grlModel.CreateRepositoryInput)
 			return err
 		}
 		// 添加管理员
-		rl := repository_leader.RepositoryLeader{
-			RepositoryId: r.ID,
-			Uid: input.RepositoryAdminID,
+		for _, adminUid := range  input.RepositoryAdminID {
+			rl := repository_leader.RepositoryLeader{
+				RepositoryId: r.ID,
+				Uid: adminUid,
+			}
+			if err := tx.Create(&rl).Error; err != nil {
+				return err
+			}
 		}
-		if err := tx.Create(&rl).Error; err != nil {
-			return err
-		}
+
 		// 操作日志
 		l := logs.Logos{
 			Type:    logs.CreateActionType,
