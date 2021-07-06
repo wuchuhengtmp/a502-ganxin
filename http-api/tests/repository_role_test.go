@@ -2152,4 +2152,5 @@ func TestRepositoryAdminRoleRepository2MaintenancePipeline(t *testing.T)  {
 	t.Run("维修管理员型钢修改状态查询集成测试--手持机", testMaintenanceAdminRoleGetChangedMaintenanceSteel)
 	t.Run("维修管理员待维修型钢详情集成测试--手持机", testMaintenanceAdminRoleGetChangedMaintenanceSteelDetail)
 	t.Run("维修管理员修改维修型钢状态集成测试--手持机", testMaintenanceAdminRoleSetMaintenanceSteelState)
+	t.Run("维修管理员获取待出厂详情--手持机", testMaintenanceAdminGetSteelForOutOfMaintenanceDetailInput)
 }
