@@ -896,3 +896,33 @@ func testMaintenanceAdminSetSteelForOutOfMaintenance(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+
+/**
+ * 维修管理员查询维修的型钢集成测试--手持机
+ */
+func testMaintenanceAdminRoleGetMaintenanceSteel(t *testing.T) {
+	q := `
+		query ($input: GetMaintenanceSteelInput!){
+		  getMaintenanceSteel(input: $input){
+			list {      
+			  receivedTotal # 已接收
+			  receivedWeight# 已接收重量
+			  specification# 规格
+			  storedTotal# 已归库数量
+			  storedWeight# 已归库重量
+			}
+			total # 数量
+			weight # 重量
+			
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"maintenanceId": 2,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
