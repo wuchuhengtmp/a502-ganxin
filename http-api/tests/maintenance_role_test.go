@@ -926,3 +926,21 @@ func testMaintenanceAdminRoleGetMaintenanceSteel(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 维修管理员获取维修的状态列表集成测试--手持机
+ */
+func testMaintenanceAdminRoleGetStateListForMaintenanceSteelDetail(t *testing.T) {
+	q := `
+		query {
+		  getStateListForMaintenanceSteelDetail{
+			desc
+			state
+		  }
+		}
+	`
+	v = map[string]interface{}{
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
