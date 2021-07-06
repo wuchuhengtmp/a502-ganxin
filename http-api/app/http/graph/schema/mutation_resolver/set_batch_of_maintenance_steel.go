@@ -199,7 +199,7 @@ func (*SetBatchOfMaintenanceSteelSteps) createMsg(ctx context.Context, tx *gorm.
 		)
 		m := msg.Msg{
 			Content: content,
-			Type:    msg.ToBeMaintained,
+			Type:    msg.EnterMaintenance,
 			Uid:     leaderItem.Uid,
 		}
 		if err := m.CreateSelf(tx); err != nil {

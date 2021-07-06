@@ -30,7 +30,9 @@ const (
 	EnterProject2Workshop string = "enter project to Workshop"  // 项目入场
 	OutOfWorkshop         string = "OutOfWorkshop"              // 型钢出场
 	DelMaintenance        string = "DelMaintenance"             // 删除维修厂（下岗了呗）
-	ToBeMaintained        string = "ToBeMaintained"             // 待定维修
+	ToBeMaintained        string = "ToBeMaintained"             // 待维修
+	OutOfMaintenance      string = "OutOfMaintenance"           // 出厂
+	EnterMaintenance      string = "EnterMaintenance"           // 入厂
 )
 
 func (Msg) TableName() string {
