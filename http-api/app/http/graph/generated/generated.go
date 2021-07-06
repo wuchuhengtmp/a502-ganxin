@@ -467,6 +467,7 @@ type ComplexityRoot struct {
 		GetSend2WorkshopOrderList               func(childComplexity int) int
 		GetSend2WorkshopOrderListDetail         func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
 		GetSpecification                        func(childComplexity int) int
+		GetStateListForMaintenanceSteelDetail   func(childComplexity int) int
 		GetSteelForOutOfMaintenance             func(childComplexity int, input model.GetSteelForOutOfMaintenanceInput) int
 		GetSteelForOutOfMaintenanceDetail       func(childComplexity int, input model.GetSteelForOutOfMaintenanceDetailInput) int
 		GetSteelList                            func(childComplexity int, input model.PaginationInput) int
@@ -696,6 +697,7 @@ type QueryResolver interface {
 	GetSteelForOutOfMaintenance(ctx context.Context, input model.GetSteelForOutOfMaintenanceInput) (*maintenance_record.MaintenanceRecord, error)
 	GetSteelForOutOfMaintenanceDetail(ctx context.Context, input model.GetSteelForOutOfMaintenanceDetailInput) (*maintenance.GetSteelForOutOfMaintenanceDetailRes, error)
 	GetMaintenanceSteel(ctx context.Context, input model.GetMaintenanceSteelInput) (*maintenance.GetMaintenanceSteelRes, error)
+	GetStateListForMaintenanceSteelDetail(ctx context.Context) ([]*steels.StateItem, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
@@ -3081,6 +3083,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetSpecification(childComplexity), true
 
+	case "Query.getStateListForMaintenanceSteelDetail":
+		if e.complexity.Query.GetStateListForMaintenanceSteelDetail == nil {
+			break
+		}
+
+		return e.complexity.Query.GetStateListForMaintenanceSteelDetail(childComplexity), true
+
 	case "Query.getSteelForOutOfMaintenance":
 		if e.complexity.Query.GetSteelForOutOfMaintenance == nil {
 			break
@@ -4177,6 +4186,9 @@ type GetMaintenanceSteelRes {
     """ 重量 """
     weight: Float!
 }
+#input GetMaintenanceSteelDetailInput {
+##    n
+#}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -4196,6 +4208,10 @@ extend type Query {
     getSteelForOutOfMaintenanceDetail(input: GetSteelForOutOfMaintenanceDetailInput!): GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取维修厂维修记录 """
     getMaintenanceSteel(input: GetMaintenanceSteelInput!):  GetMaintenanceSteelRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+#    """ 获取维修厂维修记录详情 """
+#    getMaintenanceSteelDetail(input: GetMaintenanceSteelDetailInput!):  GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取用于维修型钢详情的状态列表 """
+    getStateListForMaintenanceSteelDetail: [StateItem!]! @mustBeDevice @hasRole(role: [maintenanceAdmin])
 }
 `, BuiltIn: false},
 	{Name: "../manufacturer.graphql", Input: `# 制作商接口相关
@@ -16569,6 +16585,71 @@ func (ec *executionContext) _Query_getMaintenanceSteel(ctx context.Context, fiel
 	return ec.marshalNGetMaintenanceSteelRes2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetMaintenanceSteelRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getStateListForMaintenanceSteelDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetStateListForMaintenanceSteelDetail(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive1, role)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*steels.StateItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.StateItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.StateItem)
+	fc.Result = res
+	return ec.marshalNStateItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐStateItemᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getManufacturers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -27758,6 +27839,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getMaintenanceSteel(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getStateListForMaintenanceSteelDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getStateListForMaintenanceSteelDetail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

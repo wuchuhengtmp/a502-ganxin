@@ -140,6 +140,18 @@ func GetMaintenanceStateListForChanged() []int64 {
 	}
 }
 
+/****
+ ** 获取用于维修型钢详情的状态列表 获取用于维修型钢详情的状态列表
+ **/
+func GetMaintenanceStateListForDetail() []int64 {
+	return []int64{
+		StateMaintainerWillBeMaintained,
+		StateMaintainerBeMaintaining,
+		StateMaintainerWillBeStore,
+		StateMaintainerOnTheStoreWay,
+	}
+}
+
 /**
  * 获取项目中会用到的型钢状态合集
  */
