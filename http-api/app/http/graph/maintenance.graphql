@@ -142,7 +142,7 @@ extend type Mutation {
 """ 获取可能出厂的型钢参数 """
 input GetSteelForOutOfMaintenanceInput {
     """ 识别码 """
-   identifier: String!
+    identifier: String!
 }
 """ 获取可能出厂的型钢详情参数 """
 input GetSteelForOutOfMaintenanceDetailInput {
@@ -157,6 +157,35 @@ input GetSteelForOutOfMaintenanceDetailInput {
 type GetSteelForOutOfMaintenanceDetailRes {
     """ 维修型钢详情 """
     list: [MaintenanceRecordItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
+
+""" 获取维修厂维修记录参数 """
+input GetMaintenanceSteelInput {
+    """ 维修厂id """
+    maintenanceId: Int!
+}
+
+""" 获取维修厂维修记录响应列表项格式 """
+type GetMaintenanceSteelResItem {
+    """ 规格 """
+    specification: String!
+    """ 已接收 """
+    receivedTotal: Int!
+    """ 已接收重量 """
+    receivedWeight: Float!
+    """ 已归库数量 """
+    storedTotal: Int!
+    """ 已归库重量 """
+    storedWeight: Float!
+}
+""" 获取维修厂维修记录响应格式 """
+type GetMaintenanceSteelRes {
+    """ 规格列表 """
+    list: [GetMaintenanceSteelResItem!]!
     """ 数量 """
     total: Int!
     """ 重量 """
@@ -179,4 +208,6 @@ extend type Query {
     getSteelForOutOfMaintenance(input: GetSteelForOutOfMaintenanceInput!): MaintenanceRecordItem! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取可出厂的型钢详情 """
     getSteelForOutOfMaintenanceDetail(input: GetSteelForOutOfMaintenanceDetailInput!): GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取维修厂维修记录 """
+    getMaintenanceSteel(input: GetMaintenanceSteelInput!):  GetMaintenanceSteelRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }

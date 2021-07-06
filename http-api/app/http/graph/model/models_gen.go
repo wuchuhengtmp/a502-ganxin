@@ -373,6 +373,12 @@ type GetEnterRepositorySteelDetailInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  获取维修厂维修记录参数
+type GetMaintenanceSteelInput struct {
+	//  维修厂id
+	MaintenanceID int64 `json:"maintenanceId"`
+}
+
 //  获取项目最大安装码需要的参数
 type GetMaxLocationCodeInput struct {
 	//  型钢识别码

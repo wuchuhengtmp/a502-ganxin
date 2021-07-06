@@ -27,13 +27,13 @@ func (Maintenance) TableName() string {
 	return "maintenance"
 }
 
-//""" 获取待入厂详细信息参数 """
+// 获取待入厂详细信息参数
 type GetEnterMaintenanceSteelDetailRes struct {
-	//""" 入厂型钢列表 """
+	// 入厂型钢列表
 	List []*maintenance_record.MaintenanceRecord
-	//""" 数量 """
+	// 数量
 	Total int64
-	//""" 重量 """
+	// 重量
 	Weight float64
 }
 
@@ -41,21 +41,51 @@ type GetEnterMaintenanceSteelDetailRes struct {
  * 待维修型钢详情响应
  */
 type GetChangedMaintenanceSteelDetailRes struct {
-	//""" 维修型钢列表 """
+	// 维修型钢列表
 	List []*maintenance_record.MaintenanceRecord
-	//""" 数量 """
+	// 数量
 	Total int64
 	// 重量
 	Weight float64
 }
+
 /**
  * 获取可出厂的型钢详情响应数据
  */
 type GetSteelForOutOfMaintenanceDetailRes struct {
-	// """ 维修型钢详情 """
+	//  维修型钢详情
 	List []*maintenance_record.MaintenanceRecord
-	//""" 数量 """
+	// 数量
 	Total int64
-	//""" 重量 """
+	// 重量
+	Weight float64
+}
+
+/**
+ * 获取维修厂维修记录响应格式
+ */
+type GetMaintenanceSteelResItem struct {
+	Id int64
+	// 规格
+	Specification string
+	// 已接收
+	ReceivedTotal int64
+	// 已接收重量
+	ReceivedWeight float64
+	// 已归库数量
+	StoredTotal int64
+	// 已归库重量
+	StoredWeight float64
+}
+
+/**
+ *  获取维修厂维修记录响应格式
+ */
+type GetMaintenanceSteelRes struct {
+	// 规格列表
+	List []*GetMaintenanceSteelResItem
+	// 数量
+	Total int64
+	// 重量
 	Weight float64
 }

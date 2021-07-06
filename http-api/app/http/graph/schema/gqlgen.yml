@@ -144,3 +144,9 @@ models:
   # 获取可出厂的型钢详情响应数据
   GetSteelForOutOfMaintenanceDetailRes:
     model: http-api/app/models/maintenance.GetSteelForOutOfMaintenanceDetailRes
+  # 获取维修厂维修记录响应列表项格式
+  GetMaintenanceSteelResItem:
+    model: http-api/app/models/maintenance.GetMaintenanceSteelResItem
+  # 获取可出厂的型钢详情响应数据
+  GetMaintenanceSteelRes:
+    model: http-api/app/models/maintenance.GetMaintenanceSteelRes

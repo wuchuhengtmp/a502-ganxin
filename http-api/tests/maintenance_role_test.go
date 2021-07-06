@@ -874,3 +874,25 @@ func testMaintenanceAdminGetSteelForOutOfMaintenanceDetailInput(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 维修管理员出厂--手持机
+ */
+func testMaintenanceAdminSetSteelForOutOfMaintenance(t *testing.T) {
+	q := `
+		mutation ($input: SetSteelForOutOfMaintenanceInput!){
+		  setSteelForOutOfMaintenance(input: $input) {
+			id
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{
+				"9",
+			},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
