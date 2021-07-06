@@ -641,6 +641,12 @@ type SetProjectSteelOutOfWorkshopInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  型钢出厂参数
+type SetSteelForOutOfMaintenanceInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+}
+
 type SetSteelIntoWorkshopInput struct {
 	//  型钢标识码列表
 	IdentifierList []string `json:"identifierList"`
