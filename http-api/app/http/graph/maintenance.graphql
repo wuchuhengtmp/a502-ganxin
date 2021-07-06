@@ -137,6 +137,24 @@ input GetSteelForOutOfMaintenanceInput {
     """ 识别码 """
    identifier: String!
 }
+""" 获取可能出厂的型钢详情参数 """
+input GetSteelForOutOfMaintenanceDetailInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格id """
+    specificationId: Int
+    """ 状态 """
+    state: Int
+}
+""" 获取可出厂的型钢详情响应数据 """
+type GetSteelForOutOfMaintenanceDetailRes {
+    """ 维修型钢详情 """
+    list: [MaintenanceRecordItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -152,4 +170,6 @@ extend type Query {
     getChangedMaintenanceSteelDetail(input: GetChangedMaintenanceSteelDetailInput!): GetChangedMaintenanceSteelDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取可能出厂的型钢 """
     getSteelForOutOfMaintenance(input: GetSteelForOutOfMaintenanceInput!): MaintenanceRecordItem! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取可出厂的型钢详情 """
+    getSteelForOutOfMaintenanceDetail(input: GetSteelForOutOfMaintenanceDetailInput!): GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
 }

@@ -19,8 +19,9 @@ type MaintenanceRecord struct {
 	MaintenanceId     int64     `json:"maintenance_id" gorm:"comment:维修厂id"`
 	SteelId           int64     `json:"steel_id" gorm:"comment:型钢id"`
 	OutedAt           time.Time `json:"outed_at" gorm:"comment:出厂时间"`
+	OutedUid          int64     `json:"outedUid" gorm:"comment:出厂人"`
 	EnteredAt         time.Time `json:"entered_at" gorm:"comment:入厂时间"`
-	EnteredUid        int64 `json:"entered_uid" gorm:"comment:入厂用户id"`
+	EnteredUid        int64     `json:"entered_uid" gorm:"comment:入厂用户id"`
 	OutRepositoryAt   time.Time `json:"outRepository" gorm:"comment:出库时间"`
 	EnterRepositoryAt time.Time `json:"enterRepositoryAt" gorm:"comment:入库时间"`
 	gorm.Model

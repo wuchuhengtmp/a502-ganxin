@@ -141,4 +141,6 @@ models:
   # 待维修型钢详情响应
   GetChangedMaintenanceSteelDetailRes:
     model: http-api/app/models/maintenance.GetChangedMaintenanceSteelDetailRes
-
+  # 获取可出厂的型钢详情响应数据
+  GetSteelForOutOfMaintenanceDetailRes:
+    model: http-api/app/models/maintenance.GetSteelForOutOfMaintenanceDetailRes

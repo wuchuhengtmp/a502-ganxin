@@ -32,10 +32,11 @@ const (
 	ToBeMaintenanceType           SteelLogType = "ToBeMaintenanceType"           // 待维修
 	OutOfRepositoryForMaintenance SteelLogType = "OutOfRepositoryForMaintenance" // 型钢出库
 	ChangedMaintenanceSteel       SteelLogType = "ChangedMaintenanceSteel"       // 修改维修型钢状态
+	OutOfMaintenance              SteelLogType = "outOfMaintenance"              // 出厂
 )
 
 // 操作类型映射说明
-var TypeMapName = map[SteelLogType]string{
+var _typeMapName = map[SteelLogType]string{
 	CreateType:   "型钢入库",
 	OutSteelType: "型钢出库",
 }

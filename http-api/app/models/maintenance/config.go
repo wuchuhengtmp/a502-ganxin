@@ -22,9 +22,11 @@ type Maintenance struct {
 	CompanyId int64  `json:"companyId" gorm:"comment:公司id"`
 	gorm.Model
 }
-func(Maintenance)TableName() string {
+
+func (Maintenance) TableName() string {
 	return "maintenance"
 }
+
 //""" 获取待入厂详细信息参数 """
 type GetEnterMaintenanceSteelDetailRes struct {
 	//""" 入厂型钢列表 """
@@ -46,4 +48,14 @@ type GetChangedMaintenanceSteelDetailRes struct {
 	// 重量
 	Weight float64
 }
-
+/**
+ * 获取可出厂的型钢详情响应数据
+ */
+type GetSteelForOutOfMaintenanceDetailRes struct {
+	// """ 维修型钢详情 """
+	List []*maintenance_record.MaintenanceRecord
+	//""" 数量 """
+	Total int64
+	//""" 重量 """
+	Weight float64
+}
