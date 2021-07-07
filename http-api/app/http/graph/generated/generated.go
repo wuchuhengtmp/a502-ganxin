@@ -443,6 +443,7 @@ type ComplexityRoot struct {
 		GetMaterialManufacturers                func(childComplexity int) int
 		GetMaxLocationCode                      func(childComplexity int, input model.GetMaxLocationCodeInput) int
 		GetMsgList                              func(childComplexity int) int
+		GetMsgUnReadeTotal                      func(childComplexity int) int
 		GetMultipleSteelDetail                  func(childComplexity int, input *model.GetMultipleSteelDetailInput) int
 		GetMyInfo                               func(childComplexity int) int
 		GetOneSteelDetail                       func(childComplexity int, input model.GetOneSteelDetailInput) int
@@ -704,6 +705,7 @@ type QueryResolver interface {
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMyInfo(ctx context.Context) (*users.Users, error)
 	GetMsgList(ctx context.Context) ([]*msg.Msg, error)
+	GetMsgUnReadeTotal(ctx context.Context) (int64, error)
 	GetOrderList(ctx context.Context, input model.GetOrderListInput) ([]*orders.Order, error)
 	GetTobeSendWorkshopOrderList(ctx context.Context) ([]*orders.Order, error)
 	GetOrderDetail(ctx context.Context, input model.GetOrderDetailInput) (*orders.Order, error)
@@ -2847,6 +2849,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetMsgList(childComplexity), true
 
+	case "Query.getMsgUnReadeTotal":
+		if e.complexity.Query.GetMsgUnReadeTotal == nil {
+			break
+		}
+
+		return e.complexity.Query.GetMsgUnReadeTotal(childComplexity), true
+
 	case "Query.getMultipleSteelDetail":
 		if e.complexity.Query.GetMultipleSteelDetail == nil {
 			break
@@ -4332,7 +4341,8 @@ extend type  Mutation {
 extend type Query {
     """ 获取消息列表 """
     getMsgList: [MsgItem]! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
-
+    """ 获取未读消息数量 """
+    getMsgUnReadeTotal: Int! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
 }`, BuiltIn: false},
 	{Name: "../order.graphql", Input: `""" 订单规格 """
 type OrderSpecificationItem {
@@ -17001,6 +17011,71 @@ func (ec *executionContext) _Query_getMsgList(ctx context.Context, field graphql
 	return ec.marshalNMsgItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋmsgᚐMsg(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getMsgUnReadeTotal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMsgUnReadeTotal(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "repositoryAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getOrderList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -28076,6 +28151,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getMsgList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getMsgUnReadeTotal":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMsgUnReadeTotal(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
