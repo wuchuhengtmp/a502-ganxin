@@ -438,6 +438,7 @@ type ComplexityRoot struct {
 		GetMaintenanceList                      func(childComplexity int) int
 		GetMaintenanceStateForChanged           func(childComplexity int) int
 		GetMaintenanceSteel                     func(childComplexity int, input model.GetMaintenanceSteelInput) int
+		GetMaintenanceSteelDetail               func(childComplexity int, input model.GetMaintenanceSteelDetailInput) int
 		GetManufacturers                        func(childComplexity int) int
 		GetMaterialManufacturers                func(childComplexity int) int
 		GetMaxLocationCode                      func(childComplexity int, input model.GetMaxLocationCodeInput) int
@@ -697,6 +698,7 @@ type QueryResolver interface {
 	GetSteelForOutOfMaintenance(ctx context.Context, input model.GetSteelForOutOfMaintenanceInput) (*maintenance_record.MaintenanceRecord, error)
 	GetSteelForOutOfMaintenanceDetail(ctx context.Context, input model.GetSteelForOutOfMaintenanceDetailInput) (*maintenance.GetSteelForOutOfMaintenanceDetailRes, error)
 	GetMaintenanceSteel(ctx context.Context, input model.GetMaintenanceSteelInput) (*maintenance.GetMaintenanceSteelRes, error)
+	GetMaintenanceSteelDetail(ctx context.Context, input model.GetMaintenanceSteelDetailInput) (*maintenance.GetSteelForOutOfMaintenanceDetailRes, error)
 	GetStateListForMaintenanceSteelDetail(ctx context.Context) ([]*steels.StateItem, error)
 	GetManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetMaterialManufacturers(ctx context.Context) ([]*codeinfo.CodeInfo, error)
@@ -2800,6 +2802,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetMaintenanceSteel(childComplexity, args["input"].(model.GetMaintenanceSteelInput)), true
 
+	case "Query.getMaintenanceSteelDetail":
+		if e.complexity.Query.GetMaintenanceSteelDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getMaintenanceSteelDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMaintenanceSteelDetail(childComplexity, args["input"].(model.GetMaintenanceSteelDetailInput)), true
+
 	case "Query.getManufacturers":
 		if e.complexity.Query.GetManufacturers == nil {
 			break
@@ -4186,9 +4200,17 @@ type GetMaintenanceSteelRes {
     """ 重量 """
     weight: Float!
 }
-#input GetMaintenanceSteelDetailInput {
-##    n
-#}
+""" 获取维修厂维修记录详情参数 """
+input GetMaintenanceSteelDetailInput {
+    """维修厂id """
+    maintenanceId: Int!
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 识别码id """
+    specificationId: Int
+    """ 状态 """
+    state: Int
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -4208,8 +4230,8 @@ extend type Query {
     getSteelForOutOfMaintenanceDetail(input: GetSteelForOutOfMaintenanceDetailInput!): GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取维修厂维修记录 """
     getMaintenanceSteel(input: GetMaintenanceSteelInput!):  GetMaintenanceSteelRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
-#    """ 获取维修厂维修记录详情 """
-#    getMaintenanceSteelDetail(input: GetMaintenanceSteelDetailInput!):  GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取维修厂维修记录详情 """
+    getMaintenanceSteelDetail(input: GetMaintenanceSteelDetailInput!):  GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取用于维修型钢详情的状态列表 """
     getStateListForMaintenanceSteelDetail: [StateItem!]! @mustBeDevice @hasRole(role: [maintenanceAdmin])
 }
@@ -6070,6 +6092,21 @@ func (ec *executionContext) field_Query_getEnterRepositorySteelDetail_args(ctx c
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNGetEnterRepositorySteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetEnterRepositorySteelDetailInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getMaintenanceSteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetMaintenanceSteelDetailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetMaintenanceSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaintenanceSteelDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -16585,6 +16622,78 @@ func (ec *executionContext) _Query_getMaintenanceSteel(ctx context.Context, fiel
 	return ec.marshalNGetMaintenanceSteelRes2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetMaintenanceSteelRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getMaintenanceSteelDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getMaintenanceSteelDetail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMaintenanceSteelDetail(rctx, args["input"].(model.GetMaintenanceSteelDetailInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*maintenance.GetSteelForOutOfMaintenanceDetailRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/maintenance.GetSteelForOutOfMaintenanceDetailRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*maintenance.GetSteelForOutOfMaintenanceDetailRes)
+	fc.Result = res
+	return ec.marshalNGetSteelForOutOfMaintenanceDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐGetSteelForOutOfMaintenanceDetailRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getStateListForMaintenanceSteelDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -24380,6 +24489,50 @@ func (ec *executionContext) unmarshalInputGetEnterRepositorySteelDetailInput(ctx
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetMaintenanceSteelDetailInput(ctx context.Context, obj interface{}) (model.GetMaintenanceSteelDetailInput, error) {
+	var it model.GetMaintenanceSteelDetailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "maintenanceId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maintenanceId"))
+			it.MaintenanceID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "state":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
+			it.State, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetMaintenanceSteelInput(ctx context.Context, obj interface{}) (model.GetMaintenanceSteelInput, error) {
 	var it model.GetMaintenanceSteelInput
 	var asMap = obj.(map[string]interface{})
@@ -27844,6 +27997,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getMaintenanceSteelDetail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMaintenanceSteelDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getStateListForMaintenanceSteelDetail":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -29877,6 +30044,11 @@ func (ec *executionContext) marshalNGetEnterRepositorySteelDetailRes2ᚖhttpᚑa
 		return graphql.Null
 	}
 	return ec._GetEnterRepositorySteelDetailRes(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetMaintenanceSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaintenanceSteelDetailInput(ctx context.Context, v interface{}) (model.GetMaintenanceSteelDetailInput, error) {
+	res, err := ec.unmarshalInputGetMaintenanceSteelDetailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetMaintenanceSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaintenanceSteelInput(ctx context.Context, v interface{}) (model.GetMaintenanceSteelInput, error) {

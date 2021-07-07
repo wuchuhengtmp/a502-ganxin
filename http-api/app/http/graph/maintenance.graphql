@@ -191,9 +191,17 @@ type GetMaintenanceSteelRes {
     """ 重量 """
     weight: Float!
 }
-#input GetMaintenanceSteelDetailInput {
-##    n
-#}
+""" 获取维修厂维修记录详情参数 """
+input GetMaintenanceSteelDetailInput {
+    """维修厂id """
+    maintenanceId: Int!
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 识别码id """
+    specificationId: Int
+    """ 状态 """
+    state: Int
+}
 extend type Query {
     """ 获取维修厂列表 """
     getMaintenanceList: [MaintenanceItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin])
@@ -213,8 +221,8 @@ extend type Query {
     getSteelForOutOfMaintenanceDetail(input: GetSteelForOutOfMaintenanceDetailInput!): GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取维修厂维修记录 """
     getMaintenanceSteel(input: GetMaintenanceSteelInput!):  GetMaintenanceSteelRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
-#    """ 获取维修厂维修记录详情 """
-#    getMaintenanceSteelDetail(input: GetMaintenanceSteelDetailInput!):  GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
+    """ 获取维修厂维修记录详情 """
+    getMaintenanceSteelDetail(input: GetMaintenanceSteelDetailInput!):  GetSteelForOutOfMaintenanceDetailRes! @hasRole(role: [maintenanceAdmin]) @mustBeDevice
     """ 获取用于维修型钢详情的状态列表 """
     getStateListForMaintenanceSteelDetail: [StateItem!]! @mustBeDevice @hasRole(role: [maintenanceAdmin])
 }

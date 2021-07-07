@@ -1318,6 +1318,18 @@ func (*StepsForMaintenance) CheckSpecification(ctx context.Context, specificatio
 }
 
 /**
+ *  检验状态
+ */
+func (*StepsForMaintenance) CheckStateForDetail(state int64) error {
+	for _, standard := range steels.GetMaintenanceStateListForDetail() {
+		if state == standard {
+			return nil
+		}
+	}
+	return fmt.Errorf("状态为: %d 不正确", state)
+}
+
+/**
  * 检验能否入厂
  */
 func (s *StepsForMaintenance) CheckIsEnterMaintenanceAccess(ctx context.Context, identifier string) error {
@@ -1399,6 +1411,35 @@ func (s *StepsForMaintenance) CheckIsOutOfMaintenanceAccess(ctx context.Context,
 			steels.StateCodeMapDes[recordItem.State],
 			steels.StateCodeMapDes[steels.StateMaintainerWillBeStore],
 		)
+	}
+
+	return err
+}
+
+/**
+ * 检验型钢是否归属这个厂
+ */
+func (s *StepsForMaintenance) CheckSteelIsBelongMaintenance(ctx context.Context, maintenanceId int64, identifier string) error {
+	maintenanceItem := maintenance.Maintenance{}
+	steelsTable := steels.Steels{}.TableName()
+	recordTable := maintenance_record.MaintenanceRecord{}.TableName()
+	if err := s.CheckHashMaintenance(ctx, maintenanceId); err !=  nil {
+		return err
+	}
+
+	err := model.DB.Model(&maintenanceItem).
+		Joins(fmt.Sprintf("join %s ON %s.maintenance_id = %s.id", recordTable, recordTable, maintenanceItem.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelsTable, steelsTable, recordTable)).
+		Where(fmt.Sprintf( "%s.identifier = ?", steelsTable), identifier).
+		First(&maintenanceItem).
+		Error
+
+	if err != nil && err.Error() == "record not found" {
+		err := model.DB.Model(&maintenanceItem).Where("id = ?", maintenanceId).First(&maintenanceItem).Error
+		if err != nil {
+			return err
+		}
+		 return fmt.Errorf("标记码为:%s 不归属于 %s 维修厂", identifier, maintenanceItem.Name)
 	}
 
 	return err

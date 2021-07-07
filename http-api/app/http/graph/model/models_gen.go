@@ -373,6 +373,18 @@ type GetEnterRepositorySteelDetailInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  获取维修厂维修记录详情参数
+type GetMaintenanceSteelDetailInput struct {
+	// 维修厂id
+	MaintenanceID int64 `json:"maintenanceId"`
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  识别码id
+	SpecificationID *int64 `json:"specificationId"`
+	//  状态
+	State *int64 `json:"state"`
+}
+
 //  获取维修厂维修记录参数
 type GetMaintenanceSteelInput struct {
 	//  维修厂id
