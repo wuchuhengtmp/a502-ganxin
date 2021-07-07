@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
+	"http-api/app/models/msg"
 	"http-api/app/models/orders"
 	"http-api/app/models/roles"
 	"http-api/app/models/steel_logs"
@@ -1288,15 +1289,15 @@ func testRepositoryAdminGetProjectOrder2WorkshopDetail(t *testing.T) {
 			}
 		}
 	`
-	v := map[string]interface{} {
+	v := map[string]interface{}{
 		"input": map[string]interface{}{
 			"orderId": 1,
-			"identifierList": []string {
+			"identifierList": []string{
 				"11",
 			},
 		},
 	}
-	_ ,err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
 
@@ -1312,7 +1313,7 @@ func TestRepositoryAdminGetTobeSendWorkshopOrderList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {}
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
@@ -1320,7 +1321,7 @@ func TestRepositoryAdminGetTobeSendWorkshopOrderList(t *testing.T) {
 /**
  * 仓库管理员型钢快速查询集成测试-手持机
  */
-func TestRepositoryAdminGetSteelDetail(t *testing.T)  {
+func TestRepositoryAdminGetSteelDetail(t *testing.T) {
 	q := `query ($input: GetOneSteelDetailInput!){
 		  getOneSteelDetail(input: $input) {
 			id
@@ -1376,8 +1377,8 @@ func TestRepositoryAdminGetSteelDetail(t *testing.T)  {
 		  }
 		} 
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"identifier": "8",
 		},
 	}
@@ -1396,10 +1397,10 @@ func testRepositoryAdminRoleSetProjectOrder2Workshop(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
 			"expressCompanyId": 12,
-			"expressNo": "124333123",
+			"expressNo":        "124333123",
 			"identifierList": []string{
 				"8",
 			},
@@ -1471,9 +1472,9 @@ func TestRepositoryAdminRoleGetMultipleSteelDetail(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{} {
-		"input": map[string]interface{} {
-			"identifierList": []string {
+	v := map[string]interface{}{
+		"input": map[string]interface{}{
+			"identifierList": []string{
 				"8",
 				"9",
 			},
@@ -1500,7 +1501,6 @@ func TestRepositoryAdminRoleGetMsgList(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-
 /**
  * 仓库管理中获取可归库的项目列表集成测试--手持机
  */
@@ -1513,7 +1513,7 @@ func testRepositoryAdminRoleGetEnterRepositoryProjectList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{}{ }
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
@@ -1544,15 +1544,14 @@ func testRepositoryAdminRoleGetEnterRepositorySteelDetail(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifier": "8",
-			"projectId": 1,
+			"projectId":  1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
-
 
 /**
  * 仓库管理中获取能待归库的状态列表集成测试--手持机
@@ -1566,7 +1565,7 @@ func testRepositoryAdminRoleGetToBeEnterRepositoryStateList(t *testing.T) {
 		  }
 		}
 	`
-	v := map[string]interface{}{ }
+	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
@@ -1584,7 +1583,7 @@ func testRepositoryAdminRoleGetToBeEnterRepositorySpecificationList(t *testing.T
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"projectId": 1,
 		},
 	}
@@ -1631,14 +1630,13 @@ func testRepositoryAdminRoleGetToBeEnterRepositoryDetail(t *testing.T) {
 			}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"projectId": 1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
-
 
 /**
  * 仓库管理中从场地归库集成测试--手持机
@@ -1689,9 +1687,10 @@ func TestRepositoryAdminRoleGetAllStateList(t *testing.T) {
 		  }
 		}
 	`
-	_, err := graphReqClient(q, v, roles.RoleProjectAdmin,  repositoryAdminTestCtx.DeviceToken)
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
 /**
  * 仓库管理员获取维修厂列表集成测试
  */
@@ -1725,6 +1724,7 @@ func TestRepositoryAdminRoleGetMaintenanceList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+
 /**
  * 仓库管理员获取仓库型钢列表集成测试
  */
@@ -1753,10 +1753,10 @@ func TestRepositoryAdminRoleGetRepositorySteel(t *testing.T) {
 		}
 	`
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
-			"reposirotyId": 1,
+		"input": map[string]interface{}{
+			"reposirotyId":    1,
 			"specificationId": 2,
-			"state": 100,
+			"state":           100,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
@@ -1766,7 +1766,7 @@ func TestRepositoryAdminRoleGetRepositorySteel(t *testing.T) {
 /**
  * 仓库管理员 获取仓库型钢详情 集成测试
  */
-func TestRepositoryAdminRoleGetRepositorySteelDetail(t *testing.T)  {
+func TestRepositoryAdminRoleGetRepositorySteelDetail(t *testing.T) {
 	q := `
 		query ($input: GetRepositorySteelInput!){
 		  getRepositorySteelDetail(input: $input){
@@ -1823,10 +1823,10 @@ func TestRepositoryAdminRoleGetRepositorySteelDetail(t *testing.T)  {
 		  }
 		}
 	`
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
-			"reposirotyId": 1,
-			"state": 100,
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"reposirotyId":    1,
+			"state":           100,
 			"specificationId": 1,
 		},
 	}
@@ -1834,11 +1834,10 @@ func TestRepositoryAdminRoleGetRepositorySteelDetail(t *testing.T)  {
 	assert.NoError(t, err)
 }
 
-
 /**
  * 仓库管理员  仓库型钢修改查询 集成测试 --手持机
  */
-func TestRepositoryAdminRoleGet2BeChangedRepositorySteel(t *testing.T)  {
+func TestRepositoryAdminRoleGet2BeChangedRepositorySteel(t *testing.T) {
 	q := `
 		query ($input: Get2BeChangedRepositorySteelInput!){
 		  get2BeChangedRepositorySteel(input: $input) {
@@ -1854,8 +1853,8 @@ func TestRepositoryAdminRoleGet2BeChangedRepositorySteel(t *testing.T)  {
 		  }
 		}
 	`
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
 			"identifier": "8",
 		},
 	}
@@ -1866,7 +1865,7 @@ func TestRepositoryAdminRoleGet2BeChangedRepositorySteel(t *testing.T)  {
 /**
  * 仓库管理员  修改仓库型钢 集成测试 --手持机
  */
-func TestRepositoryAdminRoleSetBatchOfRepositorySteel(t *testing.T)  {
+func TestRepositoryAdminRoleSetBatchOfRepositorySteel(t *testing.T) {
 	q := `
 		mutation ($input: SetBatchOfRepositorySteelInput!) {
 		  setBatchOfRepositorySteel(input: $input) {
@@ -1874,15 +1873,15 @@ func TestRepositoryAdminRoleSetBatchOfRepositorySteel(t *testing.T)  {
 		  }
 		}
 	`
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
 			"identifierList": []string{
 				"8",
 			},
-			"manufacturerId": 4,
+			"manufacturerId":          4,
 			"materialManufacturersId": 1,
-			"producedAt": "2006-01-02T15:04:05+07:00",
-			"specificationId": 1,
+			"producedAt":              "2006-01-02T15:04:05+07:00",
+			"specificationId":         1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
@@ -1892,7 +1891,7 @@ func TestRepositoryAdminRoleSetBatchOfRepositorySteel(t *testing.T)  {
 /**
  * 仓库管理员 型钢待报废查询 集成测试 --手持机
  */
-func TestRepositoryAdminRoleGet2BeScrapRepositorySteel(t *testing.T)  {
+func TestRepositoryAdminRoleGet2BeScrapRepositorySteel(t *testing.T) {
 	q := `
 		query ($input: Get2BeScrapRepositorySteelInput!) {
 		  get2BeScrapRepositorySteel(input: $input) {
@@ -1907,7 +1906,7 @@ func TestRepositoryAdminRoleGet2BeScrapRepositorySteel(t *testing.T)  {
 		}
 	`
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifier": "8",
 		},
 	}
@@ -1918,7 +1917,7 @@ func TestRepositoryAdminRoleGet2BeScrapRepositorySteel(t *testing.T)  {
 /**
  * 仓库管理员 型钢待定报废详情 集成测试 --手持机
  */
-func TestRepositoryAdminRoleGet2BeScrapRepositorySteelDetail(t *testing.T)  {
+func TestRepositoryAdminRoleGet2BeScrapRepositorySteelDetail(t *testing.T) {
 	q := `
 		query ($input: Get2BeScrapRepositorySteelDetailInput!){
 		  get2BeScrapRepositorySteelDetail(input: $input){
@@ -1946,9 +1945,9 @@ func TestRepositoryAdminRoleGet2BeScrapRepositorySteelDetail(t *testing.T)  {
 		  }
 		}
 	`
-	v = map[string]interface{} {
+	v = map[string]interface{}{
 		"input": map[string]interface{}{
-			"identifierList": []string {
+			"identifierList": []string{
 				"8",
 			},
 			"specificationId": 1,
@@ -2040,7 +2039,7 @@ func TestRepositoryAdminRoleGet2BeChangedRepositorySteelDetail(t *testing.T) {
 	`
 	v = map[string]interface{}{
 		"input": map[string]interface{}{
-			"identifierList": []string {
+			"identifierList": []string{
 				"9",
 			},
 			"specificationId": 1,
@@ -2069,7 +2068,7 @@ func TestRepositoryAdminRoleGet2BeMaintainSteel(t *testing.T) {
 		}
 	`
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifier": "9",
 		},
 	}
@@ -2108,8 +2107,8 @@ func TestRepositoryAdminRoleGet2BeMaintainSteelDetail(t *testing.T) {
 		}
 	`
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
-			"identifierList": []string{"9"},
+		"input": map[string]interface{}{
+			"identifierList":  []string{"9"},
 			"specificationId": 1,
 		},
 	}
@@ -2120,7 +2119,7 @@ func TestRepositoryAdminRoleGet2BeMaintainSteelDetail(t *testing.T) {
 /**
  * 仓库管理员型钢维修出库集成测试--手持机
  */
-func testRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
+func testRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T) {
 	q := `
 		mutation ($input: SetBatchOfMaintenanceSteelInput!){
 		  setBatchOfMaintenanceSteel(input: $input) {
@@ -2129,7 +2128,7 @@ func testRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
 		}
 	`
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
+		"input": map[string]interface{}{
 			"identifierList": []string{
 				"9",
 			},
@@ -2143,10 +2142,10 @@ func testRepositoryAdminRoleSetBatchOfMaintenanceSteel(t *testing.T)  {
 /**
  *  仓库到维修厂测试流程--手持机
  */
-func TestRepositoryAdminRoleRepository2MaintenancePipeline(t *testing.T)  {
+func TestRepositoryAdminRoleRepository2MaintenancePipeline(t *testing.T) {
 	t.Run("仓库管理员型钢维修出库集成测试--手持机", testRepositoryAdminRoleSetBatchOfMaintenanceSteel)
 	t.Run("维修管理员获取要入厂的型钢信息--手持机", testMaintenanceAdminRoleGetEnterMaintenanceSteel)
-	t.Run("维修管理员待入厂详细信息列表集成测试--手持机",testMaintenanceAdminRoleGetEnterMaintenanceSteelDetail)
+	t.Run("维修管理员待入厂详细信息列表集成测试--手持机", testMaintenanceAdminRoleGetEnterMaintenanceSteelDetail)
 	t.Run("维修管理员入厂型钢集成测试--手持机", testMaintenanceAdminRoleSetEnterMaintenance)
 	t.Run("维修管理员入厂型钢集成测试--手持机", testMaintenanceAdminRoleGetMaintenanceStateForChanged)
 	t.Run("维修管理员型钢修改状态查询集成测试--手持机", testMaintenanceAdminRoleGetChangedMaintenanceSteel)
@@ -2157,8 +2156,11 @@ func TestRepositoryAdminRoleRepository2MaintenancePipeline(t *testing.T)  {
 	t.Run("维修管理员查询维修的型钢集成测试--手持机", testMaintenanceAdminRoleGetMaintenanceSteel)
 	t.Run("维修管理员获取维修的状态列表集成测试--手持机", testMaintenanceAdminRoleGetStateListForMaintenanceSteelDetail)
 	t.Run("维修管理员获取详情列表集成测试--手持机", testMaintenanceAdminRoleGetMaintenanceSteelDetail)
+	t.Run("项目管理员标记消息已读集成测试--手持机", testProjectAdminRoleGetMsgUnReadeTotal)
+	t.Run("项目管理员标记消息已读集成测试--手持机", testProjectAdminRoleGetMsgUnReadeTotal)
+	t.Run("仓库管理员标记消息已读集成测试--手持机", testRepositoryAdminRoleGetMsgUnReadeTotal)
+	t.Run("维修管理员标记消息已读集成测试--手持机", testMaintenanceAdminRoleGetMsgUnReadeTotal)
 }
-
 
 /**
  * 项目管理员获取未读消息总量集成测试--手持机
@@ -2170,5 +2172,29 @@ func TestRepositoryAdminRoleGetMsgUnReadeTotal(t *testing.T) {
 		}
 	`
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
+ * 仓库管理员标记消息已读集成测试--手持机
+ */
+func testRepositoryAdminRoleGetMsgUnReadeTotal(t *testing.T) {
+	me, _ := GetUserByToken(repositoryAdminTestCtx.DeviceToken)
+	msgItem := msg.Msg{}
+	err := model.DB.Model(&msgItem).Where("uid = ?", me.Id).
+		First(&msgItem).
+		Error
+	assert.NoError(t, err)
+	q := `
+		mutation ($input: SetMsgReadedInput!){
+		  setMsgBeRead(input: $input)
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"id": msgItem.Id,
+		},
+	}
+	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }

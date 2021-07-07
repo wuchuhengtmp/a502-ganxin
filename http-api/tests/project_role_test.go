@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
+	"http-api/app/models/msg"
 	"http-api/app/models/orders"
 	"http-api/app/models/project_leader"
 	"http-api/app/models/projects"
@@ -1207,5 +1208,30 @@ func TestProjectAdminRoleGetMsgUnReadeTotal(t *testing.T) {
 		}
 	`
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+
+/**
+ * 项目管理员标记消息已读集成测试--手持机
+ */
+func testProjectAdminRoleGetMsgUnReadeTotal(t *testing.T) {
+	me, _ := GetUserByToken(projectAdminTestCtx.DeviceToken)
+	msgItem := msg.Msg{}
+	err := model.DB.Model(&msgItem).Where("uid = ?", me.Id).
+		First(&msgItem).
+		Error
+	assert.NoError(t, err)
+	q := `
+		mutation ($input: SetMsgReadedInput!){
+		  setMsgBeRead(input: $input)
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"id": msgItem.Id,
+		},
+	}
+	_, err  = graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
