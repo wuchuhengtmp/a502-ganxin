@@ -335,6 +335,7 @@ type ComplexityRoot struct {
 		SetBatchOfRepositorySteelScrap func(childComplexity int, input model.SetBatchOfRepositorySteelScrapInput) int
 		SetEnterMaintenance            func(childComplexity int, input model.SetMaintenanceInput) int
 		SetMaintenanceSteelState       func(childComplexity int, input model.SetMaintenanceSteelStateInput) int
+		SetMsgBeRead                   func(childComplexity int, input model.SetMsgReadedInput) int
 		SetPassword                    func(childComplexity int, input *model.SetPasswordInput) int
 		SetProjectOrder2Workshop       func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
 		SetProjectSteelEnterRepository func(childComplexity int, input model.SetProjectSteelEnterRepositoryInput) int
@@ -620,6 +621,7 @@ type MutationResolver interface {
 	EditMaterialManufacturer(ctx context.Context, input model.EditMaterialManufacturerInput) (*codeinfo.CodeInfo, error)
 	DeleteMaterialManufacturer(ctx context.Context, id int64) (bool, error)
 	SetPassword(ctx context.Context, input *model.SetPasswordInput) (bool, error)
+	SetMsgBeRead(ctx context.Context, input model.SetMsgReadedInput) (bool, error)
 	SetSteelEnterWorkshop(ctx context.Context, input model.SetSteelIntoWorkshopInput) ([]*order_specification_steel.OrderSpecificationSteel, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
@@ -2103,6 +2105,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetMaintenanceSteelState(childComplexity, args["input"].(model.SetMaintenanceSteelStateInput)), true
+
+	case "Mutation.setMsgBeRead":
+		if e.complexity.Mutation.SetMsgBeRead == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setMsgBeRead_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetMsgBeRead(childComplexity, args["input"].(model.SetMsgReadedInput)), true
 
 	case "Mutation.setPassword":
 		if e.complexity.Mutation.SetPassword == nil {
@@ -4343,6 +4357,16 @@ extend type Query {
     getMsgList: [MsgItem]! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
     """ 获取未读消息数量 """
     getMsgUnReadeTotal: Int! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
+}
+
+""" 标记消息为已读参数 """
+input SetMsgReadedInput {
+    """ 消息id """
+    id: Int!
+}
+extend type Mutation  {
+    """ 标记消息为已读 """
+    setMsgBeRead(input: SetMsgReadedInput!): Boolean! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
 }`, BuiltIn: false},
 	{Name: "../order.graphql", Input: `""" 订单规格 """
 type OrderSpecificationItem {
@@ -5787,6 +5811,21 @@ func (ec *executionContext) field_Mutation_setMaintenanceSteelState_args(ctx con
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSetMaintenanceSteelStateInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceSteelStateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setMsgBeRead_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetMsgReadedInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetMsgReadedInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMsgReadedInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -12420,6 +12459,78 @@ func (ec *executionContext) _Mutation_setPassword(ctx context.Context, field gra
 		}
 
 		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setMsgBeRead(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setMsgBeRead_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetMsgBeRead(rctx, args["input"].(model.SetMsgReadedInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin", "repositoryAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -25407,6 +25518,26 @@ func (ec *executionContext) unmarshalInputSetMaintenanceSteelStateInput(ctx cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetMsgReadedInput(ctx context.Context, obj interface{}) (model.SetMsgReadedInput, error) {
+	var it model.SetMsgReadedInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, obj interface{}) (model.SetPasswordInput, error) {
 	var it model.SetPasswordInput
 	var asMap = obj.(map[string]interface{})
@@ -27159,6 +27290,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "setPassword":
 			out.Values[i] = ec._Mutation_setPassword(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setMsgBeRead":
+			out.Values[i] = ec._Mutation_setMsgBeRead(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -31438,6 +31574,11 @@ func (ec *executionContext) unmarshalNSetMaintenanceInput2httpᚑapiᚋappᚋhtt
 
 func (ec *executionContext) unmarshalNSetMaintenanceSteelStateInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMaintenanceSteelStateInput(ctx context.Context, v interface{}) (model.SetMaintenanceSteelStateInput, error) {
 	res, err := ec.unmarshalInputSetMaintenanceSteelStateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetMsgReadedInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMsgReadedInput(ctx context.Context, v interface{}) (model.SetMsgReadedInput, error) {
+	res, err := ec.unmarshalInputSetMsgReadedInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

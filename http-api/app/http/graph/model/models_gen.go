@@ -630,6 +630,12 @@ type SetMaintenanceSteelStateInput struct {
 	State int64 `json:"state"`
 }
 
+//  标记消息为已读参数
+type SetMsgReadedInput struct {
+	//  消息id
+	ID int64 `json:"id"`
+}
+
 //  设置密码的参数
 type SetPasswordInput struct {
 	Password string `json:"password"`
