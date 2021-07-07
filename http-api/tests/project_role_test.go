@@ -1196,3 +1196,16 @@ func testProjectAdminRoleGetOrderSteelDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员获取未读消息总量集成测试--手持机
+ */
+func TestProjectAdminRoleGetMsgUnReadeTotal(t *testing.T) {
+	q := `
+		query {
+		  getMsgUnReadeTotal # 未读消息总量
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

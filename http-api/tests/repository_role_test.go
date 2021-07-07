@@ -2158,3 +2158,17 @@ func TestRepositoryAdminRoleRepository2MaintenancePipeline(t *testing.T)  {
 	t.Run("维修管理员获取维修的状态列表集成测试--手持机", testMaintenanceAdminRoleGetStateListForMaintenanceSteelDetail)
 	t.Run("维修管理员获取详情列表集成测试--手持机", testMaintenanceAdminRoleGetMaintenanceSteelDetail)
 }
+
+
+/**
+ * 项目管理员获取未读消息总量集成测试--手持机
+ */
+func TestRepositoryAdminRoleGetMsgUnReadeTotal(t *testing.T) {
+	q := `
+		query {
+		  getMsgUnReadeTotal # 未读消息总量
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

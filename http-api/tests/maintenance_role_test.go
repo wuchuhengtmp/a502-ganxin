@@ -984,3 +984,17 @@ func testMaintenanceAdminRoleGetMaintenanceSteelDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+
+/**
+ * 维修管理员获取未读消息总量集成测试--手持机
+ */
+func TestMaintenanceAdminRoleGetMsgUnReadeTotal(t *testing.T) {
+	q := `
+		query {
+		  getMsgUnReadeTotal # 未读消息总量
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin, maintenanceAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
