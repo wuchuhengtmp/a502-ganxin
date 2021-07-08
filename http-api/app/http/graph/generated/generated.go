@@ -24,6 +24,7 @@ import (
 	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -68,6 +69,7 @@ type ResolverRoot interface {
 	SpecificationItem() SpecificationItemResolver
 	SteelInProject() SteelInProjectResolver
 	SteelItem() SteelItemResolver
+	Subscription() SubscriptionResolver
 	UserItem() UserItemResolver
 }
 
@@ -556,6 +558,10 @@ type ComplexityRoot struct {
 		UsageYearRate        func(childComplexity int) int
 	}
 
+	Subscription struct {
+		MsgUnreadTotal func(childComplexity int, input model.MsgUnreadTotalInput) int
+	}
+
 	User struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
@@ -775,6 +781,9 @@ type SteelItemResolver interface {
 	Specifcation(ctx context.Context, obj *steels.Steels) (*specificationinfo.SpecificationInfo, error)
 	SteelInProject(ctx context.Context, obj *steels.Steels) ([]*order_specification_steel.OrderSpecificationSteel, error)
 	SteelInMaintenance(ctx context.Context, obj *steels.Steels) ([]*maintenance_record.MaintenanceRecord, error)
+}
+type SubscriptionResolver interface {
+	MsgUnreadTotal(ctx context.Context, input model.MsgUnreadTotalInput) (<-chan int64, error)
 }
 type UserItemResolver interface {
 	Role(ctx context.Context, obj *users.Users) (*roles.Role, error)
@@ -3591,6 +3600,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SteelItem.UsageYearRate(childComplexity), true
 
+	case "Subscription.msgUnreadTotal":
+		if e.complexity.Subscription.MsgUnreadTotal == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_msgUnreadTotal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.MsgUnreadTotal(childComplexity, args["input"].(model.MsgUnreadTotalInput)), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -3693,6 +3714,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			first = false
 			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next()
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -4367,7 +4405,18 @@ input SetMsgReadedInput {
 extend type Mutation  {
     """ 标记消息为已读 """
     setMsgBeRead(input: SetMsgReadedInput!): Boolean! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
-}`, BuiltIn: false},
+}
+
+""" 订阅未读消息总量参数 """
+input MsgUnreadTotalInput {
+    """ 用户id """
+    uid: Int!
+}
+type Subscription {
+    """ 订阅未读消息总量 """
+    msgUnreadTotal(input: MsgUnreadTotalInput!): Int!
+}
+`, BuiltIn: false},
 	{Name: "../order.graphql", Input: `""" 订单规格 """
 type OrderSpecificationItem {
     id: Int!
@@ -6501,6 +6550,21 @@ func (ec *executionContext) field_Query_isAccessLocationCode_args(ctx context.Co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNIsAccessLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐIsAccessLocationCodeInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_msgUnreadTotal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.MsgUnreadTotalInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNMsgUnreadTotalInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐMsgUnreadTotalInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -21790,6 +21854,58 @@ func (ec *executionContext) _SteelItem_createdAt(ctx context.Context, field grap
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Subscription_msgUnreadTotal(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Subscription_msgUnreadTotal_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().MsgUnreadTotal(rctx, args["input"].(model.MsgUnreadTotalInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func() graphql.Marshaler {
+		res, ok := <-resTmp.(<-chan int64)
+		if !ok {
+			return nil
+		}
+		return graphql.WriterFunc(func(w io.Writer) {
+			w.Write([]byte{'{'})
+			graphql.MarshalString(field.Alias).MarshalGQL(w)
+			w.Write([]byte{':'})
+			ec.marshalNInt2int64(ctx, field.Selections, res).MarshalGQL(w)
+			w.Write([]byte{'}'})
+		})
+	}
+}
+
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -25194,6 +25310,26 @@ func (ec *executionContext) unmarshalInputIsAccessLocationCodeInput(ctx context.
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locationCode"))
 			it.LocationCode, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMsgUnreadTotalInput(ctx context.Context, obj interface{}) (model.MsgUnreadTotalInput, error) {
+	var it model.MsgUnreadTotalInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "uid":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uid"))
+			it.UID, err = ec.unmarshalNInt2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -29410,6 +29546,26 @@ func (ec *executionContext) _SteelItem(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "msgUnreadTotal":
+		return ec._Subscription_msgUnreadTotal(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
+}
+
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
@@ -30992,6 +31148,11 @@ func (ec *executionContext) marshalNMsgItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋms
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) unmarshalNMsgUnreadTotalInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐMsgUnreadTotalInput(ctx context.Context, v interface{}) (model.MsgUnreadTotalInput, error) {
+	res, err := ec.unmarshalInputMsgUnreadTotalInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNOrderExpressDirection2httpᚑapiᚋappᚋmodelsᚋorder_expressᚐOrderExpressDirection(ctx context.Context, v interface{}) (order_express.OrderExpressDirection, error) {

@@ -23,3 +23,13 @@ extend type Mutation  {
     """ 标记消息为已读 """
     setMsgBeRead(input: SetMsgReadedInput!): Boolean! @hasRole(role: [projectAdmin, repositoryAdmin,maintenanceAdmin]) @mustBeDevice
 }
+
+""" 订阅未读消息总量参数 """
+input MsgUnreadTotalInput {
+    """ 用户id """
+    uid: Int!
+}
+type Subscription {
+    """ 订阅未读消息总量 """
+    msgUnreadTotal(input: MsgUnreadTotalInput!): Int!
+}

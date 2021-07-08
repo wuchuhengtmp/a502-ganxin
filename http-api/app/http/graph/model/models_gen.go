@@ -541,6 +541,12 @@ type LoginRes struct {
 	RoleName string `json:"roleName"`
 }
 
+//  订阅未读消息总量参数
+type MsgUnreadTotalInput struct {
+	//  用户id
+	UID int64 `json:"uid"`
+}
+
 //  分页参数
 type PaginationInput struct {
 	//  每页数量

@@ -10,6 +10,7 @@ import (
 	"http-api/app/http/graph/schema/extends_resolver"
 	"http-api/app/http/graph/schema/mutation_resolver"
 	"http-api/app/http/graph/schema/query_resolver"
+	"http-api/app/http/graph/schema/subscription_resolver"
 )
 
 // Mutation returns generated.MutationResolver implementation.
@@ -74,7 +75,9 @@ func (*Resolver) OrderSpecificationSteelItem() generated.OrderSpecificationSteel
 }
 func (*Resolver)MaintenanceItem() generated.MaintenanceItemResolver {
 	return extends_resolver.MaintenanceItemResolver{}
-
+}
+func (*Resolver)Subscription() generated.SubscriptionResolver {
+	return &subscription_resolver.SubscriptionResolver{}
 }
 
 /**
