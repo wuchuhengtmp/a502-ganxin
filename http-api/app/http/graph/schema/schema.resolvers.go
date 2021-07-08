@@ -80,6 +80,10 @@ func (*Resolver)Subscription() generated.SubscriptionResolver {
 	return &subscription_resolver.SubscriptionResolver{}
 }
 
+func (*Resolver)LogItem() generated.LogItemResolver {
+	return extends_resolver.LogItemResolver{}
+}
+
 /**
  * graphQL 解析器入口
  */

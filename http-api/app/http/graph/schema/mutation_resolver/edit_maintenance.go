@@ -72,7 +72,7 @@ func (*MutationResolver) EditMaintenance(ctx context.Context, input graphModel.E
 		// 操作日志
 		err = tx.Create(
 			&logs.Logos{
-				Type:    logs.EditActionType,
+				Type:    logs.UpdateActionType,
 				Content: fmt.Sprintf("编辑维修厂"),
 				Uid:     me.Id,
 			},

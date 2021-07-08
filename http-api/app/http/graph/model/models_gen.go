@@ -4,6 +4,7 @@ package model
 
 import (
 	"fmt"
+	"http-api/app/models/logs"
 	"http-api/app/models/roles"
 	"io"
 	"strconv"
@@ -371,6 +372,17 @@ type GetEnterRepositorySteelDetailInput struct {
 	Identifier string `json:"identifier"`
 	//  项目列表
 	ProjectID int64 `json:"projectId"`
+}
+
+type GetLogListInput struct {
+	//  页码
+	Page *int64 `json:"page"`
+	//  数量
+	PageSize *int64 `json:"pageSize"`
+	//  是否展示全部
+	IsShowAll bool `json:"isShowAll"`
+	//  操作类型
+	Type *logs.ActionType `json:"type"`
 }
 
 //  获取维修厂维修记录详情参数

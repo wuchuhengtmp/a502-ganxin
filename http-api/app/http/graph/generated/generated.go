@@ -11,6 +11,7 @@ import (
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/companies"
 	"http-api/app/models/devices"
+	"http-api/app/models/logs"
 	"http-api/app/models/maintenance"
 	"http-api/app/models/maintenance_record"
 	"http-api/app/models/msg"
@@ -56,6 +57,7 @@ type Config struct {
 type ResolverRoot interface {
 	CompanyItem() CompanyItemResolver
 	DeviceItem() DeviceItemResolver
+	LogItem() LogItemResolver
 	MaintenanceItem() MaintenanceItemResolver
 	MaintenanceRecordItem() MaintenanceRecordItemResolver
 	Mutation() MutationResolver
@@ -159,6 +161,11 @@ type ComplexityRoot struct {
 		ToBeStoreTotal func(childComplexity int) int
 	}
 
+	GetLogListRes struct {
+		List  func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
 	GetMaintenanceSteelRes struct {
 		List   func(childComplexity int) int
 		Total  func(childComplexity int) int
@@ -247,6 +254,14 @@ type ComplexityRoot struct {
 		Desc     func(childComplexity int) int
 		ErrCodes func(childComplexity int) int
 		Title    func(childComplexity int) int
+	}
+
+	LogItem struct {
+		Content   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Type      func(childComplexity int) int
+		User      func(childComplexity int) int
 	}
 
 	LoginRes struct {
@@ -438,6 +453,7 @@ type ComplexityRoot struct {
 		GetEnterRepositoryProjectList           func(childComplexity int) int
 		GetEnterRepositorySteelDetail           func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
 		GetExpressList                          func(childComplexity int) int
+		GetLogList                              func(childComplexity int, input model.GetLogListInput) int
 		GetMaintenanceList                      func(childComplexity int) int
 		GetMaintenanceStateForChanged           func(childComplexity int) int
 		GetMaintenanceSteel                     func(childComplexity int, input model.GetMaintenanceSteelInput) int
@@ -591,6 +607,9 @@ type CompanyItemResolver interface {
 type DeviceItemResolver interface {
 	UserInfo(ctx context.Context, obj *devices.Device) (*users.Users, error)
 }
+type LogItemResolver interface {
+	User(ctx context.Context, obj *logs.Logos) (*users.Users, error)
+}
 type MaintenanceItemResolver interface {
 	Admin(ctx context.Context, obj *maintenance.Maintenance) ([]*users.Users, error)
 	Total(ctx context.Context, obj *maintenance.Maintenance) (int64, error)
@@ -698,6 +717,7 @@ type QueryResolver interface {
 	GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
+	GetLogList(ctx context.Context, input model.GetLogListInput) (*logs.GetLogListRes, error)
 	GetMaintenanceList(ctx context.Context) ([]*maintenance.Maintenance, error)
 	GetEnterMaintenanceSteel(ctx context.Context, input model.EnterMaintenanceInput) (*maintenance_record.MaintenanceRecord, error)
 	GetEnterMaintenanceSteelDetail(ctx context.Context, input model.GetEnterMaintenanceSteelDetailInput) (*maintenance.GetEnterMaintenanceSteelDetailRes, error)
@@ -1137,6 +1157,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GetEnterRepositorySteelDetailRes.ToBeStoreTotal(childComplexity), true
 
+	case "GetLogListRes.list":
+		if e.complexity.GetLogListRes.List == nil {
+			break
+		}
+
+		return e.complexity.GetLogListRes.List(childComplexity), true
+
+	case "GetLogListRes.total":
+		if e.complexity.GetLogListRes.Total == nil {
+			break
+		}
+
+		return e.complexity.GetLogListRes.Total(childComplexity), true
+
 	case "GetMaintenanceSteelRes.list":
 		if e.complexity.GetMaintenanceSteelRes.List == nil {
 			break
@@ -1451,6 +1485,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GraphDesc.Title(childComplexity), true
+
+	case "LogItem.content":
+		if e.complexity.LogItem.Content == nil {
+			break
+		}
+
+		return e.complexity.LogItem.Content(childComplexity), true
+
+	case "LogItem.createdAt":
+		if e.complexity.LogItem.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.LogItem.CreatedAt(childComplexity), true
+
+	case "LogItem.id":
+		if e.complexity.LogItem.ID == nil {
+			break
+		}
+
+		return e.complexity.LogItem.ID(childComplexity), true
+
+	case "LogItem.type":
+		if e.complexity.LogItem.Type == nil {
+			break
+		}
+
+		return e.complexity.LogItem.Type(childComplexity), true
+
+	case "LogItem.user":
+		if e.complexity.LogItem.User == nil {
+			break
+		}
+
+		return e.complexity.LogItem.User(childComplexity), true
 
 	case "LoginRes.accessToken":
 		if e.complexity.LoginRes.AccessToken == nil {
@@ -2801,6 +2870,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetExpressList(childComplexity), true
 
+	case "Query.getLogList":
+		if e.complexity.Query.GetLogList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getLogList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetLogList(childComplexity, args["input"].(model.GetLogListInput)), true
+
 	case "Query.getMaintenanceList":
 		if e.complexity.Query.GetMaintenanceList == nil {
 			break
@@ -4068,6 +4149,51 @@ extend type Query {
     getExpressList: [ExpressItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 `, BuiltIn: false},
+	{Name: "../log.graphql", Input: `type LogItem {
+    id: Int!
+    """ 操作类型 """
+    type: LogType!
+    """ 操作内容 """
+    content: String!
+    """ 操作用户 """
+    user: UserItem!
+    """ 操作时间 """
+    createdAt: Time!
+}
+
+""" 日志类型 """
+enum LogType {
+    """ 删除  """
+    DELETE
+    """ 编辑 """
+    UPDATE
+    """ 创建 """
+    CREATE
+}
+
+input GetLogListInput {
+    """ 页码 """
+    page: Int
+    """ 数量 """
+    pageSize: Int = 12
+    """ 是否展示全部 """
+    isShowAll: Boolean!
+    """ 操作类型 """
+    type: LogType
+}
+
+""" 获取日志列表响应结果 """
+type GetLogListRes  {
+    """ 结果列表 """
+    list: [LogItem!]!
+    """ 数量  """
+    total: Int!
+}
+
+extend type Query {
+    """ 获取日志列表 """
+    getLogList(input: GetLogListInput!): GetLogListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}`, BuiltIn: false},
 	{Name: "../maintenance.graphql", Input: `""" 维修详情记录 """
 type MaintenanceRecordItem {
     """ 序号 """
@@ -6198,6 +6324,21 @@ func (ec *executionContext) field_Query_getEnterRepositorySteelDetail_args(ctx c
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getLogList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetLogListInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetLogListInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetLogListInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getMaintenanceSteelDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -8253,6 +8394,76 @@ func (ec *executionContext) _GetEnterRepositorySteelDetailRes_toBeStoreTotal(ctx
 	return ec.marshalOInt2int64(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _GetLogListRes_list(ctx context.Context, field graphql.CollectedField, obj *logs.GetLogListRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetLogListRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.List, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*logs.Logos)
+	fc.Result = res
+	return ec.marshalNLogItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogosᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetLogListRes_total(ctx context.Context, field graphql.CollectedField, obj *logs.GetLogListRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetLogListRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _GetMaintenanceSteelRes_list(ctx context.Context, field graphql.CollectedField, obj *maintenance.GetMaintenanceSteelRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -9826,6 +10037,181 @@ func (ec *executionContext) _GraphDesc_errCodes(ctx context.Context, field graph
 	res := resTmp.([]*model.ErrCodes)
 	fc.Result = res
 	return ec.marshalNErrCodes2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐErrCodes(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogItem_id(ctx context.Context, field graphql.CollectedField, obj *logs.Logos) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogItem_type(ctx context.Context, field graphql.CollectedField, obj *logs.Logos) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(logs.ActionType)
+	fc.Result = res
+	return ec.marshalNLogType2httpᚑapiᚋappᚋmodelsᚋlogsᚐActionType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogItem_content(ctx context.Context, field graphql.CollectedField, obj *logs.Logos) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogItem_user(ctx context.Context, field graphql.CollectedField, obj *logs.Logos) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.LogItem().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*users.Users)
+	fc.Result = res
+	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *logs.Logos) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LoginRes_accessToken(ctx context.Context, field graphql.CollectedField, obj *model.LoginRes) (ret graphql.Marshaler) {
@@ -16177,6 +16563,72 @@ func (ec *executionContext) _Query_getExpressList(ctx context.Context, field gra
 	res := resTmp.([]*codeinfo.CodeInfo)
 	fc.Result = res
 	return ec.marshalNExpressItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋcodeinfoᚐCodeInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getLogList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getLogList_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetLogList(rctx, args["input"].(model.GetLogListInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*logs.GetLogListRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/logs.GetLogListRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*logs.GetLogListRes)
+	fc.Result = res
+	return ec.marshalNGetLogListRes2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐGetLogListRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getMaintenanceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -24791,6 +25243,54 @@ func (ec *executionContext) unmarshalInputGetEnterRepositorySteelDetailInput(ctx
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetLogListInput(ctx context.Context, obj interface{}) (model.GetLogListInput, error) {
+	var it model.GetLogListInput
+	var asMap = obj.(map[string]interface{})
+
+	if _, present := asMap["pageSize"]; !present {
+		asMap["pageSize"] = 12
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "page":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			it.Page, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "pageSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+			it.PageSize, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isShowAll":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isShowAll"))
+			it.IsShowAll, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalOLogType2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐActionType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetMaintenanceSteelDetailInput(ctx context.Context, obj interface{}) (model.GetMaintenanceSteelDetailInput, error) {
 	var it model.GetMaintenanceSteelDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -26391,6 +26891,38 @@ func (ec *executionContext) _GetEnterRepositorySteelDetailRes(ctx context.Contex
 	return out
 }
 
+var getLogListResImplementors = []string{"GetLogListRes"}
+
+func (ec *executionContext) _GetLogListRes(ctx context.Context, sel ast.SelectionSet, obj *logs.GetLogListRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getLogListResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetLogListRes")
+		case "list":
+			out.Values[i] = ec._GetLogListRes_list(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GetLogListRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var getMaintenanceSteelResImplementors = []string{"GetMaintenanceSteelRes"}
 
 func (ec *executionContext) _GetMaintenanceSteelRes(ctx context.Context, sel ast.SelectionSet, obj *maintenance.GetMaintenanceSteelRes) graphql.Marshaler {
@@ -26934,6 +27466,62 @@ func (ec *executionContext) _GraphDesc(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = ec._GraphDesc_errCodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var logItemImplementors = []string{"LogItem"}
+
+func (ec *executionContext) _LogItem(ctx context.Context, sel ast.SelectionSet, obj *logs.Logos) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogItem")
+		case "id":
+			out.Values[i] = ec._LogItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "type":
+			out.Values[i] = ec._LogItem_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "content":
+			out.Values[i] = ec._LogItem_content(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "user":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LogItem_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "createdAt":
+			out.Values[i] = ec._LogItem_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -28213,6 +28801,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getExpressList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getLogList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getLogList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -30427,6 +31029,25 @@ func (ec *executionContext) marshalNGetEnterRepositorySteelDetailRes2ᚖhttpᚑa
 	return ec._GetEnterRepositorySteelDetailRes(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGetLogListInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetLogListInput(ctx context.Context, v interface{}) (model.GetLogListInput, error) {
+	res, err := ec.unmarshalInputGetLogListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetLogListRes2httpᚑapiᚋappᚋmodelsᚋlogsᚐGetLogListRes(ctx context.Context, sel ast.SelectionSet, v logs.GetLogListRes) graphql.Marshaler {
+	return ec._GetLogListRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetLogListRes2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐGetLogListRes(ctx context.Context, sel ast.SelectionSet, v *logs.GetLogListRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetLogListRes(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNGetMaintenanceSteelDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetMaintenanceSteelDetailInput(ctx context.Context, v interface{}) (model.GetMaintenanceSteelDetailInput, error) {
 	res, err := ec.unmarshalInputGetMaintenanceSteelDetailInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -30856,6 +31477,69 @@ func (ec *executionContext) marshalNInt2ᚕint64ᚄ(ctx context.Context, sel ast
 func (ec *executionContext) unmarshalNIsAccessLocationCodeInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐIsAccessLocationCodeInput(ctx context.Context, v interface{}) (model.IsAccessLocationCodeInput, error) {
 	res, err := ec.unmarshalInputIsAccessLocationCodeInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLogItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogosᚄ(ctx context.Context, sel ast.SelectionSet, v []*logs.Logos) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLogItem2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogos(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNLogItem2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogos(ctx context.Context, sel ast.SelectionSet, v *logs.Logos) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._LogItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNLogType2httpᚑapiᚋappᚋmodelsᚋlogsᚐActionType(ctx context.Context, v interface{}) (logs.ActionType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := logs.ActionType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLogType2httpᚑapiᚋappᚋmodelsᚋlogsᚐActionType(ctx context.Context, sel ast.SelectionSet, v logs.ActionType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNLoginRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐLoginRes(ctx context.Context, sel ast.SelectionSet, v model.LoginRes) graphql.Marshaler {
@@ -32543,6 +33227,22 @@ func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	return graphql.MarshalInt64(*v)
+}
+
+func (ec *executionContext) unmarshalOLogType2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐActionType(ctx context.Context, v interface{}) (*logs.ActionType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := logs.ActionType(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOLogType2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐActionType(ctx context.Context, sel ast.SelectionSet, v *logs.ActionType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(string(*v))
 }
 
 func (ec *executionContext) marshalOMaintenanceItem2ᚖhttpᚑapiᚋappᚋmodelsᚋmaintenanceᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v *maintenance.Maintenance) graphql.Marshaler {

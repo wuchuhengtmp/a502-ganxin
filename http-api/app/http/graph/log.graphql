@@ -1,0 +1,45 @@
+type LogItem {
+    id: Int!
+    """ 操作类型 """
+    type: LogType!
+    """ 操作内容 """
+    content: String!
+    """ 操作用户 """
+    user: UserItem!
+    """ 操作时间 """
+    createdAt: Time!
+}
+
+""" 日志类型 """
+enum LogType {
+    """ 删除  """
+    DELETE
+    """ 编辑 """
+    UPDATE
+    """ 创建 """
+    CREATE
+}
+
+input GetLogListInput {
+    """ 页码 """
+    page: Int
+    """ 数量 """
+    pageSize: Int = 12
+    """ 是否展示全部 """
+    isShowAll: Boolean!
+    """ 操作类型 """
+    type: LogType
+}
+
+""" 获取日志列表响应结果 """
+type GetLogListRes  {
+    """ 结果列表 """
+    list: [LogItem!]!
+    """ 数量  """
+    total: Int!
+}
+
+extend type Query {
+    """ 获取日志列表 """
+    getLogList(input: GetLogListInput!): GetLogListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}

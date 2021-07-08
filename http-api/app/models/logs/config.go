@@ -14,10 +14,10 @@ import (
 )
 
 type Logos struct {
-	ID      int64      `json:"id"`
-	Type    ActionType `json:"type" gorm:"comment:操作类型增删改"`
-	Content string     `json:"content" gorm:"comment:操作内容"`
-	Uid     int64      `json:"uid" gorm:"comment:用户id"`
+	ID        int64      `json:"id"`
+	Type      ActionType `json:"type" gorm:"comment:操作类型增删改"`
+	Content   string     `json:"content" gorm:"comment:操作内容"`
+	Uid       int64      `json:"uid" gorm:"comment:用户id"`
 	gorm.Model
 }
 
@@ -31,7 +31,6 @@ const (
 	DeleteActionType ActionType = "DELETE"
 	UpdateActionType ActionType = "UPDATE"
 	CreateActionType ActionType = "CREATE"
-	EditActionType   ActionType = "Edit"
 )
 
 /**
@@ -42,4 +41,10 @@ func (l *Logos) CreateSelf() error {
 	err := db.Create(l).Error
 
 	return err
+}
+
+// 获取日志列表响应结果
+type GetLogListRes struct {
+	List  []*Logos `json:"list"`
+	Total int64    `json:"total"`
 }

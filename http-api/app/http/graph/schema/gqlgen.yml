@@ -150,3 +150,12 @@ models:
   # 获取可出厂的型钢详情响应数据
   GetMaintenanceSteelRes:
     model: http-api/app/models/maintenance.GetMaintenanceSteelRes
+  # 日志操作类型
+  LogType:
+    model: http-api/app/models/logs.ActionType
+  # 日志
+  LogItem:
+    model: http-api/app/models/logs.Logos
+  # 获取日志列表响应结果
+  GetLogListRes:
+    model: http-api/app/models/logs.GetLogListRes
