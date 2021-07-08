@@ -1235,3 +1235,35 @@ func testProjectAdminRoleGetMsgUnReadeTotal(t *testing.T) {
 	_, err  = graphReqClient(q, v, roles.RoleProjectAdmin, projectAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+/**
+ * 维修管理员获取日志列表集成测试
+ */
+func TestProjectAdminRoleGetLogList(t *testing.T) {
+	q := `
+		query ($input: GetLogListInput!){
+		  getLogList(input: $input)  {
+			list {
+			  id
+			  type # 操作类型
+			  content # 操作内容 
+			  user {
+				id 
+				name # 操作用户
+			  }
+			  createdAt # 添加时间
+			}
+			total # 数量 
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"isShowAll": false,
+			"page": 1,
+			"pageSize": 10,
+			"type": "DELETE",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}

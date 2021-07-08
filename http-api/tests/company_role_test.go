@@ -1358,3 +1358,36 @@ func TestCompanyAdminRoleDelMaintenance(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 公司管理员 获取日志列表  集成测试
+ */
+func TestCompanyAdminRoleGetLogList(t *testing.T) {
+	q := `
+		query ($input: GetLogListInput!){
+		  getLogList(input: $input)  {
+			list {
+			  id
+			  type # 操作类型
+			  content # 操作内容 
+			  user {
+				id 
+				name # 操作用户
+			  }
+			  createdAt # 添加时间
+			}
+			total # 数量 
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"isShowAll": false,
+			"page": 1,
+			"pageSize": 10,
+			"type": "DELETE",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
