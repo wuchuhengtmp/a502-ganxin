@@ -264,6 +264,11 @@ type ComplexityRoot struct {
 		User      func(childComplexity int) int
 	}
 
+	LogTypeItem struct {
+		Desc func(childComplexity int) int
+		Flag func(childComplexity int) int
+	}
+
 	LoginRes struct {
 		AccessToken func(childComplexity int) int
 		Expired     func(childComplexity int) int
@@ -454,6 +459,7 @@ type ComplexityRoot struct {
 		GetEnterRepositorySteelDetail           func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
 		GetExpressList                          func(childComplexity int) int
 		GetLogList                              func(childComplexity int, input model.GetLogListInput) int
+		GetLogTypeList                          func(childComplexity int) int
 		GetMaintenanceList                      func(childComplexity int) int
 		GetMaintenanceStateForChanged           func(childComplexity int) int
 		GetMaintenanceSteel                     func(childComplexity int, input model.GetMaintenanceSteelInput) int
@@ -718,6 +724,7 @@ type QueryResolver interface {
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetLogList(ctx context.Context, input model.GetLogListInput) (*logs.GetLogListRes, error)
+	GetLogTypeList(ctx context.Context) ([]*logs.LogTypeItem, error)
 	GetMaintenanceList(ctx context.Context) ([]*maintenance.Maintenance, error)
 	GetEnterMaintenanceSteel(ctx context.Context, input model.EnterMaintenanceInput) (*maintenance_record.MaintenanceRecord, error)
 	GetEnterMaintenanceSteelDetail(ctx context.Context, input model.GetEnterMaintenanceSteelDetailInput) (*maintenance.GetEnterMaintenanceSteelDetailRes, error)
@@ -1520,6 +1527,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LogItem.User(childComplexity), true
+
+	case "LogTypeItem.desc":
+		if e.complexity.LogTypeItem.Desc == nil {
+			break
+		}
+
+		return e.complexity.LogTypeItem.Desc(childComplexity), true
+
+	case "LogTypeItem.flag":
+		if e.complexity.LogTypeItem.Flag == nil {
+			break
+		}
+
+		return e.complexity.LogTypeItem.Flag(childComplexity), true
 
 	case "LoginRes.accessToken":
 		if e.complexity.LoginRes.AccessToken == nil {
@@ -2882,6 +2903,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetLogList(childComplexity, args["input"].(model.GetLogListInput)), true
 
+	case "Query.getLogTypeList":
+		if e.complexity.Query.GetLogTypeList == nil {
+			break
+		}
+
+		return e.complexity.Query.GetLogTypeList(childComplexity), true
+
 	case "Query.getMaintenanceList":
 		if e.complexity.Query.GetMaintenanceList == nil {
 			break
@@ -4190,9 +4218,18 @@ type GetLogListRes  {
     total: Int!
 }
 
+""" 操作类型 """
+type LogTypeItem {
+    """ 标识 """
+    flag: String!
+    """ 说明 """
+    desc: String
+}
 extend type Query {
     """ 获取日志列表 """
     getLogList(input: GetLogListInput!): GetLogListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取操作类型列表 """
+    getLogTypeList: [LogTypeItem!]!
 }`, BuiltIn: false},
 	{Name: "../maintenance.graphql", Input: `""" 维修详情记录 """
 type MaintenanceRecordItem {
@@ -10212,6 +10249,73 @@ func (ec *executionContext) _LogItem_createdAt(ctx context.Context, field graphq
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogTypeItem_flag(ctx context.Context, field graphql.CollectedField, obj *logs.LogTypeItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogTypeItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flag, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LogTypeItem_desc(ctx context.Context, field graphql.CollectedField, obj *logs.LogTypeItem) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LogTypeItem",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Desc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LoginRes_accessToken(ctx context.Context, field graphql.CollectedField, obj *model.LoginRes) (ret graphql.Marshaler) {
@@ -16629,6 +16733,41 @@ func (ec *executionContext) _Query_getLogList(ctx context.Context, field graphql
 	res := resTmp.(*logs.GetLogListRes)
 	fc.Result = res
 	return ec.marshalNGetLogListRes2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐGetLogListRes(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getLogTypeList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetLogTypeList(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*logs.LogTypeItem)
+	fc.Result = res
+	return ec.marshalNLogTypeItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogTypeItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getMaintenanceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -27534,6 +27673,35 @@ func (ec *executionContext) _LogItem(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var logTypeItemImplementors = []string{"LogTypeItem"}
+
+func (ec *executionContext) _LogTypeItem(ctx context.Context, sel ast.SelectionSet, obj *logs.LogTypeItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logTypeItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogTypeItem")
+		case "flag":
+			out.Values[i] = ec._LogTypeItem_flag(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "desc":
+			out.Values[i] = ec._LogTypeItem_desc(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var loginResImplementors = []string{"LoginRes"}
 
 func (ec *executionContext) _LoginRes(ctx context.Context, sel ast.SelectionSet, obj *model.LoginRes) graphql.Marshaler {
@@ -28815,6 +28983,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getLogList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getLogTypeList":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getLogTypeList(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -31540,6 +31722,53 @@ func (ec *executionContext) marshalNLogType2httpᚑapiᚋappᚋmodelsᚋlogsᚐA
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNLogTypeItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogTypeItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*logs.LogTypeItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLogTypeItem2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogTypeItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNLogTypeItem2ᚖhttpᚑapiᚋappᚋmodelsᚋlogsᚐLogTypeItem(ctx context.Context, sel ast.SelectionSet, v *logs.LogTypeItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._LogTypeItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNLoginRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐLoginRes(ctx context.Context, sel ast.SelectionSet, v model.LoginRes) graphql.Marshaler {

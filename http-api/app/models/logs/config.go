@@ -14,10 +14,10 @@ import (
 )
 
 type Logos struct {
-	ID        int64      `json:"id"`
-	Type      ActionType `json:"type" gorm:"comment:操作类型增删改"`
-	Content   string     `json:"content" gorm:"comment:操作内容"`
-	Uid       int64      `json:"uid" gorm:"comment:用户id"`
+	ID      int64      `json:"id"`
+	Type    ActionType `json:"type" gorm:"comment:操作类型增删改"`
+	Content string     `json:"content" gorm:"comment:操作内容"`
+	Uid     int64      `json:"uid" gorm:"comment:用户id"`
 	gorm.Model
 }
 
@@ -32,6 +32,27 @@ const (
 	UpdateActionType ActionType = "UPDATE"
 	CreateActionType ActionType = "CREATE"
 )
+
+func GetAllType() []ActionType {
+	return []ActionType{
+		DeleteActionType,
+		UpdateActionType,
+		CreateActionType,
+	}
+}
+
+var ActionTypeMapDes = map[ActionType]string{
+	CreateActionType: "创建",
+	DeleteActionType: "删除",
+	UpdateActionType: "编辑",
+}
+
+type LogTypeItem struct {
+	//""" 标识 """
+	Flag string
+	//""" 说明 """
+	Desc string
+}
 
 /**
  * 添加条新的记录

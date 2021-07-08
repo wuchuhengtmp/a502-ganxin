@@ -159,3 +159,7 @@ models:
   # 获取日志列表响应结果
   GetLogListRes:
     model: http-api/app/models/logs.GetLogListRes
+  # 日志类型
+  LogTypeItem:
+    model: http-api/app/models/logs.LogTypeItem
+

@@ -39,7 +39,16 @@ type GetLogListRes  {
     total: Int!
 }
 
+""" 操作类型 """
+type LogTypeItem {
+    """ 标识 """
+    flag: String!
+    """ 说明 """
+    desc: String
+}
 extend type Query {
     """ 获取日志列表 """
     getLogList(input: GetLogListInput!): GetLogListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取操作类型列表 """
+    getLogTypeList: [LogTypeItem!]!
 }
