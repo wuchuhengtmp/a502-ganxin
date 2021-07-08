@@ -1368,7 +1368,10 @@ func TestCompanyAdminRoleGetLogList(t *testing.T) {
 		  getLogList(input: $input)  {
 			list {
 			  id
-			  type # 操作类型
+			  typeInfo {
+				flag # 类型标志
+				desc # 类型说明
+	          }
 			  content # 操作内容 
 			  user {
 				id 

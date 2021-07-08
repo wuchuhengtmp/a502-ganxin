@@ -8,6 +8,8 @@ type LogItem {
     user: UserItem!
     """ 操作时间 """
     createdAt: Time!
+    """ 类型信息 """
+    typeInfo: LogTypeItem!
 }
 
 """ 日志类型 """

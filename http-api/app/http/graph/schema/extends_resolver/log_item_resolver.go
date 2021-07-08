@@ -10,16 +10,24 @@ package extends_resolver
 
 import (
 	"context"
+	"fmt"
 	"http-api/app/models/logs"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
 
-type LogItemResolver struct { }
+type LogItemResolver struct{}
 
-func (LogItemResolver)User(ctx context.Context, obj *logs.Logos) (*users.Users, error) {
+func (LogItemResolver) User(ctx context.Context, obj *logs.Logos) (*users.Users, error) {
 	userItem := users.Users{}
 	err := model.DB.Model(&userItem).Where("id = ?", obj.Uid).First(&userItem).Error
 
 	return &userItem, err
+}
+func (LogItemResolver) TypeInfo(ctx context.Context, obj *logs.Logos) (*logs.LogTypeItem, error) {
+	l := logs.LogTypeItem{
+		Flag: fmt.Sprintf("%s", obj.Type),
+		Desc: logs.ActionTypeMapDes[obj.Type],
+	}
+	return &l, nil
 }
