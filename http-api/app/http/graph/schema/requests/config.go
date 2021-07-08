@@ -460,6 +460,38 @@ func (*ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectExists(ctx
 type StepsForProject struct{}
 
 /**
+ * 检验有没有这个仓库
+ */
+func (*StepsForProject) CheckHasRepository(ctx context.Context, repositoryId int64) error {
+	r := repositories.Repositories{}
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&r).Where("id = ?", repositoryId).Where("company_id = ?", me.CompanyId).First(&r).Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("id为:%d 的仓库不存在", repositoryId)
+	}
+	return err
+}
+
+/**
+ * 检验分页
+ */
+func (*StepsForProject) CheckPagination(isShowAll bool, pageSize *int64, page *int64) error {
+	if !isShowAll {
+		if pageSize == nil {
+			return fmt.Errorf("分页展示时， 分页号不能为空")
+		}
+		if *page <= 0 {
+			return fmt.Errorf("分页号不能小于1")
+		}
+		if *pageSize <= 0 {
+			return fmt.Errorf("分页大小不能小于1")
+		}
+	}
+
+	return nil
+}
+
+/**
  * 检验项目的安装码是否有效
  */
 func (*StepsForProject) CheckLocationCodeValid(ctx context.Context, ) error {
@@ -626,6 +658,24 @@ func (*StepsForProject) CheckIsEnterRepositoryState(state int64) error {
 
 	return nil
 }
+/**
+ * 检验有没有这个订单
+ */
+func (*StepsForProject) CheckHasOrder(ctx context.Context, orderId int64) error {
+	me := auth.GetUser(ctx)
+	orderItem :=  order_specification.OrderSpecification{}
+	err := model.DB.Model(&orderItem).
+		Where("id = ?", orderId).
+		Where("company_id = ?", me.CompanyId).
+		First(&orderItem).
+		Error
+	const s = ""
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("id为: %d 的订单不存在", orderId)
+	}
+
+	return err
+}
 
 /**
  * 检验有没有这根型钢
@@ -778,6 +828,22 @@ func (s *StepsForProject) CheckIsProjectSteel(ctx context.Context, identifier st
 	return nil
 }
 
+/**
+ * 检验有没有这个规格
+ */
+func (*StepsForProject)CheckHasSpecification(ctx context.Context, specificationInfoId int64) error  {
+	s := specificationinfo.SpecificationInfo{}
+	me := auth.GetUser(ctx)
+	err := model.DB.Model(&s).Where("company_id = ?", me.CompanyId).
+		Where("id = ?", specificationInfoId).
+		First(&s).Error
+	if err != nil && err.Error() == "record not found"{
+		return fmt.Errorf("规格id为: %d 不存在", specificationInfoId)
+
+	}
+
+	return nil
+}
 /**
  *  检验规格id
  */

@@ -438,6 +438,36 @@ type GetOutOfWorkshopProjectSteelDetail struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  获取项目详情参数
+type GetProjectDetailInput struct {
+	//  是否全部展示
+	IsShowAll bool `json:"isShowAll"`
+	//  分页
+	Page *int64 `json:"page"`
+	//  数量
+	PageSize *int64 `json:"pageSize"`
+	//  订单id
+	OrderID *int64 `json:"orderId"`
+	//  出库仓库id
+	RepositoryID *int64 `json:"repositoryId"`
+	//  规格尺寸id
+	SpecificationID *int64 `json:"specificationId"`
+	//  状态
+	State *int64 `json:"state"`
+	//  出库时间
+	OutOfRepositoryAt *time.Time `json:"outOfRepositoryAt"`
+	//  入库时间
+	EnterRepositoryAt *time.Time `json:"enterRepositoryAt"`
+	//  入场时间
+	EnteredWorkshopAt *time.Time `json:"enteredWorkshopAt"`
+	// " 出场 时间
+	OutOfWorkshopAt *time.Time `json:"outOfWorkshopAt"`
+	//  安装编码
+	LocationCode *string `json:"locationCode"`
+	//  安装时间
+	InstallationAt *time.Time `json:"installationAt"`
+}
+
 //  获取要入场的订单需要的请求参数
 type GetProjectOrder2WorkshopDetailInput struct {
 	//  规格id

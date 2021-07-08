@@ -213,3 +213,10 @@ type GetOutOfWorkshopProjectSteelDetailRes struct {
 	// """ 已归库数量 """
 	StoreTotal int64
 }
+//""" 项目详情响应数据 """
+type GetProjectDetailRes struct {
+	//""" 型钢列表 """
+	List []*order_specification_steel.OrderSpecificationSteel
+	//""" 数量 """
+	Total int64
+}
