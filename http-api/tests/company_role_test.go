@@ -1391,3 +1391,19 @@ func TestCompanyAdminRoleGetLogList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员获取日类型志列表集成测试
+ */
+func TestCompanyAdminRoleGetLogTypeList(t *testing.T) {
+	q := `
+		query {
+		  getLogTypeList {
+			desc # 类型说明 
+			flag   #类型标志
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	assert.NoError(t, err)
+}
