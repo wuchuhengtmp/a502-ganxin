@@ -162,4 +162,6 @@ models:
   # 日志类型
   LogTypeItem:
     model: http-api/app/models/logs.LogTypeItem
-
+  # 项目详情响应数据
+  GetProjectDetailRes:
+    model: http-api/app/models/projects.GetProjectDetailRes

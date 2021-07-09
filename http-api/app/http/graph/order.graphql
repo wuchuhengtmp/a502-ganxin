@@ -46,7 +46,10 @@ type OrderSpecificationSteelItem {
     """ 出库时间 """
     outRepositoryAt: Time!
     """ 归库时间 """
-    EnterRepositoryAt: Time
+    enterRepositoryAt: Time
+    """ 使用时长 """
+    useDays: Int
+
 }
 
 """ 运输公司 """

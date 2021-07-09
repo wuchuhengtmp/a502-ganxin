@@ -191,6 +191,42 @@ extend type Mutation {
     """ 型钢归库 """
     setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
+""" 项目详情响应数据 """
+type GetProjectDetailRes {
+    """ 型钢列表 """
+    list: [OrderSpecificationSteelItem]!
+    """ 数量 """
+    total: Int!
+}
+""" 获取项目详情参数 """
+input GetProjectDetailInput {
+    """ 是否全部展示 """
+    isShowAll: Boolean!
+    """ 分页 """
+    page: Int
+    """ 数量 """
+    pageSize: Int
+    """ 订单id """
+    orderId: Int
+    """ 出库仓库id  """
+    repositoryId: Int
+    """ 规格尺寸id """
+    specificationId: Int
+    """ 状态 """
+    state: Int
+    """ 出库时间 """
+    outOfRepositoryAt: Time
+    """ 入库时间 """
+    enterRepositoryAt: Time
+    """ 入场时间 """
+    enteredWorkshopAt: Time
+    """" 出场 时间 """
+    outOfWorkshopAt: Time
+    """ 安装编码 """
+    locationCode: String
+    """ 安装时间 """
+    installationAt: Time
+}
 extend type Query {
     """ 获取项目管理列表 """
     getProjectLis: [ProjectItem]! @hasRole(role: [companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -224,4 +260,6 @@ extend type Query {
     getToBeEnterRepositorySpecificationList(input: GetToBeEnterRepositorySpecificationListInput!): [SpecificationItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取待归库详情 """
     getToBeEnterRepositoryDetail(input: GetToBeEnterRepositoryDetailInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取项目详情 """
+    getProjectDetail(input: GetProjectDetailInput!): GetProjectDetailRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
