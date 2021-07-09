@@ -1075,3 +1075,56 @@ func TestMaintenanceAdminRoleGetLogTypeList(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+/**
+ * 公司管理员获取型钢详情列表集成测试
+ */
+func TestMaintenanceAdminRoleGetProjectDetail(t *testing.T) {
+	q := `
+	query ($input: GetProjectDetailInput!){
+	  getProjectDetail(input: $input){
+		list{
+		  id # 序号
+		  orderSpecification {
+			order {
+			  id # 订单号
+			}
+		  }
+		  steel {
+			repository {
+			  id 
+			  name # 出货仓库
+			}
+			code # 型钢编码
+			specifcation {
+			  specification # 规格尺寸
+			}
+		  }
+		  stateInfo {
+			state 
+			desc #状态说明 
+		  }
+		  outRepositoryAt # 出库时间
+		  enterRepositoryAt #归库时间
+		  enterWorkshopAt # 入场时间
+		  outWorkshopAt # 出场时间
+		  locationCode # 安装码
+		  installationAt # 安装时间
+		  useDays # 使用天数
+		}
+		total
+	  }
+	} 
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{}{
+			"isShowAll": false,
+			"page": 1,
+			"pageSize": 10,
+			"state": 100,
+			"outOfRepositoryAt": "2021-07-08T16:14:33+08:00",
+			"locationCode": "2",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	assert.NoError(t, err)
+}
