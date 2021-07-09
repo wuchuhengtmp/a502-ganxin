@@ -1518,3 +1518,19 @@ func TestCompanyAdminRoleGetMaintenanceDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 公司管理员获取维修的状态列表集成测试
+ */
+func TestCompanyAdminRoleGetStateForMaintenance(t *testing.T) {
+	q := `
+		query {
+		  getStateForMaintenance {
+			state
+			desc
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}

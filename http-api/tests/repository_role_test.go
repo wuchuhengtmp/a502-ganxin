@@ -2357,3 +2357,18 @@ func TestRepositoryAdminRoleGetMaintenanceDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+/**
+ * 仓库管理员获取维修的状态列表集成测试
+ */
+func TestRepositoryAdminRoleGetStateForMaintenance(t *testing.T) {
+	q := `
+		query {
+		  getStateForMaintenance {
+			state
+			desc
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleMaintenanceAdmin)
+	assert.NoError(t, err)
+}
