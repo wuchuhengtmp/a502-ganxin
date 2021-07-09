@@ -18,33 +18,33 @@ import (
 type AccountType struct {
 	Password string
 	Username string
-	Id int64
+	Id       int64
 }
 
 var SuperAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969604",
-	Id: 1,
+	Id:       1,
 }
 var CompanyAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969605",
-	Id: 2,
+	Id:       2,
 }
 var RepositoryAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969606",
-	Id: 3,
+	Id:       3,
 }
 var ProjectAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969607",
-	Id: 4,
+	Id:       4,
 }
 var MaintenanceAdmin = AccountType{
 	Password: "12345678",
 	Username: "13427969608",
-	Id: 5,
+	Id:       5,
 }
 
 var UsersSeeders = []seed.Seed{
@@ -135,14 +135,21 @@ func CreateUser(
 	avatarFileId int64,
 	companyId int64,
 ) error {
-	return db.Create(&users.Users{
-		Id:           id,
-		Name:         name,
-		Password:     password,
-		Phone:        phone,
-		RoleId:       roleId,
-		AvatarFileId: avatarFileId,
-		CompanyId:    companyId,
-		IsAble:       true,
-	}).Error
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(&users.Users{
+			Id:           id,
+			Name:         name,
+			Password:     password,
+			Phone:        phone,
+			RoleId:       roleId,
+			AvatarFileId: avatarFileId,
+			CompanyId:    companyId,
+			IsAble:       true,
+		}).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }

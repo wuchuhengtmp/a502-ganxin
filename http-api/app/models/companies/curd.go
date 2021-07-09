@@ -177,39 +177,6 @@ func GetCompanyAdminUserById(id int64) (*users.Users, error) {
 	return &user, err
 }
 
-/**
- * 添加公司归属下的人员
- */
-func (Companies) CreateUser(ctx context.Context, input graphQL.CreateCompanyUserInput) (*users.Users, error) {
-	tx := sqlModel.DB.Begin()
-	me := auth.GetUser(ctx)
-	user := users.Users{}
-	user.Name = input.Name
-	user.Phone = input.Phone
-	user.Wechat = input.Wechat
-	user.Password = helper2.GetHashByStr(input.Password)
-	user.AvatarFileId = input.AvatarID
-	user.RoleId = roles.RoleTagMapId[input.Role.String()]
-	user.CompanyId = me.CompanyId
-	if err := tx.Create(&user).Error; err != nil {
-		return &user, err
-	}
-	log := logs.Logos{}
-	log.Uid = me.Id
-	log.Content = fmt.Sprintf("添加 %s", roles.RoleTagMapName[input.Role.String()])
-	log.Type = logs.CreateActionType
-	log.Uid = me.Id
-	if err := tx.Create(&log).Error; err != nil {
-		tx.Rollback()
-		return &user, err
-	}
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	return &user, nil
-}
 
 /**
  * 获取对应解析器的公司下的员工数据

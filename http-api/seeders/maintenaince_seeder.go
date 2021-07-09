@@ -11,6 +11,9 @@ package seeders
 import (
 	"gorm.io/gorm"
 	"http-api/app/models/maintenance"
+	"http-api/app/models/maintenance_leader"
+	"http-api/app/models/roles"
+	"http-api/app/models/users"
 	"http-api/pkg/seed"
 )
 
@@ -46,6 +49,18 @@ func createMaintenance(
 			CompanyId: CompanyId,
 		}
 		err := tx.Create(&r).Error
+		if err != nil {
+			return err
+		}
+		u := users.Users{}
+		err = tx.Model(&u).Where("role_id = ?", roles.RoleMaintenanceAdminId).First(&u).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Create(&maintenance_leader.MaintenanceLeader{
+			MaintenanceId: r.Id,
+			Uid:           u.Id,
+		}).Error
 		if err != nil {
 			return err
 		}

@@ -1338,7 +1338,7 @@ func (s *StepsForMaintenance) CheckIsSteelBelong2Me(ctx context.Context, identif
 		Error
 	if err != nil {
 		if err.Error() == "record not found" {
-			return fmt.Errorf("")
+			return fmt.Errorf("标识码为：%s 的型钢不归属您管理的维修厂，您无权操作", identifier)
 		}
 		return err
 	}
