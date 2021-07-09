@@ -667,12 +667,13 @@ func (*StepsForProject) CheckIsEnterRepositoryState(state int64) error {
 
 	return nil
 }
+
 /**
  * 检验有没有这个订单
  */
 func (*StepsForProject) CheckHasOrder(ctx context.Context, orderId int64) error {
 	me := auth.GetUser(ctx)
-	orderItem :=  order_specification.OrderSpecification{}
+	orderItem := order_specification.OrderSpecification{}
 	err := model.DB.Model(&orderItem).
 		Where("id = ?", orderId).
 		Where("company_id = ?", me.CompanyId).
@@ -840,19 +841,20 @@ func (s *StepsForProject) CheckIsProjectSteel(ctx context.Context, identifier st
 /**
  * 检验有没有这个规格
  */
-func (*StepsForProject)CheckHasSpecification(ctx context.Context, specificationInfoId int64) error  {
+func (*StepsForProject) CheckHasSpecification(ctx context.Context, specificationInfoId int64) error {
 	s := specificationinfo.SpecificationInfo{}
 	me := auth.GetUser(ctx)
 	err := model.DB.Model(&s).Where("company_id = ?", me.CompanyId).
 		Where("id = ?", specificationInfoId).
 		First(&s).Error
-	if err != nil && err.Error() == "record not found"{
+	if err != nil && err.Error() == "record not found" {
 		return fmt.Errorf("规格id为: %d 不存在", specificationInfoId)
 
 	}
 
 	return nil
 }
+
 /**
  *  检验规格id
  */
@@ -1485,7 +1487,7 @@ func (s *StepsForMaintenance) CheckIsOutOfMaintenanceAccess(ctx context.Context,
 		Where(fmt.Sprintf("%s.company_id = ?", steelsTable), me.CompanyId).
 		First(&recordItem).
 		Error
-	if err != nil && err.Error() == "record not found"{
+	if err != nil && err.Error() == "record not found" {
 		return fmt.Errorf("没有标识码为:%s 的维修型钢", identifier)
 	}
 	if recordItem.State != steels.StateMaintainerWillBeStore {
@@ -1507,14 +1509,14 @@ func (s *StepsForMaintenance) CheckSteelIsBelongMaintenance(ctx context.Context,
 	maintenanceItem := maintenance.Maintenance{}
 	steelsTable := steels.Steels{}.TableName()
 	recordTable := maintenance_record.MaintenanceRecord{}.TableName()
-	if err := s.CheckHashMaintenance(ctx, maintenanceId); err !=  nil {
+	if err := s.CheckHashMaintenance(ctx, maintenanceId); err != nil {
 		return err
 	}
 
 	err := model.DB.Model(&maintenanceItem).
 		Joins(fmt.Sprintf("join %s ON %s.maintenance_id = %s.id", recordTable, recordTable, maintenanceItem.TableName())).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelsTable, steelsTable, recordTable)).
-		Where(fmt.Sprintf( "%s.identifier = ?", steelsTable), identifier).
+		Where(fmt.Sprintf("%s.identifier = ?", steelsTable), identifier).
 		First(&maintenanceItem).
 		Error
 
@@ -1523,8 +1525,22 @@ func (s *StepsForMaintenance) CheckSteelIsBelongMaintenance(ctx context.Context,
 		if err != nil {
 			return err
 		}
-		 return fmt.Errorf("标记码为:%s 不归属于 %s 维修厂", identifier, maintenanceItem.Name)
+		return fmt.Errorf("标记码为:%s 不归属于 %s 维修厂", identifier, maintenanceItem.Name)
 	}
 
 	return err
+}
+
+/**
+ * 订单相关步骤
+ */
+type StepsForOrder struct{}
+
+/**
+ * 检验分页面
+ */
+func (*StepsForOrder) CheckPagination(isShowAll bool, pageSize *int64, page *int64) error {
+	steps := StepsForProject{}
+
+	return steps.CheckPagination(isShowAll, pageSize, page)
 }

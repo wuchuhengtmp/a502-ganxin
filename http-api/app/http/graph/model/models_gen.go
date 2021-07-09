@@ -440,6 +440,21 @@ type GetOneSteelDetailInput struct {
 	Identifier string `json:"identifier"`
 }
 
+type GetOrderDetailForBackEndInput struct {
+	//  是否展示全部
+	IsShowAll bool `json:"isShowAll"`
+	//  分页
+	Page *int64 `json:"page"`
+	//  分页大小
+	PageSize *int64 `json:"pageSize"`
+	//  订单编号
+	OrderNo *string `json:"orderNo"`
+	//  项目id
+	ProjectID *int64 `json:"projectId"`
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+}
+
 type GetOrderListInput struct {
 	QueryType *GetOrderListInputType `json:"queryType"`
 }

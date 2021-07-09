@@ -234,6 +234,29 @@ extend type Mutation {
     """ 型钢出库到场地 """
     setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
+""" 获取订单详情(用于管理后台)参数 """
+type GetOrderDetailForBackEndRes {
+    """ 订单列表 """
+    list: [OrderItem!]!
+    """ 数量 """
+    total: Int!
+    """ 重量 """
+    weight: Float!
+}
+input GetOrderDetailForBackEndInput  {
+    """ 是否展示全部 """
+    isShowAll: Boolean!
+    """ 分页 """
+    page: Int
+    """ 分页大小  """
+    pageSize: Int
+    """ 订单编号 """
+    orderNo: String
+    """ 项目id  """
+    projectId: Int
+    """ 规格id """
+    specificationId: Int
+}
 extend type Query {
     """ 获取需求单列表 """
     getOrderList(input: GetOrderListInput!): [OrderItem]! @hasRole(role: [projectAdmin companyAdmin repositoryAdmin maintenanceAdmin])
@@ -249,6 +272,6 @@ extend type Query {
     getSend2WorkshopOrderListDetail(input: GetProjectOrder2WorkshopDetailInput!): GetSend2WorkshopOrderListDetailRes! @hasRole(role: [projectAdmin]) @mustBeDevice
     """ 获取项目型钢状态列表 """
     getProjectSteelStateList: [StateItem!]!
-    #    """ 获取最大的安装位置 """
-    #    getMaxLocationCode(): Int!
+    """ 获取订单详情(用于管理后台) """
+    getOrderDetailForBackEnd(input: GetOrderDetailForBackEndInput!): GetOrderDetailForBackEndRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }

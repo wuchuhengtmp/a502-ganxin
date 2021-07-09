@@ -168,4 +168,6 @@ models:
   # 获取项目详情参数
   GetMaintenanceDetailRes:
     model: http-api/app/models/projects.GetMaintenanceDetailRes
-
+  # 获取订单详情(用于管理后台)参数
+  GetOrderDetailForBackEndRes:
+    model: http-api/app/models/orders.GetOrderDetailForBackEndRes
