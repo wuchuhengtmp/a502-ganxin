@@ -27,16 +27,16 @@ func ValidateGetMaintenanceSteelDetailRequest(ctx context.Context, input graphMo
 	if input.State != nil && steps.CheckStateForDetail(*input.State) != nil {
 		return steps.CheckStateForDetail(*input.State)
 	}
-	for _, identifier := range input.IdentifierList{
-		// 检验有没有这根型钢
-		if err := steps.CheckHasSteel(ctx, identifier); err != nil {
-			return err
-		}
-		// 检验型钢是否归属这个维修厂
-		if err := steps.CheckSteelIsBelongMaintenance(ctx, input.MaintenanceID, identifier); err !=  nil {
-			return err
-		}
-	}
+	//for _, identifier := range input.IdentifierList{
+	//	// 检验有没有这根型钢
+	//	if err := steps.CheckHasSteel(ctx, identifier); err != nil {
+	//		return err
+	//	}
+	//	// 检验型钢是否归属这个维修厂
+	//	if err := steps.CheckSteelIsBelongMaintenance(ctx, input.MaintenanceID, identifier); err !=  nil {
+	//		return err
+	//	}
+	//}
 
 	return nil
 }

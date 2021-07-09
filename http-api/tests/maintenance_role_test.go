@@ -976,7 +976,6 @@ func testMaintenanceAdminRoleGetMaintenanceSteelDetail(t *testing.T) {
 	`
 	v = map[string]interface{}{
 		"input": map[string]interface{} {
-			"identifierList": []string{"9"},
 			"maintenanceId": 2,
 			"specificationId": 1,
 			"state": 303,

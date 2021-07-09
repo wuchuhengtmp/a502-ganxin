@@ -4541,9 +4541,7 @@ type GetMaintenanceSteelRes {
 input GetMaintenanceSteelDetailInput {
     """维修厂id """
     maintenanceId: Int!
-    """ 识别码列表 """
-    identifierList: [String!]!
-    """ 识别码id """
+    """ 规格id """
     specificationId: Int
     """ 状态 """
     state: Int
@@ -26189,14 +26187,6 @@ func (ec *executionContext) unmarshalInputGetMaintenanceSteelDetailInput(ctx con
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maintenanceId"))
 			it.MaintenanceID, err = ec.unmarshalNInt2int64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "identifierList":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
-			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

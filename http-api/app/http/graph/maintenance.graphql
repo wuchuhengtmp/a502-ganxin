@@ -195,9 +195,7 @@ type GetMaintenanceSteelRes {
 input GetMaintenanceSteelDetailInput {
     """维修厂id """
     maintenanceId: Int!
-    """ 识别码列表 """
-    identifierList: [String!]!
-    """ 识别码id """
+    """ 规格id """
     specificationId: Int
     """ 状态 """
     state: Int

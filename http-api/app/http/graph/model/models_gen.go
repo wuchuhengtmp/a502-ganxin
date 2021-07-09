@@ -411,9 +411,7 @@ type GetMaintenanceDetailInput struct {
 type GetMaintenanceSteelDetailInput struct {
 	// 维修厂id
 	MaintenanceID int64 `json:"maintenanceId"`
-	//  识别码列表
-	IdentifierList []string `json:"identifierList"`
-	//  识别码id
+	//  规格id
 	SpecificationID *int64 `json:"specificationId"`
 	//  状态
 	State *int64 `json:"state"`
