@@ -1339,3 +1339,55 @@ func TestProjectAdminRoleGetProjectDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	assert.NoError(t, err)
 }
+/**
+ * 项目管理员获取型钢详情列表集成测试
+ */
+func TestProjectAdminRoleGetMaintenanceDetail(t *testing.T) {
+	q := `
+		query ($input: GetMaintenanceDetailInput!){
+		  getMaintenanceDetail(input: $input) {
+			list {
+			  id
+			  stateInfo {
+				desc # 维修状态
+				state
+			  }
+			  steel {
+				repository{
+				  id 
+				  name #仓库
+				}
+				code # 型钢编码
+				specifcation {
+				  id
+				  specification # 尺寸          
+				}
+				stateInfo {
+				  desc # 当前状态说明
+				  state # 当前状态
+				}
+			  }
+			  enteredAt # 入厂时间
+			  outedAt # 出厂时间
+			  useDays # 维修天数
+			}
+			total #  数量 
+			weight # 重量
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"isShowAll": false,
+			"code": "GMSP-SJS01-00000",
+			"page": 1,
+			"pageSize": 2,
+			"outMaintenanceAt": "2021-07-09T16:54:45+08:00",
+			"state": 303,
+			"repositoryId": 1,
+			"specificationId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}
