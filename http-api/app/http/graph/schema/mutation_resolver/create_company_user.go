@@ -67,9 +67,6 @@ func (CreateCompanyUserSteps) CreateUser(ctx context.Context, input graphModel.C
 		if err := tx.Create(&log).Error; err != nil {
 			return err
 		}
-		if err := tx.Commit().Error; err != nil {
-			return err
-		}
 
 		return nil
 	})

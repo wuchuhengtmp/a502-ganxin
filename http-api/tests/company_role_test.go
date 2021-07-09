@@ -211,6 +211,7 @@ func TestCompanyAdminRoleCreateCompanyUser(t *testing.T) {
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
 	hasError(t, err)
 	user := res["createCompanyUser"].(map[string]interface{})
 	id := user["id"].(float64)
