@@ -165,3 +165,7 @@ models:
   # 项目详情响应数据
   GetProjectDetailRes:
     model: http-api/app/models/projects.GetProjectDetailRes
+  # 获取项目详情参数
+  GetMaintenanceDetailRes:
+    model: http-api/app/models/projects.GetMaintenanceDetailRes
+

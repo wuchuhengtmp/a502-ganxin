@@ -492,6 +492,15 @@ func (*StepsForProject) CheckPagination(isShowAll bool, pageSize *int64, page *i
 }
 
 /**
+ * 检验分页
+ */
+func (*StepsForMaintenance) CheckPagination(isShowAll bool, pageSize *int64, page *int64) error {
+	steps := StepsForProject{}
+
+	return steps.CheckPagination(isShowAll, pageSize, page)
+}
+
+/**
  * 检验项目的安装码是否有效
  */
 func (*StepsForProject) CheckLocationCodeValid(ctx context.Context, ) error {
@@ -1026,6 +1035,15 @@ func (*StepsForMaintenance) CheckHashMaintenance(ctx context.Context, id int64) 
 	}
 
 	return nil
+}
+
+/**
+ * 检验有没有这个仓库
+ */
+func (*StepsForMaintenance) CheckHashRepository(ctx context.Context, id int64) error {
+	steps := StepsForProject{}
+
+	return steps.CheckHasRepository(ctx, id)
 }
 
 /**

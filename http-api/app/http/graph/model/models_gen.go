@@ -385,6 +385,28 @@ type GetLogListInput struct {
 	Type *logs.ActionType `json:"type"`
 }
 
+//  获取项目详情参数
+type GetMaintenanceDetailInput struct {
+	//  分页
+	Page *int64 `json:"page"`
+	//  分页大小
+	PageSize *int64 `json:"pageSize"`
+	//  是否展示全部
+	IsShowAll bool `json:"isShowAll"`
+	//  维修状态
+	State *int64 `json:"state"`
+	//  仓库id
+	RepositoryID *int64 `json:"repositoryId"`
+	//  型钢编码
+	Code *string `json:"code"`
+	//  规格id
+	SpecificationID *int64 `json:"specificationId"`
+	//  入厂时间
+	EnteredMaintenanceAt *time.Time `json:"enteredMaintenanceAt"`
+	//  出厂时间
+	OutMaintenanceAt *time.Time `json:"outMaintenanceAt"`
+}
+
 //  获取维修厂维修记录详情参数
 type GetMaintenanceSteelDetailInput struct {
 	// 维修厂id

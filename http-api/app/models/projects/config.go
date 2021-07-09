@@ -16,6 +16,7 @@ import (
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/models/companies"
 	"http-api/app/models/logs"
+	"http-api/app/models/maintenance_record"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/project_leader"
@@ -220,5 +221,15 @@ type GetProjectDetailRes struct {
 	//""" 数量 """
 	Total int64
 	// 重量
+	Weight float64
+}
+
+//""" 获取项目详情参数  """
+type GetMaintenanceDetailRes struct {
+	//""" 列表 """
+	List []*maintenance_record.MaintenanceRecord
+	//""" 数量 """
+	Total int64
+	//""" 重量 """
 	Weight float64
 }
