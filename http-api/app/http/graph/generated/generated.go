@@ -510,6 +510,7 @@ type ComplexityRoot struct {
 		GetSend2WorkshopOrderList               func(childComplexity int) int
 		GetSend2WorkshopOrderListDetail         func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
 		GetSpecification                        func(childComplexity int) int
+		GetStateForMaintenance                  func(childComplexity int) int
 		GetStateListForMaintenanceSteelDetail   func(childComplexity int) int
 		GetSteelForOutOfMaintenance             func(childComplexity int, input model.GetSteelForOutOfMaintenanceInput) int
 		GetSteelForOutOfMaintenanceDetail       func(childComplexity int, input model.GetSteelForOutOfMaintenanceDetailInput) int
@@ -787,6 +788,7 @@ type QueryResolver interface {
 	GetToBeEnterRepositorySpecificationList(ctx context.Context, input model.GetToBeEnterRepositorySpecificationListInput) ([]*specificationinfo.SpecificationInfo, error)
 	GetToBeEnterRepositoryDetail(ctx context.Context, input model.GetToBeEnterRepositoryDetailInput) ([]*order_specification_steel.OrderSpecificationSteel, error)
 	GetProjectDetail(ctx context.Context, input model.GetProjectDetailInput) (*projects.GetProjectDetailRes, error)
+	GetStateForMaintenance(ctx context.Context) ([]*steels.StateItem, error)
 	GetRepositoryList(ctx context.Context) ([]*repositories.Repositories, error)
 	GetRepositoryOverview(ctx context.Context, input model.GetRepositoryOverviewInput) (*repositories.GetRepositoryOverviewRes, error)
 	GetAllStateList(ctx context.Context) ([]*steels.StateItem, error)
@@ -3340,6 +3342,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetSpecification(childComplexity), true
 
+	case "Query.getStateForMaintenance":
+		if e.complexity.Query.GetStateForMaintenance == nil {
+			break
+		}
+
+		return e.complexity.Query.GetStateForMaintenance(childComplexity), true
+
 	case "Query.getStateListForMaintenanceSteelDetail":
 		if e.complexity.Query.GetStateListForMaintenanceSteelDetail == nil {
 			break
@@ -5247,6 +5256,8 @@ extend type Query {
     getToBeEnterRepositoryDetail(input: GetToBeEnterRepositoryDetailInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取项目详情 """
     getProjectDetail(input: GetProjectDetailInput!): GetProjectDetailRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取用于维修上的状态列表 """
+    getStateForMaintenance: [StateItem!]!
 }
 `, BuiltIn: false},
 	{Name: "../repository.graphql", Input: `type RepositoryLeaderItem {
@@ -20053,6 +20064,41 @@ func (ec *executionContext) _Query_getProjectDetail(ctx context.Context, field g
 	return ec.marshalNGetProjectDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectDetailRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getStateForMaintenance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStateForMaintenance(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*steels.StateItem)
+	fc.Result = res
+	return ec.marshalNStateItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐStateItemᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRepositoryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -30502,6 +30548,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getProjectDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getStateForMaintenance":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getStateForMaintenance(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

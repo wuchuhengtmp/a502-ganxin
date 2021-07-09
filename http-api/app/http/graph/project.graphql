@@ -264,4 +264,6 @@ extend type Query {
     getToBeEnterRepositoryDetail(input: GetToBeEnterRepositoryDetailInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取项目详情 """
     getProjectDetail(input: GetProjectDetailInput!): GetProjectDetailRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取用于维修上的状态列表 """
+    getStateForMaintenance: [StateItem!]!
 }

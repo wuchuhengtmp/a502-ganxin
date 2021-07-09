@@ -54,7 +54,7 @@ type Steels struct {
 	Code                      string    `json:"code gorm:comment:编码"`
 	ProducedDate              time.Time `json:"producedDate" gorm:"comment:生产时间"`
 	OrderSpecificationSteelId int64     `json:"orderSpecificationSteelId" gorm:"comment:当前这根型钢应用在哪个哪个项目的订单的规格列表中的型钢id"`
-	MaintenanceRecordSteelId        int64     `json:"maintenanceSteelId" gorm:"comment:当前维修型钢对应的id"`
+	MaintenanceRecordSteelId  int64     `json:"maintenanceSteelId" gorm:"comment:当前维修型钢对应的id"`
 	gorm.Model
 }
 
@@ -149,6 +149,20 @@ func GetMaintenanceStateListForDetail() []int64 {
 		StateMaintainerBeMaintaining,
 		StateMaintainerWillBeStore,
 		StateMaintainerOnTheStoreWay,
+	}
+}
+
+/**
+ * 用于维修的状态列表
+ */
+func GetMaintenanceStateList() []int64 {
+	return []int64{
+		StateInStore,                    //"【仓库】-在库",
+		StateRepository2Maintainer,      //"【仓库】-运送至维修厂途中",
+		StateMaintainerWillBeMaintained, //"【维修】-待维修",
+		StateMaintainerBeMaintaining,    //"【维修】-维修中",
+		StateMaintainerWillBeStore,      //"【维修】-准备归库",
+		StateMaintainerOnTheStoreWay,    //"【维修】-归库途中",
 	}
 }
 
