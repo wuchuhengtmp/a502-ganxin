@@ -32,7 +32,7 @@ func (*QueryResolver) GetEnterMaintenanceSteelDetail(ctx context.Context, input 
 	modelInstance := model.DB.Model(&maintenance_record.MaintenanceRecord{}).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, maintenanceRecordTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", specificationTable, specificationTable, steelTable)).
-		Where(fmt.Sprintf("%s.identifier = ?", steelTable), input.IdentifierList)
+		Where(fmt.Sprintf("%s.identifier IN ?", steelTable), input.IdentifierList)
 	if input.SpecificationID != nil {
 		modelInstance = modelInstance.Where(fmt.Sprintf("%s.specification_id = ?", steelTable), *input.SpecificationID)
 	}
