@@ -187,8 +187,9 @@ type ComplexityRoot struct {
 	}
 
 	GetProjectDetailRes struct {
-		List  func(childComplexity int) int
-		Total func(childComplexity int) int
+		List   func(childComplexity int) int
+		Total  func(childComplexity int) int
+		Weight func(childComplexity int) int
 	}
 
 	GetProjectOrder2WorkshopDetailRes struct {
@@ -1281,6 +1282,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetProjectDetailRes.Total(childComplexity), true
+
+	case "GetProjectDetailRes.weight":
+		if e.complexity.GetProjectDetailRes.Weight == nil {
+			break
+		}
+
+		return e.complexity.GetProjectDetailRes.Weight(childComplexity), true
 
 	case "GetProjectOrder2WorkshopDetailRes.list":
 		if e.complexity.GetProjectOrder2WorkshopDetailRes.List == nil {
@@ -5099,6 +5107,8 @@ type GetProjectDetailRes {
     list: [OrderSpecificationSteelItem]!
     """ 数量 """
     total: Int!
+    """ 重量 """
+    weight: Float!
 }
 """ 获取项目详情参数 """
 input GetProjectDetailInput {
@@ -9065,6 +9075,41 @@ func (ec *executionContext) _GetProjectDetailRes_total(ctx context.Context, fiel
 	res := resTmp.(int64)
 	fc.Result = res
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetProjectDetailRes_weight(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectDetailRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetProjectDetailRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetProjectOrder2WorkshopDetailRes_list(ctx context.Context, field graphql.CollectedField, obj *projects.GetProjectOrder2WorkshopDetailRes) (ret graphql.Marshaler) {
@@ -27631,6 +27676,11 @@ func (ec *executionContext) _GetProjectDetailRes(ctx context.Context, sel ast.Se
 			}
 		case "total":
 			out.Values[i] = ec._GetProjectDetailRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._GetProjectDetailRes_weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

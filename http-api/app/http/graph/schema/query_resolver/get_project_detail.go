@@ -21,6 +21,7 @@ import (
 	"http-api/app/models/order_specification_steel"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/steels"
 	"http-api/pkg/model"
 )
@@ -90,11 +91,22 @@ func (*QueryResolver)GetProjectDetail(ctx context.Context, input graphModel.GetP
 	if err := modelIns.Count(&res.Total).Error ; err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
+	// 重量
+	var weightInfo struct{ Weight float64 }
+	specificationTable := specificationinfo.SpecificationInfo{}.TableName()
+	err := modelIns.Select(fmt.Sprintf("sum(weight) as Weight")).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", specificationTable, specificationTable, steelTable)).
+		Scan(&weightInfo).Error
+	if err != nil {
+		return nil, errors.ServerErr(ctx, err)
+	}
+	res.Weight = weightInfo.Weight
+
 	// 分页
 	if !input.IsShowAll {
 		modelIns = modelIns.Limit(int(*input.PageSize)).Offset(int((*input.Page - 1) * *input.PageSize))
 	}
-	err := modelIns.Select(fmt.Sprintf("%s.*", orderSteelItem.TableName())).Scan(&res.List).Error
+	err = modelIns.Select(fmt.Sprintf("%s.*", orderSteelItem.TableName())).Scan(&res.List).Error
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}

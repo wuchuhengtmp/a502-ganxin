@@ -197,6 +197,8 @@ type GetProjectDetailRes {
     list: [OrderSpecificationSteelItem]!
     """ 数量 """
     total: Int!
+    """ 重量 """
+    weight: Float!
 }
 """ 获取项目详情参数 """
 input GetProjectDetailInput {

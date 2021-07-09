@@ -219,4 +219,6 @@ type GetProjectDetailRes struct {
 	List []*order_specification_steel.OrderSpecificationSteel
 	//""" 数量 """
 	Total int64
+	// 重量
+	Weight float64
 }
