@@ -574,6 +574,18 @@ type GetSteelForOutOfMaintenanceInput struct {
 	Identifier string `json:"identifier"`
 }
 
+//  资产概况响应数据
+type GetSummaryRes struct {
+	//  总重量
+	WeightTotal float64 `json:"weightTotal"`
+	//  今年总重量
+	YearWeightTotal float64 `json:"yearWeightTotal"`
+	//  总价值
+	FeeTotal float64 `json:"feeTotal"`
+	//  年价值
+	YearFeeTotal float64 `json:"yearFeeTotal"`
+}
+
 //  获取待归库详情参数
 type GetToBeEnterRepositoryDetailInput struct {
 	//  规格id

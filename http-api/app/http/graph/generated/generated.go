@@ -268,6 +268,13 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	GetSummaryRes struct {
+		FeeTotal        func(childComplexity int) int
+		WeightTotal     func(childComplexity int) int
+		YearFeeTotal    func(childComplexity int) int
+		YearWeightTotal func(childComplexity int) int
+	}
+
 	GraphDesc struct {
 		Desc     func(childComplexity int) int
 		ErrCodes func(childComplexity int) int
@@ -523,6 +530,7 @@ type ComplexityRoot struct {
 		GetSteelForOutOfMaintenance             func(childComplexity int, input model.GetSteelForOutOfMaintenanceInput) int
 		GetSteelForOutOfMaintenanceDetail       func(childComplexity int, input model.GetSteelForOutOfMaintenanceDetailInput) int
 		GetSteelList                            func(childComplexity int, input model.PaginationInput) int
+		GetSummary                              func(childComplexity int) int
 		GetToBeEnterRepositoryDetail            func(childComplexity int, input model.GetToBeEnterRepositoryDetailInput) int
 		GetToBeEnterRepositorySpecificationList func(childComplexity int, input model.GetToBeEnterRepositorySpecificationListInput) int
 		GetToBeEnterRepositoryStateList         func(childComplexity int) int
@@ -751,6 +759,7 @@ type QueryResolver interface {
 	ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error)
 	GetAllCompany(ctx context.Context) ([]*companies.Companies, error)
 	GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error)
+	GetSummary(ctx context.Context) (*model.GetSummaryRes, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetLogList(ctx context.Context, input model.GetLogListInput) (*logs.GetLogListRes, error)
@@ -1570,6 +1579,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetSteelListRes.Total(childComplexity), true
+
+	case "GetSummaryRes.feeTotal":
+		if e.complexity.GetSummaryRes.FeeTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.FeeTotal(childComplexity), true
+
+	case "GetSummaryRes.weightTotal":
+		if e.complexity.GetSummaryRes.WeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.WeightTotal(childComplexity), true
+
+	case "GetSummaryRes.yearFeeTotal":
+		if e.complexity.GetSummaryRes.YearFeeTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.YearFeeTotal(childComplexity), true
+
+	case "GetSummaryRes.yearWeightTotal":
+		if e.complexity.GetSummaryRes.YearWeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.YearWeightTotal(childComplexity), true
 
 	case "GraphDesc.desc":
 		if e.complexity.GraphDesc.Desc == nil {
@@ -3449,6 +3486,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetSteelList(childComplexity, args["input"].(model.PaginationInput)), true
 
+	case "Query.getSummary":
+		if e.complexity.Query.GetSummary == nil {
+			break
+		}
+
+		return e.complexity.Query.GetSummary(childComplexity), true
+
 	case "Query.getToBeEnterRepositoryDetail":
 		if e.complexity.Query.GetToBeEnterRepositoryDetail == nil {
 			break
@@ -4277,6 +4321,22 @@ extend type Query {
     getCompanyUser(input: GetCompanyUserInput): [UserItem]! @hasRole(role: [companyAdmin, repositoryAdmin, projectAdmin, maintenanceAdmin])
 }
 `, BuiltIn: false},
+	{Name: "../dashboard.graphql", Input: `""" 资产概况响应数据 """
+type GetSummaryRes {
+    """ 总重量 """
+    weightTotal: Float!
+    """ 今年总重量 """
+    yearWeightTotal: Float!
+    """ 总价值 """
+    feeTotal: Float!
+    """ 年价值 """
+    yearFeeTotal: Float!
+}
+
+extend type Query {
+    """ 资产概况 """
+    getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}`, BuiltIn: false},
 	{Name: "../devices.graphql", Input: `type DeviceItem {
     id: Int!
     mac: String!
@@ -10640,6 +10700,146 @@ func (ec *executionContext) _GetSteelListRes_list(ctx context.Context, field gra
 	res := resTmp.([]*steels.Steels)
 	fc.Result = res
 	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_weightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_yearWeightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.YearWeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_feeTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FeeTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_yearFeeTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.YearFeeTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GraphDesc_title(ctx context.Context, field graphql.CollectedField, obj *model.GraphDesc) (ret graphql.Marshaler) {
@@ -17287,6 +17487,65 @@ func (ec *executionContext) _Query_getCompanyUser(ctx context.Context, field gra
 	res := resTmp.([]*users.Users)
 	fc.Result = res
 	return ec.marshalNUserItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getSummary(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetSummary(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.GetSummaryRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.GetSummaryRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetSummaryRes)
+	fc.Result = res
+	return ec.marshalNGetSummaryRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSummaryRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getDeviceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -29043,6 +29302,48 @@ func (ec *executionContext) _GetSteelListRes(ctx context.Context, sel ast.Select
 	return out
 }
 
+var getSummaryResImplementors = []string{"GetSummaryRes"}
+
+func (ec *executionContext) _GetSummaryRes(ctx context.Context, sel ast.SelectionSet, obj *model.GetSummaryRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getSummaryResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetSummaryRes")
+		case "weightTotal":
+			out.Values[i] = ec._GetSummaryRes_weightTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "yearWeightTotal":
+			out.Values[i] = ec._GetSummaryRes_yearWeightTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "feeTotal":
+			out.Values[i] = ec._GetSummaryRes_feeTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "yearFeeTotal":
+			out.Values[i] = ec._GetSummaryRes_yearFeeTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var graphDescImplementors = []string{"GraphDesc"}
 
 func (ec *executionContext) _GraphDesc(ctx context.Context, sel ast.SelectionSet, obj *model.GraphDesc) graphql.Marshaler {
@@ -30429,6 +30730,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getCompanyUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getSummary":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSummary(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -33194,6 +33509,20 @@ func (ec *executionContext) marshalNGetSteelListRes2ᚖhttpᚑapiᚋappᚋmodels
 		return graphql.Null
 	}
 	return ec._GetSteelListRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGetSummaryRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSummaryRes(ctx context.Context, sel ast.SelectionSet, v model.GetSummaryRes) graphql.Marshaler {
+	return ec._GetSummaryRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetSummaryRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSummaryRes(ctx context.Context, sel ast.SelectionSet, v *model.GetSummaryRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetSummaryRes(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGetToBeEnterRepositoryDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetToBeEnterRepositoryDetailInput(ctx context.Context, v interface{}) (model.GetToBeEnterRepositoryDetailInput, error) {

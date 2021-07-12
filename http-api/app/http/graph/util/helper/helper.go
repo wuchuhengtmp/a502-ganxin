@@ -20,6 +20,9 @@ func Str2Time(str string) (time.Time, error) {
 	return time.Parse("2006-01-02 15:04:05", str)
 }
 
+/**
+ * 秒区间
+ */
 func GetSecondBetween(startTime time.Time) (string, string) {
 	tmp := Time2Str(startTime)
 	startTime, _ = Str2Time(tmp)
@@ -40,6 +43,35 @@ func GetSecondBetween(startTime time.Time) (string, string) {
 		startTime.Hour(),
 		startTime.Minute(),
 		startTime.Second(),
+	)
+
+	return startStr, endStr
+}
+
+/**
+ * 年区间
+ */
+func GetYearBetween(startTime time.Time) (string, string) {
+	tmp := Time2Str(startTime)
+	startTime, _ = Str2Time(tmp)
+	startStr := fmt.Sprintf(
+		"%d-%d-%d %d:%d:%d.0000000 +08:00",
+		startTime.Year(),
+		startTime.Month(),
+		startTime.Day(),
+		startTime.Hour(),
+		startTime.Minute(),
+		startTime.Second(),
+	)
+	endTime := startTime.Add(- (time.Hour * 24 * 365))
+	endStr := fmt.Sprintf(
+		"%d-%d-%d %d:%d:%d.9999999 +08:00",
+		endTime.Year(),
+		endTime.Month(),
+		endTime.Day(),
+		endTime.Hour(),
+		endTime.Minute(),
+		endTime.Second(),
 	)
 
 	return startStr, endStr

@@ -1,0 +1,16 @@
+""" 资产概况响应数据 """
+type GetSummaryRes {
+    """ 总重量 """
+    weightTotal: Float!
+    """ 今年总重量 """
+    yearWeightTotal: Float!
+    """ 总价值 """
+    feeTotal: Float!
+    """ 年价值 """
+    yearFeeTotal: Float!
+}
+
+extend type Query {
+    """ 资产概况 """
+    getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}
