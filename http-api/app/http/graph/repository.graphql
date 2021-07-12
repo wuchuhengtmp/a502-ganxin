@@ -180,6 +180,18 @@ input GetSteelFromMaintenance2RepositoryInput {
     """ 标识码"""
     identifier: String!
 }
+""" 型钢归库参数 """
+input EnterMaintenanceSteelToRepositoryInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
+""" 维修归库详情查询参数 """
+input GetSteelDetailFromMaintenance2RepositoryInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格 """
+    specificationId: Int
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -207,10 +219,8 @@ extend type Query {
     getRepositoryDetail(input: GetRepositoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 维修归库查询 """
     getSteelFromMaintenance2Repository(input: GetSteelFromMaintenance2RepositoryInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
-input EnterMaintenanceSteelToRepositoryInput {
-    """ 识别码列表 """
-    identifierList: [String!]!
+    """ 维修归库详情查询 """
+    getSteelDetailFromMaintenance2Repository(input: GetSteelDetailFromMaintenance2RepositoryInput!): GetMaintenanceDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""

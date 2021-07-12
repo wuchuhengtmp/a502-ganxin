@@ -284,6 +284,7 @@ type EnterMaintenanceInput struct {
 	Identifier string `json:"identifier"`
 }
 
+//  型钢归库参数
 type EnterMaintenanceSteelToRepositoryInput struct {
 	//  识别码列表
 	IdentifierList []string `json:"identifierList"`
@@ -561,6 +562,14 @@ type GetRepositorySteelInput struct {
 	SpecificationID *int64 `json:"specificationId"`
 	//  当前状态
 	State *int64 `json:"state"`
+}
+
+//  维修归库详情查询参数
+type GetSteelDetailFromMaintenance2RepositoryInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+	//  规格
+	SpecificationID *int64 `json:"specificationId"`
 }
 
 //  获取可能出厂的型钢详情参数

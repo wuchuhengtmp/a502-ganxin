@@ -476,76 +476,77 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ErrorCodeDesc                           func(childComplexity int) int
-		Get2BeChangedRepositorySteel            func(childComplexity int, input model.Get2BeChangedRepositorySteelInput) int
-		Get2BeChangedRepositorySteelDetail      func(childComplexity int, input model.Get2BeChangedRepositorySteelDetailInput) int
-		Get2BeMaintainSteel                     func(childComplexity int, input model.Get2BeMaintainSteelInput) int
-		Get2BeMaintainSteelDetail               func(childComplexity int, input model.Get2BeMaintainSteelDetailInput) int
-		Get2BeScrapRepositorySteel              func(childComplexity int, input model.Get2BeScrapRepositorySteelInput) int
-		Get2BeScrapRepositorySteelDetail        func(childComplexity int, input model.Get2BeScrapRepositorySteelDetailInput) int
-		GetAllCompany                           func(childComplexity int) int
-		GetAllStateList                         func(childComplexity int) int
-		GetChangedMaintenanceSteel              func(childComplexity int, input model.GetChangedMaintenanceSteelInput) int
-		GetChangedMaintenanceSteelDetail        func(childComplexity int, input model.GetChangedMaintenanceSteelDetailInput) int
-		GetCompanyUser                          func(childComplexity int, input *model.GetCompanyUserInput) int
-		GetDeviceList                           func(childComplexity int) int
-		GetEnterMaintenanceSteel                func(childComplexity int, input model.EnterMaintenanceInput) int
-		GetEnterMaintenanceSteelDetail          func(childComplexity int, input model.GetEnterMaintenanceSteelDetailInput) int
-		GetEnterRepositoryProjectList           func(childComplexity int) int
-		GetEnterRepositorySteelDetail           func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
-		GetExpressList                          func(childComplexity int) int
-		GetLogList                              func(childComplexity int, input model.GetLogListInput) int
-		GetLogTypeList                          func(childComplexity int) int
-		GetMaintenanceDetail                    func(childComplexity int, input model.GetMaintenanceDetailInput) int
-		GetMaintenanceList                      func(childComplexity int) int
-		GetMaintenanceStateForChanged           func(childComplexity int) int
-		GetMaintenanceSteel                     func(childComplexity int, input model.GetMaintenanceSteelInput) int
-		GetMaintenanceSteelDetail               func(childComplexity int, input model.GetMaintenanceSteelDetailInput) int
-		GetManufacturers                        func(childComplexity int) int
-		GetMaterialManufacturers                func(childComplexity int) int
-		GetMaxLocationCode                      func(childComplexity int, input model.GetMaxLocationCodeInput) int
-		GetMsgList                              func(childComplexity int) int
-		GetMsgUnReadeTotal                      func(childComplexity int) int
-		GetMultipleSteelDetail                  func(childComplexity int, input *model.GetMultipleSteelDetailInput) int
-		GetMyInfo                               func(childComplexity int) int
-		GetOneSteelDetail                       func(childComplexity int, input model.GetOneSteelDetailInput) int
-		GetOrderDetail                          func(childComplexity int, input model.GetOrderDetailInput) int
-		GetOrderDetailForBackEnd                func(childComplexity int, input model.GetOrderDetailForBackEndInput) int
-		GetOrderList                            func(childComplexity int, input model.GetOrderListInput) int
-		GetOrderSteelDetail                     func(childComplexity int, input model.GetOrderSteelDetailInput) int
-		GetOutOfWorkshopProjectList             func(childComplexity int) int
-		GetOutOfWorkshopProjectSteelDetail      func(childComplexity int, input model.GetOutOfWorkshopProjectSteelDetail) int
-		GetPrice                                func(childComplexity int) int
-		GetProjectDetail                        func(childComplexity int, input model.GetProjectDetailInput) int
-		GetProjectLis                           func(childComplexity int) int
-		GetProjectOrder2WorkshopDetail          func(childComplexity int, input model.ProjectOrder2WorkshopDetailInput) int
-		GetProjectSpecificationDetail           func(childComplexity int, input model.GetProjectSpecificationDetailInput) int
-		GetProjectStateListForChanged           func(childComplexity int) int
-		GetProjectSteel2BeChange                func(childComplexity int, input model.GetProjectSteel2BeChangeInput) int
-		GetProjectSteel2BeChangeDetail          func(childComplexity int, input model.ProjectSteel2BeChangeInput) int
-		GetProjectSteelDetail                   func(childComplexity int, input model.GetProjectSteelDetailInput) int
-		GetProjectSteelStateList                func(childComplexity int) int
-		GetRepositoryDetail                     func(childComplexity int, input *model.GetRepositoryDetailInput) int
-		GetRepositoryList                       func(childComplexity int) int
-		GetRepositoryOverview                   func(childComplexity int, input model.GetRepositoryOverviewInput) int
-		GetRepositorySteel                      func(childComplexity int, input model.GetRepositorySteelInput) int
-		GetRepositorySteelDetail                func(childComplexity int, input model.GetRepositorySteelInput) int
-		GetRoleList                             func(childComplexity int) int
-		GetSend2WorkshopOrderList               func(childComplexity int) int
-		GetSend2WorkshopOrderListDetail         func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
-		GetSpecification                        func(childComplexity int) int
-		GetStateForMaintenance                  func(childComplexity int) int
-		GetStateListForMaintenanceSteelDetail   func(childComplexity int) int
-		GetSteelForOutOfMaintenance             func(childComplexity int, input model.GetSteelForOutOfMaintenanceInput) int
-		GetSteelForOutOfMaintenanceDetail       func(childComplexity int, input model.GetSteelForOutOfMaintenanceDetailInput) int
-		GetSteelFromMaintenance2Repository      func(childComplexity int, input model.GetSteelFromMaintenance2RepositoryInput) int
-		GetSteelList                            func(childComplexity int, input model.PaginationInput) int
-		GetSummary                              func(childComplexity int) int
-		GetToBeEnterRepositoryDetail            func(childComplexity int, input model.GetToBeEnterRepositoryDetailInput) int
-		GetToBeEnterRepositorySpecificationList func(childComplexity int, input model.GetToBeEnterRepositorySpecificationListInput) int
-		GetToBeEnterRepositoryStateList         func(childComplexity int) int
-		GetTobeSendWorkshopOrderList            func(childComplexity int) int
-		IsAccessLocationCode                    func(childComplexity int, input model.IsAccessLocationCodeInput) int
+		ErrorCodeDesc                            func(childComplexity int) int
+		Get2BeChangedRepositorySteel             func(childComplexity int, input model.Get2BeChangedRepositorySteelInput) int
+		Get2BeChangedRepositorySteelDetail       func(childComplexity int, input model.Get2BeChangedRepositorySteelDetailInput) int
+		Get2BeMaintainSteel                      func(childComplexity int, input model.Get2BeMaintainSteelInput) int
+		Get2BeMaintainSteelDetail                func(childComplexity int, input model.Get2BeMaintainSteelDetailInput) int
+		Get2BeScrapRepositorySteel               func(childComplexity int, input model.Get2BeScrapRepositorySteelInput) int
+		Get2BeScrapRepositorySteelDetail         func(childComplexity int, input model.Get2BeScrapRepositorySteelDetailInput) int
+		GetAllCompany                            func(childComplexity int) int
+		GetAllStateList                          func(childComplexity int) int
+		GetChangedMaintenanceSteel               func(childComplexity int, input model.GetChangedMaintenanceSteelInput) int
+		GetChangedMaintenanceSteelDetail         func(childComplexity int, input model.GetChangedMaintenanceSteelDetailInput) int
+		GetCompanyUser                           func(childComplexity int, input *model.GetCompanyUserInput) int
+		GetDeviceList                            func(childComplexity int) int
+		GetEnterMaintenanceSteel                 func(childComplexity int, input model.EnterMaintenanceInput) int
+		GetEnterMaintenanceSteelDetail           func(childComplexity int, input model.GetEnterMaintenanceSteelDetailInput) int
+		GetEnterRepositoryProjectList            func(childComplexity int) int
+		GetEnterRepositorySteelDetail            func(childComplexity int, input model.GetEnterRepositorySteelDetailInput) int
+		GetExpressList                           func(childComplexity int) int
+		GetLogList                               func(childComplexity int, input model.GetLogListInput) int
+		GetLogTypeList                           func(childComplexity int) int
+		GetMaintenanceDetail                     func(childComplexity int, input model.GetMaintenanceDetailInput) int
+		GetMaintenanceList                       func(childComplexity int) int
+		GetMaintenanceStateForChanged            func(childComplexity int) int
+		GetMaintenanceSteel                      func(childComplexity int, input model.GetMaintenanceSteelInput) int
+		GetMaintenanceSteelDetail                func(childComplexity int, input model.GetMaintenanceSteelDetailInput) int
+		GetManufacturers                         func(childComplexity int) int
+		GetMaterialManufacturers                 func(childComplexity int) int
+		GetMaxLocationCode                       func(childComplexity int, input model.GetMaxLocationCodeInput) int
+		GetMsgList                               func(childComplexity int) int
+		GetMsgUnReadeTotal                       func(childComplexity int) int
+		GetMultipleSteelDetail                   func(childComplexity int, input *model.GetMultipleSteelDetailInput) int
+		GetMyInfo                                func(childComplexity int) int
+		GetOneSteelDetail                        func(childComplexity int, input model.GetOneSteelDetailInput) int
+		GetOrderDetail                           func(childComplexity int, input model.GetOrderDetailInput) int
+		GetOrderDetailForBackEnd                 func(childComplexity int, input model.GetOrderDetailForBackEndInput) int
+		GetOrderList                             func(childComplexity int, input model.GetOrderListInput) int
+		GetOrderSteelDetail                      func(childComplexity int, input model.GetOrderSteelDetailInput) int
+		GetOutOfWorkshopProjectList              func(childComplexity int) int
+		GetOutOfWorkshopProjectSteelDetail       func(childComplexity int, input model.GetOutOfWorkshopProjectSteelDetail) int
+		GetPrice                                 func(childComplexity int) int
+		GetProjectDetail                         func(childComplexity int, input model.GetProjectDetailInput) int
+		GetProjectLis                            func(childComplexity int) int
+		GetProjectOrder2WorkshopDetail           func(childComplexity int, input model.ProjectOrder2WorkshopDetailInput) int
+		GetProjectSpecificationDetail            func(childComplexity int, input model.GetProjectSpecificationDetailInput) int
+		GetProjectStateListForChanged            func(childComplexity int) int
+		GetProjectSteel2BeChange                 func(childComplexity int, input model.GetProjectSteel2BeChangeInput) int
+		GetProjectSteel2BeChangeDetail           func(childComplexity int, input model.ProjectSteel2BeChangeInput) int
+		GetProjectSteelDetail                    func(childComplexity int, input model.GetProjectSteelDetailInput) int
+		GetProjectSteelStateList                 func(childComplexity int) int
+		GetRepositoryDetail                      func(childComplexity int, input *model.GetRepositoryDetailInput) int
+		GetRepositoryList                        func(childComplexity int) int
+		GetRepositoryOverview                    func(childComplexity int, input model.GetRepositoryOverviewInput) int
+		GetRepositorySteel                       func(childComplexity int, input model.GetRepositorySteelInput) int
+		GetRepositorySteelDetail                 func(childComplexity int, input model.GetRepositorySteelInput) int
+		GetRoleList                              func(childComplexity int) int
+		GetSend2WorkshopOrderList                func(childComplexity int) int
+		GetSend2WorkshopOrderListDetail          func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
+		GetSpecification                         func(childComplexity int) int
+		GetStateForMaintenance                   func(childComplexity int) int
+		GetStateListForMaintenanceSteelDetail    func(childComplexity int) int
+		GetSteelDetailFromMaintenance2Repository func(childComplexity int, input model.GetSteelDetailFromMaintenance2RepositoryInput) int
+		GetSteelForOutOfMaintenance              func(childComplexity int, input model.GetSteelForOutOfMaintenanceInput) int
+		GetSteelForOutOfMaintenanceDetail        func(childComplexity int, input model.GetSteelForOutOfMaintenanceDetailInput) int
+		GetSteelFromMaintenance2Repository       func(childComplexity int, input model.GetSteelFromMaintenance2RepositoryInput) int
+		GetSteelList                             func(childComplexity int, input model.PaginationInput) int
+		GetSummary                               func(childComplexity int) int
+		GetToBeEnterRepositoryDetail             func(childComplexity int, input model.GetToBeEnterRepositoryDetailInput) int
+		GetToBeEnterRepositorySpecificationList  func(childComplexity int, input model.GetToBeEnterRepositorySpecificationListInput) int
+		GetToBeEnterRepositoryStateList          func(childComplexity int) int
+		GetTobeSendWorkshopOrderList             func(childComplexity int) int
+		IsAccessLocationCode                     func(childComplexity int, input model.IsAccessLocationCodeInput) int
 	}
 
 	RepositoryItem struct {
@@ -832,6 +833,7 @@ type QueryResolver interface {
 	Get2BeMaintainSteelDetail(ctx context.Context, input model.Get2BeMaintainSteelDetailInput) (*steels.Get2BeScrapRepositorySteelDetailRes, error)
 	GetRepositoryDetail(ctx context.Context, input *model.GetRepositoryDetailInput) ([]*repositories.Repositories, error)
 	GetSteelFromMaintenance2Repository(ctx context.Context, input model.GetSteelFromMaintenance2RepositoryInput) (*steels.Steels, error)
+	GetSteelDetailFromMaintenance2Repository(ctx context.Context, input model.GetSteelDetailFromMaintenance2RepositoryInput) (*projects.GetMaintenanceDetailRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 	GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error)
@@ -3530,6 +3532,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetStateListForMaintenanceSteelDetail(childComplexity), true
 
+	case "Query.getSteelDetailFromMaintenance2Repository":
+		if e.complexity.Query.GetSteelDetailFromMaintenance2Repository == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getSteelDetailFromMaintenance2Repository_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetSteelDetailFromMaintenance2Repository(childComplexity, args["input"].(model.GetSteelDetailFromMaintenance2RepositoryInput)), true
+
 	case "Query.getSteelForOutOfMaintenance":
 		if e.complexity.Query.GetSteelForOutOfMaintenance == nil {
 			break
@@ -5697,6 +5711,18 @@ input GetSteelFromMaintenance2RepositoryInput {
     """ 标识码"""
     identifier: String!
 }
+""" 型钢归库参数 """
+input EnterMaintenanceSteelToRepositoryInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
+""" 维修归库详情查询参数 """
+input GetSteelDetailFromMaintenance2RepositoryInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 规格 """
+    specificationId: Int
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -5724,10 +5750,8 @@ extend type Query {
     getRepositoryDetail(input: GetRepositoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 维修归库查询 """
     getSteelFromMaintenance2Repository(input: GetSteelFromMaintenance2RepositoryInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
-input EnterMaintenanceSteelToRepositoryInput {
-    """ 识别码列表 """
-    identifierList: [String!]!
+    """ 维修归库详情查询 """
+    getSteelDetailFromMaintenance2Repository(input: GetSteelDetailFromMaintenance2RepositoryInput!): GetMaintenanceDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
@@ -7188,6 +7212,21 @@ func (ec *executionContext) field_Query_getSend2WorkshopOrderListDetail_args(ctx
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNGetProjectOrder2WorkshopDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetProjectOrder2WorkshopDetailInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getSteelDetailFromMaintenance2Repository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetSteelDetailFromMaintenance2RepositoryInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetSteelDetailFromMaintenance2RepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelDetailFromMaintenance2RepositoryInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -22070,6 +22109,78 @@ func (ec *executionContext) _Query_getSteelFromMaintenance2Repository(ctx contex
 	return ec.marshalNSteelItem2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getSteelDetailFromMaintenance2Repository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getSteelDetailFromMaintenance2Repository_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetSteelDetailFromMaintenance2Repository(rctx, args["input"].(model.GetSteelDetailFromMaintenance2RepositoryInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.MustBeDevice == nil {
+				return nil, errors.New("directive mustBeDevice is not implemented")
+			}
+			return ec.directives.MustBeDevice(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*projects.GetMaintenanceDetailRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/projects.GetMaintenanceDetailRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*projects.GetMaintenanceDetailRes)
+	fc.Result = res
+	return ec.marshalNGetMaintenanceDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetMaintenanceDetailRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -27994,6 +28105,34 @@ func (ec *executionContext) unmarshalInputGetRepositorySteelInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetSteelDetailFromMaintenance2RepositoryInput(ctx context.Context, obj interface{}) (model.GetSteelDetailFromMaintenance2RepositoryInput, error) {
+	var it model.GetSteelDetailFromMaintenance2RepositoryInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "identifierList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifierList"))
+			it.IdentifierList, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "specificationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
+			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetSteelForOutOfMaintenanceDetailInput(ctx context.Context, obj interface{}) (model.GetSteelForOutOfMaintenanceDetailInput, error) {
 	var it model.GetSteelForOutOfMaintenanceDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -32261,6 +32400,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getSteelDetailFromMaintenance2Repository":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSteelDetailFromMaintenance2Repository(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getRoleList":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -34148,6 +34301,11 @@ func (ec *executionContext) marshalNGetSend2WorkshopOrderListDetailRes2ᚖhttp�
 		return graphql.Null
 	}
 	return ec._GetSend2WorkshopOrderListDetailRes(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetSteelDetailFromMaintenance2RepositoryInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelDetailFromMaintenance2RepositoryInput(ctx context.Context, v interface{}) (model.GetSteelDetailFromMaintenance2RepositoryInput, error) {
+	res, err := ec.unmarshalInputGetSteelDetailFromMaintenance2RepositoryInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetSteelForOutOfMaintenanceDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelForOutOfMaintenanceDetailInput(ctx context.Context, v interface{}) (model.GetSteelForOutOfMaintenanceDetailInput, error) {
