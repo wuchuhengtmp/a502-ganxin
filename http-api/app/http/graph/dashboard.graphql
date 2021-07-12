@@ -8,6 +8,22 @@ type GetSummaryRes {
     feeTotal: Float!
     """ 年价值 """
     yearFeeTotal: Float!
+    """ 租赁数量(吨) """
+    leaseWeightTotal: Float!
+    """ 闲置量(吨)"""
+    idleWeightTotal: Float!
+    """ 报废量(吨) """
+    scrapWeightTotal: Float!
+    """ 维修量(吨) """
+    maintenanceWeightTotal: Float!
+    """ 项目总数 """
+    projectTotal: Int!
+    """ 总体租出 """
+    leaseTotal: Int!
+    """ 维修数量 """
+    maintenanceTotal:Int!
+    """ 丢失数量 """
+    lossTotal: Int!
 }
 
 extend type Query {

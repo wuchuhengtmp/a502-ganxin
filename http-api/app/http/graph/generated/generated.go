@@ -269,10 +269,18 @@ type ComplexityRoot struct {
 	}
 
 	GetSummaryRes struct {
-		FeeTotal        func(childComplexity int) int
-		WeightTotal     func(childComplexity int) int
-		YearFeeTotal    func(childComplexity int) int
-		YearWeightTotal func(childComplexity int) int
+		FeeTotal               func(childComplexity int) int
+		IdleWeightTotal        func(childComplexity int) int
+		LeaseTotal             func(childComplexity int) int
+		LeaseWeightTotal       func(childComplexity int) int
+		LossTotal              func(childComplexity int) int
+		MaintenanceTotal       func(childComplexity int) int
+		MaintenanceWeightTotal func(childComplexity int) int
+		ProjectTotal           func(childComplexity int) int
+		ScrapWeightTotal       func(childComplexity int) int
+		WeightTotal            func(childComplexity int) int
+		YearFeeTotal           func(childComplexity int) int
+		YearWeightTotal        func(childComplexity int) int
 	}
 
 	GraphDesc struct {
@@ -1586,6 +1594,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetSummaryRes.FeeTotal(childComplexity), true
+
+	case "GetSummaryRes.idleWeightTotal":
+		if e.complexity.GetSummaryRes.IdleWeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.IdleWeightTotal(childComplexity), true
+
+	case "GetSummaryRes.leaseTotal":
+		if e.complexity.GetSummaryRes.LeaseTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.LeaseTotal(childComplexity), true
+
+	case "GetSummaryRes.leaseWeightTotal":
+		if e.complexity.GetSummaryRes.LeaseWeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.LeaseWeightTotal(childComplexity), true
+
+	case "GetSummaryRes.lossTotal":
+		if e.complexity.GetSummaryRes.LossTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.LossTotal(childComplexity), true
+
+	case "GetSummaryRes.maintenanceTotal":
+		if e.complexity.GetSummaryRes.MaintenanceTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.MaintenanceTotal(childComplexity), true
+
+	case "GetSummaryRes.maintenanceWeightTotal":
+		if e.complexity.GetSummaryRes.MaintenanceWeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.MaintenanceWeightTotal(childComplexity), true
+
+	case "GetSummaryRes.projectTotal":
+		if e.complexity.GetSummaryRes.ProjectTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.ProjectTotal(childComplexity), true
+
+	case "GetSummaryRes.scrapWeightTotal":
+		if e.complexity.GetSummaryRes.ScrapWeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSummaryRes.ScrapWeightTotal(childComplexity), true
 
 	case "GetSummaryRes.weightTotal":
 		if e.complexity.GetSummaryRes.WeightTotal == nil {
@@ -4331,6 +4395,22 @@ type GetSummaryRes {
     feeTotal: Float!
     """ 年价值 """
     yearFeeTotal: Float!
+    """ 租赁数量(吨) """
+    leaseWeightTotal: Float!
+    """ 闲置量(吨)"""
+    idleWeightTotal: Float!
+    """ 报废量(吨) """
+    scrapWeightTotal: Float!
+    """ 维修量(吨) """
+    maintenanceWeightTotal: Float!
+    """ 项目总数 """
+    projectTotal: Int!
+    """ 总体租出 """
+    leaseTotal: Int!
+    """ 维修数量 """
+    maintenanceTotal:Int!
+    """ 丢失数量 """
+    lossTotal: Int!
 }
 
 extend type Query {
@@ -10840,6 +10920,286 @@ func (ec *executionContext) _GetSummaryRes_yearFeeTotal(ctx context.Context, fie
 	res := resTmp.(float64)
 	fc.Result = res
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_leaseWeightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LeaseWeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_idleWeightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IdleWeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_scrapWeightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ScrapWeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_maintenanceWeightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaintenanceWeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_projectTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_leaseTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LeaseTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_maintenanceTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaintenanceTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSummaryRes_lossTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSummaryRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LossTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GraphDesc_title(ctx context.Context, field graphql.CollectedField, obj *model.GraphDesc) (ret graphql.Marshaler) {
@@ -29330,6 +29690,46 @@ func (ec *executionContext) _GetSummaryRes(ctx context.Context, sel ast.Selectio
 			}
 		case "yearFeeTotal":
 			out.Values[i] = ec._GetSummaryRes_yearFeeTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "leaseWeightTotal":
+			out.Values[i] = ec._GetSummaryRes_leaseWeightTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "idleWeightTotal":
+			out.Values[i] = ec._GetSummaryRes_idleWeightTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "scrapWeightTotal":
+			out.Values[i] = ec._GetSummaryRes_scrapWeightTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "maintenanceWeightTotal":
+			out.Values[i] = ec._GetSummaryRes_maintenanceWeightTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "projectTotal":
+			out.Values[i] = ec._GetSummaryRes_projectTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "leaseTotal":
+			out.Values[i] = ec._GetSummaryRes_leaseTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "maintenanceTotal":
+			out.Values[i] = ec._GetSummaryRes_maintenanceTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lossTotal":
+			out.Values[i] = ec._GetSummaryRes_lossTotal(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

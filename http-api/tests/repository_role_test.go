@@ -2440,16 +2440,30 @@ func TestRepositoryAdminRoleGetRepositoryDetail(t *testing.T) {
 }
 
 /**
- * 超级管理员获取概览集成测试
+ * 仓库管理员获取概览集成测试
  */
 func TestRepositoryRoleGetSummary(t *testing.T) {
 	q := `
 		query {
 		  getSummary {
-		   feeTotal #总价值
-		   weightTotal #总重量
-		   yearFeeTotal # 年价值
-		   yearWeightTotal # 今年总重量
+			#### 资产概况1 ###
+			feeTotal #总价值(万元)
+			weightTotal #型钢总量(吨)
+			yearFeeTotal # 今年新增价值(万元)
+			yearWeightTotal # 今年新增型钢(吨)
+			
+			#### 资产概况2 ###
+			idleWeightTotal #闲置量(吨)
+			leaseWeightTotal #租赁数量(吨)
+			maintenanceTotal #维修数量
+			scrapWeightTotal # 报废量(吨)
+
+			### 最近最近 盘点 ###
+			lossTotal #丢失数量
+			maintenanceWeightTotal # 维修量(吨)
+			projectTotal #项目总数
+			weightTotal #总重量
+			leaseTotal #总体租出  
 		  }
 		}
 	`

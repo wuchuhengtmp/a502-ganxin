@@ -584,6 +584,22 @@ type GetSummaryRes struct {
 	FeeTotal float64 `json:"feeTotal"`
 	//  年价值
 	YearFeeTotal float64 `json:"yearFeeTotal"`
+	//  租赁数量(吨)
+	LeaseWeightTotal float64 `json:"leaseWeightTotal"`
+	//  闲置量(吨)
+	IdleWeightTotal float64 `json:"idleWeightTotal"`
+	//  报废量(吨)
+	ScrapWeightTotal float64 `json:"scrapWeightTotal"`
+	//  维修量(吨)
+	MaintenanceWeightTotal float64 `json:"maintenanceWeightTotal"`
+	//  项目总数
+	ProjectTotal int64 `json:"projectTotal"`
+	//  总体租出
+	LeaseTotal int64 `json:"leaseTotal"`
+	//  维修数量
+	MaintenanceTotal int64 `json:"maintenanceTotal"`
+	//  丢失数量
+	LossTotal int64 `json:"lossTotal"`
 }
 
 //  获取待归库详情参数
