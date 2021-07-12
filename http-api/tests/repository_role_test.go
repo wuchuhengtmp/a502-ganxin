@@ -2498,6 +2498,45 @@ func TestRepositoryRoleGetSteelFromMaintenance2Repository(t *testing.T) {
 }
 
 /**
+ * 仓库管理员型钢归库详情集成测试
+ */
+func TestRepositoryRoleGetSteelDetailFromMaintenance2Repository(t *testing.T) {
+	q := `
+		query ($input: GetSteelDetailFromMaintenance2RepositoryInput!) {
+		  getSteelDetailFromMaintenance2Repository(input: $input) {
+			list {
+			  id
+			  steel {
+				code # 编码
+				specifcation {
+				  specification # 规格
+				}
+			  }
+			  stateInfo{
+				state
+				desc # 状态
+			  }
+			  outRepositoryAt # 出库时间 
+			  enteredAt # 入厂时间
+			  outedAt # 出厂时间
+			}
+			total # 数量 
+			weight # 重量
+		  }
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifierList": []string{
+				"9",
+			},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
+
+/**
  * 仓库管理员型钢归库集成测试
  */
 func TestRepositoryRoleEnterMaintenanceSteelToRepository(t *testing.T) {
