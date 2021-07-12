@@ -221,3 +221,23 @@ func TestAdminRoleDeleteCompany(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 超级管理员获取概览集成测试
+ */
+func TestAdminRoleGetSummary(t *testing.T) {
+	q := `
+		query {
+		  getSummary {
+		   feeTotal #总价值
+		   weightTotal #总重量
+		   yearFeeTotal # 年价值
+		   yearWeightTotal # 今年总重量
+		  }
+		}
+	`
+	v := map[string]interface{}{
+	}
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	hasError(t, err)
+}
