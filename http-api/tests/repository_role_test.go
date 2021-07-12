@@ -2472,3 +2472,27 @@ func TestRepositoryRoleGetSummary(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 仓库管理员获取型钢归库查询测试
+ */
+func TestRepositoryRoleGetSteelFromMaintenance2Repository(t *testing.T) {
+	q := `
+		query ($input: GetSteelFromMaintenance2RepositoryInput!) {
+		  getSteelFromMaintenance2Repository(input: $input) {
+			id
+			specifcation {
+			  specification # 规格 
+			  weight # 重量
+			}
+		  }
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifier": "9",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}

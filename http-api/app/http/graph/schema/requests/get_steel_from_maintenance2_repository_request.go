@@ -16,11 +16,11 @@ import (
 func ValidateGetSteelFromMaintenance2RepositoryRequest(ctx context.Context, input graphModel.GetSteelFromMaintenance2RepositoryInput) error  {
 	steps := StepsForRepository{}
 	// 检验有没有这根型钢
-	if err := steps.CheckHasSteel(ctx, input.Identifer); err != nil {
+	if err := steps.CheckHasSteel(ctx, input.Identifier); err != nil {
 		return err
 	}
 	// 这根型钢能不能归库
-	if err := steps.CheckIsEnterRepositoryFromMaintenanceAccess(ctx, input.Identifer); err != nil {
+	if err := steps.CheckIsEnterRepositoryFromMaintenanceAccess(ctx, input.Identifier); err != nil {
 		return err
 	}
 

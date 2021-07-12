@@ -178,7 +178,7 @@ input SetBatchOfMaintenanceSteelInput {
 """ 维修归库查询参数 """
 input GetSteelFromMaintenance2RepositoryInput {
     """ 标识码"""
-    identifer: String!
+    identifier: String!
 }
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """

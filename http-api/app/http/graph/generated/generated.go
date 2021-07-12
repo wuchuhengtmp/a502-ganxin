@@ -5681,7 +5681,7 @@ input SetBatchOfMaintenanceSteelInput {
 """ 维修归库查询参数 """
 input GetSteelFromMaintenance2RepositoryInput {
     """ 标识码"""
-    identifer: String!
+    identifier: String!
 }
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
@@ -27929,11 +27929,11 @@ func (ec *executionContext) unmarshalInputGetSteelFromMaintenance2RepositoryInpu
 
 	for k, v := range asMap {
 		switch k {
-		case "identifer":
+		case "identifier":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifer"))
-			it.Identifer, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("identifier"))
+			it.Identifier, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

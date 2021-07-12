@@ -577,7 +577,7 @@ type GetSteelForOutOfMaintenanceInput struct {
 //  维修归库查询参数
 type GetSteelFromMaintenance2RepositoryInput struct {
 	//  标识码
-	Identifer string `json:"identifer"`
+	Identifier string `json:"identifier"`
 }
 
 //  资产概况响应数据

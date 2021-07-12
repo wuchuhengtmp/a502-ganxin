@@ -24,7 +24,7 @@ func (*QueryResolver)GetSteelFromMaintenance2Repository(ctx context.Context, inp
 	}
 	steelItem := steels.Steels{}
 	me := auth.GetUser(ctx)
-	err := model.DB.Model(&steelItem).Where("identifier = ?", input.Identifer).
+	err := model.DB.Model(&steelItem).Where("identifier = ?", input.Identifier).
 		Where("company_id = ?", me.CompanyId).
 		First(&steelItem).Error
 	if err != nil {
