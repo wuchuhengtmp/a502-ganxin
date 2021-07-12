@@ -284,6 +284,11 @@ type EnterMaintenanceInput struct {
 	Identifier string `json:"identifier"`
 }
 
+type EnterMaintenanceSteelToRepositoryInput struct {
+	//  识别码列表
+	IdentifierList []string `json:"identifierList"`
+}
+
 type ErrCodes struct {
 	//  错误码编号
 	Code int64 `json:"code"`

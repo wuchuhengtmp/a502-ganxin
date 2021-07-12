@@ -208,6 +208,10 @@ extend type Query {
     """ 维修归库查询 """
     getSteelFromMaintenance2Repository(input: GetSteelFromMaintenance2RepositoryInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
+input EnterMaintenanceSteelToRepositoryInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
@@ -219,5 +223,7 @@ extend type Mutation {
     setBatchOfRepositorySteelScrap(input: SetBatchOfRepositorySteelScrapInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 批量维修出库 """
     setBatchOfMaintenanceSteel(input: SetBatchOfMaintenanceSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 型钢归库 """
+    enterMaintenanceSteelToRepository(input: EnterMaintenanceSteelToRepositoryInput!): Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 
