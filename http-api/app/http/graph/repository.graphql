@@ -158,7 +158,7 @@ input Get2BeMaintainSteelDetailInput {
     specificationId: Int
 }
 """ 获取仓库详情参数 """
-input GetReposigoryDetailInput {
+input GetRepositoryDetailInput {
     """ 仓库id """
     repositoryId: Int
 }
@@ -187,7 +187,7 @@ extend type Query {
     """ 获取出库维修的型钢详情 """
     get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库详情 """
-    getRepositoryDetail(input: GetReposigoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getRepositoryDetail(input: GetRepositoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 
 """ 批量报废型钢参数 """

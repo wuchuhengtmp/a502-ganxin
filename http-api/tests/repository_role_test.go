@@ -2415,3 +2415,26 @@ func TestRepositoryAdminRoleGetOrderDetailForBackEnd(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
 	assert.NoError(t, err)
 }
+/**
+ * 仓库管理员获取仓库详情集成测试
+ */
+func TestRepositoryAdminRoleGetRepositoryDetail(t *testing.T) {
+	q := `
+	query ($input: GetRepositoryDetailInput){
+	  getRepositoryDetail(input: $input) {
+		id
+		name # 仓库名
+		total # 数量 
+		weight # 重量
+		fee # 费用
+	  }
+	}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{}{
+			"repositoryId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
+	assert.NoError(t, err)
+}

@@ -536,7 +536,7 @@ type GetProjectSteelDetailInput struct {
 }
 
 //  获取仓库详情参数
-type GetReposigoryDetailInput struct {
+type GetRepositoryDetailInput struct {
 	//  仓库id
 	RepositoryID *int64 `json:"repositoryId"`
 }

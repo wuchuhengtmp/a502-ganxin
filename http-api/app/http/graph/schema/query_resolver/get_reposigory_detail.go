@@ -17,7 +17,7 @@ import (
 	"http-api/pkg/model"
 )
 
-func (*QueryResolver)GetRepositoryDetail(ctx context.Context, input *graphModel.GetReposigoryDetailInput) ([]*repositories.Repositories, error)  {
+func (*QueryResolver)GetRepositoryDetail(ctx context.Context, input *graphModel.GetRepositoryDetailInput) ([]*repositories.Repositories, error)  {
 	me := auth.GetUser(ctx)
 	repositoryItem := repositories.Repositories{}
 	modelIn := model.DB.Model(&repositoryItem).
