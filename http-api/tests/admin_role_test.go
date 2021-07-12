@@ -255,3 +255,19 @@ func TestAdminRoleGetSummary(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+
+/**
+ * 超级管理员获取仓库列表（用于仪表盘）集成测试
+ */
+func TestAdminRoleGetRepositoryListForDashboard(t *testing.T) {
+	q := `
+		query {
+		   getRepositoryListForDashboard {
+			id
+			name
+		  } 
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	hasError(t, err)
+}
