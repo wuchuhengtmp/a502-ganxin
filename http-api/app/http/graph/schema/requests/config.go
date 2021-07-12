@@ -1156,6 +1156,33 @@ func (*StepsForRepository) CheckHasUser(ctx context.Context, uid int64) error {
 }
 
 /**
+ * 检验能不能维修归库
+ */
+func (s *StepsForRepository) CheckIsEnterRepositoryFromMaintenanceAccess(ctx context.Context, identifier string) error {
+	if err := s.CheckHasSteel(ctx, identifier ); err != nil {
+		return err
+	}
+	me := auth.GetUser(ctx)
+	steelItem := steels.Steels{}
+	err := model.DB.Model(&steelItem).Where("identifier = ?", identifier).
+		Where("company_id = ?", me.CompanyId).
+		First(&steelItem).
+		Error
+	if err != nil {
+		return err
+	}
+	if steelItem.State != steels.StateMaintainerOnTheStoreWay {
+		return fmt.Errorf(
+			"标识码为: %s 的型钢状态为: %s 需状态为 %s, 才能入库",
+			identifier,
+			steels.StateCodeMapDes[steelItem.State],
+			steels.StateCodeMapDes[steels.StateMaintainerOnTheStoreWay],
+		)
+	}
+
+	return nil
+}
+/**
  * 检验有没有这根型钢
  */
 func (*StepsForRepository) CheckHasSteel(ctx context.Context, identifier string) error {

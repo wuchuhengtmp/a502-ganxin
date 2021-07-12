@@ -162,7 +162,24 @@ input GetRepositoryDetailInput {
     """ 仓库id """
     repositoryId: Int
 }
+""" 批量报废型钢参数 """
+input SetBatchOfRepositorySteelScrapInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+}
 
+""" 批量维修出库参数 """
+input SetBatchOfMaintenanceSteelInput {
+    """ 识别码列表 """
+    identifierList: [String!]!
+    """ 维修厂 id """
+    maintenanceId: Int!
+}
+""" 维修归库查询参数 """
+input GetSteelFromMaintenance2RepositoryInput {
+    """ 标识码"""
+    identifer: String!
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -188,20 +205,8 @@ extend type Query {
     get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库详情 """
     getRepositoryDetail(input: GetRepositoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
-}
-
-""" 批量报废型钢参数 """
-input SetBatchOfRepositorySteelScrapInput {
-    """ 识别码列表 """
-    identifierList: [String!]!
-}
-
-""" 批量维修出库参数 """
-input SetBatchOfMaintenanceSteelInput {
-    """ 识别码列表 """
-    identifierList: [String!]!
-    """ 维修厂 id """
-    maintenanceId: Int!
+    """ 维修归库查询 """
+    getSteelFromMaintenance2Repository(input: GetSteelFromMaintenance2RepositoryInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""

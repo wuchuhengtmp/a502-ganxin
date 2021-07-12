@@ -574,6 +574,12 @@ type GetSteelForOutOfMaintenanceInput struct {
 	Identifier string `json:"identifier"`
 }
 
+//  维修归库查询参数
+type GetSteelFromMaintenance2RepositoryInput struct {
+	//  标识码
+	Identifer string `json:"identifer"`
+}
+
 //  资产概况响应数据
 type GetSummaryRes struct {
 	//  总重量
