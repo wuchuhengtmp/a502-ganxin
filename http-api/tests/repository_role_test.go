@@ -2496,3 +2496,23 @@ func TestRepositoryRoleGetSteelFromMaintenance2Repository(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
 }
+
+/**
+ * 仓库管理员型钢归库集成测试
+ */
+func TestRepositoryRoleEnterMaintenanceSteelToRepository(t *testing.T) {
+	q := `
+		mutation ($input: EnterMaintenanceSteelToRepositoryInput!) {
+		  enterMaintenanceSteelToRepository(input: $input)
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"identifierList": []string{
+				"9",
+			},
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
+	assert.NoError(t, err)
+}
