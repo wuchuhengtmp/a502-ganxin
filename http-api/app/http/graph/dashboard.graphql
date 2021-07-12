@@ -29,4 +29,6 @@ type GetSummaryRes {
 extend type Query {
     """ 资产概况 """
     getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取仓库列表(用于仪表盘) """
+    getRepositoryListForDashboard: [RepositoryItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }

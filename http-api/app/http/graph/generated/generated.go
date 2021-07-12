@@ -527,6 +527,7 @@ type ComplexityRoot struct {
 		GetProjectSteelStateList                 func(childComplexity int) int
 		GetRepositoryDetail                      func(childComplexity int, input *model.GetRepositoryDetailInput) int
 		GetRepositoryList                        func(childComplexity int) int
+		GetRepositoryListForDashboard            func(childComplexity int) int
 		GetRepositoryOverview                    func(childComplexity int, input model.GetRepositoryOverviewInput) int
 		GetRepositorySteel                       func(childComplexity int, input model.GetRepositorySteelInput) int
 		GetRepositorySteelDetail                 func(childComplexity int, input model.GetRepositorySteelInput) int
@@ -772,6 +773,7 @@ type QueryResolver interface {
 	GetAllCompany(ctx context.Context) ([]*companies.Companies, error)
 	GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error)
 	GetSummary(ctx context.Context) (*model.GetSummaryRes, error)
+	GetRepositoryListForDashboard(ctx context.Context) ([]*repositories.Repositories, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetLogList(ctx context.Context, input model.GetLogListInput) (*logs.GetLogListRes, error)
@@ -3449,6 +3451,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRepositoryList(childComplexity), true
 
+	case "Query.getRepositoryListForDashboard":
+		if e.complexity.Query.GetRepositoryListForDashboard == nil {
+			break
+		}
+
+		return e.complexity.Query.GetRepositoryListForDashboard(childComplexity), true
+
 	case "Query.getRepositoryOverview":
 		if e.complexity.Query.GetRepositoryOverview == nil {
 			break
@@ -4458,6 +4467,8 @@ type GetSummaryRes {
 extend type Query {
     """ 资产概况 """
     getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取仓库列表(用于仪表盘) """
+    getRepositoryListForDashboard: [RepositoryItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }`, BuiltIn: false},
 	{Name: "../devices.graphql", Input: `type DeviceItem {
     id: Int!
@@ -18088,6 +18099,65 @@ func (ec *executionContext) _Query_getSummary(ctx context.Context, field graphql
 	return ec.marshalNGetSummaryRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSummaryRes(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getRepositoryListForDashboard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetRepositoryListForDashboard(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*repositories.Repositories); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/repositories.Repositories`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*repositories.Repositories)
+	fc.Result = res
+	return ec.marshalNRepositoryItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositoriesᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getDeviceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -31541,6 +31611,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getSummary(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getRepositoryListForDashboard":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getRepositoryListForDashboard(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
