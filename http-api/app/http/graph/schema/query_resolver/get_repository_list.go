@@ -13,9 +13,11 @@ import (
 	"fmt"
 	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/errors"
+	"http-api/app/models/configs"
 	"http-api/app/models/repositories"
 	"http-api/app/models/repository_leader"
 	"http-api/app/models/roles"
+	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
@@ -53,4 +55,21 @@ type RepositoryItemResolver struct {}
 
 func (RepositoryItemResolver) Leaders(ctx context.Context, obj *repositories.Repositories) ([]*users.Users, error) {
 	return obj.GetLeaders()
+}
+
+
+func (RepositoryItemResolver)Fee(ctx context.Context, obj *repositories.Repositories) (float64, error) {
+	c := configs.Configs{}
+	p := c.GetPrice(ctx)
+	var t int64
+	err := model.DB.Model(&steels.Steels{}).
+		Where("repository_id = ?", obj.ID).
+		Count(&t).
+		Error
+	if err != nil {
+		return 0, errors.ServerErr(ctx, err)
+	}
+	fee := float64(t) * p
+
+	return fee, nil
 }

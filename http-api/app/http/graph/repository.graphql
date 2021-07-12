@@ -7,15 +7,26 @@ type RepositoryLeaderItem {
 """ 仓库信息 """
 type RepositoryItem {
     id: Int!
+    """ 名称 """
     name: String!
+    """ 拼音 """
     pinYin: String!
+    """ 城市 """
     city: String!
+    """ 地址 """
     address: String!
+    """ 数量 """
     total: Int!
+    """ 重量 """
     weight: Float!
+    """ 备注 """
     remark: String!
+    """ 能不能用"""
     isAble: Boolean!
+    """ 管理员列表 """
     leaders:[UserItem!]!
+    """ 价值 """
+    fee: Float!
 }
 """  创建仓库需要提交的参数"""
 input CreateRepositoryInput {
@@ -146,6 +157,11 @@ input Get2BeMaintainSteelDetailInput {
     """ 规格 ID """
     specificationId: Int
 }
+""" 获取仓库详情参数 """
+input GetReposigoryDetailInput {
+    """ 仓库id """
+    repositoryId: Int
+}
 
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
@@ -170,6 +186,8 @@ extend type Query {
     get2BeMaintainSteel(input: Get2BeMaintainSteelInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取出库维修的型钢详情 """
     get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取仓库详情 """
+    getRepositoryDetail(input: GetReposigoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 
 """ 批量报废型钢参数 """
@@ -197,3 +215,4 @@ extend type Mutation {
     """ 批量维修出库 """
     setBatchOfMaintenanceSteel(input: SetBatchOfMaintenanceSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
 }
+

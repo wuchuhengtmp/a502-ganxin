@@ -535,6 +535,12 @@ type GetProjectSteelDetailInput struct {
 	State *int64 `json:"state"`
 }
 
+//  获取仓库详情参数
+type GetReposigoryDetailInput struct {
+	//  仓库id
+	RepositoryID *int64 `json:"repositoryId"`
+}
+
 type GetRepositoryOverviewInput struct {
 	//  仓库id
 	ID int64 `json:"id"`
