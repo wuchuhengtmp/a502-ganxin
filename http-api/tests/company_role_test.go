@@ -1534,3 +1534,46 @@ func TestCompanyAdminRoleGetStateForMaintenance(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 公司管理员获取订单详情列表集成测试
+ */
+func TestCompanyAdminRoleGetOrderDetailForBackEnd(t *testing.T) {
+	q := `
+		query ($input: GetOrderDetailForBackEndInput!) {
+		  getOrderDetailForBackEnd(input: $input){
+			list {
+			  id
+			  orderNo # 订单号
+			  project {
+				id
+				name # 项目名
+			  }
+			  repository {
+				name # 仓库名
+			  }
+			  orderSpecificationList {
+				specification # 规格 
+			  }
+			  total # 数量 
+			  weight # 重量 
+			}
+			total # 数量 
+			weight # 重量 
+		  }
+		  
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{}{
+			"isShowAll": false,
+			"page": 1,
+			"pageSize": 12,
+			"projectId": 1,
+			"repositoryId": 1,
+			"specificationId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
