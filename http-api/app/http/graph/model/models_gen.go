@@ -453,6 +453,8 @@ type GetOrderDetailForBackEndInput struct {
 	ProjectID *int64 `json:"projectId"`
 	//  规格id
 	SpecificationID *int64 `json:"specificationId"`
+	//  仓库id
+	RepositoryID *int64 `json:"repositoryId"`
 }
 
 type GetOrderListInput struct {

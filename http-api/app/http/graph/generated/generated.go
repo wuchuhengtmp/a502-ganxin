@@ -5022,6 +5022,8 @@ input GetOrderDetailForBackEndInput  {
     projectId: Int
     """ 规格id """
     specificationId: Int
+    """ 仓库id """
+    repositoryId: Int
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -26593,6 +26595,14 @@ func (ec *executionContext) unmarshalInputGetOrderDetailForBackEndInput(ctx cont
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationId"))
 			it.SpecificationID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "repositoryId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryId"))
+			it.RepositoryID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -256,6 +256,8 @@ input GetOrderDetailForBackEndInput  {
     projectId: Int
     """ 规格id """
     specificationId: Int
+    """ 仓库id """
+    repositoryId: Int
 }
 extend type Query {
     """ 获取需求单列表 """

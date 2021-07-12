@@ -37,12 +37,17 @@ func (*QueryResolver) GetOrderDetailForBackEnd(ctx context.Context, input graphM
 	summaryIn := model.DB.Model(&orderSpecificationSteelItem).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_specification_id", orderSpecificationTable, orderSpecificationTable, recordTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
-		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id",  specificationTable, specificationTable, orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", specificationTable, specificationTable, orderSpecificationTable)).
 		Where(fmt.Sprintf("%s.company_id = ?", orderTable), me.CompanyId)
 	// 订单列表
 	modeIn := model.DB.Model(&orderItem).
 		Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
 		Where(fmt.Sprintf("%s.company_id = ?", orderTable), me.CompanyId)
+	//  仓库过滤
+	if input.RepositoryID != nil {
+		modeIn = modeIn.Where(fmt.Sprintf("%s.repository_id = ?", orderTable), *input.RepositoryID)
+		summaryIn = summaryIn.Where(fmt.Sprintf("%s.repository_id = ?", orderTable), *input.RepositoryID)
+	}
 	// 规格过滤
 	if input.SpecificationID != nil {
 		modeIn = modeIn.Where(fmt.Sprintf("%s.specification_id = ?", orderSpecificationTable), *input.SpecificationID)
@@ -76,7 +81,6 @@ func (*QueryResolver) GetOrderDetailForBackEnd(ctx context.Context, input graphM
 	}
 
 	res.Weight = weightInfo.Weight
-
 
 	return &res, nil
 }
