@@ -11,9 +11,11 @@ package query_resolver
 import (
 	"context"
 	"fmt"
+	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/errors"
 	grpahModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
+	"http-api/app/http/graph/util/helper"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/maintenance_record"
 	"http-api/app/models/order_specification"
@@ -25,24 +27,108 @@ import (
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
+	"sync"
 )
+
+type GetSteelListSteps struct{}
 
 func (*QueryResolver) GetSteelList(ctx context.Context, input grpahModel.PaginationInput) (*steels.GetSteelListRes, error) {
 	if err := requests.ValidateGetSteelListRequest(ctx, input); err != nil {
 		return nil, errors.ValidateErr(ctx, err)
 	}
-	s := steels.Steels{}
-	list, err := s.GetPagination(ctx, input.Page, input.PageSize, input.RepositoryID, input.SpecificationID)
+	steps := GetSummarySteps{}
+	offset := 0
+	if input.Page > 1 {
+		offset = int((input.Page - 1) * input.PageSize)
+	}
+	me := auth.GetUser(ctx)
+	whereMap := fmt.Sprintf("company_id = %d", me.CompanyId)
+	// 仓库
+	if input.RepositoryID != nil {
+		whereMap = fmt.Sprintf("%s AND repository_id = %d", whereMap, *input.RepositoryID)
+	}
+	// 规格
+	if input.SpecificationID != nil {
+		whereMap = fmt.Sprintf("%s AND specification_id = %d", whereMap, *input.SpecificationID)
+	}
+	// 识别码
+	if input.Identifier != nil {
+		whereMap = fmt.Sprintf("%s AND identifier like '%s'", whereMap, "%"+*input.Identifier+"%")
+	}
+	// 编码
+	if input.Code != nil {
+		whereMap = fmt.Sprintf("%s AND code like '%s'", whereMap, "%"+*input.Code+"%")
+	}
+	// 状态过滤
+	if input.State != nil {
+		whereMap = fmt.Sprintf("%s AND state = %d", whereMap, *input.State)
+	}
+	// 材料商过滤
+	if input.MaterialManufacturerID != nil {
+		whereMap = fmt.Sprintf("%s AND material_manufacturer_id = %d", whereMap, *input.MaterialManufacturerID)
+	}
+	// 制造商过滤
+	if input.ManufacturerID != nil {
+		whereMap = fmt.Sprintf("%s AND manufacturer_id = %d", whereMap, *input.ManufacturerID)
+	}
+	// 首次入库时间
+	if input.CreatedAt != nil {
+		s, e := helper.GetSecondBetween(*input.CreatedAt)
+		whereMap = fmt.Sprintf("%s AND (created_at between '%s' AND '%s' )", whereMap, s, e)
+	}
+	// 生产时间过滤
+	if input.ProduceAt != nil {
+		s, e := helper.GetSecondBetween(*input.ProduceAt)
+		whereMap = fmt.Sprintf("%s AND (produced_date between '%s' AND '%s' )", whereMap, s, e)
+	}
+	res := steels.GetSteelListRes{}
+	if err := model.DB.Model(&steels.Steels{}).Where(whereMap).Count(&res.Total).Error; err != nil {
+		return nil, errors.ServerErr(ctx, err)
+	}
+	// todo 总使用率 年使用率
+	err := model.DB.Model(&steels.Steels{}).Where(whereMap).Offset(offset).Limit(int(input.PageSize)).Find(&res.List).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.ServerErr(ctx, err)
 	}
-
-	res := steels.GetSteelListRes{
-		List:  list,
-		Total: s.GetTotal(ctx, input.RepositoryID, input.SpecificationID),
+	wg := &sync.WaitGroup{}
+	resChan := make(chan ChanItemRes, len(res.List))
+	resWg := &sync.WaitGroup{}
+	go func() {
+		resWg.Add(1)
+		defer resWg.Done()
+		for item := range resChan {
+			res.List[item.Index].Turnover = item.Res
+		}
+	}()
+	limiter := make(chan bool, 20)
+	for i, item := range res.List {
+		limiter <- true
+		wg.Add(1)
+		go steps.GetTurnoverById(i, item.ID, wg, &limiter, &resChan)
 	}
+	wg.Wait()
+	close(resChan)
+	resWg.Wait()
 
 	return &res, nil
+}
+
+type ChanItemRes struct {
+	Index int
+	Res   int64
+}
+
+func (GetSummarySteps) GetTurnoverById(index int, id int64, wg *sync.WaitGroup, limiter *chan bool, resChan *chan ChanItemRes ) {
+	defer func() {
+		wg.Done()
+		<- *limiter
+	}()
+	res := ChanItemRes{
+		Index: index,
+	}
+	recordItem := order_specification_steel.OrderSpecificationSteel{}
+	model.DB.Model(&recordItem).Where("steel_id = ?", id).Count(&res.Res)
+	*resChan <- res
 }
 
 type SteelItemResolver struct{}
@@ -122,7 +208,7 @@ func (SteelInProjectResolver) UseDays(ctx context.Context, obj *order_specificat
 	// todo 使用天数
 	return &days, nil
 }
-func (SteelInProjectResolver)ProjectName(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (string, error) {
+func (SteelInProjectResolver) ProjectName(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (string, error) {
 	item := projects.Projects{}
 	projectsTable := projects.Projects{}.TableName()
 	orderTable := orders.Order{}.TableName()

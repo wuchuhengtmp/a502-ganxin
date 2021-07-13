@@ -32,6 +32,20 @@ input PaginationInput {
   specificationId: Int
   """ 指定仓库 """
   repositoryId: Int
+  """ 识别码 """
+  identifier: String
+  """ 型钢编码 """
+  code: String
+  """ 制造商id """
+  manufacturerId: Int
+  """ 状态 """
+  state: Int
+  """ 材料商id """
+  materialManufacturerId: Int
+  """ 生产时间 """
+  produceAt: Time
+  """ 入库时间 """
+  createdAt:Time
 }
 type LoginRes {
   """ 授权token """    accessToken: String!

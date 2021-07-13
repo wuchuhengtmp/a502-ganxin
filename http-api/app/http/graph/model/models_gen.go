@@ -729,6 +729,20 @@ type PaginationInput struct {
 	SpecificationID *int64 `json:"specificationId"`
 	//  指定仓库
 	RepositoryID *int64 `json:"repositoryId"`
+	//  识别码
+	Identifier *string `json:"identifier"`
+	//  型钢编码
+	Code *string `json:"code"`
+	//  制造商id
+	ManufacturerID *int64 `json:"manufacturerId"`
+	//  状态
+	State *int64 `json:"state"`
+	//  材料商id
+	MaterialManufacturerID *int64 `json:"materialManufacturerId"`
+	//  生产时间
+	ProduceAt *time.Time `json:"produceAt"`
+	//  入库时间
+	CreatedAt *time.Time `json:"createdAt"`
 }
 
 type ProjectOrder2WorkshopDetailInput struct {
