@@ -149,6 +149,10 @@ type ComplexityRoot struct {
 		Weight func(childComplexity int) int
 	}
 
+	GetCodeForForgetPasswordRes struct {
+		Key func(childComplexity int) int
+	}
+
 	GetCompnayInfoRes struct {
 		Phone  func(childComplexity int) int
 		Tutor  func(childComplexity int) int
@@ -370,6 +374,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		ConfirmOrRejectOrder              func(childComplexity int, input model.ConfirmOrderInput) int
+		CreateCode                        func(childComplexity int, input model.GetCodeForForgetPasswordInput) int
 		CreateCompany                     func(childComplexity int, input model.CreateCompanyInput) int
 		CreateCompanyUser                 func(childComplexity int, input model.CreateCompanyUserInput) int
 		CreateExpress                     func(childComplexity int, input model.CreateExpressInput) int
@@ -734,6 +739,7 @@ type MutationResolver interface {
 	SetBatchOfRepositorySteelScrap(ctx context.Context, input model.SetBatchOfRepositorySteelScrapInput) ([]*steels.Steels, error)
 	SetBatchOfMaintenanceSteel(ctx context.Context, input model.SetBatchOfMaintenanceSteelInput) ([]*steels.Steels, error)
 	EnterMaintenanceSteelToRepository(ctx context.Context, input model.EnterMaintenanceSteelToRepositoryInput) (bool, error)
+	CreateCode(ctx context.Context, input model.GetCodeForForgetPasswordInput) (*model.GetCodeForForgetPasswordRes, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	EditSpecification(ctx context.Context, input model.EditSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	DeleteSpecification(ctx context.Context, id int64) (bool, error)
@@ -1202,6 +1208,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetChangedMaintenanceSteelDetailRes.Weight(childComplexity), true
+
+	case "GetCodeForForgetPasswordRes.key":
+		if e.complexity.GetCodeForForgetPasswordRes.Key == nil {
+			break
+		}
+
+		return e.complexity.GetCodeForForgetPasswordRes.Key(childComplexity), true
 
 	case "GetCompnayInfoRes.phone":
 		if e.complexity.GetCompnayInfoRes.Phone == nil {
@@ -2075,6 +2088,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ConfirmOrRejectOrder(childComplexity, args["input"].(model.ConfirmOrderInput)), true
+
+	case "Mutation.createCode":
+		if e.complexity.Mutation.CreateCode == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createCode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCode(childComplexity, args["input"].(model.GetCodeForForgetPasswordInput)), true
 
 	case "Mutation.createCompany":
 		if e.complexity.Mutation.CreateCompany == nil {
@@ -5947,6 +5972,18 @@ extend type Mutation {
     """ 获取角色列表 """
     getRoleList: [RoleItem]!
 }`, BuiltIn: false},
+	{Name: "../sms.graphql", Input: `input GetCodeForForgetPasswordInput {
+    """ 手机号 """
+    phone: String!
+}
+type GetCodeForForgetPasswordRes {
+    """ 密钥 """
+    key: String!
+}
+extend type Mutation {
+    """ 获取验证码 """
+   createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes! @hasRole(role: [admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+}`, BuiltIn: false},
 	{Name: "../specification.graphql", Input: `# 规格相关的接口
 """ 创建规格需要提交的参数 """
 input CreateSpecificationInput {
@@ -6153,6 +6190,21 @@ func (ec *executionContext) field_Mutation_confirmOrRejectOrder_args(ctx context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNConfirmOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐConfirmOrderInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetCodeForForgetPasswordInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetCodeForForgetPasswordInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCodeForForgetPasswordInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9030,6 +9082,41 @@ func (ec *executionContext) _GetChangedMaintenanceSteelDetailRes_weight(ctx cont
 	res := resTmp.(float64)
 	fc.Result = res
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetCodeForForgetPasswordRes_key(ctx context.Context, field graphql.CollectedField, obj *model.GetCodeForForgetPasswordRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetCodeForForgetPasswordRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetCompnayInfoRes_tutor(ctx context.Context, field graphql.CollectedField, obj *model.GetCompnayInfoRes) (ret graphql.Marshaler) {
@@ -16089,6 +16176,72 @@ func (ec *executionContext) _Mutation_enterMaintenanceSteelToRepository(ctx cont
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createCode_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateCode(rctx, args["input"].(model.GetCodeForForgetPasswordInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.GetCodeForForgetPasswordRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.GetCodeForForgetPasswordRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetCodeForForgetPasswordRes)
+	fc.Result = res
+	return ec.marshalNGetCodeForForgetPasswordRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCodeForForgetPasswordRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -28075,6 +28228,26 @@ func (ec *executionContext) unmarshalInputGetChangedMaintenanceSteelInput(ctx co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetCodeForForgetPasswordInput(ctx context.Context, obj interface{}) (model.GetCodeForForgetPasswordInput, error) {
+	var it model.GetCodeForForgetPasswordInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetCompanyUserInput(ctx context.Context, obj interface{}) (model.GetCompanyUserInput, error) {
 	var it model.GetCompanyUserInput
 	var asMap = obj.(map[string]interface{})
@@ -30176,6 +30349,33 @@ func (ec *executionContext) _GetChangedMaintenanceSteelDetailRes(ctx context.Con
 	return out
 }
 
+var getCodeForForgetPasswordResImplementors = []string{"GetCodeForForgetPasswordRes"}
+
+func (ec *executionContext) _GetCodeForForgetPasswordRes(ctx context.Context, sel ast.SelectionSet, obj *model.GetCodeForForgetPasswordRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getCodeForForgetPasswordResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetCodeForForgetPasswordRes")
+		case "key":
+			out.Values[i] = ec._GetCodeForForgetPasswordRes_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var getCompnayInfoResImplementors = []string{"GetCompnayInfoRes"}
 
 func (ec *executionContext) _GetCompnayInfoRes(ctx context.Context, sel ast.SelectionSet, obj *model.GetCompnayInfoRes) graphql.Marshaler {
@@ -31775,6 +31975,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "enterMaintenanceSteelToRepository":
 			out.Values[i] = ec._Mutation_enterMaintenanceSteelToRepository(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createCode":
+			out.Values[i] = ec._Mutation_createCode(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -34882,6 +35087,25 @@ func (ec *executionContext) marshalNGetChangedMaintenanceSteelDetailRes2ᚖhttp�
 func (ec *executionContext) unmarshalNGetChangedMaintenanceSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetChangedMaintenanceSteelInput(ctx context.Context, v interface{}) (model.GetChangedMaintenanceSteelInput, error) {
 	res, err := ec.unmarshalInputGetChangedMaintenanceSteelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNGetCodeForForgetPasswordInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCodeForForgetPasswordInput(ctx context.Context, v interface{}) (model.GetCodeForForgetPasswordInput, error) {
+	res, err := ec.unmarshalInputGetCodeForForgetPasswordInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetCodeForForgetPasswordRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCodeForForgetPasswordRes(ctx context.Context, sel ast.SelectionSet, v model.GetCodeForForgetPasswordRes) graphql.Marshaler {
+	return ec._GetCodeForForgetPasswordRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetCodeForForgetPasswordRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCodeForForgetPasswordRes(ctx context.Context, sel ast.SelectionSet, v *model.GetCodeForForgetPasswordRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetCodeForForgetPasswordRes(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNGetCompnayInfoRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompnayInfoRes(ctx context.Context, sel ast.SelectionSet, v model.GetCompnayInfoRes) graphql.Marshaler {

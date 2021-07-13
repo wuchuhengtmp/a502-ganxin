@@ -359,6 +359,16 @@ type GetChangedMaintenanceSteelInput struct {
 	Identifier string `json:"identifier"`
 }
 
+type GetCodeForForgetPasswordInput struct {
+	//  手机号
+	Phone string `json:"phone"`
+}
+
+type GetCodeForForgetPasswordRes struct {
+	//  密钥
+	Key string `json:"key"`
+}
+
 type GetCompanyUserInput struct {
 	//  角色id
 	RoleID *int64 `json:"roleId"`
