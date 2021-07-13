@@ -268,6 +268,14 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	GetSteelSummaryForDashboardRes struct {
+		CrapedPercent      func(childComplexity int) int
+		LostedPercent      func(childComplexity int) int
+		MaintainingPercent func(childComplexity int) int
+		StoredPercent      func(childComplexity int) int
+		UsingPercent       func(childComplexity int) int
+	}
+
 	GetSummaryRes struct {
 		FeeTotal               func(childComplexity int) int
 		IdleWeightTotal        func(childComplexity int) int
@@ -542,6 +550,7 @@ type ComplexityRoot struct {
 		GetSteelForOutOfMaintenanceDetail        func(childComplexity int, input model.GetSteelForOutOfMaintenanceDetailInput) int
 		GetSteelFromMaintenance2Repository       func(childComplexity int, input model.GetSteelFromMaintenance2RepositoryInput) int
 		GetSteelList                             func(childComplexity int, input model.PaginationInput) int
+		GetSteelSummaryForDashboard              func(childComplexity int, input model.GetSteelSummaryForDashboardInput) int
 		GetSummary                               func(childComplexity int) int
 		GetToBeEnterRepositoryDetail             func(childComplexity int, input model.GetToBeEnterRepositoryDetailInput) int
 		GetToBeEnterRepositorySpecificationList  func(childComplexity int, input model.GetToBeEnterRepositorySpecificationListInput) int
@@ -774,6 +783,7 @@ type QueryResolver interface {
 	GetCompanyUser(ctx context.Context, input *model.GetCompanyUserInput) ([]*users.Users, error)
 	GetSummary(ctx context.Context) (*model.GetSummaryRes, error)
 	GetRepositoryListForDashboard(ctx context.Context) ([]*repositories.Repositories, error)
+	GetSteelSummaryForDashboard(ctx context.Context, input model.GetSteelSummaryForDashboardInput) (*model.GetSteelSummaryForDashboardRes, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetLogList(ctx context.Context, input model.GetLogListInput) (*logs.GetLogListRes, error)
@@ -1595,6 +1605,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetSteelListRes.Total(childComplexity), true
+
+	case "GetSteelSummaryForDashboardRes.crapedPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.CrapedPercent == nil {
+			break
+		}
+
+		return e.complexity.GetSteelSummaryForDashboardRes.CrapedPercent(childComplexity), true
+
+	case "GetSteelSummaryForDashboardRes.lostedPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.LostedPercent == nil {
+			break
+		}
+
+		return e.complexity.GetSteelSummaryForDashboardRes.LostedPercent(childComplexity), true
+
+	case "GetSteelSummaryForDashboardRes.maintainingPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.MaintainingPercent == nil {
+			break
+		}
+
+		return e.complexity.GetSteelSummaryForDashboardRes.MaintainingPercent(childComplexity), true
+
+	case "GetSteelSummaryForDashboardRes.storedPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.StoredPercent == nil {
+			break
+		}
+
+		return e.complexity.GetSteelSummaryForDashboardRes.StoredPercent(childComplexity), true
+
+	case "GetSteelSummaryForDashboardRes.UsingPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.UsingPercent == nil {
+			break
+		}
+
+		return e.complexity.GetSteelSummaryForDashboardRes.UsingPercent(childComplexity), true
 
 	case "GetSummaryRes.feeTotal":
 		if e.complexity.GetSummaryRes.FeeTotal == nil {
@@ -3601,6 +3646,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetSteelList(childComplexity, args["input"].(model.PaginationInput)), true
 
+	case "Query.getSteelSummaryForDashboard":
+		if e.complexity.Query.GetSteelSummaryForDashboard == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getSteelSummaryForDashboard_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetSteelSummaryForDashboard(childComplexity, args["input"].(model.GetSteelSummaryForDashboardInput)), true
+
 	case "Query.getSummary":
 		if e.complexity.Query.GetSummary == nil {
 			break
@@ -4463,12 +4520,29 @@ type GetSummaryRes {
     """ 丢失数量 """
     lossTotal: Int!
 }
-
+type GetSteelSummaryForDashboardRes {
+    """ 项目中 """
+    UsingPercent:  Float!
+    """ 维修中 """
+    maintainingPercent: Float!
+    """ 报废 """
+    crapedPercent: Float!
+    """ 丢失 """
+    lostedPercent: Float!
+    """ 在库 """
+    storedPercent: Float!
+}
+input GetSteelSummaryForDashboardInput {
+    """ 仓库id """
+    repositoryId: Int
+}
 extend type Query {
     """ 资产概况 """
     getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取仓库列表(用于仪表盘) """
     getRepositoryListForDashboard: [RepositoryItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取型钢概览 """
+    getSteelSummaryForDashboard(input: GetSteelSummaryForDashboardInput!): GetSteelSummaryForDashboardRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }`, BuiltIn: false},
 	{Name: "../devices.graphql", Input: `type DeviceItem {
     id: Int!
@@ -7298,6 +7372,21 @@ func (ec *executionContext) field_Query_getSteelList_args(ctx context.Context, r
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNPaginationInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getSteelSummaryForDashboard_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetSteelSummaryForDashboardInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetSteelSummaryForDashboardInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelSummaryForDashboardInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -10899,6 +10988,181 @@ func (ec *executionContext) _GetSteelListRes_list(ctx context.Context, field gra
 	res := resTmp.([]*steels.Steels)
 	fc.Result = res
 	return ec.marshalNSteelItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐSteels(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_UsingPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSteelSummaryForDashboardRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UsingPercent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_maintainingPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSteelSummaryForDashboardRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaintainingPercent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_crapedPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSteelSummaryForDashboardRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CrapedPercent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_lostedPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSteelSummaryForDashboardRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LostedPercent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_storedPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSteelSummaryForDashboardRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StoredPercent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetSummaryRes_weightTotal(ctx context.Context, field graphql.CollectedField, obj *model.GetSummaryRes) (ret graphql.Marshaler) {
@@ -18156,6 +18420,72 @@ func (ec *executionContext) _Query_getRepositoryListForDashboard(ctx context.Con
 	res := resTmp.([]*repositories.Repositories)
 	fc.Result = res
 	return ec.marshalNRepositoryItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrepositoriesᚐRepositoriesᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getSteelSummaryForDashboard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getSteelSummaryForDashboard_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetSteelSummaryForDashboard(rctx, args["input"].(model.GetSteelSummaryForDashboardInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.GetSteelSummaryForDashboardRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.GetSteelSummaryForDashboardRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetSteelSummaryForDashboardRes)
+	fc.Result = res
+	return ec.marshalNGetSteelSummaryForDashboardRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelSummaryForDashboardRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getDeviceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -28279,6 +28609,26 @@ func (ec *executionContext) unmarshalInputGetSteelFromMaintenance2RepositoryInpu
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetSteelSummaryForDashboardInput(ctx context.Context, obj interface{}) (model.GetSteelSummaryForDashboardInput, error) {
+	var it model.GetSteelSummaryForDashboardInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "repositoryId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryId"))
+			it.RepositoryID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetToBeEnterRepositoryDetailInput(ctx context.Context, obj interface{}) (model.GetToBeEnterRepositoryDetailInput, error) {
 	var it model.GetToBeEnterRepositoryDetailInput
 	var asMap = obj.(map[string]interface{})
@@ -30124,6 +30474,53 @@ func (ec *executionContext) _GetSteelListRes(ctx context.Context, sel ast.Select
 	return out
 }
 
+var getSteelSummaryForDashboardResImplementors = []string{"GetSteelSummaryForDashboardRes"}
+
+func (ec *executionContext) _GetSteelSummaryForDashboardRes(ctx context.Context, sel ast.SelectionSet, obj *model.GetSteelSummaryForDashboardRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getSteelSummaryForDashboardResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetSteelSummaryForDashboardRes")
+		case "UsingPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_UsingPercent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "maintainingPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_maintainingPercent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "crapedPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_crapedPercent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lostedPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_lostedPercent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "storedPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_storedPercent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var getSummaryResImplementors = []string{"GetSummaryRes"}
 
 func (ec *executionContext) _GetSummaryRes(ctx context.Context, sel ast.SelectionSet, obj *model.GetSummaryRes) graphql.Marshaler {
@@ -31625,6 +32022,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getRepositoryListForDashboard(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getSteelSummaryForDashboard":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSteelSummaryForDashboard(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -34433,6 +34844,25 @@ func (ec *executionContext) marshalNGetSteelListRes2ᚖhttpᚑapiᚋappᚋmodels
 		return graphql.Null
 	}
 	return ec._GetSteelListRes(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetSteelSummaryForDashboardInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelSummaryForDashboardInput(ctx context.Context, v interface{}) (model.GetSteelSummaryForDashboardInput, error) {
+	res, err := ec.unmarshalInputGetSteelSummaryForDashboardInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetSteelSummaryForDashboardRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelSummaryForDashboardRes(ctx context.Context, sel ast.SelectionSet, v model.GetSteelSummaryForDashboardRes) graphql.Marshaler {
+	return ec._GetSteelSummaryForDashboardRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetSteelSummaryForDashboardRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelSummaryForDashboardRes(ctx context.Context, sel ast.SelectionSet, v *model.GetSteelSummaryForDashboardRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetSteelSummaryForDashboardRes(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNGetSummaryRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSummaryRes(ctx context.Context, sel ast.SelectionSet, v model.GetSummaryRes) graphql.Marshaler {

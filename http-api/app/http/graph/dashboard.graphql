@@ -25,10 +25,27 @@ type GetSummaryRes {
     """ 丢失数量 """
     lossTotal: Int!
 }
-
+type GetSteelSummaryForDashboardRes {
+    """ 项目中 """
+    UsingPercent:  Float!
+    """ 维修中 """
+    maintainingPercent: Float!
+    """ 报废 """
+    crapedPercent: Float!
+    """ 丢失 """
+    lostedPercent: Float!
+    """ 在库 """
+    storedPercent: Float!
+}
+input GetSteelSummaryForDashboardInput {
+    """ 仓库id """
+    repositoryId: Int
+}
 extend type Query {
     """ 资产概况 """
     getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取仓库列表(用于仪表盘) """
     getRepositoryListForDashboard: [RepositoryItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取型钢概览 """
+    getSteelSummaryForDashboard(input: GetSteelSummaryForDashboardInput!): GetSteelSummaryForDashboardRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }

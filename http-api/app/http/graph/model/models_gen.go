@@ -594,6 +594,24 @@ type GetSteelFromMaintenance2RepositoryInput struct {
 	Identifier string `json:"identifier"`
 }
 
+type GetSteelSummaryForDashboardInput struct {
+	//  仓库id
+	RepositoryID *int64 `json:"repositoryId"`
+}
+
+type GetSteelSummaryForDashboardRes struct {
+	//  项目中
+	UsingPercent float64 `json:"UsingPercent"`
+	//  维修中
+	MaintainingPercent float64 `json:"maintainingPercent"`
+	//  报废
+	CrapedPercent float64 `json:"crapedPercent"`
+	//  丢失
+	LostedPercent float64 `json:"lostedPercent"`
+	//  在库
+	StoredPercent float64 `json:"storedPercent"`
+}
+
 //  资产概况响应数据
 type GetSummaryRes struct {
 	//  总重量
