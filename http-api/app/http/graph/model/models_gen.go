@@ -572,6 +572,18 @@ type GetSteelDetailFromMaintenance2RepositoryInput struct {
 	SpecificationID *int64 `json:"specificationId"`
 }
 
+//  获取列表列表(用于仪表盘)
+type GetSteelForDashboardInput struct {
+	//  分页号
+	Page int64 `json:"page"`
+	//  分页大小
+	PageSize int64 `json:"pageSize"`
+	//  仓库id
+	RepositoryID *int64 `json:"repositoryId"`
+	//  项目id
+	ProjectID *int64 `json:"projectId"`
+}
+
 //  获取可能出厂的型钢详情参数
 type GetSteelForOutOfMaintenanceDetailInput struct {
 	//  识别码列表

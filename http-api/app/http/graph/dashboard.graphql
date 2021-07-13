@@ -41,6 +41,17 @@ input GetSteelSummaryForDashboardInput {
     """ 仓库id """
     repositoryId: Int
 }
+""" 获取列表列表(用于仪表盘) """
+input GetSteelForDashboardInput {
+    """ 分页号 """
+    page: Int!
+    """ 分页大小 """
+    pageSize: Int!
+    """ 仓库id """
+    repositoryId: Int
+    """ 项目id """
+    projectId: Int
+}
 extend type Query {
     """ 资产概况 """
     getSummary:  GetSummaryRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
@@ -48,4 +59,8 @@ extend type Query {
     getRepositoryListForDashboard: [RepositoryItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取型钢概览 """
     getSteelSummaryForDashboard(input: GetSteelSummaryForDashboardInput!): GetSteelSummaryForDashboardRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取列表列表(用于仪表盘) """
+    getSteelForDashboard(input: GetSteelForDashboardInput): GetSteelListRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    """ 获取项目列表(用于仪表盘) """
+    getProjectListForDashboard: [ProjectItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
