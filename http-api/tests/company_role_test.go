@@ -1698,3 +1698,21 @@ func TestRepositoryRoleGetSteelForDashboard(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+/**
+ * 仓库管理员获取公司信息集成测试
+ */
+func TestRepositoryRoleGetCompanyInfo(t *testing.T) {
+	q := `
+		query {
+		   getCompanyInfo {
+			tutor {
+			  url # 视频
+			}
+			phone # 电话
+			wechat # 微信 
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
