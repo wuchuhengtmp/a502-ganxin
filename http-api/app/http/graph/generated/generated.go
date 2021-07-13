@@ -4736,7 +4736,7 @@ type LogTypeItem {
 }
 extend type Query {
     """ 获取日志列表 """
-    getLogList(input: GetLogListInput!): GetLogListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getLogList(input: GetLogListInput!): GetLogListRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin admin ])
     """ 获取操作类型列表 """
     getLogTypeList: [LogTypeItem!]!
 }`, BuiltIn: false},
@@ -18896,7 +18896,7 @@ func (ec *executionContext) _Query_getLogList(ctx context.Context, field graphql
 			return ec.resolvers.Query().GetLogList(rctx, args["input"].(model.GetLogListInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin", "admin"})
 			if err != nil {
 				return nil, err
 			}

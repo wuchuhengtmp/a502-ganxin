@@ -16,6 +16,7 @@ import (
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/models/logs"
+	"http-api/app/models/roles"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
 )
@@ -27,10 +28,13 @@ func (*QueryResolver) GetLogList(ctx context.Context, input graphModel.GetLogLis
 	logItem := logs.Logos{}
 	userTable := users.Users{}.TableName()
 	me := auth.GetUser(ctx)
+	role, _ := me.GetRole()
 	modelIns := model.DB.Debug().Model(&logItem).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", userTable, userTable, logItem.TableName())).
-		Where(fmt.Sprintf("%s.company_id = ?", userTable), me.CompanyId).
 		Order(fmt.Sprintf("%s.id desc", logItem.TableName()))
+	if role.ID != roles.RoleAdminId {
+		modelIns.Where(fmt.Sprintf("%s.company_id = ?", userTable), me.CompanyId)
+	}
 	// 操作类型过滤
 	if input.Type != nil {
 		modelIns = modelIns.Where(fmt.Sprintf("%s.type = ?", logItem.TableName()), *input.Type)
