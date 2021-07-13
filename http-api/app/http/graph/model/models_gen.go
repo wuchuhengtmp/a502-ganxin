@@ -364,6 +364,15 @@ type GetCompanyUserInput struct {
 	RoleID *int64 `json:"roleId"`
 }
 
+type GetCompnayInfoRes struct {
+	//  教学视频
+	Tutor *FileItem `json:"tutor"`
+	//  微信
+	Wechat string `json:"wechat"`
+	//  电话
+	Phone string `json:"phone"`
+}
+
 //  待入厂详细信息参数
 type GetEnterMaintenanceSteelDetailInput struct {
 	//  识别码

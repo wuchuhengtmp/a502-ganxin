@@ -17,9 +17,30 @@ var configsSeeders =  []seed.Seed{
 	seed.Seed{
 		Name: "create config",
 		Run: func(db *gorm.DB) error {
-			return CreateConfig(db, 1, "PRICE", "1", "型钢单价", CompanyId)
+			return CreateConfig(db, 1, configs.PRICE_NAME, "1", "型钢单价", CompanyId)
 		},
 	},
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 2, configs.TUTOR_FILE_NAME, "7", "教学视频文件", CompanyId)
+		},
+	},
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 3, configs.WECHAT_NAME, "12345678", "微信号", CompanyId)
+		},
+	},
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 4, configs.PHONE_NAME, "12345678901", "电话号", CompanyId)
+		},
+	},
+
+
+
 }
 
 func CreateConfig(db *gorm.DB, id int64,  name string, value string, remark string, companyId int64)  error {

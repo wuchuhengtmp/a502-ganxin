@@ -28,15 +28,18 @@ type Configs struct {
 	gorm.Model
 }
 
-func (Configs)TableName() string {
+func (Configs) TableName() string {
 	return "configs"
 }
 
 const (
-	PRICE_NAME = "PRICE"
+	PRICE_NAME      = "PRICE"       // 价格字段名
+	TUTOR_FILE_NAME = "TUTOR"  // 教学文件字段名
+	WECHAT_NAME     = "WECHAT" // 微信
+	PHONE_NAME      = "PHONE"  // 电话名
 )
 
-func getVal(key string, ctx context.Context) string {
+func GetVal(key string, ctx context.Context) string {
 	var about Configs
 	me := auth.GetUser(ctx)
 	err := model.DB.Model(&Configs{}).Where("name = ? AND company_id  = ?", key, me.CompanyId).First(&about).Error
@@ -47,7 +50,7 @@ func getVal(key string, ctx context.Context) string {
 }
 
 func (c *Configs) GetPrice(ctx context.Context) float64 {
-	v := getVal(PRICE_NAME, ctx)
+	v := GetVal(PRICE_NAME, ctx)
 	s, _ := strconv.ParseFloat(v, 64)
 
 	return s
@@ -66,9 +69,9 @@ func (c *Configs) EditPrice(ctx context.Context) error {
 			return err
 		}
 		l := logs.Logos{
-			Uid: me.Id,
+			Uid:     me.Id,
 			Content: fmt.Sprintf("修改价格: %.4f -> %s", oldPrice, c.Value),
-			Type: logs.UpdateActionType,
+			Type:    logs.UpdateActionType,
 		}
 		if err := tx.Create(&l).Error; err != nil {
 			return err

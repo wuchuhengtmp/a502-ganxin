@@ -192,6 +192,14 @@ input GetSteelDetailFromMaintenance2RepositoryInput {
     """ 规格 """
     specificationId: Int
 }
+type GetCompnayInfoRes {
+    """ 教学视频 """
+    tutor: FileItem!
+    """ 微信 """
+    wechat: String!
+    """ 电话 """
+    phone: String!
+}
 extend type Query {
     """ 获取仓库列表 (auth: repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin) """
     getRepositoryList: [RepositoryItem]! @hasRole(role: [repositoryAdmin, companyAdmin, projectAdmin, maintenanceAdmin])
@@ -221,6 +229,8 @@ extend type Query {
     getSteelFromMaintenance2Repository(input: GetSteelFromMaintenance2RepositoryInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 维修归库详情查询 """
     getSteelDetailFromMaintenance2Repository(input: GetSteelDetailFromMaintenance2RepositoryInput!): GetMaintenanceDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 获取公司信息 """
+    getCompanyInfo:GetCompnayInfoRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
