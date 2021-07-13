@@ -60,7 +60,7 @@ extend type Query {
     """ 获取型钢概览 """
     getSteelSummaryForDashboard(input: GetSteelSummaryForDashboardInput!): GetSteelSummaryForDashboardRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取列表列表(用于仪表盘) """
-    getSteelForDashboard(input: GetSteelForDashboardInput): GetSteelListRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
-    """ 获取项目列表(用于仪表盘) """
-    getProjectListForDashboard: [ProjectItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getSteelForDashboard(input: GetSteelForDashboardInput): GetProjectSteelDetailRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+#    """ 获取项目列表(用于仪表盘) """
+#    getProjectListForDashboard: GetProjectSteelDetailRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }

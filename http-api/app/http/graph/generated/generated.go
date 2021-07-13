@@ -526,7 +526,6 @@ type ComplexityRoot struct {
 		GetPrice                                 func(childComplexity int) int
 		GetProjectDetail                         func(childComplexity int, input model.GetProjectDetailInput) int
 		GetProjectLis                            func(childComplexity int) int
-		GetProjectListForDashboard               func(childComplexity int) int
 		GetProjectOrder2WorkshopDetail           func(childComplexity int, input model.ProjectOrder2WorkshopDetailInput) int
 		GetProjectSpecificationDetail            func(childComplexity int, input model.GetProjectSpecificationDetailInput) int
 		GetProjectStateListForChanged            func(childComplexity int) int
@@ -786,8 +785,7 @@ type QueryResolver interface {
 	GetSummary(ctx context.Context) (*model.GetSummaryRes, error)
 	GetRepositoryListForDashboard(ctx context.Context) ([]*repositories.Repositories, error)
 	GetSteelSummaryForDashboard(ctx context.Context, input model.GetSteelSummaryForDashboardInput) (*model.GetSteelSummaryForDashboardRes, error)
-	GetSteelForDashboard(ctx context.Context, input *model.GetSteelForDashboardInput) (*steels.GetSteelListRes, error)
-	GetProjectListForDashboard(ctx context.Context) ([]*projects.Projects, error)
+	GetSteelForDashboard(ctx context.Context, input *model.GetSteelForDashboardInput) (*projects.GetProjectSteelDetailRes, error)
 	GetDeviceList(ctx context.Context) ([]*devices.Device, error)
 	GetExpressList(ctx context.Context) ([]*codeinfo.CodeInfo, error)
 	GetLogList(ctx context.Context, input model.GetLogListInput) (*logs.GetLogListRes, error)
@@ -3407,13 +3405,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetProjectLis(childComplexity), true
 
-	case "Query.getProjectListForDashboard":
-		if e.complexity.Query.GetProjectListForDashboard == nil {
-			break
-		}
-
-		return e.complexity.Query.GetProjectListForDashboard(childComplexity), true
-
 	case "Query.getProjectOrder2WorkshopDetail":
 		if e.complexity.Query.GetProjectOrder2WorkshopDetail == nil {
 			break
@@ -4578,9 +4569,9 @@ extend type Query {
     """ 获取型钢概览 """
     getSteelSummaryForDashboard(input: GetSteelSummaryForDashboardInput!): GetSteelSummaryForDashboardRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 获取列表列表(用于仪表盘) """
-    getSteelForDashboard(input: GetSteelForDashboardInput): GetSteelListRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
-    """ 获取项目列表(用于仪表盘) """
-    getProjectListForDashboard: [ProjectItem!]! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getSteelForDashboard(input: GetSteelForDashboardInput): GetProjectSteelDetailRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+#    """ 获取项目列表(用于仪表盘) """
+#    getProjectListForDashboard: GetProjectSteelDetailRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }`, BuiltIn: false},
 	{Name: "../devices.graphql", Input: `type DeviceItem {
     id: Int!
@@ -18587,10 +18578,10 @@ func (ec *executionContext) _Query_getSteelForDashboard(ctx context.Context, fie
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*steels.GetSteelListRes); ok {
+		if data, ok := tmp.(*projects.GetProjectSteelDetailRes); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/steels.GetSteelListRes`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/projects.GetProjectSteelDetailRes`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18602,68 +18593,9 @@ func (ec *executionContext) _Query_getSteelForDashboard(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*steels.GetSteelListRes)
+	res := resTmp.(*projects.GetProjectSteelDetailRes)
 	fc.Result = res
-	return ec.marshalNGetSteelListRes2ᚖhttpᚑapiᚋappᚋmodelsᚋsteelsᚐGetSteelListRes(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_getProjectListForDashboard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetProjectListForDashboard(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.HasRole == nil {
-				return nil, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*projects.Projects); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/projects.Projects`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*projects.Projects)
-	fc.Result = res
-	return ec.marshalNProjectItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjectsᚄ(ctx, field.Selections, res)
+	return ec.marshalNGetProjectSteelDetailRes2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐGetProjectSteelDetailRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getDeviceList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -32272,20 +32204,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getSteelForDashboard(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "getProjectListForDashboard":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getProjectListForDashboard(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
