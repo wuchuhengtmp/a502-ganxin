@@ -5066,7 +5066,7 @@ extend type Query {
 """ 标记消息为已读参数 """
 input SetMsgReadedInput {
     """ 消息id """
-    id: Int!
+    idList: [Int!]!
 }
 extend type Mutation  {
     """ 标记消息为已读 """
@@ -29236,11 +29236,11 @@ func (ec *executionContext) unmarshalInputSetMsgReadedInput(ctx context.Context,
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
+		case "idList":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idList"))
+			it.IDList, err = ec.unmarshalNInt2ᚕint64ᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

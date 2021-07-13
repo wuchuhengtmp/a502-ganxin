@@ -802,7 +802,7 @@ type SetMaintenanceSteelStateInput struct {
 //  标记消息为已读参数
 type SetMsgReadedInput struct {
 	//  消息id
-	ID int64 `json:"id"`
+	IDList []int64 `json:"idList"`
 }
 
 //  设置密码的参数

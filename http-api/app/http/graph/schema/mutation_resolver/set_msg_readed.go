@@ -22,7 +22,7 @@ func (*MutationResolver)SetMsgBeRead(ctx context.Context, input graphModel.SetMs
 		return false, errors.ValidateErr(ctx, err)
 	}
 
-	err := model.DB.Model(&msg.Msg{}).Where("id = ?", input.ID).
+	err := model.DB.Model(&msg.Msg{}).Where("id IN ?", input.IDList).
 		Update("is_read", true).
 		Error
 	if err != nil {

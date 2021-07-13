@@ -17,7 +17,7 @@ extend type Query {
 """ 标记消息为已读参数 """
 input SetMsgReadedInput {
     """ 消息id """
-    id: Int!
+    idList: [Int!]!
 }
 extend type Mutation  {
     """ 标记消息为已读 """

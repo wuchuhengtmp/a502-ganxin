@@ -20,13 +20,16 @@ import (
 func ValidateSetMsgBeReadRequest(ctx context.Context, input graphModel.SetMsgReadedInput) error {
 	me := auth.GetUser(ctx)
 	// 检验有没有这条消息
-	err := model.DB.Model(&msg.Msg{}).Where("uid = ?", me.Id).
-		Where("id = ?", input.ID).
-		First(&msg.Msg{}).
-		Error
-	if err != nil && err.Error() == "record not found" {
-		return fmt.Errorf("消息id为: %d 不存在", input.ID)
+	for _, id := range input.IDList {
+		err := model.DB.Model(&msg.Msg{}).Where("uid = ?", me.Id).
+			Where("id = ?", id).
+			First(&msg.Msg{}).
+			Error
+		if err != nil && err.Error() == "record not found" {
+			return fmt.Errorf("消息id为: %d 不存在", id)
+		}
 	}
+
 
 	return nil
 }

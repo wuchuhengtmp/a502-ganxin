@@ -2192,7 +2192,7 @@ func testRepositoryAdminRoleGetMsgUnReadeTotal(t *testing.T) {
 	`
 	v = map[string]interface{}{
 		"input": map[string]interface{}{
-			"id": msgItem.Id,
+			"idList": []int64 {msgItem.Id},
 		},
 	}
 	_, err = graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
