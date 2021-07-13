@@ -1621,6 +1621,22 @@ func TestCompanyRoleGetSteelSummaryForDashboard(t *testing.T) {
 			"repositoryId": 1,
 		},
 	}
-	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 公司管理员获取项目列表（用于仪表盘）集成测试
+ */
+func TestCompanyRoleGetProjectListForDashboard(t *testing.T) {
+	q := `
+		query {
+			  getProjectListForDashboard {
+				id
+				name
+			  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	hasError(t, err)
 }
