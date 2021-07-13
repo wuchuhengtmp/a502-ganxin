@@ -269,8 +269,8 @@ type ComplexityRoot struct {
 	}
 
 	GetSteelSummaryForDashboardRes struct {
-		CrapedPercent      func(childComplexity int) int
-		LostedPercent      func(childComplexity int) int
+		CrappedPercent     func(childComplexity int) int
+		LostPercent        func(childComplexity int) int
 		MaintainingPercent func(childComplexity int) int
 		StoredPercent      func(childComplexity int) int
 		UsingPercent       func(childComplexity int) int
@@ -1606,19 +1606,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GetSteelListRes.Total(childComplexity), true
 
-	case "GetSteelSummaryForDashboardRes.crapedPercent":
-		if e.complexity.GetSteelSummaryForDashboardRes.CrapedPercent == nil {
+	case "GetSteelSummaryForDashboardRes.crappedPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.CrappedPercent == nil {
 			break
 		}
 
-		return e.complexity.GetSteelSummaryForDashboardRes.CrapedPercent(childComplexity), true
+		return e.complexity.GetSteelSummaryForDashboardRes.CrappedPercent(childComplexity), true
 
-	case "GetSteelSummaryForDashboardRes.lostedPercent":
-		if e.complexity.GetSteelSummaryForDashboardRes.LostedPercent == nil {
+	case "GetSteelSummaryForDashboardRes.lostPercent":
+		if e.complexity.GetSteelSummaryForDashboardRes.LostPercent == nil {
 			break
 		}
 
-		return e.complexity.GetSteelSummaryForDashboardRes.LostedPercent(childComplexity), true
+		return e.complexity.GetSteelSummaryForDashboardRes.LostPercent(childComplexity), true
 
 	case "GetSteelSummaryForDashboardRes.maintainingPercent":
 		if e.complexity.GetSteelSummaryForDashboardRes.MaintainingPercent == nil {
@@ -4526,9 +4526,9 @@ type GetSteelSummaryForDashboardRes {
     """ 维修中 """
     maintainingPercent: Float!
     """ 报废 """
-    crapedPercent: Float!
+    crappedPercent: Float!
     """ 丢失 """
-    lostedPercent: Float!
+    lostPercent: Float!
     """ 在库 """
     storedPercent: Float!
 }
@@ -11060,7 +11060,7 @@ func (ec *executionContext) _GetSteelSummaryForDashboardRes_maintainingPercent(c
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GetSteelSummaryForDashboardRes_crapedPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_crappedPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -11078,7 +11078,7 @@ func (ec *executionContext) _GetSteelSummaryForDashboardRes_crapedPercent(ctx co
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CrapedPercent, nil
+		return obj.CrappedPercent, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11095,7 +11095,7 @@ func (ec *executionContext) _GetSteelSummaryForDashboardRes_crapedPercent(ctx co
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GetSteelSummaryForDashboardRes_lostedPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
+func (ec *executionContext) _GetSteelSummaryForDashboardRes_lostPercent(ctx context.Context, field graphql.CollectedField, obj *model.GetSteelSummaryForDashboardRes) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -11113,7 +11113,7 @@ func (ec *executionContext) _GetSteelSummaryForDashboardRes_lostedPercent(ctx co
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.LostedPercent, nil
+		return obj.LostPercent, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30495,13 +30495,13 @@ func (ec *executionContext) _GetSteelSummaryForDashboardRes(ctx context.Context,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "crapedPercent":
-			out.Values[i] = ec._GetSteelSummaryForDashboardRes_crapedPercent(ctx, field, obj)
+		case "crappedPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_crappedPercent(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "lostedPercent":
-			out.Values[i] = ec._GetSteelSummaryForDashboardRes_lostedPercent(ctx, field, obj)
+		case "lostPercent":
+			out.Values[i] = ec._GetSteelSummaryForDashboardRes_lostPercent(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

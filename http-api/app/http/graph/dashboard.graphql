@@ -31,9 +31,9 @@ type GetSteelSummaryForDashboardRes {
     """ 维修中 """
     maintainingPercent: Float!
     """ 报废 """
-    crapedPercent: Float!
+    crappedPercent: Float!
     """ 丢失 """
-    lostedPercent: Float!
+    lostPercent: Float!
     """ 在库 """
     storedPercent: Float!
 }

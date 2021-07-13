@@ -1601,3 +1601,26 @@ func TestCompanyAdminRoleGetRepositoryDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 公司管理员获取仓库列表（用于仪表盘）集成测试
+ */
+func TestCompanyRoleGetSteelSummaryForDashboard(t *testing.T) {
+	q := `
+		query ($input: GetSteelSummaryForDashboardInput!){
+		  getSteelSummaryForDashboard(input: $input){
+			crappedPercent # 报废
+			lostPercent # 丢失
+			maintainingPercent # 维修中
+			storedPercent # 在库
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
+			"repositoryId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	hasError(t, err)
+}

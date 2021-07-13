@@ -24,7 +24,7 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 		return nil, errors.ValidateErr(ctx, err)
 	}
 	getModelIn := func() *gorm.DB {
-		modelIn := model.DB.Debug().Model(&steels.Steels{})
+		modelIn := model.DB.Model(&steels.Steels{})
 		// 指定仓库
 		if input.RepositoryID != nil {
 			modelIn = modelIn.Where("repository_id = ?", *input.RepositoryID)
@@ -79,7 +79,7 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.CrapedPercent = float64(scraping) / float64(total)
+	res.CrappedPercent = float64(scraping) / float64(total)
 	// 丢失
 	var losting int64
 	err =getModelIn().Where("state IN ?", []int64{
@@ -88,7 +88,7 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.LostedPercent = float64(losting) / float64(total)
+	res.LostPercent = float64(losting) / float64(total)
 	// 在库
 	var storing int64
 	err =getModelIn().Where("state IN ?", []int64{

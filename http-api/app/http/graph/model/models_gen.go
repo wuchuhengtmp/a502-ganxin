@@ -605,9 +605,9 @@ type GetSteelSummaryForDashboardRes struct {
 	//  维修中
 	MaintainingPercent float64 `json:"maintainingPercent"`
 	//  报废
-	CrapedPercent float64 `json:"crapedPercent"`
+	CrappedPercent float64 `json:"crappedPercent"`
 	//  丢失
-	LostedPercent float64 `json:"lostedPercent"`
+	LostPercent float64 `json:"lostPercent"`
 	//  在库
 	StoredPercent float64 `json:"storedPercent"`
 }
