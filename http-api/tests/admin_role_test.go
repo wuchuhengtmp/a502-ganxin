@@ -293,18 +293,76 @@ func TestAdminRoleGetSteelSummaryForDashboard(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+///**
+// * 超级管理员获取项目列表（用于仪表盘）集成测试
+// */
+//func TestAdminRoleGetProjectListForDashboard(t *testing.T) {
+//	q := `
+//		query {
+//			  getProjectListForDashboard {
+//				id
+//				name
+//			  }
+//		}
+//	`
+//	_, err := graphReqClient(q, v, roles.RoleAdmin)
+//	hasError(t, err)
+//}
+
 /**
- * 超级管理员获取项目列表（用于仪表盘）集成测试
+ * 超级管理员获取项目型钢列表（用于仪表盘）集成测试
  */
-func TestAdminRoleGetProjectListForDashboard(t *testing.T) {
+func TestAdminRoleGetSteelForDashboard(t *testing.T) {
 	q := `
-		query {
-			  getProjectListForDashboard {
-				id
-				name
+		##
+		# 更新时间和操作人字段不要 项目过滤也不要了
+		##
+		query ($input: GetSteelForDashboardInput){
+		  getSteelForDashboard(input: $input) {
+			list {
+			  id
+			  orderSpecification {
+				order {
+				  orderNo # 订单号
+				  project {
+					name # 项目名
+				  }
+				}
 			  }
+			  steel {
+				repository {
+				  name # 仓库名
+				}
+				specifcation {
+				  specification # 规格
+				}
+				stateInfo {
+				  state 
+				  desc # 当前状态
+				}
+			  }
+			  stateInfo { # 使用状态
+				state 
+				desc # 使用状态 
+			  }
+			  locationCode # 安装编码
+			  enterWorkshopAt # 入场时间
+			  outWorkshopAt # 出场时间
+			  enterRepositoryAt # 归库时间
+			   
+			}
+			total # 总量
+		  }
 		}
 	`
+
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"page": 1,
+			"pageSize": 10,
+			"repositoryId": 1,
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
