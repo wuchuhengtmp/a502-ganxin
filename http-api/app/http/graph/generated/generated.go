@@ -417,6 +417,7 @@ type ComplexityRoot struct {
 		SetBatchOfMaintenanceSteel        func(childComplexity int, input model.SetBatchOfMaintenanceSteelInput) int
 		SetBatchOfRepositorySteel         func(childComplexity int, input model.SetBatchOfRepositorySteelInput) int
 		SetBatchOfRepositorySteelScrap    func(childComplexity int, input model.SetBatchOfRepositorySteelScrapInput) int
+		SetCompanyInfo                    func(childComplexity int, input model.SetCompanyInfoInput) int
 		SetEnterMaintenance               func(childComplexity int, input model.SetMaintenanceInput) int
 		SetMaintenanceSteelState          func(childComplexity int, input model.SetMaintenanceSteelStateInput) int
 		SetMsgBeRead                      func(childComplexity int, input model.SetMsgReadedInput) int
@@ -712,6 +713,7 @@ type MutationResolver interface {
 	CreateCompany(ctx context.Context, input model.CreateCompanyInput) (*companies.Companies, error)
 	EditCompany(ctx context.Context, input model.EditCompanyInput) (*companies.Companies, error)
 	DeleteCompany(ctx context.Context, id int64) (bool, error)
+	SetCompanyInfo(ctx context.Context, input model.SetCompanyInfoInput) (*model.GetCompnayInfoRes, error)
 	CreateCompanyUser(ctx context.Context, input model.CreateCompanyUserInput) (*users.Users, error)
 	EditCompanyUser(ctx context.Context, input *model.EditCompanyUserInput) (*users.Users, error)
 	DeleteCompanyUser(ctx context.Context, uid int64) (bool, error)
@@ -2561,6 +2563,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetBatchOfRepositorySteelScrap(childComplexity, args["input"].(model.SetBatchOfRepositorySteelScrapInput)), true
+
+	case "Mutation.setCompanyInfo":
+		if e.complexity.Mutation.SetCompanyInfo == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setCompanyInfo_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetCompanyInfo(childComplexity, args["input"].(model.SetCompanyInfoInput)), true
 
 	case "Mutation.setEnterMaintenance":
 		if e.complexity.Mutation.SetEnterMaintenance == nil {
@@ -4577,6 +4591,14 @@ input EditCompanyInput {
     adminAvatarFileId: Int!
 }
 
+input SetCompanyInfoInput {
+    """ 视频文件id """
+    tutorFileId: Int!
+    """ 微信 """
+    wechat: String!
+    """ 客服 """
+    phone: String!
+}
 extend type Mutation {
     """ 创建公司 (auth: admin) """
     createCompany(input: CreateCompanyInput!): CompanyItem! @hasRole(role: [admin])
@@ -4584,6 +4606,8 @@ extend type Mutation {
     editCompany(input: EditCompanyInput!): CompanyItem! @hasRole(role: [admin, companyAdmin])
     """ 删除公司 (auth: admin) """
     deleteCompany(id: Int!): Boolean! @hasRole(role: [admin])
+    """ 设置公司信息 """
+    setCompanyInfo(input: SetCompanyInfoInput!): GetCompnayInfoRes! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {
@@ -6859,6 +6883,21 @@ func (ec *executionContext) field_Mutation_setBatchOfRepositorySteel_args(ctx co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSetBatchOfRepositorySteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetBatchOfRepositorySteelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setCompanyInfo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetCompanyInfoInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetCompanyInfoInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetCompanyInfoInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -13925,6 +13964,72 @@ func (ec *executionContext) _Mutation_deleteCompany(ctx context.Context, field g
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setCompanyInfo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setCompanyInfo_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetCompanyInfo(rctx, args["input"].(model.SetCompanyInfoInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.GetCompnayInfoRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.GetCompnayInfoRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetCompnayInfoRes)
+	fc.Result = res
+	return ec.marshalNGetCompnayInfoRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCompnayInfoRes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createCompanyUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -30095,6 +30200,42 @@ func (ec *executionContext) unmarshalInputSetBatchOfRepositorySteelScrapInput(ct
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetCompanyInfoInput(ctx context.Context, obj interface{}) (model.SetCompanyInfoInput, error) {
+	var it model.SetCompanyInfoInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "tutorFileId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tutorFileId"))
+			it.TutorFileID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "wechat":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wechat"))
+			it.Wechat, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetMaintenanceInput(ctx context.Context, obj interface{}) (model.SetMaintenanceInput, error) {
 	var it model.SetMaintenanceInput
 	var asMap = obj.(map[string]interface{})
@@ -32336,6 +32477,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteCompany":
 			out.Values[i] = ec._Mutation_deleteCompany(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setCompanyInfo":
+			out.Values[i] = ec._Mutation_setCompanyInfo(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -37354,6 +37500,11 @@ func (ec *executionContext) unmarshalNSetBatchOfRepositorySteelInput2httpᚑapi�
 
 func (ec *executionContext) unmarshalNSetBatchOfRepositorySteelScrapInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetBatchOfRepositorySteelScrapInput(ctx context.Context, v interface{}) (model.SetBatchOfRepositorySteelScrapInput, error) {
 	res, err := ec.unmarshalInputSetBatchOfRepositorySteelScrapInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetCompanyInfoInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetCompanyInfoInput(ctx context.Context, v interface{}) (model.SetCompanyInfoInput, error) {
+	res, err := ec.unmarshalInputSetCompanyInfoInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -101,6 +101,14 @@ input EditCompanyInput {
     adminAvatarFileId: Int!
 }
 
+input SetCompanyInfoInput {
+    """ 视频文件id """
+    tutorFileId: Int!
+    """ 微信 """
+    wechat: String!
+    """ 客服 """
+    phone: String!
+}
 extend type Mutation {
     """ 创建公司 (auth: admin) """
     createCompany(input: CreateCompanyInput!): CompanyItem! @hasRole(role: [admin])
@@ -108,6 +116,8 @@ extend type Mutation {
     editCompany(input: EditCompanyInput!): CompanyItem! @hasRole(role: [admin, companyAdmin])
     """ 删除公司 (auth: admin) """
     deleteCompany(id: Int!): Boolean! @hasRole(role: [admin])
+    """ 设置公司信息 """
+    setCompanyInfo(input: SetCompanyInfoInput!): GetCompnayInfoRes! @hasRole(role: [companyAdmin])
 }
 
 extend type Query {

@@ -841,6 +841,15 @@ type SetBatchOfRepositorySteelScrapInput struct {
 	IdentifierList []string `json:"identifierList"`
 }
 
+type SetCompanyInfoInput struct {
+	//  视频文件id
+	TutorFileID int64 `json:"tutorFileId"`
+	//  微信
+	Wechat string `json:"wechat"`
+	//  客服
+	Phone string `json:"phone"`
+}
+
 // " 型钢入厂参数
 type SetMaintenanceInput struct {
 	IdentifierList []string `json:"identifierList"`
