@@ -64,8 +64,30 @@ var configsSeeders =  []seed.Seed{
 			return CreateConfig(db, 8, configs.SMS_TEMPLATECODE, "SMS_215455029", "短信模板", 0)
 		},
 	},
-
-
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 9, configs.GLOBAL_PRICE_NAME, "1", "用于初始化型钢单价", 0)
+		},
+	},
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 10, configs.GLOBAL_TUTOR_FILE_NAME, "7", "用于初始化教学视频文件",0)
+		},
+	},
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 11, configs.GLOBAL_WECHAT_NAME, "12345678", "初始化微信号", 0)
+		},
+	},
+	seed.Seed{
+		Name: "create config",
+		Run: func(db *gorm.DB) error {
+			return CreateConfig(db, 12, configs.GLOBAL_PHONE_NAME, "12345678901", "初始化电话号", 0)
+		},
+	},
 
 }
 

@@ -33,14 +33,18 @@ func (Configs) TableName() string {
 }
 
 const (
-	PRICE_NAME            = "PRICE"                 // 价格字段名
-	TUTOR_FILE_NAME       = "TUTOR"                 // 教学文件字段名
-	WECHAT_NAME           = "WECHAT"                // 微信
-	PHONE_NAME            = "PHONE"                 // 电话名
-	SMS_SIGN              = "SMS_SIGN"              // 短信签名
-	SMS_TEMPLATECODE      = "SMS_TEMPLATECODE"      // 短信模板
-	SMS_ACCESS_KEY        = "SMS_ACCESS_KEY"        // 短信密钥
-	SMS_ACCESS_SECRET_KEY = "SMS_ACCESS_SECRET_KEY" // 短信密钥
+	PRICE_NAME             = "PRICE"                  // 价格字段名
+	TUTOR_FILE_NAME        = "TUTOR"                  // 教学文件字段名
+	WECHAT_NAME            = "WECHAT"                 // 微信
+	PHONE_NAME             = "PHONE"                  // 电话名
+	SMS_SIGN               = "SMS_SIGN"               // 短信签名
+	SMS_TEMPLATECODE       = "SMS_TEMPLATECODE"       // 短信模板
+	SMS_ACCESS_KEY         = "SMS_ACCESS_KEY"         // 短信密钥
+	SMS_ACCESS_SECRET_KEY  = "SMS_ACCESS_SECRET_KEY"  // 短信密钥
+	GLOBAL_PRICE_NAME      = "Global_PRICE_NAME"      // 用于初始化价格
+	GLOBAL_TUTOR_FILE_NAME = "GLOVAL_TUTOR_FILE_NAME" // 用于初始化教学文件
+	GLOBAL_WECHAT_NAME     = "GLOBAL_WECHAT_NAME"     // 用于初始化微信
+	GLOBAL_PHONE_NAME      = "GLOBAL_PHONE_NAME"      // 用于初始化公司的客户电话
 )
 
 func GetVal(key string, ctx context.Context) string {

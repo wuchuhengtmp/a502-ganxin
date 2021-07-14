@@ -25,52 +25,6 @@ import (
 )
 
 /**
- * 添加一家公司
- */
-func (c *Companies) CreateSelf(ctx context.Context, input graphQL.CreateCompanyInput) (err error) {
-	startedAt, _ := helper.Str2Time(input.StartedAt)
-	endedAt, _ := helper.Str2Time(input.EndedAt)
-	c.Name = input.Name
-	c.PinYin = input.PinYin
-	c.Symbol = input.Symbol
-	c.LogoFileId = int64(input.LogoFileID)
-	c.BackgroundFileId = int64(input.BackgroundFileID)
-	c.IsAble = input.IsAble
-	c.Phone = input.Phone
-	c.Wechat = input.Wechat
-	c.StartedAt = startedAt
-	c.EndedAt = endedAt
-	return model.DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&c).Error; err != nil {
-			return err
-		}
-		me := auth.GetUser(ctx)
-		logsModel := logs.Logos{}
-		logsModel.Type = logs.CreateActionType
-		logsModel.Uid = me.Id
-		user := users.Users{
-			Name:         input.AdminName,
-			Password:     helper2.GetHashByStr(input.AdminPassword),
-			Phone:        input.AdminPhone,
-			RoleId:       roles.RoleCompanyAdminId,
-			Wechat:       input.AdminWechat,
-			CompanyId:    c.ID,
-			IsAble:       true,
-			AvatarFileId: input.AdminAvatarFileID,
-		}
-		logsModel.Content = fmt.Sprintf("添加公司,名称:%s,ID: %d", c.Name, c.ID)
-		if err := tx.Create(&logsModel).Error; err != nil {
-			return err
-		}
-		if err := tx.Create(&user).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-}
-
-/**
  * 获取公司的管理员
  */
 func (c *Companies) GetAdmin() (user users.Users, err error) {
