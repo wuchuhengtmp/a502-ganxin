@@ -184,21 +184,23 @@ func (*SetSteelIntoWorkshopSteps) ChangeExpressState(tx *gorm.DB, ctx context.Co
 	if err != nil {
 		return err
 	}
-	expressItem := order_express.OrderExpress{}
-	err = tx.Model(&expressItem).Where("id = ?", orderSpecificationSteelItem.ToWorkshopExpressId).
-		First(&expressItem).
-		Error
-	if err != nil {
-		return err
-	}
-	me := auth.GetUser(ctx)
-	expressItem.ReceiveUid = me.Id
-	expressItem.ReceiveAt = time.Now()
-	if err := tx.Model(&expressItem).Where("id = ?", expressItem.Id).Update("receive_uid", me.Id).Error; err != nil {
-		return err
-	}
-	if err := tx.Model(&expressItem).Where("id = ?", expressItem.Id).Update("receive_at", time.Now()).Error; err != nil {
-		return err
+	if orderSpecificationSteelItem.ToWorkshopExpressId != 0 {
+		expressItem := order_express.OrderExpress{}
+		err = tx.Model(&expressItem).Where("id = ?", orderSpecificationSteelItem.ToWorkshopExpressId).
+			First(&expressItem).
+			Error
+		if err != nil {
+			return err
+		}
+		me := auth.GetUser(ctx)
+		expressItem.ReceiveUid = me.Id
+		expressItem.ReceiveAt = time.Now()
+		if err := tx.Model(&expressItem).Where("id = ?", expressItem.Id).Update("receive_uid", me.Id).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&expressItem).Where("id = ?", expressItem.Id).Update("receive_at", time.Now()).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil

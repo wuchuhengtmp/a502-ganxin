@@ -46,9 +46,12 @@ func (*MutationResolver) SetProjectOrder2Workshop(ctx context.Context, input gra
 	err = model.DB.Transaction(func(tx *gorm.DB) error {
 		steps := SetProjectOrder2WorkshopSteps{}
 		// 创建订单物流
-		orderExpress, err := steps.CreateExpressOrder(tx, ctx, input)
-		if err != nil {
-			return err
+		var orderExpress *order_express.OrderExpress
+		if input.ExpressNo != nil && input.ExpressCompanyID != nil {
+			orderExpress, err = steps.CreateExpressOrder(tx, ctx, input)
+			if err != nil {
+				return err
+			}
 		}
 		var steelsList []*steels.Steels
 		err = tx.Model(&steels.Steels{}).Where("identifier in ?", input.IdentifierList).Find(&steelsList).Error
@@ -107,8 +110,8 @@ func (*SetProjectOrder2WorkshopSteps) CreateExpressOrder(tx *gorm.DB, ctx contex
 	me := auth.GetUser(ctx)
 	orderExpress := order_express.OrderExpress{
 		OrderId:          input.OrderID,
-		ExpressCompanyId: input.ExpressCompanyID,
-		ExpressNo:        input.ExpressNo,
+		ExpressCompanyId: *input.ExpressCompanyID,
+		ExpressNo:        *input.ExpressNo,
 		SenderUid:        me.Id,
 		CompanyId:        me.CompanyId,
 		Direction:        order_express.OrderExpressDirectionToWorkshop,
@@ -138,10 +141,12 @@ func (*SetProjectOrder2WorkshopSteps) CreateOrderSpecificationSteel(
 	orderSpecificationSteel := order_specification_steel.OrderSpecificationSteel{
 		SteelId:              steelItem.ID,
 		OrderSpecificationId: orderSpecificationRecord.Id,
-		ToWorkshopExpressId:  orderExpress.Id,
 		State: steels.StateRepository2Project,
 		OutRepositoryAt:      time.Now(),
 		OutOfRepositoryUid:   me.Id,
+	}
+	if orderExpress != nil {
+		orderSpecificationSteel.ToWorkshopExpressId = orderExpress.Id
 	}
 	err = tx.Create(&orderSpecificationSteel).Error
 

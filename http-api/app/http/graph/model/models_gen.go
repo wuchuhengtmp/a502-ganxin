@@ -784,9 +784,9 @@ type ProjectOrder2WorkshopInput struct {
 	//  订单id
 	OrderID int64 `json:"orderId"`
 	//  物流公司id
-	ExpressCompanyID int64 `json:"expressCompanyId"`
+	ExpressCompanyID *int64 `json:"expressCompanyId"`
 	//  物流编号
-	ExpressNo string `json:"expressNo"`
+	ExpressNo *string `json:"expressNo"`
 }
 
 // " 待修改武钢详细信息请求参数

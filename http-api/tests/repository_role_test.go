@@ -1399,8 +1399,6 @@ func testRepositoryAdminRoleSetProjectOrder2Workshop(t *testing.T) {
 	`
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
-			"expressCompanyId": 17,
-			"expressNo":        "124333123",
 			"identifierList": []string{
 				"8",
 			},

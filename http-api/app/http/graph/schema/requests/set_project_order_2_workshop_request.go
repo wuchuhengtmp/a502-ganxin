@@ -58,16 +58,15 @@ type ValidateSetProjectOrder2WorkshopRequestSteps struct{}
 func (ValidateSetProjectOrder2WorkshopRequestSteps) CheckExpress(ctx context.Context, input graphModel.ProjectOrder2WorkshopInput) error {
 	me := auth.GetUser(ctx)
 	express := codeinfo.CodeInfo{}
-	err := model.DB.Model(&express).Where("company_id = ?", me.CompanyId).
-		Where("type = ?", codeinfo.ExpressCompany).
-		Where("id = ?", input.ExpressCompanyID).
-		First(&express).
-		Error
-	if err != nil {
-		return fmt.Errorf("没有物流公司id为:%d的物流公司", input.ExpressCompanyID)
-	}
-	if len(input.ExpressNo) == 0 {
-		return fmt.Errorf("物流编号不能为空")
+	if input.ExpressCompanyID != nil {
+		err := model.DB.Model(&express).Where("company_id = ?", me.CompanyId).
+			Where("type = ?", codeinfo.ExpressCompany).
+			Where("id = ?", input.ExpressCompanyID).
+			First(&express).
+			Error
+		if err != nil {
+			return fmt.Errorf("没有物流公司id为:%d的物流公司", input.ExpressCompanyID)
+		}
 	}
 
 	return nil

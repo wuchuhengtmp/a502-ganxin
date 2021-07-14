@@ -5456,9 +5456,9 @@ input ProjectOrder2WorkshopInput {
     """ 订单id """
     orderId: Int!
     """ 物流公司id """
-    expressCompanyId: Int!
+    expressCompanyId: Int
     """ 物流编号 """
-    expressNo: String!
+    expressNo: String
 }
 """ 获取送往场地的型钢订单列表详情响应格式 """
 type GetSend2WorkshopOrderListDetailRes {
@@ -30020,7 +30020,7 @@ func (ec *executionContext) unmarshalInputProjectOrder2WorkshopInput(ctx context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expressCompanyId"))
-			it.ExpressCompanyID, err = ec.unmarshalNInt2int64(ctx, v)
+			it.ExpressCompanyID, err = ec.unmarshalOInt2ᚖint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -30028,7 +30028,7 @@ func (ec *executionContext) unmarshalInputProjectOrder2WorkshopInput(ctx context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expressNo"))
-			it.ExpressNo, err = ec.unmarshalNString2string(ctx, v)
+			it.ExpressNo, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

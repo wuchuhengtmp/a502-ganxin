@@ -200,9 +200,9 @@ input ProjectOrder2WorkshopInput {
     """ 订单id """
     orderId: Int!
     """ 物流公司id """
-    expressCompanyId: Int!
+    expressCompanyId: Int
     """ 物流编号 """
-    expressNo: String!
+    expressNo: String
 }
 """ 获取送往场地的型钢订单列表详情响应格式 """
 type GetSend2WorkshopOrderListDetailRes {
