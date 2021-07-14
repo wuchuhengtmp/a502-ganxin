@@ -6022,7 +6022,7 @@ extend type Query {
     """ 维修归库详情查询 """
     getSteelDetailFromMaintenance2Repository(input: GetSteelDetailFromMaintenance2RepositoryInput!): GetMaintenanceDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取公司信息 """
-    getCompanyInfo:GetCompnayInfoRes! @hasRole(role: [ admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getCompanyInfo:GetCompnayInfoRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
@@ -23396,7 +23396,7 @@ func (ec *executionContext) _Query_getCompanyInfo(ctx context.Context, field gra
 			return ec.resolvers.Query().GetCompanyInfo(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
 			if err != nil {
 				return nil, err
 			}
