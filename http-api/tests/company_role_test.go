@@ -1699,7 +1699,7 @@ func TestRepositoryRoleGetSteelForDashboard(t *testing.T) {
 	assert.NoError(t, err)
 }
 /**
- * 仓库管理员获取公司信息集成测试
+ * 公司管理员获取公司信息集成测试
  */
 func TestRepositoryRoleGetCompanyInfo(t *testing.T) {
 	q := `
@@ -1713,6 +1713,33 @@ func TestRepositoryRoleGetCompanyInfo(t *testing.T) {
 		  }
 		}
 	`
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 公司管理员设置公司信息集成测试
+ */
+func TestRepositoryRoleSetCompanyInfo(t *testing.T) {
+	q := `
+		mutation ($input: SetCompanyInfoInput!) {
+			setCompanyInfo(input: $input) {
+			  tutor{
+				id
+				url
+			  }
+			  wechat
+			  phone
+			}
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"phone": "1",
+			"tutorFileId": 1,
+			"wechat": "2",
+		},
+	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
