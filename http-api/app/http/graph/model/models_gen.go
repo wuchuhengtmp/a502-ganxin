@@ -889,6 +889,18 @@ type SetProjectSteelOutOfWorkshopInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  设置短信配置参数
+type SetSMSConfigInput struct {
+	//  短信 accessKey
+	AccessKey string `json:"accessKey"`
+	//  短信 accessScriptkey
+	AccessSecretKey string `json:"accessSecretKey"`
+	//  签名
+	Sign string `json:"sign"`
+	//  模板
+	Template string `json:"template"`
+}
+
 //  型钢出厂参数
 type SetSteelForOutOfMaintenanceInput struct {
 	//  识别码列表

@@ -387,3 +387,20 @@ func TestAdminRoleForgetPassword(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+/**
+ * 超级管理员获取短信配置集成测试
+ */
+func TestAdminRoleGetSMSConfig(t *testing.T) {
+	q := `
+		query {
+		  getSMSConfig {
+			accessKey # 短信accesskey 
+			accessSecretKey  # 短信accessSecreptkey 
+			sign # 签名
+			template # 模板
+		  }
+		}
+	`
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	hasError(t, err)
+}

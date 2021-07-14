@@ -15,11 +15,24 @@ input ResetPasswordInput {
     """ 新密码 """
     newPassword: String!
 }
+""" 设置短信配置参数 """
+input SetSMSConfigInput {
+    """ 短信 accessKey """
+    accessKey: String!
+    """ 短信 accessScriptkey """
+    accessSecretKey: String!
+    """ 签名 """
+    sign: String!
+    """ 模板 """
+    template: String!
+}
 extend type Mutation {
     """ 获取验证码 """
     createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes!
     """ 重置密码 """
     resetPassword(input: ResetPasswordInput!): Boolean!
+    """ 设置短信配置 """
+    setSMSConfig(input: SetSMSConfigInput!):GetSMSConfigRes! @hasRole(role: [admin])
 }
 """ 获取短信配置响应数据 """
 type GetSMSConfigRes {

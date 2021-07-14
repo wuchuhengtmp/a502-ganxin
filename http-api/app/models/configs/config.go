@@ -41,7 +41,7 @@ const (
 	SMS_TEMPLATECODE       = "SMS_TEMPLATECODE"       // 短信模板
 	SMS_ACCESS_KEY         = "SMS_ACCESS_KEY"         // 短信密钥
 	SMS_ACCESS_SECRET_KEY  = "SMS_ACCESS_SECRET_KEY"  // 短信密钥
-	GLOBAL_PRICE_NAME      = "Global_PRICE_NAME"      // 用于初始化价格
+	GLOBAL_PRICE_NAME      = "GLOBAL_PRICE_NAME"      // 用于初始化价格
 	GLOBAL_TUTOR_FILE_NAME = "GLOVAL_TUTOR_FILE_NAME" // 用于初始化教学文件
 	GLOBAL_WECHAT_NAME     = "GLOBAL_WECHAT_NAME"     // 用于初始化微信
 	GLOBAL_PHONE_NAME      = "GLOBAL_PHONE_NAME"      // 用于初始化公司的客户电话
