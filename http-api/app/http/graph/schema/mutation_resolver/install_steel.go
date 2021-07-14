@@ -20,6 +20,7 @@ import (
 	"http-api/app/models/steel_logs"
 	"http-api/app/models/steels"
 	"http-api/pkg/model"
+	"time"
 )
 
 func (*MutationResolver) InstallSteel(ctx context.Context, input graphModel.InstallLocationInput) (bool, error) {
@@ -73,6 +74,8 @@ func (*InstallSteelSteps)UpdateOrderSpecificationSteel(tx *gorm.DB, ctx context.
 		Update("installation_uid", me.Id).
 		// 订单中型钢状态标记为使用中...
 		Update("state", steels.StateProjectInUse).
+		// 安装时间
+		Update("installation_at", time.Now()).
 		Error
 	if err != nil {
 		return err

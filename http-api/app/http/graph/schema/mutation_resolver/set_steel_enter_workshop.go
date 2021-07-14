@@ -99,7 +99,7 @@ func (*SetSteelIntoWorkshopSteps) FlatSteel(tx *gorm.DB, ctx context.Context, in
 			// 标记项目订单规格中的型钢的状态--待使用
 			Update("state", steels.StateProjectWillBeUsed).
 			// 入场时间
-			Update("enter_workshop_at", orderSpecificationSteelItem.EnterRepositoryAt).
+			Update("enter_workshop_at", orderSpecificationSteelItem.EnterWorkshopAt).
 			Error
 		if err != nil {
 			return err

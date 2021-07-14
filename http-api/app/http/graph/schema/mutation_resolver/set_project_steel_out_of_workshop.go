@@ -55,7 +55,9 @@ func (*MutationResolver) SetProjectSteelOutOfWorkshop(ctx context.Context, input
 			orderSpecificationSteelItem := order_specification_steel.OrderSpecificationSteel{}
 			err = tx.Model(&orderSpecificationSteelItem).
 				Where("id = ?", steelItem.OrderSpecificationSteelId).
-				Update("state", steels.StateProjectOnTheStoreWay).Error
+				Update("state", steels.StateProjectOnTheStoreWay).
+				Update("out_workshop_at", time.Now()).
+				Error
 			if err != nil {
 				return err
 			}
