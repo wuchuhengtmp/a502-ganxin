@@ -57,7 +57,7 @@ var codeInfoSeeds = []seed.Seed{
 	seed.Seed{
 		Name: "create codeInfo",
 		Run: func(db *gorm.DB) error {
-			return createCodeInfo( db, 7, codeinfo.ExpressCompany, "运输公司xxx", true, "这是备注1", 0)
+			return createCodeInfo( db, 7, codeinfo.ExpressCompany, "运输公司xxx", true, "这是备注1", CompanyId)
 		},
 	},
 

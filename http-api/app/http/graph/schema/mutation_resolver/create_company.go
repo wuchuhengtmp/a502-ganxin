@@ -17,10 +17,12 @@ import (
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
 	"http-api/app/http/graph/util/helper"
+	"http-api/app/models/codeinfo"
 	"http-api/app/models/companies"
 	"http-api/app/models/configs"
 	"http-api/app/models/logs"
 	"http-api/app/models/roles"
+	"http-api/app/models/specificationinfo"
 	"http-api/app/models/users"
 	helper2 "http-api/pkg/helper"
 	"http-api/pkg/model"
@@ -45,6 +47,14 @@ func (m *MutationResolver) CreateCompany(ctx context.Context, input graphModel.C
 		c = *newCompany
 		// 初始始化配置
 		if err := steps.CreateConfig(tx); err != nil {
+			return err
+		}
+		// 初始始化规格
+		if err := steps.InitSpecification(tx); err != nil {
+			return err
+		}
+		// 初始化码表
+		if err := steps.InitCodeInfo(tx); err != nil {
 			return err
 		}
 
@@ -145,6 +155,73 @@ func (c CreateCompanySteps) CreateConfig(tx *gorm.DB) error {
 	// 初始化公司价格
 	if err := initConfigByKeyName(configs.GLOBAL_PRICE_NAME, configs.PRICE_NAME, "型钢价格"); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+/**
+ * 初始化规格
+ */
+func (c CreateCompanySteps) InitSpecification(tx *gorm.DB) error {
+	var specificationList []specificationinfo.SpecificationInfo
+	specificationList = append(specificationList, specificationinfo.SpecificationInfo{
+		Type:      "2H500×200×10×16",
+		Length:    0.016,
+		Weight:    0.1,
+		IsDefault: true,
+		CompanyId: c.ID,
+	})
+	for _, item := range specificationList {
+		if err := tx.Create(&item).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/**
+ * 初始化码表信息
+ */
+func (c CreateCompanySteps) InitCodeInfo(tx *gorm.DB) error {
+	var codeInfoList []codeinfo.CodeInfo
+	codeInfoList = append(codeInfoList, codeinfo.CodeInfo{
+		Type:      "MaterialManufacturer",
+		Name:      "兴达工业",
+		IsDefault: true,
+		CompanyId: c.ID,
+	})
+
+	codeInfoList = append(codeInfoList, codeinfo.CodeInfo{
+		Type:      "MaterialManufacturer",
+		Name:      "长洲工业",
+		IsDefault: false,
+		CompanyId: c.ID,
+	})
+	codeInfoList = append(codeInfoList, codeinfo.CodeInfo{
+		Type:      "MaterialManufacturer",
+		Name:      "北建工业",
+		IsDefault: false,
+		CompanyId: c.ID,
+	})
+	codeInfoList = append(codeInfoList, codeinfo.CodeInfo{
+		Type:      "Manufacturer",
+		Name:      "制作厂商1",
+		IsDefault: true,
+		CompanyId: c.ID,
+	})
+	codeInfoList = append(codeInfoList, codeinfo.CodeInfo{
+		Type:      "ExpressCompany",
+		Name:      "运输公司xxx",
+		IsDefault: true,
+		CompanyId: c.ID,
+	})
+
+	for _, item := range codeInfoList {
+		if err := tx.Create(&item).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil
