@@ -11,6 +11,7 @@ package tests
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"http-api/app/models/configs"
 	"http-api/app/models/roles"
 	"http-api/seeders"
 	"testing"
@@ -379,14 +380,15 @@ func TestAdminRoleForgetPassword(t *testing.T) {
 		  }
 		}
 	`
-	v = map[string]interface{} {
-		"input": map[string]interface{} {
+	v = map[string]interface{}{
+		"input": map[string]interface{}{
 			"phone": "13427969604",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+
 /**
  * 超级管理员获取短信配置集成测试
  */
@@ -403,4 +405,29 @@ func TestAdminRoleGetSMSConfig(t *testing.T) {
 	`
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
+}
+/**
+ * 超级管理员设置短信配置集成测试
+ */
+func TestAdminRoleSetSMSConfig(t *testing.T) {
+	q := `
+		mutation ($input: SetSMSConfigInput!) {
+		  setSMSConfig(input: $input) {
+			accessKey # 
+			accessSecretKey 
+			sign
+			template
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"accessKey":       configs.GetGlobalVal(configs.SMS_ACCESS_KEY),
+			"accessSecretKey": configs.GetGlobalVal(configs.SMS_ACCESS_SECRET_KEY),
+			"sign":            configs.GetGlobalVal(configs.SMS_SIGN),
+			"template":        configs.GetGlobalVal(configs.SMS_TEMPLATECODE),
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	assert.NoError(t, err)
 }
