@@ -103,7 +103,7 @@ func ValidateCreateCodeRequest(input graphModel.GetCodeForForgetPasswordInput) e
 		return fmt.Errorf("手机号为: %s 不是正确的手机号", input.Phone)
 	}
 	userItem := users.Users{}
-	err = model.DB.Model(&userItem).Where("phone = ?", &input.Phone).Find(&userItem).Error
+	err = model.DB.Model(&userItem).Where("phone = ?", &input.Phone).First(&userItem).Error
 	if err != nil {
 		return fmt.Errorf("没有手机号为: %s 的用户", input.Phone)
 	}
