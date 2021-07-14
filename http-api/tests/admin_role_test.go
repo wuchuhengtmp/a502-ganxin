@@ -16,8 +16,9 @@ import (
 	"testing"
 	"time"
 )
+
 // 超级管理员测试上下文
-var superAdminTestCtx = struct{
+var superAdminTestCtx = struct {
 	// token 用于角色鉴权
 	SuperAdminToken string
 	// 用于删除的公司id
@@ -45,8 +46,8 @@ func TestSuperAdminRoleLogin(t *testing.T) {
 		  }
 		}
 	`
-	variables :=  map[string]interface{} {
-		"phone": superAdminTestCtx.Username,
+	variables := map[string]interface{}{
+		"phone":    superAdminTestCtx.Username,
 		"password": superAdminTestCtx.Password,
 	}
 	res, err := graphReqClient(query, variables, roles.RoleAdmin)
@@ -92,29 +93,29 @@ func TestSuperAdminRoleCreateCompany(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
-			"name": "公司名1",
-			"pinYin": "GSM1",
-			"symbol": "这是公司宗旨",
-			"logoFileId": 6,
-			"backgroundFileId": 5,
-			"isAble": true,
-			"phone": "13427969140",
-			"wechat": "wc20030318",
-			"startedAt": "2021-12-18 18:00:00",
-			"endedAt": "2022-12-18 18:00:00",
-			"adminName": "公司管理员" + fmt.Sprintf("%d", time.Now().Unix())[4:],
-			"adminPassword": "12345678",
-			"adminPhone": "1342" + fmt.Sprintf("%d", time.Now().Unix())[3:], // mock phone number
+		"input": map[string]interface{}{
+			"name":              "公司名1",
+			"pinYin":            "GSM1",
+			"symbol":            "这是公司宗旨",
+			"logoFileId":        6,
+			"backgroundFileId":  5,
+			"isAble":            true,
+			"phone":             "13427969140",
+			"wechat":            "wc20030318",
+			"startedAt":         "2021-12-18 18:00:00",
+			"endedAt":           "2022-12-18 18:00:00",
+			"adminName":         "公司管理员" + fmt.Sprintf("%d", time.Now().Unix())[4:],
+			"adminPassword":     "12345678",
+			"adminPhone":        "1342" + fmt.Sprintf("%d", time.Now().Unix())[3:], // mock phone number
 			"adminAvatarFileId": 4,
-			"adminWechat": "wc20030318",
+			"adminWechat":       "wc20030318",
 		},
 	}
 	res, err := graphReqClient(q, v, roles.RoleAdmin)
 	if err != nil {
 		t.Fatal(err)
 	}
-	createCompany, _ :=  res["createCompany"].(map[string]interface{})
+	createCompany, _ := res["createCompany"].(map[string]interface{})
 	id := createCompany["id"].(float64)
 	superAdminTestCtx.DeleteCompanyId = int64(id)
 }
@@ -122,7 +123,7 @@ func TestSuperAdminRoleCreateCompany(t *testing.T) {
 /**
  * 超级管理员获取全部公司列表集成测试
  */
-func TestSuperAdminRoleGetAllCompany(t *testing.T)  {
+func TestSuperAdminRoleGetAllCompany(t *testing.T) {
 	q := `query {
 			  getAllCompany {
 				id
@@ -154,7 +155,7 @@ func TestSuperAdminRoleGetAllCompany(t *testing.T)  {
 	`
 	v := map[string]interface{}{}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
-	hasError(t, err )
+	hasError(t, err)
 }
 
 /**
@@ -181,23 +182,23 @@ func TestAdminRoleEditCompany(t *testing.T) {
 		}
 	`
 	v := map[string]interface{}{
-		"input": map[string]interface{} {
-			"id": 2,
-			"name": "2",
-			"pinYin": "3",
-			"symbol": "4",
-			"logoFileId": 1,
-			"backgroundFileId": 2,
-			"isAble": true,
-			"phone": seeders.CompanyAdmin.Username,
-			"wechat": "12345678",
-			"startedAt": "2021-12-31 00:00:00",
-			"endedAt": "2022-12-31 00:00:00",
-			"adminName": "username_change_test" + fmt.Sprintf("%d", time.Now().Unix())[6:],
-			"adminPassword": seeders.CompanyAdmin.Password,
+		"input": map[string]interface{}{
+			"id":                2,
+			"name":              "2",
+			"pinYin":            "3",
+			"symbol":            "4",
+			"logoFileId":        1,
+			"backgroundFileId":  2,
+			"isAble":            true,
+			"phone":             seeders.CompanyAdmin.Username,
+			"wechat":            "12345678",
+			"startedAt":         "2021-12-31 00:00:00",
+			"endedAt":           "2022-12-31 00:00:00",
+			"adminName":         "username_change_test" + fmt.Sprintf("%d", time.Now().Unix())[6:],
+			"adminPassword":     seeders.CompanyAdmin.Password,
 			"adminAvatarFileId": 4,
-			"adminPhone": "13427969604",
-			"adminWechat": "wc20030318_change_wechat_" + fmt.Sprintf("%d", time.Now().Unix())[6:],
+			"adminPhone":        "13427969604",
+			"adminWechat":       "wc20030318_change_wechat_" + fmt.Sprintf("%d", time.Now().Unix())[6:],
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
@@ -271,6 +272,7 @@ func TestAdminRoleGetRepositoryListForDashboard(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+
 /**
  * 超级管理员获取仓库列表（用于仪表盘）集成测试
  */
@@ -293,6 +295,7 @@ func TestAdminRoleGetSteelSummaryForDashboard(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
 	hasError(t, err)
 }
+
 ///**
 // * 超级管理员获取项目列表（用于仪表盘）集成测试
 // */
@@ -357,10 +360,30 @@ func TestAdminRoleGetSteelForDashboard(t *testing.T) {
 	`
 
 	v = map[string]interface{}{
-		"input": map[string]interface{} {
-			"page": 1,
-			"pageSize": 10,
+		"input": map[string]interface{}{
+			"page":         1,
+			"pageSize":     10,
 			"repositoryId": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleAdmin)
+	hasError(t, err)
+}
+
+/**
+ * 超级管理员忘记密码型钢列表集成测试
+ */
+func TestAdminRoleForgetPassword(t *testing.T) {
+	q := `
+		mutation ($input: GetCodeForForgetPasswordInput!){
+		  createCode(input: $input) {
+			key
+		  }
+		}
+	`
+	v = map[string]interface{} {
+		"input": map[string]interface{} {
+			"phone": "13427969604",
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleAdmin)
