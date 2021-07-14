@@ -29,7 +29,7 @@ func CreateConfirmOrRejectOrderMsg(tx *gorm.DB, o *orders.Order) error {
 		return err
 	}
 	confirmAdmin := users.Users{}
-	if err := tx.Model(&confirmAdmin).Where("id = ?", o.ConfirmedUid).First(&confirmAdmin).Error; err != nil {
+	if err := tx.Model(&confirmAdmin).Where("id = ?", o.ConfirmedUid).First(&confirmAdmin ).Error; err != nil {
 		return err
 	}
 	state := fmt.Sprintf("仓库管理员 %s", confirmAdmin.Name)
@@ -41,7 +41,7 @@ func CreateConfirmOrRejectOrderMsg(tx *gorm.DB, o *orders.Order) error {
 		state += "确认订单"
 	} else {
 		msgType = msg.RejectOrderType
-		state += "拒绝订单"
+		state += fmt.Sprintf("拒绝订单,拒绝原因为: %s", o.RejectReason)
 	}
 	total, err := orders.GetTotal(tx, o)
 	if err != nil {

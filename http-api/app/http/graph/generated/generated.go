@@ -5422,6 +5422,8 @@ input ConfirmOrderInput {
     id: Int!
     """ 是否通过 """
     isAccess: Boolean!
+    """ 拒绝说明 """
+    reason: String
 }
 input ProjectOrder2WorkshopDetailInput {
     """ 识别码列表 """
@@ -27384,6 +27386,14 @@ func (ec *executionContext) unmarshalInputConfirmOrderInput(ctx context.Context,
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAccess"))
 			it.IsAccess, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "reason":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reason"))
+			it.Reason, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

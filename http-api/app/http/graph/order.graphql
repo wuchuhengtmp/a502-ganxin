@@ -166,6 +166,8 @@ input ConfirmOrderInput {
     id: Int!
     """ 是否通过 """
     isAccess: Boolean!
+    """ 拒绝说明 """
+    reason: String
 }
 input ProjectOrder2WorkshopDetailInput {
     """ 识别码列表 """

@@ -33,6 +33,7 @@ type Order struct {
 	ExpectedReturnAt time.Time `json:"expectedReturnAt" gorm:"comment:预计归还时间"`
 	ReceiveAt        time.Time `json:"receiveAt" gorm:"comment:收货时间"`
 	ConfirmedAt      time.Time `json:"confirmAt" gorm:"comment:确认时间"`
+	RejectReason     string    `json:"rejectReason" gorm:"comment:描绘原因"`
 	gorm.Model
 }
 
@@ -162,6 +163,7 @@ func GetWeight(tx *gorm.DB, o *Order) (float64, error) {
 
 	return totalWeight, nil
 }
+
 //""" 获取订单详情(用于管理后台)参数 """
 type GetOrderDetailForBackEndRes struct {
 	//""" 订单列表 """

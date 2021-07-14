@@ -10,8 +10,10 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
+	"http-api/app/http/graph/errors"
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/models/orders"
 	"http-api/app/models/projects"
@@ -47,10 +49,16 @@ func (o *OrderService) GetProject() (p projects.Projects, err error) {
 
 	return
 }
+
 /**
  * 确认订单
  */
+type ConfirmOrRejectOrderSteps struct { }
 func ConfirmOrRejectOrder(ctx context.Context, input graphModel.ConfirmOrderInput) (*orders.Order, error) {
+	steps := ConfirmOrRejectOrderSteps{}
+	if err := steps.ValidateRequest(ctx, input); err != nil {
+		return nil, errors.ValidateErr(ctx, err)
+	}
 	o := orders.Order{Id: input.ID}
 	err := model.DB.Transaction(func(tx *gorm.DB) error {
 		// 修改订单状态
@@ -69,6 +77,17 @@ func ConfirmOrRejectOrder(ctx context.Context, input graphModel.ConfirmOrderInpu
 		if err != nil {
 			return err
 		}
+		// 拒绝原因
+		if input.Reason != nil {
+			o.RejectReason = *input.Reason
+			err = tx.Model(&orders.Order{}).
+				Where("id = ?", input.ID).
+				Update("reject_reason", o.RejectReason).Error
+			if err != nil {
+				return err
+			}
+		}
+
 		// 添加消息
 		if err := CreateConfirmOrRejectOrderMsg(tx, &o); err != nil {
 			return err
@@ -77,4 +96,12 @@ func ConfirmOrRejectOrder(ctx context.Context, input graphModel.ConfirmOrderInpu
 	})
 
 	return &o, err
+}
+
+func (ConfirmOrRejectOrderSteps) ValidateRequest(ctx context.Context, input graphModel.ConfirmOrderInput) error {
+	if input.IsAccess == false && input.Reason == nil{
+		return fmt.Errorf("请写明拒绝原因")
+	}
+
+	return nil
 }

@@ -17,6 +17,8 @@ type ConfirmOrderInput struct {
 	ID int64 `json:"id"`
 	//  是否通过
 	IsAccess bool `json:"isAccess"`
+	//  拒绝说明
+	Reason *string `json:"reason"`
 }
 
 //  创建公司参数
