@@ -79,7 +79,7 @@ type OrderExpressItem {
     """ 发货人 """
     sender: UserItem!
     """ 收货人 """
-    receiver: UserItem!
+    receiver: UserItem
     """ 物流方向 """
     direction: OrderExpressDirection!
     """ 收货时间 """

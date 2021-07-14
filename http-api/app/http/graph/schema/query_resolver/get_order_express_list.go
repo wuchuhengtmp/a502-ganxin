@@ -28,6 +28,9 @@ func (OrderExpressItemResolver) Sender(ctx context.Context, obj *order_express.O
 
 func (OrderExpressItemResolver)Receiver(ctx context.Context, obj *order_express.OrderExpress) (u *users.Users, err error) {
 	err = model.DB.Model(&users.Users{}).Where("id = ?", obj.ReceiveUid).First(&u).Error
+	if err != nil && err.Error() == "record not found" {
+		return nil, nil
+	}
 
 	return
 }

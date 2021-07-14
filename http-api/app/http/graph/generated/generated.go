@@ -5335,7 +5335,7 @@ type OrderExpressItem {
     """ 发货人 """
     sender: UserItem!
     """ 收货人 """
-    receiver: UserItem!
+    receiver: UserItem
     """ 物流方向 """
     direction: OrderExpressDirection!
     """ 收货时间 """
@@ -17187,14 +17187,11 @@ func (ec *executionContext) _OrderExpressItem_receiver(ctx context.Context, fiel
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*users.Users)
 	fc.Result = res
-	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderExpressItem_direction(ctx context.Context, field graphql.CollectedField, obj *order_express.OrderExpress) (ret graphql.Marshaler) {
@@ -32789,9 +32786,6 @@ func (ec *executionContext) _OrderExpressItem(ctx context.Context, sel ast.Selec
 					}
 				}()
 				res = ec._OrderExpressItem_receiver(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "direction":

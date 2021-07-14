@@ -180,7 +180,7 @@ func (OrderItemResolver) ExpressList(ctx context.Context, obj *orders.Order) (or
 		Find(&orderExpressList).
 		Error
 
-	return
+	return orderExpressList, err
 }
 func (OrderSpecificationItemResolver) SpecificationInfo(ctx context.Context, obj *order_specification.OrderSpecification) (*specificationinfo.SpecificationInfo, error) {
 	s := specificationinfo.SpecificationInfo{}
