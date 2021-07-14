@@ -261,6 +261,13 @@ type ComplexityRoot struct {
 		Weight func(childComplexity int) int
 	}
 
+	GetSMSConfigRes struct {
+		AccessKey       func(childComplexity int) int
+		AccessSecretKey func(childComplexity int) int
+		Sign            func(childComplexity int) int
+		Template        func(childComplexity int) int
+	}
+
 	GetSend2WorkshopOrderListDetailRes struct {
 		List        func(childComplexity int) int
 		Total       func(childComplexity int) int
@@ -553,6 +560,7 @@ type ComplexityRoot struct {
 		GetRepositorySteel                       func(childComplexity int, input model.GetRepositorySteelInput) int
 		GetRepositorySteelDetail                 func(childComplexity int, input model.GetRepositorySteelInput) int
 		GetRoleList                              func(childComplexity int) int
+		GetSMSConfig                             func(childComplexity int) int
 		GetSend2WorkshopOrderList                func(childComplexity int) int
 		GetSend2WorkshopOrderListDetail          func(childComplexity int, input model.GetProjectOrder2WorkshopDetailInput) int
 		GetSpecification                         func(childComplexity int) int
@@ -865,6 +873,7 @@ type QueryResolver interface {
 	GetSteelDetailFromMaintenance2Repository(ctx context.Context, input model.GetSteelDetailFromMaintenance2RepositoryInput) (*projects.GetMaintenanceDetailRes, error)
 	GetCompanyInfo(ctx context.Context) (*model.GetCompnayInfoRes, error)
 	GetRoleList(ctx context.Context) ([]*roles.Role, error)
+	GetSMSConfig(ctx context.Context) (*model.GetSMSConfigRes, error)
 	GetSpecification(ctx context.Context) ([]*specificationinfo.SpecificationInfo, error)
 	GetSteelList(ctx context.Context, input model.PaginationInput) (*steels.GetSteelListRes, error)
 	GetOneSteelDetail(ctx context.Context, input model.GetOneSteelDetailInput) (*steels.Steels, error)
@@ -1595,6 +1604,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetRepositorySteelRes.Weight(childComplexity), true
+
+	case "GetSMSConfigRes.accessKey":
+		if e.complexity.GetSMSConfigRes.AccessKey == nil {
+			break
+		}
+
+		return e.complexity.GetSMSConfigRes.AccessKey(childComplexity), true
+
+	case "GetSMSConfigRes.accessSecretKey":
+		if e.complexity.GetSMSConfigRes.AccessSecretKey == nil {
+			break
+		}
+
+		return e.complexity.GetSMSConfigRes.AccessSecretKey(childComplexity), true
+
+	case "GetSMSConfigRes.sign":
+		if e.complexity.GetSMSConfigRes.Sign == nil {
+			break
+		}
+
+		return e.complexity.GetSMSConfigRes.Sign(childComplexity), true
+
+	case "GetSMSConfigRes.template":
+		if e.complexity.GetSMSConfigRes.Template == nil {
+			break
+		}
+
+		return e.complexity.GetSMSConfigRes.Template(childComplexity), true
 
 	case "GetSend2WorkshopOrderListDetailRes.list":
 		if e.complexity.GetSend2WorkshopOrderListDetailRes.List == nil {
@@ -3622,6 +3659,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetRoleList(childComplexity), true
+
+	case "Query.getSMSConfig":
+		if e.complexity.Query.GetSMSConfig == nil {
+			break
+		}
+
+		return e.complexity.Query.GetSMSConfig(childComplexity), true
 
 	case "Query.getSend2WorkshopOrderList":
 		if e.complexity.Query.GetSend2WorkshopOrderList == nil {
@@ -6008,6 +6052,21 @@ extend type Mutation {
     createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes!
     """ 重置密码 """
     resetPassword(input: ResetPasswordInput!): Boolean!
+}
+""" 获取短信配置响应数据 """
+type GetSMSConfigRes {
+    """ 短信 accessKey """
+    accessKey: String!
+    """ 短信 accessScriptkey """
+    accessSecretKey: String!
+    """ 签名 """
+    sign: String!
+    """ 模板 """
+    template: String!
+}
+extend type Query  {
+    """ 获取短信配置 """
+    getSMSConfig:GetSMSConfigRes! @hasRole(role: [admin])
 }`, BuiltIn: false},
 	{Name: "../specification.graphql", Input: `# 规格相关的接口
 """ 创建规格需要提交的参数 """
@@ -11044,6 +11103,146 @@ func (ec *executionContext) _GetRepositorySteelRes_weight(ctx context.Context, f
 	res := resTmp.(float64)
 	fc.Result = res
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSMSConfigRes_accessKey(ctx context.Context, field graphql.CollectedField, obj *model.GetSMSConfigRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSMSConfigRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessKey, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSMSConfigRes_accessSecretKey(ctx context.Context, field graphql.CollectedField, obj *model.GetSMSConfigRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSMSConfigRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessSecretKey, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSMSConfigRes_sign(ctx context.Context, field graphql.CollectedField, obj *model.GetSMSConfigRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSMSConfigRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sign, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSMSConfigRes_template(ctx context.Context, field graphql.CollectedField, obj *model.GetSMSConfigRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSMSConfigRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Template, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetSend2WorkshopOrderListDetailRes_list(ctx context.Context, field graphql.CollectedField, obj *projects.GetSend2WorkshopOrderListDetailRes) (ret graphql.Marshaler) {
@@ -23161,6 +23360,65 @@ func (ec *executionContext) _Query_getRoleList(ctx context.Context, field graphq
 	return ec.marshalNRoleItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋrolesᚐRole(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getSMSConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetSMSConfig(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.GetSMSConfigRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.GetSMSConfigRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetSMSConfigRes)
+	fc.Result = res
+	return ec.marshalNGetSMSConfigRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSMSConfigRes(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -31133,6 +31391,48 @@ func (ec *executionContext) _GetRepositorySteelRes(ctx context.Context, sel ast.
 	return out
 }
 
+var getSMSConfigResImplementors = []string{"GetSMSConfigRes"}
+
+func (ec *executionContext) _GetSMSConfigRes(ctx context.Context, sel ast.SelectionSet, obj *model.GetSMSConfigRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getSMSConfigResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetSMSConfigRes")
+		case "accessKey":
+			out.Values[i] = ec._GetSMSConfigRes_accessKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "accessSecretKey":
+			out.Values[i] = ec._GetSMSConfigRes_accessSecretKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "sign":
+			out.Values[i] = ec._GetSMSConfigRes_sign(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "template":
+			out.Values[i] = ec._GetSMSConfigRes_template(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var getSend2WorkshopOrderListDetailResImplementors = []string{"GetSend2WorkshopOrderListDetailRes"}
 
 func (ec *executionContext) _GetSend2WorkshopOrderListDetailRes(ctx context.Context, sel ast.SelectionSet, obj *projects.GetSend2WorkshopOrderListDetailRes) graphql.Marshaler {
@@ -33726,6 +34026,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "getSMSConfig":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSMSConfig(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getSpecification":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -35618,6 +35932,20 @@ func (ec *executionContext) marshalNGetRepositorySteelRes2ᚖhttpᚑapiᚋappᚋ
 		return graphql.Null
 	}
 	return ec._GetRepositorySteelRes(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGetSMSConfigRes2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSMSConfigRes(ctx context.Context, sel ast.SelectionSet, v model.GetSMSConfigRes) graphql.Marshaler {
+	return ec._GetSMSConfigRes(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetSMSConfigRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSMSConfigRes(ctx context.Context, sel ast.SelectionSet, v *model.GetSMSConfigRes) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._GetSMSConfigRes(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNGetSend2WorkshopOrderListDetailRes2httpᚑapiᚋappᚋmodelsᚋprojectsᚐGetSend2WorkshopOrderListDetailRes(ctx context.Context, sel ast.SelectionSet, v projects.GetSend2WorkshopOrderListDetailRes) graphql.Marshaler {

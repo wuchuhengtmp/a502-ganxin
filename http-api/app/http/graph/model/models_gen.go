@@ -583,6 +583,18 @@ type GetRepositorySteelInput struct {
 	State *int64 `json:"state"`
 }
 
+//  获取短信配置响应数据
+type GetSMSConfigRes struct {
+	//  短信 accessKey
+	AccessKey string `json:"accessKey"`
+	//  短信 accessScriptkey
+	AccessSecretKey string `json:"accessSecretKey"`
+	//  签名
+	Sign string `json:"sign"`
+	//  模板
+	Template string `json:"template"`
+}
+
 //  维修归库详情查询参数
 type GetSteelDetailFromMaintenance2RepositoryInput struct {
 	//  识别码列表

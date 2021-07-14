@@ -21,3 +21,18 @@ extend type Mutation {
     """ 重置密码 """
     resetPassword(input: ResetPasswordInput!): Boolean!
 }
+""" 获取短信配置响应数据 """
+type GetSMSConfigRes {
+    """ 短信 accessKey """
+    accessKey: String!
+    """ 短信 accessScriptkey """
+    accessSecretKey: String!
+    """ 签名 """
+    sign: String!
+    """ 模板 """
+    template: String!
+}
+extend type Query  {
+    """ 获取短信配置 """
+    getSMSConfig:GetSMSConfigRes! @hasRole(role: [admin])
+}
