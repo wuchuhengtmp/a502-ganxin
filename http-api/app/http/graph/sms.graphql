@@ -6,7 +6,18 @@ type GetCodeForForgetPasswordRes {
     """ 密钥 """
     key: String!
 }
+""" 重置密码参数 """
+input ResetPasswordInput {
+    """ 短信 key """
+    key: String!
+    """ 短信验证码 """
+    code: String!
+    """ 新密码 """
+    newPassword: String!
+}
 extend type Mutation {
     """ 获取验证码 """
-   createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes! @hasRole(role: [admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes!
+    """ 重置密码 """
+    resetPassword(input: ResetPasswordInput!): Boolean!
 }

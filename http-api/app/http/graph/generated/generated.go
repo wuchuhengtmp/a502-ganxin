@@ -406,6 +406,7 @@ type ComplexityRoot struct {
 		EnterMaintenanceSteelToRepository func(childComplexity int, input model.EnterMaintenanceSteelToRepositoryInput) int
 		InstallSteel                      func(childComplexity int, input model.InstallLocationInput) int
 		Login                             func(childComplexity int, phone string, password string, mac *string) int
+		ResetPassword                     func(childComplexity int, input model.ResetPasswordInput) int
 		SetBatchOfMaintenanceSteel        func(childComplexity int, input model.SetBatchOfMaintenanceSteelInput) int
 		SetBatchOfRepositorySteel         func(childComplexity int, input model.SetBatchOfRepositorySteelInput) int
 		SetBatchOfRepositorySteelScrap    func(childComplexity int, input model.SetBatchOfRepositorySteelScrapInput) int
@@ -740,6 +741,7 @@ type MutationResolver interface {
 	SetBatchOfMaintenanceSteel(ctx context.Context, input model.SetBatchOfMaintenanceSteelInput) ([]*steels.Steels, error)
 	EnterMaintenanceSteelToRepository(ctx context.Context, input model.EnterMaintenanceSteelToRepositoryInput) (bool, error)
 	CreateCode(ctx context.Context, input model.GetCodeForForgetPasswordInput) (*model.GetCodeForForgetPasswordRes, error)
+	ResetPassword(ctx context.Context, input model.ResetPasswordInput) (bool, error)
 	CreateSpecification(ctx context.Context, input model.CreateSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	EditSpecification(ctx context.Context, input model.EditSpecificationInput) (*specificationinfo.SpecificationInfo, error)
 	DeleteSpecification(ctx context.Context, id int64) (bool, error)
@@ -2472,6 +2474,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["phone"].(string), args["password"].(string), args["mac"].(*string)), true
+
+	case "Mutation.resetPassword":
+		if e.complexity.Mutation.ResetPassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_resetPassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ResetPassword(childComplexity, args["input"].(model.ResetPasswordInput)), true
 
 	case "Mutation.setBatchOfMaintenanceSteel":
 		if e.complexity.Mutation.SetBatchOfMaintenanceSteel == nil {
@@ -5980,9 +5994,20 @@ type GetCodeForForgetPasswordRes {
     """ 密钥 """
     key: String!
 }
+""" 重置密码参数 """
+input ResetPasswordInput {
+    """ 短信 key """
+    key: String!
+    """ 短信验证码 """
+    code: String!
+    """ 新密码 """
+    newPassword: String!
+}
 extend type Mutation {
     """ 获取验证码 """
-   createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes! @hasRole(role: [admin companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    createCode(input: GetCodeForForgetPasswordInput!):GetCodeForForgetPasswordRes!
+    """ 重置密码 """
+    resetPassword(input: ResetPasswordInput!): Boolean!
 }`, BuiltIn: false},
 	{Name: "../specification.graphql", Input: `# 规格相关的接口
 """ 创建规格需要提交的参数 """
@@ -6693,6 +6718,21 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		}
 	}
 	args["mac"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_resetPassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ResetPasswordInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNResetPasswordInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐResetPasswordInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -16202,32 +16242,8 @@ func (ec *executionContext) _Mutation_createCode(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().CreateCode(rctx, args["input"].(model.GetCodeForForgetPasswordInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"admin", "companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.HasRole == nil {
-				return nil, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.GetCodeForForgetPasswordRes); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/http/graph/model.GetCodeForForgetPasswordRes`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCode(rctx, args["input"].(model.GetCodeForForgetPasswordInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16242,6 +16258,48 @@ func (ec *executionContext) _Mutation_createCode(ctx context.Context, field grap
 	res := resTmp.(*model.GetCodeForForgetPasswordRes)
 	fc.Result = res
 	return ec.marshalNGetCodeForForgetPasswordRes2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetCodeForForgetPasswordRes(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_resetPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_resetPassword_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ResetPassword(rctx, args["input"].(model.ResetPasswordInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createSpecification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -29535,6 +29593,42 @@ func (ec *executionContext) unmarshalInputProjectSteel2BeChangeInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputResetPasswordInput(ctx context.Context, obj interface{}) (model.ResetPasswordInput, error) {
+	var it model.ResetPasswordInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "key":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			it.Key, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "code":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+			it.Code, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "newPassword":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newPassword"))
+			it.NewPassword, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetBatchOfMaintenanceSteelInput(ctx context.Context, obj interface{}) (model.SetBatchOfMaintenanceSteelInput, error) {
 	var it model.SetBatchOfMaintenanceSteelInput
 	var asMap = obj.(map[string]interface{})
@@ -31980,6 +32074,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createCode":
 			out.Values[i] = ec._Mutation_createCode(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "resetPassword":
+			out.Values[i] = ec._Mutation_resetPassword(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -36632,6 +36731,11 @@ func (ec *executionContext) marshalNRepositoryItem2ᚖhttpᚑapiᚋappᚋmodels�
 		return graphql.Null
 	}
 	return ec._RepositoryItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNResetPasswordInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐResetPasswordInput(ctx context.Context, v interface{}) (model.ResetPasswordInput, error) {
+	res, err := ec.unmarshalInputResetPasswordInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNRole2httpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRole(ctx context.Context, v interface{}) (roles.GraphqlRole, error) {

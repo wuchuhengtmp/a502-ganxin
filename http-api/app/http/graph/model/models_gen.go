@@ -792,6 +792,16 @@ type RepositoryLeaderItem struct {
 	Wechat string `json:"wechat"`
 }
 
+//  重置密码参数
+type ResetPasswordInput struct {
+	//  短信 key
+	Key string `json:"key"`
+	//  短信验证码
+	Code string `json:"code"`
+	//  新密码
+	NewPassword string `json:"newPassword"`
+}
+
 //  批量维修出库参数
 type SetBatchOfMaintenanceSteelInput struct {
 	//  识别码列表

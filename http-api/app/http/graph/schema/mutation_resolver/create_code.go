@@ -11,10 +11,13 @@ import (
 	"time"
 )
 
-var msgKeyMapCode = make(map[string]struct {
+type SmsKeyMapCodeType map[string]struct {
 	Code      string
 	CreatedAt time.Time
-})
+	Phone     string
+}
+
+var SmsKeyMapCode = make(SmsKeyMapCodeType)
 
 func (*MutationResolver) CreateCode(ctx context.Context, input graphModel.GetCodeForForgetPasswordInput) (*graphModel.GetCodeForForgetPasswordRes, error) {
 	if err := requests.ValidateCreateCodeRequest(ctx, input); err != nil {
@@ -36,10 +39,11 @@ func (*MutationResolver) CreateCode(ctx context.Context, input graphModel.GetCod
 	code := fmt.Sprintf("%d", time.Now().Unix())[4:]
 	request.TemplateParam = "{\"code\":" + code + "}"
 	key := fmt.Sprintf("%d", time.Now().UnixNano())
-	msgKeyMapCode[key] = struct {
+	SmsKeyMapCode[key] = struct {
 		Code      string
 		CreatedAt time.Time
-	}{Code: code, CreatedAt: time.Now()}
+		Phone     string
+	}{Code: code, CreatedAt: time.Now(), Phone: input.Phone}
 
 	_, err = client.SendSms(request)
 	if err != nil {
