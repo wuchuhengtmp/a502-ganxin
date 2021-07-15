@@ -17,6 +17,7 @@ import (
 func RegisterWebRoutes(r *mux.Router)  {
 	pc := new (controllers.PagesController)
 	r.NotFoundHandler = http.HandlerFunc(pc.NotFound)
+	r.PathPrefix("/admin/").Handler(http.FileServer(http.Dir("./public")))
 	r.PathPrefix("/uploads/").Handler(http.FileServer(http.Dir("./public")))
 
 	r.HandleFunc("/", pc.Home).Methods("GET").Name("home")
