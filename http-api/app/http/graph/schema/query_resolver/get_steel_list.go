@@ -85,7 +85,6 @@ func (*QueryResolver) GetSteelList(ctx context.Context, input grpahModel.Paginat
 	if err := model.DB.Model(&steels.Steels{}).Where(whereMap).Count(&res.Total).Error; err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	// todo 总使用率 年使用率
 	err := model.DB.Model(&steels.Steels{}).Where(whereMap).Offset(offset).Limit(int(input.PageSize)).Find(&res.List).Error
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
@@ -118,10 +117,10 @@ type ChanItemRes struct {
 	Res   int64
 }
 
-func (GetSummarySteps) GetTurnoverById(index int, id int64, wg *sync.WaitGroup, limiter *chan bool, resChan *chan ChanItemRes ) {
+func (GetSummarySteps) GetTurnoverById(index int, id int64, wg *sync.WaitGroup, limiter *chan bool, resChan *chan ChanItemRes) {
 	defer func() {
 		wg.Done()
-		<- *limiter
+		<-*limiter
 	}()
 	res := ChanItemRes{
 		Index: index,
@@ -205,7 +204,15 @@ func (SteelInProjectResolver) Order(ctx context.Context, obj *order_specificatio
 }
 func (SteelInProjectResolver) UseDays(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*int64, error) {
 	var days int64
-	// todo 使用天数
+	recordItem := order_specification_steel.OrderSpecificationSteel{}
+	if err := model.DB.Model(&recordItem).Where("id = ?", obj.Id).First(&recordItem).Error; err != nil {
+		return nil, errors.ServerErr(ctx, err)
+	}
+	if recordItem.State == steels.StateInStore || recordItem.State == steels.StateProjectOnTheStoreWay {
+		timeLen := recordItem.OutWorkshopAt.Unix() - recordItem.EnterWorkshopAt.Unix()
+		days = timeLen / (60 * 60 * 24)
+	}
+
 	return &days, nil
 }
 func (SteelInProjectResolver) ProjectName(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (string, error) {
