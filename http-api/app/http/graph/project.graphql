@@ -179,18 +179,6 @@ input SetProjectSteelEnterRepositoryInput {
     projectId: Int!
 
 }
-extend type Mutation {
-    """ 创建项目 (auth: admin)"""
-    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
-    """ 安装型钢 """
-    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 修改项目的型钢状态 """
-    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 型钢出场 """
-    setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 型钢归库 """
-    setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
 """ 项目详情响应数据 """
 type GetProjectDetailRes {
     """ 型钢列表 """
@@ -228,6 +216,38 @@ input GetProjectDetailInput {
     locationCode: String
     """ 安装时间 """
     installationAt: Time
+}
+""" 更新项目参数 """
+input SetProjectInput {
+    id: Int!
+    """ 项目名"""
+    name: String!
+    """ 城市名"""
+    city: String!
+    """ 负责人合集 """
+    leaderIdList: [Int!]!
+    """ 地址 """
+    address: String!
+    """ 开始时间 """
+    startedAt: Time!
+    """ 结束时间 """
+    endedAt: Time
+    """ 备注 """
+    remark: String!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 安装型钢 """
+    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 修改项目的型钢状态 """
+    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 型钢出场 """
+    setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 型钢归库 """
+    setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 更新项目 """
+    setProject(input: SetProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
 }
 extend type Query {
     """ 获取项目管理列表 """

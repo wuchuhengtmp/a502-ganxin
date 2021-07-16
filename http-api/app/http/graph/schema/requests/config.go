@@ -460,6 +460,47 @@ func (*ValidateGetProjectSpecificationDetailRequestSteps) CheckProjectExists(ctx
 type StepsForProject struct{}
 
 /**
+ *
+ */
+func (StepsForProject) CheckHasUser(ctx context.Context, uid int64) error {
+	me := auth.GetUser(ctx)
+	userItem := users.Users{}
+	err := model.DB.Model(&userItem).Where("id = ?", uid).
+		Where("company_id = ?", me.CompanyId).
+		First(&userItem).
+		Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("用户id为: %d 有用户不存在", uid)
+	}
+
+	return err
+}
+
+/**
+ * 检验是不是项目管理员角色
+ */
+func (s *StepsForProject) CheckIsProjectRole(ctx context.Context, uid int64) error {
+	if err := s.CheckHasUser(ctx, uid); err != nil {
+		return err
+	}
+	userItem := users.Users{}
+	err := model.DB.Model(&userItem).Where("id = ?",  uid).First(&userItem).Error
+	if err != nil && err.Error() == "record not found" {
+		return fmt.Errorf("用户id为: %d 有用户不存在", uid)
+	}
+	if err != nil {
+		return err
+	}
+	if roles.RoleProjectAdminId  != userItem.RoleId {
+		return fmt.Errorf("用户id为: %d 的用户不是项目管理员", uid)
+	}
+
+	return nil
+}
+
+
+
+/**
  * 检验有没有这个仓库
  */
 func (*StepsForProject) CheckHasRepository(ctx context.Context, repositoryId int64) error {

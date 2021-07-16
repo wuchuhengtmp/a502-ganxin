@@ -422,6 +422,7 @@ type ComplexityRoot struct {
 		SetMaintenanceSteelState          func(childComplexity int, input model.SetMaintenanceSteelStateInput) int
 		SetMsgBeRead                      func(childComplexity int, input model.SetMsgReadedInput) int
 		SetPassword                       func(childComplexity int, input *model.SetPasswordInput) int
+		SetProject                        func(childComplexity int, input model.SetProjectInput) int
 		SetProjectOrder2Workshop          func(childComplexity int, input model.ProjectOrder2WorkshopInput) int
 		SetProjectSteelEnterRepository    func(childComplexity int, input model.SetProjectSteelEnterRepositoryInput) int
 		SetProjectSteelOutOfWorkshop      func(childComplexity int, input model.SetProjectSteelOutOfWorkshopInput) int
@@ -745,6 +746,7 @@ type MutationResolver interface {
 	SetProjectSteelState(ctx context.Context, input model.SetProjectSteelInput) (bool, error)
 	SetProjectSteelOutOfWorkshop(ctx context.Context, input model.SetProjectSteelOutOfWorkshopInput) (bool, error)
 	SetProjectSteelEnterRepository(ctx context.Context, input model.SetProjectSteelEnterRepositoryInput) (bool, error)
+	SetProject(ctx context.Context, input model.SetProjectInput) (*projects.Projects, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	SetBatchOfRepositorySteel(ctx context.Context, input model.SetBatchOfRepositorySteelInput) ([]*steels.Steels, error)
@@ -2623,6 +2625,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetPassword(childComplexity, args["input"].(*model.SetPasswordInput)), true
+
+	case "Mutation.setProject":
+		if e.complexity.Mutation.SetProject == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setProject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetProject(childComplexity, args["input"].(model.SetProjectInput)), true
 
 	case "Mutation.setProjectOrder2Workshop":
 		if e.complexity.Mutation.SetProjectOrder2Workshop == nil {
@@ -5727,18 +5741,6 @@ input SetProjectSteelEnterRepositoryInput {
     projectId: Int!
 
 }
-extend type Mutation {
-    """ 创建项目 (auth: admin)"""
-    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
-    """ 安装型钢 """
-    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 修改项目的型钢状态 """
-    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 型钢出场 """
-    setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 型钢归库 """
-    setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
 """ 项目详情响应数据 """
 type GetProjectDetailRes {
     """ 型钢列表 """
@@ -5776,6 +5778,38 @@ input GetProjectDetailInput {
     locationCode: String
     """ 安装时间 """
     installationAt: Time
+}
+""" 更新项目参数 """
+input SetProjectInput {
+    id: Int!
+    """ 项目名"""
+    name: String!
+    """ 城市名"""
+    city: String!
+    """ 负责人合集 """
+    leaderIdList: [Int!]!
+    """ 地址 """
+    address: String!
+    """ 开始时间 """
+    startedAt: Time!
+    """ 结束时间 """
+    endedAt: Time
+    """ 备注 """
+    remark: String!
+}
+extend type Mutation {
+    """ 创建项目 (auth: admin)"""
+    createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 安装型钢 """
+    installSteel(input: InstallLocationInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 修改项目的型钢状态 """
+    setProjectSteelState(input: SetProjectSteelInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 型钢出场 """
+    setProjectSteelOutOfWorkshop(input: SetProjectSteelOutOfWorkshopInput!): Boolean! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 型钢归库 """
+    setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 更新项目 """
+    setProject(input: SetProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
 }
 extend type Query {
     """ 获取项目管理列表 """
@@ -7020,6 +7054,21 @@ func (ec *executionContext) field_Mutation_setProjectSteelState_args(ctx context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSetProjectSteelInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectSteelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetProjectInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetProjectInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -16144,6 +16193,72 @@ func (ec *executionContext) _Mutation_setProjectSteelEnterRepository(ctx context
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_setProject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_setProject_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetProject(rctx, args["input"].(model.SetProjectInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*projects.Projects); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/projects.Projects`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*projects.Projects)
+	fc.Result = res
+	return ec.marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -30331,6 +30446,82 @@ func (ec *executionContext) unmarshalInputSetPasswordInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetProjectInput(ctx context.Context, obj interface{}) (model.SetProjectInput, error) {
+	var it model.SetProjectInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "city":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
+			it.City, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "leaderIdList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("leaderIdList"))
+			it.LeaderIDList, err = ec.unmarshalNInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "startedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startedAt"))
+			it.StartedAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "endedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endedAt"))
+			it.EndedAt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetProjectSteelEnterRepositoryInput(ctx context.Context, obj interface{}) (model.SetProjectSteelEnterRepositoryInput, error) {
 	var it model.SetProjectSteelEnterRepositoryInput
 	var asMap = obj.(map[string]interface{})
@@ -32644,6 +32835,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "setProjectSteelEnterRepository":
 			out.Values[i] = ec._Mutation_setProjectSteelEnterRepository(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setProject":
+			out.Values[i] = ec._Mutation_setProject(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -37524,6 +37720,11 @@ func (ec *executionContext) unmarshalNSetMaintenanceSteelStateInput2httpᚑapi�
 
 func (ec *executionContext) unmarshalNSetMsgReadedInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetMsgReadedInput(ctx context.Context, v interface{}) (model.SetMsgReadedInput, error) {
 	res, err := ec.unmarshalInputSetMsgReadedInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetProjectInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐSetProjectInput(ctx context.Context, v interface{}) (model.SetProjectInput, error) {
+	res, err := ec.unmarshalInputSetProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

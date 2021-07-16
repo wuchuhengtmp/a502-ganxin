@@ -876,6 +876,25 @@ type SetPasswordInput struct {
 	Password string `json:"password"`
 }
 
+//  更新项目参数
+type SetProjectInput struct {
+	ID int64 `json:"id"`
+	//  项目名
+	Name string `json:"name"`
+	//  城市名
+	City string `json:"city"`
+	//  负责人合集
+	LeaderIDList []int64 `json:"leaderIdList"`
+	//  地址
+	Address string `json:"address"`
+	//  开始时间
+	StartedAt time.Time `json:"startedAt"`
+	//  结束时间
+	EndedAt *time.Time `json:"endedAt"`
+	//  备注
+	Remark string `json:"remark"`
+}
+
 //  型钢归库参数
 type SetProjectSteelEnterRepositoryInput struct {
 	//  识别码列表
