@@ -32,6 +32,9 @@ func ValidateSetSteelIntoWorkshopRequest(ctx context.Context, input graphModel.S
 	// 检验订单
 	o := orders.Order{}
 	if err := model.DB.Model(&o).Where("id = ? AND company_id = ?", input.OrderID, me.CompanyId).First(&o).Error; err != nil {
+		if err.Error() == "record not found" {
+			return fmt.Errorf("订单id为: %d 不存在", input.OrderID)
+		}
 		return err
 	}
 	// 检验订单是否归这个项目管理员名下
