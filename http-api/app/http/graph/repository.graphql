@@ -232,6 +232,20 @@ extend type Query {
     """ 获取公司信息 """
     getCompanyInfo:GetCompnayInfoRes! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
 }
+""" 编辑仓库参数 """
+input SetRepositoryInput {
+    id: Int!
+    """ 名称 """
+    name: String!
+    """ 地址 """
+    address: String!
+    """ 备注 """
+    remark: String!
+    """ 能不能用"""
+    isAble: Boolean!
+    """ 管理员列表 """
+    leaderIdList:[Int!]!
+}
 extend type Mutation {
     """ 添加仓库 (auth: companyAdmin)"""
     createRepository(input: CreateRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
@@ -245,5 +259,7 @@ extend type Mutation {
     setBatchOfMaintenanceSteel(input: SetBatchOfMaintenanceSteelInput!): [SteelItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 型钢归库 """
     enterMaintenanceSteelToRepository(input: EnterMaintenanceSteelToRepositoryInput!): Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 编辑仓库 """
+    setRepository(input: SetRepositoryInput!): RepositoryItem! @hasRole(role: [companyAdmin])
 }
 

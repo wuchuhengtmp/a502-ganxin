@@ -919,6 +919,21 @@ type SetProjectSteelOutOfWorkshopInput struct {
 	ProjectID int64 `json:"projectId"`
 }
 
+//  编辑仓库参数
+type SetRepositoryInput struct {
+	ID int64 `json:"id"`
+	//  名称
+	Name string `json:"name"`
+	//  地址
+	Address string `json:"address"`
+	//  备注
+	Remark string `json:"remark"`
+	//  能不能用
+	IsAble bool `json:"isAble"`
+	//  管理员列表
+	LeaderIDList []int64 `json:"leaderIdList"`
+}
+
 //  设置短信配置参数
 type SetSMSConfigInput struct {
 	//  短信 accessKey

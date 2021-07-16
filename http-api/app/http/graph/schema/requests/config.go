@@ -1197,6 +1197,27 @@ func (*StepsForRepository) CheckHasUser(ctx context.Context, uid int64) error {
 }
 
 /**
+ * 检验有没有这个仓库用户
+ */
+func (s *StepsForRepository) CheckIsRepositoryLeader(ctx context.Context, uid int64) error {
+	if err := s.CheckHasUser(ctx, uid); err != nil {
+		return err
+	}
+	userItem := users.Users{}
+	if err := model.DB.Model(&userItem).Where("id = ?", uid).First(&userItem).Error; err != nil {
+		return err
+	}
+
+	if userItem.RoleId != roles.RoleRepositoryAdminId {
+		r, _ := userItem.GetRole()
+		return fmt.Errorf("用户名为: %s 是%s 不是 仓库管理员", userItem.Name, r.Name)
+	}
+
+	return nil
+}
+
+
+/**
  * 检验能不能维修归库
  */
 func (s *StepsForRepository) CheckIsEnterRepositoryFromMaintenanceAccess(ctx context.Context, identifier string) error {
