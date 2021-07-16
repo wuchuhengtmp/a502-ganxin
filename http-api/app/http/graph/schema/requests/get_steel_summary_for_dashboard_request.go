@@ -12,15 +12,24 @@ import (
 	"context"
 	"http-api/app/http/graph/auth"
 	graphModel "http-api/app/http/graph/model"
+	"http-api/app/models/repositories"
 	"http-api/app/models/roles"
+	"http-api/pkg/model"
 )
 
 func ValidateGetSteelSummaryForDashboardRequest(ctx context.Context, input graphModel.GetSteelSummaryForDashboardInput) error {
 	if input.RepositoryID != nil {
+		steps := StepsForRepository{}
 		me := auth.GetUser(ctx)
-		role, _ := me.GetRole()
-		if role.ID == roles.RoleAdminId {
-			return nil
+		r, _ := me.GetRole()
+		// 超管
+		if r.ID == roles.RoleAdminId {
+			repositoryItem := repositories.Repositories{}
+			if err := model.DB.Model(&repositoryItem).Where("id = ?", *input.RepositoryID).First(&repositoryItem).Error; err != nil {
+				return err
+			}
+		} else if err := steps.CheckHasRepository(ctx, *input.RepositoryID); err != nil {
+			return err
 		}
 	}
 
