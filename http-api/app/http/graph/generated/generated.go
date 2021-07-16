@@ -6072,7 +6072,7 @@ extend type Query {
     """ 获取仓库概览(auth:projectAdmin) """
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
     """ 获取全部状态列表 """
-    getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin])
     """ 获取仓库型钢信息 """
     getRepositorySteel(input: GetRepositorySteelInput!): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库型钢信息详情 """
@@ -22884,14 +22884,8 @@ func (ec *executionContext) _Query_getAllStateList(ctx context.Context, field gr
 			}
 			return ec.directives.HasRole(ctx, nil, directive0, role)
 		}
-		directive2 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.MustBeDevice == nil {
-				return nil, errors.New("directive mustBeDevice is not implemented")
-			}
-			return ec.directives.MustBeDevice(ctx, nil, directive1)
-		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive1(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
