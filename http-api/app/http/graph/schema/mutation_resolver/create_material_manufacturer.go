@@ -35,3 +35,4 @@ func  (*MutationResolver)CreateMaterialManufacturer(ctx context.Context, input m
 
 	return &c, nil
 }
+

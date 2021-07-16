@@ -1544,7 +1544,7 @@ func testRepositoryAdminRoleGetEnterRepositorySteelDetail(t *testing.T) {
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
 			"identifier": "8",
-			"projectId":  1,
+			"projectId":  2,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
@@ -1582,7 +1582,7 @@ func testRepositoryAdminRoleGetToBeEnterRepositorySpecificationList(t *testing.T
 	`
 	v := map[string]interface{}{
 		"input": map[string]interface{}{
-			"projectId": 1,
+			"projectId": 2,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)

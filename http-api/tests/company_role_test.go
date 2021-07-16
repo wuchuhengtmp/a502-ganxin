@@ -1743,3 +1743,33 @@ func TestRepositoryRoleSetCompanyInfo(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 公司管理员设置公司信息集成测试
+ */
+func TestRepositoryRoleSetProject(t *testing.T) {
+	q := `
+		mutation ($input: SetProjectInput!) {
+		  setProject(input: $input) {
+			id
+			
+		  }
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"id": 1,
+			"address": "2",
+			"city": "3",
+			"endedAt": "2021-09-23T12:08:34+08:00",
+			"leaderIdList": []int64{
+				4,
+			},
+			"name": "2",
+			"remark": "3",
+			"startedAt": "2021-09-23T12:08:34+08:00",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}

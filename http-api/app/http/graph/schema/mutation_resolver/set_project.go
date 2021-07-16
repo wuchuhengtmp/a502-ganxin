@@ -42,13 +42,12 @@ func (*MutationResolver) SetProject(ctx context.Context, input graphModel.SetPro
 			}
 		}
 		// 修改项目
-		projectItem := projects.Projects{}
 		err = tx.Model(&projectItem).
 			Where("id =  ?", input.ID).
 			Update("name", input.Name).
 			Update("city", input.City).
 			Update("address", input.Address).
-			Update("startedAt", input.StartedAt).
+			Update("started_at", input.StartedAt).
 			Update("remark", input.Remark).Error
 		if err != nil {
 			return err
