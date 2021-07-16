@@ -39,7 +39,7 @@ func (*MutationResolver)SetSMSConfig(ctx context.Context, input graphModel.SetSM
 			return err
 		}
 		// 设置accessSecretKey
-		if err := setConfig(configs.SMS_ACCESS_SECRET_KEY, input.AccessKey, tx); err != nil {
+		if err := setConfig(configs.SMS_ACCESS_SECRET_KEY, input.AccessSecretKey, tx); err != nil {
 			return err
 		}
 		return nil
