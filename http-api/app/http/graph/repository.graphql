@@ -206,7 +206,7 @@ extend type Query {
     """ 获取仓库概览(auth:projectAdmin) """
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
     """ 获取全部状态列表 """
-    getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin])
+    getAllStateList: [StateItem!]!
     """ 获取仓库型钢信息 """
     getRepositorySteel(input: GetRepositorySteelInput!): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库型钢信息详情 """

@@ -6072,7 +6072,7 @@ extend type Query {
     """ 获取仓库概览(auth:projectAdmin) """
     getRepositoryOverview(input: GetRepositoryOverviewInput!): GetRepositoryOverviewRes! @hasRole(role: [ projectAdmin ])
     """ 获取全部状态列表 """
-    getAllStateList: [StateItem!]! @hasRole(role: [repositoryAdmin])
+    getAllStateList: [StateItem!]!
     """ 获取仓库型钢信息 """
     getRepositorySteel(input: GetRepositorySteelInput!): GetRepositorySteelRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库型钢信息详情 """
@@ -22870,32 +22870,8 @@ func (ec *executionContext) _Query_getAllStateList(ctx context.Context, field gr
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetAllStateList(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"repositoryAdmin"})
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.HasRole == nil {
-				return nil, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*steels.StateItem); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*http-api/app/models/steels.StateItem`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllStateList(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
