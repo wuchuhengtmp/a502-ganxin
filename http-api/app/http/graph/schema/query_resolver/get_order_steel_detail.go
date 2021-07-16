@@ -24,9 +24,10 @@ func (*QueryResolver)GetOrderSteelDetail(ctx context.Context, input graphModel.G
 		return nil, errors.ValidateErr(ctx, err)
 	}
 	res := order_specification_steel.OrderSpecificationSteel{}
-	steelOrder := steels.Steels{}.TableName()
-	model.DB.Model(&res).Select( fmt.Sprintf("%s.*", res.TableName())).
-		Joins(fmt.Sprintf("join %s ON %s.order_specification_steel_id = %s.id", steelOrder, steelOrder, res.TableName())).
+	steelTable := steels.Steels{}.TableName()
+	model.DB.Debug().Model(&res).Select( fmt.Sprintf("%s.*", res.TableName())).
+		Joins(fmt.Sprintf("join %s ON %s.order_specification_steel_id = %s.id", steelTable, steelTable, res.TableName())).
+		Where(fmt.Sprintf("%s.identifier = ?", steelTable), input.Identifier).
 		First(&res)
 
 	return &res, nil
