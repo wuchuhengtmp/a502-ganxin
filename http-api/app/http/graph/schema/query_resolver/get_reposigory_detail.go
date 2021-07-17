@@ -17,13 +17,13 @@ import (
 	"http-api/pkg/model"
 )
 
-func (*QueryResolver)GetRepositoryDetail(ctx context.Context, input *graphModel.GetRepositoryDetailInput) ([]*repositories.Repositories, error)  {
+func (*QueryResolver)GetRepositoryDetail(ctx context.Context, input graphModel.GetRepositoryDetailInput) ([]*repositories.Repositories, error)  {
 	me := auth.GetUser(ctx)
 	repositoryItem := repositories.Repositories{}
 	modelIn := model.DB.Model(&repositoryItem).
 		Where("company_id = ?", me.CompanyId)
 	if input.RepositoryID != nil {
-		modelIn = modelIn.Where( "id = ?", *input.RepositoryID)
+		modelIn = modelIn.Where( "id = ?", input.RepositoryID)
 	}
 	var res []*repositories.Repositories
 	err := modelIn.Find(&res).Error

@@ -1455,7 +1455,7 @@ func TestProjectAdminRoleGetOrderDetailForBackEnd(t *testing.T) {
  */
 func TestProjectAdminRoleGetRepositoryDetail(t *testing.T) {
 	q := `
-	query ($input: GetRepositoryDetailInput){
+	query ($input: GetRepositoryDetailInput!){
 	  getRepositoryDetail(input: $input) {
 		id
 		name # 仓库名

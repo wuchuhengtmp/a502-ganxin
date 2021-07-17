@@ -557,7 +557,7 @@ type ComplexityRoot struct {
 		GetProjectSteel2BeChangeDetail           func(childComplexity int, input model.ProjectSteel2BeChangeInput) int
 		GetProjectSteelDetail                    func(childComplexity int, input model.GetProjectSteelDetailInput) int
 		GetProjectSteelStateList                 func(childComplexity int) int
-		GetRepositoryDetail                      func(childComplexity int, input *model.GetRepositoryDetailInput) int
+		GetRepositoryDetail                      func(childComplexity int, input model.GetRepositoryDetailInput) int
 		GetRepositoryList                        func(childComplexity int) int
 		GetRepositoryListForDashboard            func(childComplexity int) int
 		GetRepositoryOverview                    func(childComplexity int, input model.GetRepositoryOverviewInput) int
@@ -876,7 +876,7 @@ type QueryResolver interface {
 	Get2BeScrapRepositorySteelDetail(ctx context.Context, input model.Get2BeScrapRepositorySteelDetailInput) (*steels.Get2BeScrapRepositorySteelDetailRes, error)
 	Get2BeMaintainSteel(ctx context.Context, input model.Get2BeMaintainSteelInput) (*steels.Steels, error)
 	Get2BeMaintainSteelDetail(ctx context.Context, input model.Get2BeMaintainSteelDetailInput) (*steels.Get2BeScrapRepositorySteelDetailRes, error)
-	GetRepositoryDetail(ctx context.Context, input *model.GetRepositoryDetailInput) ([]*repositories.Repositories, error)
+	GetRepositoryDetail(ctx context.Context, input model.GetRepositoryDetailInput) ([]*repositories.Repositories, error)
 	GetSteelFromMaintenance2Repository(ctx context.Context, input model.GetSteelFromMaintenance2RepositoryInput) (*steels.Steels, error)
 	GetSteelDetailFromMaintenance2Repository(ctx context.Context, input model.GetSteelDetailFromMaintenance2RepositoryInput) (*projects.GetMaintenanceDetailRes, error)
 	GetCompanyInfo(ctx context.Context) (*model.GetCompnayInfoRes, error)
@@ -3657,7 +3657,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetRepositoryDetail(childComplexity, args["input"].(*model.GetRepositoryDetailInput)), true
+		return e.complexity.Query.GetRepositoryDetail(childComplexity, args["input"].(model.GetRepositoryDetailInput)), true
 
 	case "Query.getRepositoryList":
 		if e.complexity.Query.GetRepositoryList == nil {
@@ -6090,7 +6090,7 @@ extend type Query {
     """ 获取出库维修的型钢详情 """
     get2BeMaintainSteelDetail(input: Get2BeMaintainSteelDetailInput!): Get2BeScrapRepositorySteelDetailRes! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 获取仓库详情 """
-    getRepositoryDetail(input: GetRepositoryDetailInput): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getRepositoryDetail(input: GetRepositoryDetailInput!): [RepositoryItem!]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
     """ 维修归库查询 """
     getSteelFromMaintenance2Repository(input: GetSteelFromMaintenance2RepositoryInput!): SteelItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 维修归库详情查询 """
@@ -7650,10 +7650,10 @@ func (ec *executionContext) field_Query_getProjectSteelDetail_args(ctx context.C
 func (ec *executionContext) field_Query_getRepositoryDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.GetRepositoryDetailInput
+	var arg0 model.GetRepositoryDetailInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOGetRepositoryDetailInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryDetailInput(ctx, tmp)
+		arg0, err = ec.unmarshalNGetRepositoryDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryDetailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -23490,7 +23490,7 @@ func (ec *executionContext) _Query_getRepositoryDetail(ctx context.Context, fiel
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetRepositoryDetail(rctx, args["input"].(*model.GetRepositoryDetailInput))
+			return ec.resolvers.Query().GetRepositoryDetail(rctx, args["input"].(model.GetRepositoryDetailInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
@@ -36484,6 +36484,11 @@ func (ec *executionContext) marshalNGetProjectSteelDetailRes2ᚖhttpᚑapiᚋapp
 	return ec._GetProjectSteelDetailRes(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGetRepositoryDetailInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryDetailInput(ctx context.Context, v interface{}) (model.GetRepositoryDetailInput, error) {
+	res, err := ec.unmarshalInputGetRepositoryDetailInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNGetRepositoryOverviewInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryOverviewInput(ctx context.Context, v interface{}) (model.GetRepositoryOverviewInput, error) {
 	res, err := ec.unmarshalInputGetRepositoryOverviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -38660,14 +38665,6 @@ func (ec *executionContext) marshalOGetOrderListInputType2ᚖhttpᚑapiᚋappᚋ
 		return graphql.Null
 	}
 	return v
-}
-
-func (ec *executionContext) unmarshalOGetRepositoryDetailInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetRepositoryDetailInput(ctx context.Context, v interface{}) (*model.GetRepositoryDetailInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputGetRepositoryDetailInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOGetSteelForDashboardInput2ᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐGetSteelForDashboardInput(ctx context.Context, v interface{}) (*model.GetSteelForDashboardInput, error) {
