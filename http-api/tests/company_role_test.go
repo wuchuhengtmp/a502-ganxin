@@ -1644,7 +1644,7 @@ func TestCompanyRoleGetSteelSummaryForDashboard(t *testing.T) {
 /**
  * 仓库管理员获取项目型钢列表（用于仪表盘）集成测试
  */
-func TestRepositoryRoleGetSteelForDashboard(t *testing.T) {
+func TestCompanyRoleGetSteelForDashboard(t *testing.T) {
 	q := `
 		##
 		# 更新时间和操作人字段不要 项目过滤也不要了
@@ -1701,7 +1701,7 @@ func TestRepositoryRoleGetSteelForDashboard(t *testing.T) {
 /**
  * 公司管理员获取公司信息集成测试
  */
-func TestRepositoryRoleGetCompanyInfo(t *testing.T) {
+func TestCompanyRoleGetCompanyInfo(t *testing.T) {
 	q := `
 		query {
 		   getCompanyInfo {
@@ -1720,7 +1720,7 @@ func TestRepositoryRoleGetCompanyInfo(t *testing.T) {
 /**
  * 公司管理员设置公司信息集成测试
  */
-func TestRepositoryRoleSetCompanyInfo(t *testing.T) {
+func TestCompanyRoleSetCompanyInfo(t *testing.T) {
 	q := `
 		mutation ($input: SetCompanyInfoInput!) {
 			setCompanyInfo(input: $input) {
@@ -1747,7 +1747,7 @@ func TestRepositoryRoleSetCompanyInfo(t *testing.T) {
 /**
  * 公司管理员设置公司信息集成测试
  */
-func TestRepositoryRoleSetProject(t *testing.T) {
+func TestCompanyRoleSetProject(t *testing.T) {
 	q := `
 		mutation ($input: SetProjectInput!) {
 		  setProject(input: $input) {
@@ -1777,7 +1777,7 @@ func TestRepositoryRoleSetProject(t *testing.T) {
 /**
  * 公司管理员编辑仓库信息集成测试
  */
-func TestRepositoryRoleSetRepository(t *testing.T) {
+func TestCompanyRoleSetRepository(t *testing.T) {
 	q := `
 		mutation ($input: SetRepositoryInput!){
 		  setRepository (input: $input){
@@ -1793,6 +1793,24 @@ func TestRepositoryRoleSetRepository(t *testing.T) {
 			"leaderIdList": []int64{3},
 			"name": "2",
 			"remark": "3",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
+	assert.NoError(t, err)
+}
+
+/**
+ * 公司管理员删除项目集成测试
+ */
+func testCompanyRoleDeleteProject(t *testing.T) {
+	q := `
+		mutation ($input: DeleteProjectInput!){
+		  deleteProject(input: $input)
+		}
+	`
+	v = map[string]interface{}{
+		"input": map[string]interface{} {
+			"id": 1,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)

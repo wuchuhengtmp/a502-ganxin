@@ -2552,4 +2552,7 @@ func TestRepositoryRoleEnterMaintenanceSteelToRepository(t *testing.T) {
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin, repositoryAdminTestCtx.DeviceToken)
 	assert.NoError(t, err)
+	t.Run("删除项目", testCompanyRoleDeleteProject)
 }
+
+
