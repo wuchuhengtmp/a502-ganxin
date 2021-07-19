@@ -10,14 +10,29 @@ package query_resolver
 
 import (
 	"context"
+	"fmt"
+	"http-api/app/http/graph/errors"
 	"http-api/app/models/devices"
 	"http-api/app/models/users"
+	"http-api/pkg/model"
 )
 
 func (*QueryResolver) GetDeviceList(ctx context.Context) ([]*devices.Device, error) {
-	d := devices.Device{}
+	deviceItem := devices.Device{}
+	deviceTable := deviceItem.TableName()
+	userTable := users.Users{}.TableName()
+	var res []*devices.Device
+	err := model.DB.Model(&deviceItem).
+		Select(fmt.Sprintf("%s.*", deviceTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", userTable, userTable, deviceTable)).
+		Where(fmt.Sprintf("%s.deleted_at is NULL", userTable)).
+		Find(&res).
+		Error
+	if err != nil {
+		return res, errors.ServerErr(ctx, err)
+	}
 
-	return d.GetAll(ctx)
+	return res, nil
 }
 
 type DeviceItemResolver struct{}
