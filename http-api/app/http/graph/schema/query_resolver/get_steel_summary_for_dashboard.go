@@ -57,7 +57,9 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.UsingPercent = float64(usingPercent) / float64(total)
+	if usingPercent != 0 &&  total != 0 {
+		res.UsingPercent = float64(usingPercent) / float64(total)
+	}
 	// 维修中
 	var maintaning int64
 	err =getModelIn().Where("state IN ?", []int64{
@@ -70,7 +72,9 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.MaintainingPercent = float64(maintaning) / float64(total)
+	if maintaning != 0 && total != 0 {
+		res.MaintainingPercent = float64(maintaning) / float64(total)
+	}
 	// 报废
 	var scraping int64
 	err = getModelIn().Where("state IN ?", []int64{
@@ -79,7 +83,9 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.CrappedPercent = float64(scraping) / float64(total)
+	if scraping != 0  && total != 0 {
+		res.CrappedPercent = float64(scraping) / float64(total)
+	}
 	// 丢失
 	var losting int64
 	err =getModelIn().Where("state IN ?", []int64{
@@ -88,16 +94,20 @@ func (*QueryResolver) GetSteelSummaryForDashboard(ctx context.Context, input gra
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.LostPercent = float64(losting) / float64(total)
+	if losting != 0 && total != 0 {
+		res.LostPercent = float64(losting) / float64(total)
+	}
 	// 在库
 	var storing int64
-	err =getModelIn().Where("state IN ?", []int64{
+	err = getModelIn().Where("state IN ?", []int64{
 		steels.StateInStore,
 	}).Count(&storing).Error
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
-	res.StoredPercent = float64(storing) / float64(total)
+	if storing != 0 && total != 0 {
+		res.StoredPercent = float64(storing) / float64(total)
+	}
 
 	return &res, nil
 }
