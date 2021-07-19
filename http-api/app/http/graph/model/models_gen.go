@@ -181,6 +181,11 @@ type DelMaintenanceInput struct {
 	ID int64 `json:"id"`
 }
 
+//  删除项目id
+type DeleteProjectInput struct {
+	ID int64 `json:"id"`
+}
+
 //  修改公司参数
 type EditCompanyInput struct {
 	//  公司ID

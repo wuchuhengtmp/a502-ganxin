@@ -235,6 +235,10 @@ input SetProjectInput {
     """ 备注 """
     remark: String!
 }
+""" 删除项目id """
+input DeleteProjectInput {
+    id: Int!
+}
 extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
@@ -248,6 +252,8 @@ extend type Mutation {
     setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 更新项目 """
     setProject(input: SetProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 删除项目 """
+    deleteProject(input: DeleteProjectInput!): Boolean! @hasRole(role: [companyAdmin])
 }
 extend type Query {
     """ 获取项目管理列表 """

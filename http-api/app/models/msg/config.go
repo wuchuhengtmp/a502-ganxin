@@ -33,6 +33,7 @@ const (
 	ToBeMaintained        string = "ToBeMaintained"             // 待维修
 	OutOfMaintenance      string = "OutOfMaintenance"           // 出厂
 	EnterMaintenance      string = "EnterMaintenance"           // 入厂
+	DeleteProject         string = "DeleteProject"              // 删除项目
 )
 
 func (Msg) TableName() string {

@@ -399,6 +399,7 @@ type ComplexityRoot struct {
 		DeleteExpress                     func(childComplexity int, id int64) int
 		DeleteManufacturer                func(childComplexity int, id int64) int
 		DeleteMaterialManufacturer        func(childComplexity int, id int64) int
+		DeleteProject                     func(childComplexity int, input model.DeleteProjectInput) int
 		DeleteRepository                  func(childComplexity int, repositoryID int64) int
 		DeleteSpecification               func(childComplexity int, id int64) int
 		EditCompany                       func(childComplexity int, input model.EditCompanyInput) int
@@ -748,6 +749,7 @@ type MutationResolver interface {
 	SetProjectSteelOutOfWorkshop(ctx context.Context, input model.SetProjectSteelOutOfWorkshopInput) (bool, error)
 	SetProjectSteelEnterRepository(ctx context.Context, input model.SetProjectSteelEnterRepositoryInput) (bool, error)
 	SetProject(ctx context.Context, input model.SetProjectInput) (*projects.Projects, error)
+	DeleteProject(ctx context.Context, input model.DeleteProjectInput) (bool, error)
 	CreateRepository(ctx context.Context, input model.CreateRepositoryInput) (*repositories.Repositories, error)
 	DeleteRepository(ctx context.Context, repositoryID int64) (bool, error)
 	SetBatchOfRepositorySteel(ctx context.Context, input model.SetBatchOfRepositorySteelInput) ([]*steels.Steels, error)
@@ -2351,6 +2353,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteMaterialManufacturer(childComplexity, args["id"].(int64)), true
+
+	case "Mutation.deleteProject":
+		if e.complexity.Mutation.DeleteProject == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteProject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteProject(childComplexity, args["input"].(model.DeleteProjectInput)), true
 
 	case "Mutation.deleteRepository":
 		if e.complexity.Mutation.DeleteRepository == nil {
@@ -5811,6 +5825,10 @@ input SetProjectInput {
     """ 备注 """
     remark: String!
 }
+""" 删除项目id """
+input DeleteProjectInput {
+    id: Int!
+}
 extend type Mutation {
     """ 创建项目 (auth: admin)"""
     createProject(input:CreateProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
@@ -5824,6 +5842,8 @@ extend type Mutation {
     setProjectSteelEnterRepository(input: SetProjectSteelEnterRepositoryInput!):Boolean! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 更新项目 """
     setProject(input: SetProjectInput!): ProjectItem! @hasRole(role: [companyAdmin])
+    """ 删除项目 """
+    deleteProject(input: DeleteProjectInput!): Boolean! @hasRole(role: [companyAdmin])
 }
 extend type Query {
     """ 获取项目管理列表 """
@@ -6666,6 +6686,21 @@ func (ec *executionContext) field_Mutation_deleteMaterialManufacturer_args(ctx c
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.DeleteProjectInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDeleteProjectInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐDeleteProjectInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -16304,6 +16339,72 @@ func (ec *executionContext) _Mutation_setProject(ctx context.Context, field grap
 	res := resTmp.(*projects.Projects)
 	fc.Result = res
 	return ec.marshalNProjectItem2ᚖhttpᚑapiᚋappᚋmodelsᚋprojectsᚐProjects(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteProject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteProject_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteProject(rctx, args["input"].(model.DeleteProjectInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -28264,6 +28365,26 @@ func (ec *executionContext) unmarshalInputDelMaintenanceInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context, obj interface{}) (model.DeleteProjectInput, error) {
+	var it model.DeleteProjectInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditCompanyInput(ctx context.Context, obj interface{}) (model.EditCompanyInput, error) {
 	var it model.EditCompanyInput
 	var asMap = obj.(map[string]interface{})
@@ -32984,6 +33105,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deleteProject":
+			out.Values[i] = ec._Mutation_deleteProject(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createRepository":
 			out.Values[i] = ec._Mutation_createRepository(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -35853,6 +35979,11 @@ func (ec *executionContext) unmarshalNCreateSteelInput2httpᚑapiᚋappᚋhttp�
 
 func (ec *executionContext) unmarshalNDelMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐDelMaintenanceInput(ctx context.Context, v interface{}) (model.DelMaintenanceInput, error) {
 	res, err := ec.unmarshalInputDelMaintenanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteProjectInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐDeleteProjectInput(ctx context.Context, v interface{}) (model.DeleteProjectInput, error) {
+	res, err := ec.unmarshalInputDeleteProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
