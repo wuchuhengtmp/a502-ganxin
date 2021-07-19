@@ -11,6 +11,7 @@ package query_resolver
 import (
 	"context"
 	"fmt"
+	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/errors"
 	"http-api/app/models/devices"
 	"http-api/app/models/users"
@@ -22,10 +23,12 @@ func (*QueryResolver) GetDeviceList(ctx context.Context) ([]*devices.Device, err
 	deviceTable := deviceItem.TableName()
 	userTable := users.Users{}.TableName()
 	var res []*devices.Device
+	me := auth.GetUser(ctx)
 	err := model.DB.Model(&deviceItem).
 		Select(fmt.Sprintf("%s.*", deviceTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.uid", userTable, userTable, deviceTable)).
 		Where(fmt.Sprintf("%s.deleted_at is NULL", userTable)).
+		Where(fmt.Sprintf("%s.company_id = ?", userTable), me.CompanyId).
 		Find(&res).
 		Error
 	if err != nil {
