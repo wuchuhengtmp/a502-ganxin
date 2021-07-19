@@ -77,8 +77,8 @@ func (*QueryResolver)GetProjectDetail(ctx context.Context, input graphModel.GetP
 	}
 	// 出场时间
 	if input.OutOfWorkshopAt != nil {
-		s, e := helper.GetSecondBetween(*input.EnteredWorkshopAt)
-		modelIns = modelIns.Where(fmt.Sprintf("%s.out_of_workshop_at BETWEEN ? AND ?", orderSteelItem.TableName()), s, e)
+		s, e := helper.GetSecondBetween(*input.OutOfWorkshopAt)
+		modelIns = modelIns.Where(fmt.Sprintf("%s.out_workshop_at BETWEEN ? AND ?", orderSteelItem.TableName()), s, e)
 	}
 	// 安装编码
 	if input.LocationCode != nil {
