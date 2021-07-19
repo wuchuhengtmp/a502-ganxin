@@ -20,19 +20,22 @@ import (
 const userCtxKey string = "userKey"
 const isDeviceKey string = "isDeviceKey"
 const tokenKey string = "hasTokenKey"
+const macKey string = "macKey"
 
 func GraphMiddleware(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Authorization")
-		user := users.Users{ }
+		user := users.Users{}
 		isDevice := false
+		mac := ""
 		// 把用户信息写注入到上下文中
 		if len(token) > 7 {
-			db := model.DB;
+			db := model.DB
 			payload, err := jwt.ParseByTokenStr(token[7:])
-			if payload!= nil {
+			if payload != nil {
 				isDevice = payload.IsDevice
+				mac = payload.Mac
 			}
 			if err == nil {
 				userModel := users.Users{}
@@ -44,6 +47,7 @@ func GraphMiddleware(next http.Handler) http.Handler {
 		}
 		ctx := context.WithValue(r.Context(), userCtxKey, user)
 		ctx = context.WithValue(ctx, isDeviceKey, isDevice)
+		ctx = context.WithValue(ctx, macKey, mac)
 		ctx = context.WithValue(ctx, tokenKey, token)
 
 		r = r.WithContext(ctx)
@@ -62,6 +66,16 @@ func GetUser(ctx context.Context) *users.Users {
 
 	return &raw
 }
+
+/**
+ * 获取mac
+ */
+func GetMac(ctx context.Context) string {
+	raw, _ := ctx.Value(macKey).(string)
+
+	return raw
+}
+
 /**
  * 是否是手持设备
  */
@@ -71,7 +85,7 @@ func IsDevice(ctx context.Context) bool {
 	return raw
 }
 
-func Token(ctx context.Context) string  {
+func Token(ctx context.Context) string {
 	raw, _ := ctx.Value(tokenKey).(string)
 
 	return raw
@@ -86,7 +100,7 @@ func ValidateToken(ctx context.Context) error {
 		return fmt.Errorf("token 不能为空")
 	}
 	if len(token) > 7 {
-		db := model.DB;
+		db := model.DB
 		payload, err := jwt.ParseByTokenStr(token[7:])
 		if err == nil {
 			userModel := users.Users{}
@@ -99,5 +113,5 @@ func ValidateToken(ctx context.Context) error {
 		return fmt.Errorf("不是Bearer 格式的token")
 	}
 
-return fmt.Errorf("无效token")
+	return fmt.Errorf("无效token")
 }

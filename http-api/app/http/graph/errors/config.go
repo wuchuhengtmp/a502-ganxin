@@ -20,7 +20,18 @@ const (
 	InvalidErrCode    = 4000 // 验证错误码
 	AccessDenyErrCode = 4100 // 权限限制错误码
 	ServerErrCode     = 5000 // 服务器错误码
+	DeviceDeniedCode  = 4200 // 设备禁用错误码
 )
+
+var CodeMapDes map[int64]string
+
+func init() {
+	CodeMapDes = make(map[int64]string)
+	CodeMapDes[InvalidErrCode] = "验证错误码"
+	CodeMapDes[AccessDenyErrCode] = "权限限制错误码"
+	CodeMapDes[ServerErrCode] = "服务器错误码"
+	CodeMapDes[DeviceDeniedCode] = "设备禁用错误码"
+}
 
 /**
  * 没有token或token无效
@@ -52,7 +63,20 @@ func AccessDenied(ctx context.Context, msg string) (bool, error) {
 	return false, err
 }
 
+/**
+ * 设备禁用
+ */
+func DeviceDenied(ctx context.Context, msg string) (bool, error) {
+	err := &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: fmt.Sprintf("%s", msg),
+		Extensions: map[string]interface{}{
+			"code": DeviceDeniedCode,
+		},
+	}
 
+	return false, err
+}
 
 /**
  * 验证错误
@@ -72,6 +96,7 @@ func ValidateErr(ctx context.Context, err error) error {
 const (
 	ServerErrorMsg = "操作出错，请联系管理员"
 )
+
 /**
  * 后台出现错误
  */

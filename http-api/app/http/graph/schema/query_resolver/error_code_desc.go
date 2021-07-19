@@ -49,6 +49,10 @@ func (*QueryResolver)ErrorCodeDesc(ctx context.Context) (*model.GraphDesc, error
 				Code: errors.AccessDenyErrCode,
 				Desc: "权限限制错误码",
 			},
+			{
+				Code: errors.DeviceDeniedCode,
+				Desc: "设备禁用错误码",
+			},
 		},
 	}
 
