@@ -47,12 +47,12 @@ func (OrderItemResolver) Project(ctx context.Context, obj *orders.Order) (*proje
 }
 func (OrderItemResolver) CreateUser(ctx context.Context, obj *orders.Order) (*users.Users, error) {
 	u := users.Users{}
-	err := u.GetSelfById(obj.CreateUid);
-	if  err != nil && err.Error() == "record not found"{
-		return nil, nil
+	err := model.DB.Unscoped().Model(&u).Where("id = ?", obj.CreateUid).First(&u).Error
+	if err != nil {
+		return nil, errors.ServerErr(ctx, err)
 	}
 
-	return &u, err
+	return &u, nil
 }
 
 func (OrderItemResolver) Repository(ctx context.Context, obj *orders.Order) (*repositories.Repositories, error) {
@@ -68,7 +68,8 @@ func (OrderItemResolver) ConfirmedUser(ctx context.Context, obj *orders.Order) (
 	// 有确认用户
 	if obj.State >= orders.StateConfirmed {
 		u := users.Users{}
-		if err := u.GetSelfById(obj.ConfirmedUid); err != nil {
+		err := model.DB.Unscoped().Model(&u).Where("id = ?", obj.ConfirmedUid).First(&u).Error
+		if  err != nil {
 			return nil, err
 		}
 		return &u, nil

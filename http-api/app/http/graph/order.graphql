@@ -97,7 +97,7 @@ type OrderItem {
     """ 配件列表 """
     partList: String !
     """ 创建人 """
-    createUser: UserItem
+    createUser: UserItem!
     """ 确认人 """
     confirmedUser: UserItem
     """ 物流单信"""
