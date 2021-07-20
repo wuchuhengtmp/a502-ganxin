@@ -47,11 +47,12 @@ func (OrderItemResolver) Project(ctx context.Context, obj *orders.Order) (*proje
 }
 func (OrderItemResolver) CreateUser(ctx context.Context, obj *orders.Order) (*users.Users, error) {
 	u := users.Users{}
-	if err := u.GetSelfById(obj.CreateUid); err != nil {
-		return nil, err
+	err := u.GetSelfById(obj.CreateUid);
+	if  err != nil && err.Error() == "record not found"{
+		return nil, nil
 	}
 
-	return &u, nil
+	return &u, err
 }
 
 func (OrderItemResolver) Repository(ctx context.Context, obj *orders.Order) (*repositories.Repositories, error) {

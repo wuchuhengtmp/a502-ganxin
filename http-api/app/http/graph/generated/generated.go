@@ -5395,7 +5395,7 @@ type OrderItem {
     """ 配件列表 """
     partList: String !
     """ 创建人 """
-    createUser: UserItem!
+    createUser: UserItem
     """ 确认人 """
     confirmedUser: UserItem
     """ 物流单信"""
@@ -17788,14 +17788,11 @@ func (ec *executionContext) _OrderItem_createUser(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*users.Users)
 	fc.Result = res
-	return ec.marshalNUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
+	return ec.marshalOUserItem2ᚖhttpᚑapiᚋappᚋmodelsᚋusersᚐUsers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OrderItem_confirmedUser(ctx context.Context, field graphql.CollectedField, obj *orders.Order) (ret graphql.Marshaler) {
@@ -33328,9 +33325,6 @@ func (ec *executionContext) _OrderItem(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._OrderItem_createUser(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "confirmedUser":
