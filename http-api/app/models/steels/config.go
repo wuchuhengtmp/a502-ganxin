@@ -284,6 +284,7 @@ func IsExistIdentifier(ctx context.Context, identifier string) bool {
 func (s *Steels) GetSpecification() (*specificationinfo.SpecificationInfo, error) {
 	sp := specificationinfo.SpecificationInfo{}
 	err := model.DB.
+		Unscoped().
 		Model(&specificationinfo.SpecificationInfo{}).
 		Where("id = ?", s.SpecificationId).
 		First(&sp).Error

@@ -380,7 +380,8 @@ func (ValidateGetProject2WorkshopDetailRequestSteps) CheckSteelList(ctx context.
 		}(); err != nil {
 			return err
 		}
-		specificationInstance, err := s.GetSpecification()
+		specificationInstance := specificationinfo.SpecificationInfo{}
+		err = model.DB.Model(&specificationinfo.SpecificationInfo{}).Where("id = ?", s.SpecificationId).First(&specificationInstance).Error
 		if err != nil {
 			return fmt.Errorf("型钢规格不存在 id:%d ，请联系管理员", identification)
 		}
