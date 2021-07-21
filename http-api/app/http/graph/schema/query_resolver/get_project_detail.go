@@ -42,7 +42,8 @@ func (*QueryResolver)GetProjectDetail(ctx context.Context, input graphModel.GetP
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id", orderTable, orderTable, orderSpecificationTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.project_id", projectTable, projectTable, orderTable)).
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.steel_id", steelTable, steelTable, orderSteelItem.TableName())).
-		Where(fmt.Sprintf("%s.company_id = ?", projectTable), me.CompanyId)
+		Where(fmt.Sprintf("%s.company_id = ?", projectTable), me.CompanyId).
+		Where(fmt.Sprintf("%s.id = ?", projectTable), input.ProjectID)
 
 	// 订单id过滤
 	if input.OrderID != nil {

@@ -1459,6 +1459,7 @@ func TestCompanyAdminRoleGetProjectDetail(t *testing.T) {
 			"state": 100,
 			"outOfRepositoryAt": "2021-07-08T16:14:33+08:00",
 			"locationCode": "2",
+			"projectId": 2,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleCompanyAdmin)
@@ -1544,24 +1545,25 @@ func TestCompanyAdminRoleGetOrderDetailForBackEnd(t *testing.T) {
 		  getOrderDetailForBackEnd(input: $input){
 			list {
 			  id
-			  orderNo # 订单号
-			  project {
-				id
-				name # 项目名
+			  order {
+					  orderNo # 订单号
+					  project {
+						id
+						name # 项目名
+					  }
+					  repository {
+						id
+						name # 仓库名
+					  }
+			   
 			  }
-			  repository {
-				name # 仓库名
-			  }
-			  orderSpecificationList {
-				specification # 规格 
-			  }
+			  specification # 规格
 			  total # 数量 
 			  weight # 重量 
 			}
 			total # 数量 
 			weight # 重量 
 		  }
-		  
 		}
 	`
 	v = map[string]interface{} {

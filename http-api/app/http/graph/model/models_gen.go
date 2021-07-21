@@ -535,6 +535,8 @@ type GetProjectDetailInput struct {
 	LocationCode *string `json:"locationCode"`
 	//  安装时间
 	InstallationAt *time.Time `json:"installationAt"`
+	// 项目id
+	ProjectID int64 `json:"projectId"`
 }
 
 //  获取要入场的订单需要的请求参数

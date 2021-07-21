@@ -5805,6 +5805,8 @@ input GetProjectDetailInput {
     locationCode: String
     """ 安装时间 """
     installationAt: Time
+    "项目id"
+    projectId: Int!
 }
 """ 更新项目参数 """
 input SetProjectInput {
@@ -29667,6 +29669,14 @@ func (ec *executionContext) unmarshalInputGetProjectDetailInput(ctx context.Cont
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("installationAt"))
 			it.InstallationAt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNInt2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}

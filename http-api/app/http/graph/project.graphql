@@ -216,6 +216,8 @@ input GetProjectDetailInput {
     locationCode: String
     """ 安装时间 """
     installationAt: Time
+    "项目id"
+    projectId: Int!
 }
 """ 更新项目参数 """
 input SetProjectInput {
