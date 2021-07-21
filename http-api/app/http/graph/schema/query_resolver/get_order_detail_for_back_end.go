@@ -28,6 +28,7 @@ func (*QueryResolver) GetOrderDetailForBackEnd(ctx context.Context, input graphM
 	}
 	orderItem := orders.Order{}
 	orderTable := orderItem.TableName()
+	orderSpecificationItem := order_specification.OrderSpecification{}
 	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
 	me := auth.GetUser(ctx)
 	// 数量和重量
@@ -40,8 +41,9 @@ func (*QueryResolver) GetOrderDetailForBackEnd(ctx context.Context, input graphM
 		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", specificationTable, specificationTable, orderSpecificationTable)).
 		Where(fmt.Sprintf("%s.company_id = ?", orderTable), me.CompanyId)
 	// 订单列表
-	modeIn := model.DB.Model(&orderItem).
-		Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
+	modeIn := model.DB.Model(&orderSpecificationItem).
+		Select(fmt.Sprintf("%s.*", orderSpecificationTable)).
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.order_id",orderTable,orderTable, orderSpecificationTable)).
 		Where(fmt.Sprintf("%s.company_id = ?", orderTable), me.CompanyId)
 	//  仓库过滤
 	if input.RepositoryID != nil {

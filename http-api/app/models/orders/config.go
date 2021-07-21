@@ -167,7 +167,7 @@ func GetWeight(tx *gorm.DB, o *Order) (float64, error) {
 //""" 获取订单详情(用于管理后台)参数 """
 type GetOrderDetailForBackEndRes struct {
 	//""" 订单列表 """
-	List []*Order
+	List []*order_specification.OrderSpecification
 	//""" 数量 """
 	Total int64
 	//""" 重量 """

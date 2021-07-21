@@ -5347,7 +5347,6 @@ type OrderSpecificationSteelItem {
     enterRepositoryAt: Time
     """ 使用时长 """
     useDays: Int
-
 }
 
 """ 运输公司 """
@@ -5537,7 +5536,7 @@ extend type Mutation {
 """ 获取订单详情(用于管理后台)参数 """
 type GetOrderDetailForBackEndRes {
     """ 订单列表 """
-    list: [OrderItem!]!
+    list: [OrderSpecificationItem!]!
     """ 数量 """
     total: Int!
     """ 重量 """
@@ -10227,9 +10226,9 @@ func (ec *executionContext) _GetOrderDetailForBackEndRes_list(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*orders.Order)
+	res := resTmp.([]*order_specification.OrderSpecification)
 	fc.Result = res
-	return ec.marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrderᚄ(ctx, field.Selections, res)
+	return ec.marshalNOrderSpecificationItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋorder_specificationᚐOrderSpecificationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetOrderDetailForBackEndRes_total(ctx context.Context, field graphql.CollectedField, obj *orders.GetOrderDetailForBackEndRes) (ret graphql.Marshaler) {
@@ -37378,43 +37377,6 @@ func (ec *executionContext) marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋ
 				defer wg.Done()
 			}
 			ret[i] = ec.marshalOOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNOrderItem2ᚕᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrderᚄ(ctx context.Context, sel ast.SelectionSet, v []*orders.Order) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

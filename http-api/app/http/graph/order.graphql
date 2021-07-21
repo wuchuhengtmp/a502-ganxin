@@ -49,7 +49,6 @@ type OrderSpecificationSteelItem {
     enterRepositoryAt: Time
     """ 使用时长 """
     useDays: Int
-
 }
 
 """ 运输公司 """
@@ -239,7 +238,7 @@ extend type Mutation {
 """ 获取订单详情(用于管理后台)参数 """
 type GetOrderDetailForBackEndRes {
     """ 订单列表 """
-    list: [OrderItem!]!
+    list: [OrderSpecificationItem!]!
     """ 数量 """
     total: Int!
     """ 重量 """
