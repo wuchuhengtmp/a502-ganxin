@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
 	"http-api/app/http/graph/model"
+	"github.com/go-errors/errors"
 	"http-api/app/models/logs"
 	sqlModel "http-api/pkg/model"
 )
@@ -72,8 +73,12 @@ func (s *SpecificationInfo) CreateSelf(ctx context.Context) error {
 
 func (s *SpecificationInfo) GetSelf() error {
 	db := sqlModel.DB
+	err := db.Model(s).Where("id = ?", s.ID).First(s).Error
+	if err != nil {
+		fmt.Println(err.(*errors.Error).ErrorStack())
+	}
 
-	return db.Model(s).Where("id = ?", s.ID).First(s).Error
+	return err
 }
 
 func (s *SpecificationInfo) GetUnscopedSelf() error {

@@ -2298,7 +2298,6 @@ func TestRepositoryAdminRoleGetProjectDetail(t *testing.T) {
 			"state": 100,
 			"outOfRepositoryAt": "2021-07-08T16:14:33+08:00",
 			"locationCode": "2",
-			"projectId": 2,
 		},
 	}
 	_, err := graphReqClient(q, v, roles.RoleRepositoryAdmin)
@@ -2556,5 +2555,3 @@ func TestRepositoryRoleEnterMaintenanceSteelToRepository(t *testing.T) {
 	assert.NoError(t, err)
 	t.Run("删除项目", testCompanyRoleDeleteProject)
 }
-
-
