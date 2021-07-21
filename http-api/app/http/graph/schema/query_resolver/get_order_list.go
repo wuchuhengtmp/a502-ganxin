@@ -153,7 +153,7 @@ func (OrderSpecificationItemResolver)Order(ctx context.Context, obj *order_speci
 
 func (OrderSpecificationItemResolver) Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error) {
 	sp := specificationinfo.SpecificationInfo{ID: obj.SpecificationId}
-	if err := sp.GetSelf(); err != nil {
+	if err := sp.GetUnscopedSelf(); err != nil {
 		return 0, err
 	}
 
