@@ -103,7 +103,7 @@ func (OrderItemResolver) Total(ctx context.Context, obj *orders.Order) (int64, e
  */
 func (OrderItemResolver) Weight(ctx context.Context, obj *orders.Order) (float64, error) {
 	var orderSpecificationList []*order_specification.OrderSpecification
-	err := model.DB.Model(&order_specification.OrderSpecification{}).
+	err := model.DB.Unscoped().Model(&order_specification.OrderSpecification{}).
 		Where("order_id = ?", obj.Id).
 		Find(&orderSpecificationList).Error
 	if err != nil {
@@ -135,7 +135,7 @@ func (OrderItemResolver) ExpressCompany(ctx context.Context, obj *orders.Order) 
 
 func (OrderItemResolver) OrderSpecificationList(ctx context.Context, obj *orders.Order) (list []*order_specification.OrderSpecification, err error) {
 	oo := order_specification.OrderSpecification{}
-	err = model.DB.Model(&oo).Where("order_id = ?", obj.Id).Find(&list).Error
+	err = model.DB.Unscoped().Model(&oo).Where("order_id = ?", obj.Id).Find(&list).Error
 
 	return
 }
@@ -153,7 +153,7 @@ func (OrderSpecificationItemResolver)Order(ctx context.Context, obj *order_speci
 
 func (OrderSpecificationItemResolver) Weight(ctx context.Context, obj *order_specification.OrderSpecification) (float64, error) {
 	sp := specificationinfo.SpecificationInfo{ID: obj.SpecificationId}
-	if err := sp.GetSelf(); err != nil {
+	if err := sp.GetUnscopedSelf(); err != nil {
 		return 0, err
 	}
 
@@ -186,7 +186,7 @@ func (OrderItemResolver) ExpressList(ctx context.Context, obj *orders.Order) (or
 }
 func (OrderSpecificationItemResolver) SpecificationInfo(ctx context.Context, obj *order_specification.OrderSpecification) (*specificationinfo.SpecificationInfo, error) {
 	s := specificationinfo.SpecificationInfo{}
-	err := model.DB.Model(&s).Where("id = ?", obj.SpecificationId).First(&s).Error
+	err := model.DB.Unscoped().Model(&s).Where("id = ?", obj.SpecificationId).First(&s).Error
 
 	return &s, err
 }

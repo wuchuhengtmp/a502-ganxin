@@ -76,6 +76,12 @@ func (s *SpecificationInfo) GetSelf() error {
 	return db.Model(s).Where("id = ?", s.ID).First(s).Error
 }
 
+func (s *SpecificationInfo) GetUnscopedSelf() error {
+	db := sqlModel.DB
+
+	return db.Unscoped().Model(s).Where("id = ?", s.ID).First(s).Error
+}
+
 // 如果没有默认规格，尝试指定一条为默认
 func recoverDefaultByCompanyId(tx *gorm.DB, companyId int64) error {
 	var cs []*SpecificationInfo
