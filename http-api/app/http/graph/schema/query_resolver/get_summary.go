@@ -111,8 +111,8 @@ func (*GetSummarySteps) GetDataByCompanyId(ctx context.Context, companyId int64)
 		return nil, errors.ServerErr(ctx, err)
 	}
 	price, _ := strconv.ParseFloat(configItem.Value, 64)
-	res.FeeTotal = price * float64(total)
-	res.YearFeeTotal = price * float64(yearTotal)
+	res.FeeTotal = price * res.WeightTotal
+	res.YearFeeTotal = price * res.YearWeightTotal
 	// 租赁数量(吨)
 	orderSteelItem := order_specification_steel.OrderSpecificationSteel{}
 	orderSteelTable := orderSteelItem.TableName()

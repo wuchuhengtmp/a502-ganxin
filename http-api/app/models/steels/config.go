@@ -103,7 +103,7 @@ var StateCodeMapDes = map[int64]string{
 	StateMaintainerWillBeStore:      "【维修】-准备归库",
 	StateMaintainerOnTheStoreWay:    "【维修】-归库途中",
 	StateLost:                       "失丢",
-	StateScrap:                      "废报",
+	StateScrap:                      "报废",
 }
 
 /**
