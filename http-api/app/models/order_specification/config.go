@@ -38,7 +38,7 @@ func (*OrderSpecification) GetOrderBySpecificationId(specificationId int64) (ord
 
 func (o *OrderSpecification)GetSpecification() (*specificationinfo.SpecificationInfo, error) {
 	var s specificationinfo.SpecificationInfo
-	if err := model.DB.Model(&s).Where("id = ?", o.SpecificationId).First(&s).Error; err != nil {
+	if err := model.DB.Unscoped().Model(&s).Where("id = ?", o.SpecificationId).First(&s).Error; err != nil {
 		return nil, err
 	}
 
