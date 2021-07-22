@@ -5924,7 +5924,7 @@ input CreateRepositoryInput {
     """ 管理员id """
     repositoryAdminId: [Int!]!
     """ 备注 """
-    remark: String!
+    remark: String
     """ 拼音 """
     pinYin: String!
 }
@@ -28224,7 +28224,7 @@ func (ec *executionContext) unmarshalInputCreateRepositoryInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
-			it.Remark, err = ec.unmarshalNString2string(ctx, v)
+			it.Remark, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

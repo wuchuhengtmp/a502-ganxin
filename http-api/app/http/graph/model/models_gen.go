@@ -147,7 +147,7 @@ type CreateRepositoryInput struct {
 	//  管理员id
 	RepositoryAdminID []int64 `json:"repositoryAdminId"`
 	//  备注
-	Remark string `json:"remark"`
+	Remark *string `json:"remark"`
 	//  拼音
 	PinYin string `json:"pinYin"`
 }

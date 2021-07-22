@@ -25,10 +25,12 @@ func CreateRepository(ctx context.Context, input grlModel.CreateRepositoryInput)
 	r := repositories.Repositories{
 		Name:      input.Name,
 		Address:   input.Address,
-		Remark:    input.Remark,
 		PinYin:    input.PinYin,
 		CompanyId: me.CompanyId,
 		IsAble:    true,
+	}
+	if input.Remark != nil {
+		r.Remark = *input.Remark
 	}
 	err := model.DB.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&r).Error; err != nil {

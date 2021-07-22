@@ -37,7 +37,7 @@ input CreateRepositoryInput {
     """ 管理员id """
     repositoryAdminId: [Int!]!
     """ 备注 """
-    remark: String!
+    remark: String
     """ 拼音 """
     pinYin: String!
 }
