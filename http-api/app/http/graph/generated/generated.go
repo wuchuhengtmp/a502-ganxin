@@ -197,9 +197,10 @@ type ComplexityRoot struct {
 	}
 
 	GetOrderDetailForBackEndRes struct {
-		List   func(childComplexity int) int
-		Total  func(childComplexity int) int
-		Weight func(childComplexity int) int
+		List       func(childComplexity int) int
+		SteelTotal func(childComplexity int) int
+		Total      func(childComplexity int) int
+		Weight     func(childComplexity int) int
 	}
 
 	GetOutOfWorkshopProjectSteelDetailRes struct {
@@ -1398,6 +1399,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetOrderDetailForBackEndRes.List(childComplexity), true
+
+	case "GetOrderDetailForBackEndRes.steelTotal":
+		if e.complexity.GetOrderDetailForBackEndRes.SteelTotal == nil {
+			break
+		}
+
+		return e.complexity.GetOrderDetailForBackEndRes.SteelTotal(childComplexity), true
 
 	case "GetOrderDetailForBackEndRes.total":
 		if e.complexity.GetOrderDetailForBackEndRes.Total == nil {
@@ -5547,6 +5555,8 @@ type GetOrderDetailForBackEndRes {
     list: [OrderSpecificationItem!]!
     """ 数量 """
     total: Int!
+    """ 型钢数量（根） """
+    steelTotal: Int!
     """ 重量 """
     weight: Float!
 }
@@ -10264,6 +10274,41 @@ func (ec *executionContext) _GetOrderDetailForBackEndRes_total(ctx context.Conte
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetOrderDetailForBackEndRes_steelTotal(ctx context.Context, field graphql.CollectedField, obj *orders.GetOrderDetailForBackEndRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetOrderDetailForBackEndRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SteelTotal, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31816,6 +31861,11 @@ func (ec *executionContext) _GetOrderDetailForBackEndRes(ctx context.Context, se
 			}
 		case "total":
 			out.Values[i] = ec._GetOrderDetailForBackEndRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "steelTotal":
+			out.Values[i] = ec._GetOrderDetailForBackEndRes_steelTotal(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

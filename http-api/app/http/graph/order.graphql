@@ -241,6 +241,8 @@ type GetOrderDetailForBackEndRes {
     list: [OrderSpecificationItem!]!
     """ 数量 """
     total: Int!
+    """ 型钢数量（根） """
+    steelTotal: Int!
     """ 重量 """
     weight: Float!
 }

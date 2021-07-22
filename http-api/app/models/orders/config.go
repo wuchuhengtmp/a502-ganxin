@@ -172,4 +172,6 @@ type GetOrderDetailForBackEndRes struct {
 	Total int64
 	//""" 重量 """
 	Weight float64
+	// 型钢数量
+	SteelTotal int64
 }
