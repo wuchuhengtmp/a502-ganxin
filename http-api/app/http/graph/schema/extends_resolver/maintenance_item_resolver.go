@@ -18,6 +18,7 @@ import (
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
+	"strconv"
 )
 
 type MaintenanceItemResolver struct{}
@@ -59,6 +60,8 @@ func (MaintenanceItemResolver) WeightTotal(ctx context.Context, obj *maintenance
 		Where(fmt.Sprintf("%s.maintenance_id = ?", recordTable), obj.Id).
 		Scan(&weightInfo).
 		Error
+	i := fmt.Sprintf("%.3f", weightInfo.Weight)
+	b, _ := strconv.ParseFloat(i, 10)
 
-	return weightInfo.Weight, err
+	return b, err
 }
