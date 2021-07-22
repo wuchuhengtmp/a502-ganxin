@@ -27,6 +27,7 @@ import (
 	"http-api/app/models/steels"
 	"http-api/app/models/users"
 	"http-api/pkg/model"
+	"strconv"
 	"sync"
 )
 
@@ -41,45 +42,46 @@ func (*QueryResolver) GetSteelList(ctx context.Context, input grpahModel.Paginat
 	if input.Page > 1 {
 		offset = int((input.Page - 1) * input.PageSize)
 	}
+	steelTable := steels.Steels{}.TableName()
 	me := auth.GetUser(ctx)
-	whereMap := fmt.Sprintf("company_id = %d", me.CompanyId)
+	whereMap := fmt.Sprintf("%s.company_id = %d",steelTable, me.CompanyId)
 	// 仓库
 	if input.RepositoryID != nil {
-		whereMap = fmt.Sprintf("%s AND repository_id = %d", whereMap, *input.RepositoryID)
+		whereMap = fmt.Sprintf("%s AND %s.repository_id = %d", whereMap, steelTable, *input.RepositoryID)
 	}
 	// 规格
 	if input.SpecificationID != nil {
-		whereMap = fmt.Sprintf("%s AND specification_id = %d", whereMap, *input.SpecificationID)
+		whereMap = fmt.Sprintf("%s AND %s.specification_id = %d", whereMap,steelTable, *input.SpecificationID)
 	}
 	// 识别码
 	if input.Identifier != nil {
-		whereMap = fmt.Sprintf("%s AND identifier like '%s'", whereMap, "%"+*input.Identifier+"%")
+		whereMap = fmt.Sprintf("%s AND %s.identifier like '%s'", whereMap, steelTable, "%"+*input.Identifier+"%")
 	}
 	// 编码
 	if input.Code != nil {
-		whereMap = fmt.Sprintf("%s AND code like '%s'", whereMap, "%"+*input.Code+"%")
+		whereMap = fmt.Sprintf("%s AND %s.code like '%s'", whereMap,steelTable, "%"+*input.Code+"%")
 	}
 	// 状态过滤
 	if input.State != nil {
-		whereMap = fmt.Sprintf("%s AND state = %d", whereMap, *input.State)
+		whereMap = fmt.Sprintf("%s AND %s.state = %d", whereMap,steelTable, *input.State)
 	}
 	// 材料商过滤
 	if input.MaterialManufacturerID != nil {
-		whereMap = fmt.Sprintf("%s AND material_manufacturer_id = %d", whereMap, *input.MaterialManufacturerID)
+		whereMap = fmt.Sprintf("%s AND %s.material_manufacturer_id = %d", whereMap,steelTable, *input.MaterialManufacturerID)
 	}
 	// 制造商过滤
 	if input.ManufacturerID != nil {
-		whereMap = fmt.Sprintf("%s AND manufacturer_id = %d", whereMap, *input.ManufacturerID)
+		whereMap = fmt.Sprintf("%s AND %s.manufacturer_id = %d", whereMap, steelTable, *input.ManufacturerID)
 	}
 	// 首次入库时间
 	if input.CreatedAt != nil {
 		s, e := helper.GetSecondBetween(*input.CreatedAt)
-		whereMap = fmt.Sprintf("%s AND (created_at between '%s' AND '%s' )", whereMap, s, e)
+		whereMap = fmt.Sprintf("%s AND (%s.created_at between '%s' AND '%s' )", whereMap, steelTable, s, e)
 	}
 	// 生产时间过滤
 	if input.ProduceAt != nil {
 		s, e := helper.GetSecondBetween(*input.ProduceAt)
-		whereMap = fmt.Sprintf("%s AND (produced_date between '%s' AND '%s' )", whereMap, s, e)
+		whereMap = fmt.Sprintf("%s AND (%s.produced_date between '%s' AND '%s' )", whereMap, steelTable, s, e)
 	}
 	res := steels.GetSteelListRes{}
 	if err := model.DB.Model(&steels.Steels{}).Where(whereMap).Count(&res.Total).Error; err != nil {
@@ -89,6 +91,18 @@ func (*QueryResolver) GetSteelList(ctx context.Context, input grpahModel.Paginat
 	if err != nil {
 		return nil, errors.ServerErr(ctx, err)
 	}
+	// 重量
+	specificationTable := specificationinfo.SpecificationInfo{}.TableName()
+	var weightInfo struct { WeightTotal float64 }
+	err = model.DB.Debug().Model(&steels.Steels{}).
+		Select("sum(weight) as WeightTotal").
+		Joins(fmt.Sprintf("join %s ON %s.id = %s.specification_id", specificationTable, specificationTable, steelTable)).
+		Where(whereMap).
+		Scan(&weightInfo).Error
+	if err != nil {
+		return nil, errors.ServerErr(ctx, err)
+	}
+	res.WeightTotal, _ = strconv.ParseFloat(fmt.Sprintf("%.3f", weightInfo.WeightTotal), 10)
 	wg := &sync.WaitGroup{}
 	resChan := make(chan ChanItemRes, len(res.List))
 	resWg := &sync.WaitGroup{}
@@ -117,6 +131,9 @@ type ChanItemRes struct {
 	Res   int64
 }
 
+/**
+ * 获取周转次数
+ */
 func (GetSummarySteps) GetTurnoverById(index int, id int64, wg *sync.WaitGroup, limiter *chan bool, resChan *chan ChanItemRes) {
 	defer func() {
 		wg.Done()

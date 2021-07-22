@@ -281,8 +281,9 @@ type ComplexityRoot struct {
 	}
 
 	GetSteelListRes struct {
-		List  func(childComplexity int) int
-		Total func(childComplexity int) int
+		List        func(childComplexity int) int
+		Total       func(childComplexity int) int
+		WeightTotal func(childComplexity int) int
 	}
 
 	GetSteelSummaryForDashboardRes struct {
@@ -1698,6 +1699,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetSteelListRes.Total(childComplexity), true
+
+	case "GetSteelListRes.weightTotal":
+		if e.complexity.GetSteelListRes.WeightTotal == nil {
+			break
+		}
+
+		return e.complexity.GetSteelListRes.WeightTotal(childComplexity), true
 
 	case "GetSteelSummaryForDashboardRes.crappedPercent":
 		if e.complexity.GetSteelSummaryForDashboardRes.CrappedPercent == nil {
@@ -6345,7 +6353,11 @@ input CreateSteelInput {
     producedDate: Time!
 }
 type GetSteelListRes {
+    """ 数量 """
     total: Int!
+    """ 重量 """
+    weightTotal: Float!
+    """ 列表 """
     list: [SteelItem]!
 }
 """ 获取一个型钢详情请求参数 """
@@ -11701,6 +11713,41 @@ func (ec *executionContext) _GetSteelListRes_total(ctx context.Context, field gr
 	res := resTmp.(int64)
 	fc.Result = res
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _GetSteelListRes_weightTotal(ctx context.Context, field graphql.CollectedField, obj *steels.GetSteelListRes) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GetSteelListRes",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WeightTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GetSteelListRes_list(ctx context.Context, field graphql.CollectedField, obj *steels.GetSteelListRes) (ret graphql.Marshaler) {
@@ -32282,6 +32329,11 @@ func (ec *executionContext) _GetSteelListRes(ctx context.Context, sel ast.Select
 			out.Values[i] = graphql.MarshalString("GetSteelListRes")
 		case "total":
 			out.Values[i] = ec._GetSteelListRes_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "weightTotal":
+			out.Values[i] = ec._GetSteelListRes_weightTotal(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

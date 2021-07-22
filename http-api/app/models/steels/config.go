@@ -66,6 +66,7 @@ func (Steels) TableName() string {
 type GetSteelListRes struct {
 	Total int64     `json:"total"`
 	List  []*Steels `json:"list"`
+	WeightTotal float64 `json:"weightTotal"`
 }
 
 // 状态码声明

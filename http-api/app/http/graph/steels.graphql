@@ -95,7 +95,11 @@ input CreateSteelInput {
     producedDate: Time!
 }
 type GetSteelListRes {
+    """ 数量 """
     total: Int!
+    """ 重量 """
+    weightTotal: Float!
+    """ 列表 """
     list: [SteelItem]!
 }
 """ 获取一个型钢详情请求参数 """
