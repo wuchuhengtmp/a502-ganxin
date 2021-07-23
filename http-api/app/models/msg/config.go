@@ -35,7 +35,7 @@ const (
 	EnterMaintenance      string = "EnterMaintenance"           // 入厂
 	DeleteProject         string = "DeleteProject"              // 删除项目
 	DeleteOrder           string = "DeleteOrder"                // 删除订单
-
+	EditOrder             string = "EditOrder"                  // 编辑订单
 )
 
 func (Msg) TableName() string {

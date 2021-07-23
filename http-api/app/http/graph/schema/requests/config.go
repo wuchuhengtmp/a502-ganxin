@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/thedevsaddam/govalidator"
 	"http-api/app/http/graph/auth"
+	graphModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/util/helper"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/devices"
@@ -35,6 +36,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -1624,6 +1626,89 @@ func (s *StepsForMaintenance) CheckSteelIsBelongMaintenance(ctx context.Context,
  * 订单相关步骤
  */
 type StepsForOrder struct{}
+
+/**
+ * 检验开始时间
+ */
+func (*StepsForOrder) CheckExpectedAt(ctx context.Context, expectedAt time.Time) error {
+	if expectedAt.UnixNano() < time.Now().UnixNano() {
+		return fmt.Errorf("开始时间不能早于当前时间")
+	}
+
+	return nil
+}
+/**
+ * 检验型钢规格列表
+ */
+func (*StepsForOrder) CheckSteelSpecification(ctx context.Context, steelList []*graphModel.CreateOrderSteelInput ) error {
+	me := auth.GetUser(ctx)
+	if len(steelList) == 0 {
+		return fmt.Errorf("型钢不能为空")
+	}
+	specificationIdMapId := make(map[int64]int64) // 用于检验型钢规格冗余
+	for _, s := range steelList {
+		sp := specificationinfo.SpecificationInfo{ID: s.SpecificationID}
+		if err := sp.GetSelf(); err != nil || sp.CompanyId != me.CompanyId {
+			return fmt.Errorf("没有规格id为:%d", s.SpecificationID)
+		}
+		// 库存是否足够
+		var total int64
+		model.DB.Model(&steels.Steels{}).
+			Where("state = ? AND specification_id = ?", steels.StateInStore, s.SpecificationID).
+			Count(&total)
+		if total < s.Total {
+			return fmt.Errorf("型钢规格:%s,库存不足%d", sp.GetSelfSpecification(), s.Total)
+		}
+		// 减去待发货数量再比较存量
+		confirmTotal, err := orders.GetConfirmSteelTotalBySpecificationId(s.SpecificationID)
+		if err != nil {
+			return err
+		}
+		if total - confirmTotal < s.Total {
+			return fmt.Errorf("型钢规格:%s,库存不足%d", sp.GetSelfSpecification(), s.Total)
+		}
+		if _, ok := specificationIdMapId[s.SpecificationID]; ok {
+			spc := specificationinfo.SpecificationInfo{}
+			if err := model.DB.Model(&spc).Where("id = ?", s.SpecificationID).First(&spc).Error; err != nil {
+				return err
+			}
+			return fmt.Errorf( "请把规格为:%s 的数据合并为一条，保持订单简洁", spc.GetSelfSpecification() )
+		} else {
+			specificationIdMapId[s.SpecificationID] = s.SpecificationID
+		}
+	}
+
+	return nil
+}
+
+
+
+/**
+ * 有没有这个订单
+ */
+func (*StepsForOrder) CheckHasOrder(ctx context.Context, orderId int64) error {
+	steps := StepsForProject{}
+
+	return 	steps.CheckHasOrder(ctx, orderId)
+}
+/**
+ * 检验能不能修改
+ */
+func (*StepsForOrder) CheckIsEditOrderAccess(ctx context.Context, orderId int64) error {
+	steps := StepsForProject{}
+	if err := steps.CheckHasOrder(ctx, orderId); err != nil {
+		return err
+	}
+	orderItem := orders.Order{}
+	if err := model.DB.Model(&orderItem).Where("id = ?", orderId).First(&orderItem).Error; err != nil {
+		return err
+	}
+	if orderItem.ConfirmedUid != 0 {
+		return fmt.Errorf("订单id为: %d的订单已经被仓库管理员确认了，不能再修改了", orderItem.Id)
+	}
+
+	return nil
+}
 
 /**
  * 检验分页面

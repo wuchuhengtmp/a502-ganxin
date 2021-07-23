@@ -255,6 +255,18 @@ input GetOrderDetailForBackEndInput  {
 input DeleteOrderInput {
     id: Int!
 }
+input EditOrderInput {
+    """ 订单id """
+    id: Int!
+    """ 预计归还时间 """
+    expectedReturnAt: Time!
+    """ 备注 """
+    remark: String
+    """ 配件清单 """
+    partList: String!
+    """ 型钢列表 """
+    steelList: [CreateOrderSteelInput!]!
+}
 extend type Mutation {
     """ 型钢入场 """
     setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
@@ -266,6 +278,8 @@ extend type Mutation {
     setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 删除订单 """
     deleteOrder(input: DeleteOrderInput!): Boolean! @hasRole(role: [projectAdmin])
+    """ 修改订单 """
+    editOrder(input: EditOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
 }
 extend type Query {
     """ 获取需求单列表 """

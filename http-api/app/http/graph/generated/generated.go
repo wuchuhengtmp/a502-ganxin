@@ -412,6 +412,7 @@ type ComplexityRoot struct {
 		EditMaintenance                   func(childComplexity int, input model.EditMaintenanceInput) int
 		EditManufacturer                  func(childComplexity int, input model.EditManufacturerInput) int
 		EditMaterialManufacturer          func(childComplexity int, input model.EditMaterialManufacturerInput) int
+		EditOrder                         func(childComplexity int, input model.EditOrderInput) int
 		EditPrice                         func(childComplexity int, price float64) int
 		EditSpecification                 func(childComplexity int, input model.EditSpecificationInput) int
 		EnterMaintenanceSteelToRepository func(childComplexity int, input model.EnterMaintenanceSteelToRepositoryInput) int
@@ -746,6 +747,7 @@ type MutationResolver interface {
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
 	SetProjectOrder2Workshop(ctx context.Context, input model.ProjectOrder2WorkshopInput) (*orders.Order, error)
 	DeleteOrder(ctx context.Context, input model.DeleteOrderInput) (bool, error)
+	EditOrder(ctx context.Context, input model.EditOrderInput) (*orders.Order, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	InstallSteel(ctx context.Context, input model.InstallLocationInput) (bool, error)
@@ -2503,6 +2505,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EditMaterialManufacturer(childComplexity, args["input"].(model.EditMaterialManufacturerInput)), true
+
+	case "Mutation.editOrder":
+		if e.complexity.Mutation.EditOrder == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editOrder_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditOrder(childComplexity, args["input"].(model.EditOrderInput)), true
 
 	case "Mutation.editPrice":
 		if e.complexity.Mutation.EditPrice == nil {
@@ -5583,6 +5597,18 @@ input GetOrderDetailForBackEndInput  {
 input DeleteOrderInput {
     id: Int!
 }
+input EditOrderInput {
+    """ 订单id """
+    id: Int!
+    """ 预计归还时间 """
+    expectedReturnAt: Time!
+    """ 备注 """
+    remark: String
+    """ 配件清单 """
+    partList: String!
+    """ 型钢列表 """
+    steelList: [CreateOrderSteelInput!]!
+}
 extend type Mutation {
     """ 型钢入场 """
     setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
@@ -5594,6 +5620,8 @@ extend type Mutation {
     setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
     """ 删除订单 """
     deleteOrder(input: DeleteOrderInput!): Boolean! @hasRole(role: [projectAdmin])
+    """ 修改订单 """
+    editOrder(input: EditOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -6888,6 +6916,21 @@ func (ec *executionContext) field_Mutation_editMaterialManufacturer_args(ctx con
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNEditMaterialManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditMaterialManufacturerInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.EditOrderInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEditOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditOrderInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -16046,6 +16089,72 @@ func (ec *executionContext) _Mutation_deleteOrder(ctx context.Context, field gra
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_editOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editOrder_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditOrder(rctx, args["input"].(model.EditOrderInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*orders.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *http-api/app/models/orders.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*orders.Order)
+	fc.Result = res
+	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_editPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -29010,6 +29119,58 @@ func (ec *executionContext) unmarshalInputEditMaterialManufacturerInput(ctx cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEditOrderInput(ctx context.Context, obj interface{}) (model.EditOrderInput, error) {
+	var it model.EditOrderInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "expectedReturnAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expectedReturnAt"))
+			it.ExpectedReturnAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "remark":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
+			it.Remark, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "partList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partList"))
+			it.PartList, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "steelList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("steelList"))
+			it.SteelList, err = ec.unmarshalNCreateOrderSteelInput2ᚕᚖhttpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐCreateOrderSteelInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEditSpecificationInput(ctx context.Context, obj interface{}) (model.EditSpecificationInput, error) {
 	var it model.EditSpecificationInput
 	var asMap = obj.(map[string]interface{})
@@ -33306,6 +33467,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "editOrder":
+			out.Values[i] = ec._Mutation_editOrder(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "editPrice":
 			out.Values[i] = ec._Mutation_editPrice(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -36292,6 +36458,11 @@ func (ec *executionContext) unmarshalNEditManufacturerInput2httpᚑapiᚋappᚋh
 
 func (ec *executionContext) unmarshalNEditMaterialManufacturerInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditMaterialManufacturerInput(ctx context.Context, v interface{}) (model.EditMaterialManufacturerInput, error) {
 	res, err := ec.unmarshalInputEditMaterialManufacturerInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNEditOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐEditOrderInput(ctx context.Context, v interface{}) (model.EditOrderInput, error) {
+	res, err := ec.unmarshalInputEditOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

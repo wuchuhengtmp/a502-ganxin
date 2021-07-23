@@ -1493,3 +1493,32 @@ func testProjectAdminRoleDeleteOrder(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	assert.NoError(t, err)
 }
+
+
+/**
+ * 项目管理员修改订单集成测试
+ */
+func testProjectAdminRoleEditOrder(t *testing.T) {
+	q := `
+		mutation ($input: EditOrderInput!) {
+		  editOrder(input: $input) {
+			id
+		  }
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{
+			"id": 1,
+			"partList": "",
+			"steelList": []map[string]interface{}{
+				{
+					"specificationId": 1,
+					"total": 1,
+				},
+			},
+			"expectedReturnAt": "2021-08-22T13:49:33+08:00",
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}

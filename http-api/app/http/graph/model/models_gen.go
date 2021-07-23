@@ -280,6 +280,19 @@ type EditMaterialManufacturerInput struct {
 	IsDefault bool   `json:"isDefault"`
 }
 
+type EditOrderInput struct {
+	//  订单id
+	ID int64 `json:"id"`
+	//  预计归还时间
+	ExpectedReturnAt time.Time `json:"expectedReturnAt"`
+	//  备注
+	Remark *string `json:"remark"`
+	//  配件清单
+	PartList string `json:"partList"`
+	//  型钢列表
+	SteelList []*CreateOrderSteelInput `json:"steelList"`
+}
+
 //  修改规格需要提交的参数
 type EditSpecificationInput struct {
 	ID        int64   `json:"id"`
