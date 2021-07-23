@@ -181,6 +181,10 @@ type DelMaintenanceInput struct {
 	ID int64 `json:"id"`
 }
 
+type DeleteOrderInput struct {
+	ID int64 `json:"id"`
+}
+
 //  删除项目id
 type DeleteProjectInput struct {
 	ID int64 `json:"id"`

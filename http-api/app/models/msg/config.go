@@ -34,6 +34,8 @@ const (
 	OutOfMaintenance      string = "OutOfMaintenance"           // 出厂
 	EnterMaintenance      string = "EnterMaintenance"           // 入厂
 	DeleteProject         string = "DeleteProject"              // 删除项目
+	DeleteOrder           string = "DeleteOrder"                // 删除订单
+
 )
 
 func (Msg) TableName() string {

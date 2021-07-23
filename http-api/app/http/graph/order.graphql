@@ -225,16 +225,6 @@ type StateItem {
     """  说明 """
     desc: String!
 }
-extend type Mutation {
-    """ 型钢入场 """
-    setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 创建需求单 (auth: projectAdmin) """
-    createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
-    """ 确认订单 """
-    confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-    """ 型钢出库到场地 """
-    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
 """ 获取订单详情(用于管理后台)参数 """
 type GetOrderDetailForBackEndRes {
     """ 订单列表 """
@@ -261,6 +251,21 @@ input GetOrderDetailForBackEndInput  {
     specificationId: Int
     """ 仓库id """
     repositoryId: Int
+}
+input DeleteOrderInput {
+    id: Int!
+}
+extend type Mutation {
+    """ 型钢入场 """
+    setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 创建需求单 (auth: projectAdmin) """
+    createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
+    """ 确认订单 """
+    confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 型钢出库到场地 """
+    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 删除订单 """
+    deleteOrder(input: DeleteOrderInput!): Boolean! @hasRole(role: [projectAdmin])
 }
 extend type Query {
     """ 获取需求单列表 """

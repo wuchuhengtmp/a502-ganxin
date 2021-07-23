@@ -401,6 +401,7 @@ type ComplexityRoot struct {
 		DeleteExpress                     func(childComplexity int, id int64) int
 		DeleteManufacturer                func(childComplexity int, id int64) int
 		DeleteMaterialManufacturer        func(childComplexity int, id int64) int
+		DeleteOrder                       func(childComplexity int, input model.DeleteOrderInput) int
 		DeleteProject                     func(childComplexity int, input model.DeleteProjectInput) int
 		DeleteRepository                  func(childComplexity int, repositoryID int64) int
 		DeleteSpecification               func(childComplexity int, id int64) int
@@ -744,6 +745,7 @@ type MutationResolver interface {
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*orders.Order, error)
 	ConfirmOrRejectOrder(ctx context.Context, input model.ConfirmOrderInput) (*orders.Order, error)
 	SetProjectOrder2Workshop(ctx context.Context, input model.ProjectOrder2WorkshopInput) (*orders.Order, error)
+	DeleteOrder(ctx context.Context, input model.DeleteOrderInput) (bool, error)
 	EditPrice(ctx context.Context, price float64) (float64, error)
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*projects.Projects, error)
 	InstallSteel(ctx context.Context, input model.InstallLocationInput) (bool, error)
@@ -2369,6 +2371,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteMaterialManufacturer(childComplexity, args["id"].(int64)), true
+
+	case "Mutation.deleteOrder":
+		if e.complexity.Mutation.DeleteOrder == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteOrder_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteOrder(childComplexity, args["input"].(model.DeleteOrderInput)), true
 
 	case "Mutation.deleteProject":
 		if e.complexity.Mutation.DeleteProject == nil {
@@ -5539,16 +5553,6 @@ type StateItem {
     """  说明 """
     desc: String!
 }
-extend type Mutation {
-    """ 型钢入场 """
-    setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
-    """ 创建需求单 (auth: projectAdmin) """
-    createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
-    """ 确认订单 """
-    confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-    """ 型钢出库到场地 """
-    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
-}
 """ 获取订单详情(用于管理后台)参数 """
 type GetOrderDetailForBackEndRes {
     """ 订单列表 """
@@ -5575,6 +5579,21 @@ input GetOrderDetailForBackEndInput  {
     specificationId: Int
     """ 仓库id """
     repositoryId: Int
+}
+input DeleteOrderInput {
+    id: Int!
+}
+extend type Mutation {
+    """ 型钢入场 """
+    setSteelEnterWorkshop(input: SetSteelIntoWorkshopInput!): [OrderSpecificationSteelItem!]! @hasRole(role: [projectAdmin]) @mustBeDevice
+    """ 创建需求单 (auth: projectAdmin) """
+    createOrder(input: CreateOrderInput!): OrderItem! @hasRole(role: [projectAdmin])
+    """ 确认订单 """
+    confirmOrRejectOrder(input: ConfirmOrderInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 型钢出库到场地 """
+    setProjectOrder2Workshop(input: ProjectOrder2WorkshopInput!): OrderItem! @hasRole(role: [repositoryAdmin]) @mustBeDevice
+    """ 删除订单 """
+    deleteOrder(input: DeleteOrderInput!): Boolean! @hasRole(role: [projectAdmin])
 }
 extend type Query {
     """ 获取需求单列表 """
@@ -6709,6 +6728,21 @@ func (ec *executionContext) field_Mutation_deleteMaterialManufacturer_args(ctx c
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.DeleteOrderInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDeleteOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐDeleteOrderInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -15946,6 +15980,72 @@ func (ec *executionContext) _Mutation_setProjectOrder2Workshop(ctx context.Conte
 	res := resTmp.(*orders.Order)
 	fc.Result = res
 	return ec.marshalNOrderItem2ᚖhttpᚑapiᚋappᚋmodelsᚋordersᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteOrder_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteOrder(rctx, args["input"].(model.DeleteOrderInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"projectAdmin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_editPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -28458,6 +28558,26 @@ func (ec *executionContext) unmarshalInputDelMaintenanceInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteOrderInput(ctx context.Context, obj interface{}) (model.DeleteOrderInput, error) {
+	var it model.DeleteOrderInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context, obj interface{}) (model.DeleteProjectInput, error) {
 	var it model.DeleteProjectInput
 	var asMap = obj.(map[string]interface{})
@@ -33181,6 +33301,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deleteOrder":
+			out.Values[i] = ec._Mutation_deleteOrder(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "editPrice":
 			out.Values[i] = ec._Mutation_editPrice(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -36090,6 +36215,11 @@ func (ec *executionContext) unmarshalNCreateSteelInput2httpᚑapiᚋappᚋhttp�
 
 func (ec *executionContext) unmarshalNDelMaintenanceInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐDelMaintenanceInput(ctx context.Context, v interface{}) (model.DelMaintenanceInput, error) {
 	res, err := ec.unmarshalInputDelMaintenanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteOrderInput2httpᚑapiᚋappᚋhttpᚋgraphᚋmodelᚐDeleteOrderInput(ctx context.Context, v interface{}) (model.DeleteOrderInput, error) {
+	res, err := ec.unmarshalInputDeleteOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

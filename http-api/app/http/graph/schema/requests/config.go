@@ -715,13 +715,12 @@ func (*StepsForProject) CheckIsEnterRepositoryState(state int64) error {
  */
 func (*StepsForProject) CheckHasOrder(ctx context.Context, orderId int64) error {
 	me := auth.GetUser(ctx)
-	orderItem := order_specification.OrderSpecification{}
+	orderItem := orders.Order{}
 	err := model.DB.Model(&orderItem).
 		Where("id = ?", orderId).
 		Where("company_id = ?", me.CompanyId).
 		First(&orderItem).
 		Error
-	const s = ""
 	if err != nil && err.Error() == "record not found" {
 		return fmt.Errorf("id为: %d 的订单不存在", orderId)
 	}
