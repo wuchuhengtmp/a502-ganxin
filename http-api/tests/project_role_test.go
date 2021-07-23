@@ -1475,3 +1475,21 @@ func TestProjectAdminRoleGetRepositoryDetail(t *testing.T) {
 	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
 	assert.NoError(t, err)
 }
+
+/**
+ * 项目管理员删除订单集成测试
+ */
+func testProjectAdminRoleDeleteOrder(t *testing.T) {
+	q := `
+		mutation ($input: DeleteOrderInput!){
+		  deleteOrder(input: $input) 
+		}
+	`
+	v := map[string]interface{} {
+		"input": map[string]interface{}{
+			"id": 1,
+		},
+	}
+	_, err := graphReqClient(q, v, roles.RoleProjectAdmin)
+	assert.NoError(t, err)
+}
