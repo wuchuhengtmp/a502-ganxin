@@ -25,3 +25,6 @@ $ go test http-api/tests -v -count=1
 
 #### 数据表关系图
 https://viewer.diagrams.net/?highlight=0000ff&edit=_blank&layers=1&nav=1&title=a0502-%E5%9E%8B%E9%92%A2.drawio#Uhttps%3A%2F%2Fraw.githubusercontent.com%2Fwuchuheng%2Fgateway_demo%2Fmaster%2Fa0502-%25E5%259E%258B%25E9%2592%25A2.drawio
+
+#### 后台初始化视频的文件
+视频文件放在`2021-7-13/1626155017-tutor.mp4`的位置，更换需求的话更换它就可以。
