@@ -10,6 +10,9 @@ package query_resolver
 
 import (
 	"context"
+	// "errors"
+	// "fmt"
+	// "runtime/debug"
 	"http-api/app/models/codeinfo"
 	"http-api/app/models/order_specification"
 	"http-api/app/models/order_specification_steel"
@@ -48,7 +51,6 @@ func (OrderSpecificationSteelItemResolver) StateInfo(ctx context.Context, obj *o
 func (OrderSpecificationSteelItemResolver) OrderSpecification(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*order_specification.OrderSpecification, error) {
 	o := order_specification.OrderSpecification{}
 	err := model.DB.Model(&o).Where("id = ?", obj.OrderSpecificationId).First(&o).Error
-
 	return &o, err
 }
 func (OrderSpecificationSteelItemResolver) ToWorkshopExpress(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*codeinfo.CodeInfo, error) {

@@ -10,6 +10,7 @@ package query_resolver
 
 import (
 	"context"
+	"fmt"
 	"http-api/app/http/graph/errors"
 	graphModel "http-api/app/http/graph/model"
 	"http-api/app/http/graph/schema/requests"
@@ -143,9 +144,13 @@ func (OrderItemResolver) OrderSpecificationList(ctx context.Context, obj *orders
 type OrderSpecificationItemResolver struct{}
 func (OrderSpecificationItemResolver)Order(ctx context.Context, obj *order_specification.OrderSpecification) (*orders.Order, error) {
 	orderItem := orders.Order{}
+	var orderItemEmpty = orders.Order{}
 	err := model.DB.Model(&orderItem).Where("id = ?", obj.OrderId).First(&orderItem).Error
 	if err != nil {
-		return nil , err
+		print(fmt.Sprintf("err1: %s", err))
+
+		// return nil , err
+		return &orderItemEmpty , nil
 	}
 
 	return &orderItem, nil

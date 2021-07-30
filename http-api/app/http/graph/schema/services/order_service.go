@@ -45,8 +45,9 @@ func (o *OrderService) OrderMoveIntoMe(guest *orders.Order) {
  * 获取订单上关联的项目
  */
 func (o *OrderService) GetProject() (p projects.Projects, err error) {
-	err = model.DB.Model(&projects.Projects{}).Where("id = ?", o.ProjectId).First(&p).Error
-
+	if o.ProjectId > 0 {
+		err = model.DB.Model(&projects.Projects{}).Where("id = ?", o.ProjectId).First(&p).Error
+	}
 	return
 }
 

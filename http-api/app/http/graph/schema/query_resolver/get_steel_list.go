@@ -247,5 +247,8 @@ func (SteelInProjectResolver) ProjectName(ctx context.Context, obj *order_specif
 		Where(fmt.Sprintf("%s.id = ?", orderSpecificationSteelTable), obj.Id).
 		First(&item).
 		Error
+	if err != nil {
+		return "",nil
+	}
 	return item.Name, err
 }

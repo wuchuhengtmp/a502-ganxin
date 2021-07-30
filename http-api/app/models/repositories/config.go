@@ -72,8 +72,10 @@ func (r *Repositories) CreatSelf(ctx context.Context) error {
 
 func (r *Repositories) GetSelf() error {
 	db := sqlModel.DB
-
-	return db.Model(r).Where("id = ?", r.ID).First(r).Error
+	if r.ID > 0 {
+		return db.Model(r).Where("id = ?", r.ID).First(r).Error
+	}
+	return nil
 }
 
 /**
