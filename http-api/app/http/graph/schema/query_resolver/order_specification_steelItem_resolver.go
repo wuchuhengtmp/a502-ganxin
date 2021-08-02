@@ -69,7 +69,11 @@ func (OrderSpecificationSteelItemResolver) ToRepositoryExpress(ctx context.Conte
 
 func (OrderSpecificationSteelItemResolver) EnterRepositoryUser(ctx context.Context, obj *order_specification_steel.OrderSpecificationSteel) (*users.Users, error) {
 	u := users.Users{}
-	err := model.DB.Model(&u).Where("id = ?", obj.EnterRepositoryUid).First(&u).Error
+	if obj.EnterRepositoryUid != 0 {
+		err := model.DB.Model(&u).Where("id = ?", obj.EnterRepositoryUid).First(&u).Error
+		return &u, err
+	}
 
-	return &u, err
+	return nil, nil
+
 }
