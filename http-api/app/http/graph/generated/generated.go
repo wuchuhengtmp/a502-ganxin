@@ -5287,7 +5287,7 @@ extend type Mutation {
 
 extend type Query {
     """ 获取材料商列表 (auth: companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ) """
-    getMaterialManufacturers: [MaterialManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ])
+    getMaterialManufacturers: [MaterialManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin admin])
 }
 
 `, BuiltIn: false},
@@ -21145,7 +21145,7 @@ func (ec *executionContext) _Query_getMaterialManufacturers(ctx context.Context,
 			return ec.resolvers.Query().GetMaterialManufacturers(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin", "admin"})
 			if err != nil {
 				return nil, err
 			}

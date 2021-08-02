@@ -104,7 +104,12 @@ func TryMaterialManufactureDefault(ctx context.Context, tx *gorm.DB) (err error)
 func (CodeInfo) GetMaterialManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
 	db := model.DB
 	me := auth.GetUser(ctx)
-	err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", MaterialManufacturer, me.CompanyId).Find(&cs).Error
+	r, _:= me.GetRole()
+	if r.Tag == roles.RoleAdmin {
+		err = db.Model(&CodeInfo{}).Where("type = ?", MaterialManufacturer, me.CompanyId).Find(&cs).Error
+	} else  {
+		err = db.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", MaterialManufacturer, me.CompanyId).Find(&cs).Error
+	}
 
 	return
 }
