@@ -57,7 +57,7 @@ func (OrderItemResolver) CreateUser(ctx context.Context, obj *orders.Order) (*us
 
 func (OrderItemResolver) Repository(ctx context.Context, obj *orders.Order) (*repositories.Repositories, error) {
 	r := repositories.Repositories{ID: obj.RepositoryId}
-	if err := r.GetSelf(); err != nil {
+	if err := r.UnscopedGetSelf(); err != nil {
 		return nil, err
 	}
 

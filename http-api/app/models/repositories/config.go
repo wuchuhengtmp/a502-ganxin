@@ -78,6 +78,16 @@ func (r *Repositories) GetSelf() error {
 	return nil
 }
 
+func (r *Repositories) UnscopedGetSelf() error {
+	db := sqlModel.DB
+	if r.ID > 0 {
+		return db.
+			Unscoped().
+			Model(r).Where("id = ?", r.ID).First(r).Error
+	}
+	return nil
+}
+
 /**
  * 删除一个仓库
  */
