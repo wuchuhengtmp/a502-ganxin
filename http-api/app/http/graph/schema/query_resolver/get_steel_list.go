@@ -239,7 +239,7 @@ func (SteelInProjectResolver) ProjectName(ctx context.Context, obj *order_specif
 	orderSpecificationTable := order_specification.OrderSpecification{}.TableName()
 	orderSpecificationSteelTable := order_specification_steel.OrderSpecificationSteel{}.TableName()
 
-	err := model.DB.Model(&item).
+	err := model.DB.Unscoped().Model(&item).
 		Select(fmt.Sprintf("%s.*", projectsTable)).
 		Joins(fmt.Sprintf("join %s ON %s.project_id = %s.id", orderTable, orderTable, projectsTable)).
 		Joins(fmt.Sprintf("join %s ON %s.order_id = %s.id", orderSpecificationTable, orderSpecificationTable, orderTable)).
@@ -247,8 +247,6 @@ func (SteelInProjectResolver) ProjectName(ctx context.Context, obj *order_specif
 		Where(fmt.Sprintf("%s.id = ?", orderSpecificationSteelTable), obj.Id).
 		First(&item).
 		Error
-	if err != nil {
-		return "",nil
-	}
+
 	return item.Name, err
 }
