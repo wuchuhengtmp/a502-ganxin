@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 	"http-api/app/http/graph/auth"
 	"http-api/app/models/logs"
+	"http-api/app/models/roles"
 	"http-api/pkg/model"
 )
 
@@ -233,7 +234,12 @@ func (c *CodeInfo) SetManufactureDefault(tx *gorm.DB) error {
 
 func (c *CodeInfo) GetManufacturers(ctx context.Context) (cs []*CodeInfo, err error) {
 	me := auth.GetUser(ctx)
-	err = model.DB.Model(&CodeInfo{}).Where("type = ? AND company_id = ?", Manufacturer, me.CompanyId).Find(&cs).Error
+	r, _ := me.GetRole()
+	queryMap := fmt.Sprintf("type = '%s' ", Manufacturer)
+	if r.Tag != roles.RoleAdmin {
+		queryMap += fmt.Sprintf("AND company_id = %d", me.CompanyId)
+	}
+	err = model.DB.Model(&CodeInfo{}).Where(queryMap).Find(&cs).Error
 
 	return cs, err
 }

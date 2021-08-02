@@ -30,6 +30,6 @@ extend type Mutation {
 
 extend type Query {
     """ 获取制造商列表 (auth: companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ) """
-    getManufacturers: [ManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin ])
+    getManufacturers: [ManufacturerItem]! @hasRole(role: [companyAdmin, repositoryAdmin projectAdmin maintenanceAdmin admin ])
 }
 
