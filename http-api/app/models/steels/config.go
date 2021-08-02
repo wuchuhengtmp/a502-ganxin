@@ -315,7 +315,9 @@ func (s *Steels) GetManufacturer() (*codeinfo.CodeInfo, error) {
 
 func (s Steels) GetRepository() (*repositories.Repositories, error) {
 	r := repositories.Repositories{}
-	err := model.DB.Model(repositories.Repositories{}).Where("id = ?", s.RepositoryId).
+	err := model.DB.
+		Unscoped().
+		Model(repositories.Repositories{}).Where("id = ?", s.RepositoryId).
 		First(&r).Error
 
 	return &r, err
