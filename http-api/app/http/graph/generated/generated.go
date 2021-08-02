@@ -6302,7 +6302,7 @@ type SpecificationItem {
 }
 extend type Query {
     """ 获取公司规格列表 (auth:  companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
-    getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin admin])
 }
 extend type Mutation {
     """ 创建规格 (auth:  companyAdmin, repositoryAdmin ) """
@@ -24252,7 +24252,7 @@ func (ec *executionContext) _Query_getSpecification(ctx context.Context, field g
 			return ec.resolvers.Query().GetSpecification(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin"})
+			role, err := ec.unmarshalNRole2ᚕhttpᚑapiᚋappᚋmodelsᚋrolesᚐGraphqlRoleᚄ(ctx, []interface{}{"companyAdmin", "repositoryAdmin", "projectAdmin", "maintenanceAdmin", "admin"})
 			if err != nil {
 				return nil, err
 			}

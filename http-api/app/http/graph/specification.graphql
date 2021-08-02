@@ -29,7 +29,7 @@ type SpecificationItem {
 }
 extend type Query {
     """ 获取公司规格列表 (auth:  companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ) """
-    getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin ])
+    getSpecification: [SpecificationItem]! @hasRole(role: [ companyAdmin repositoryAdmin projectAdmin maintenanceAdmin admin])
 }
 extend type Mutation {
     """ 创建规格 (auth:  companyAdmin, repositoryAdmin ) """
