@@ -55,7 +55,7 @@ var configsSeeders =  []seed.Seed{
 	seed.Seed{
 		Name: "create config",
 		Run: func(db *gorm.DB) error {
-			return CreateConfig(db, 7, configs.SMS_ACCESS_SECRET_KEY, "e6tAMTcNEuQwyP1nDF5d2xn8IwfSwU", "短信accessKey", 0)
+			return CreateConfig(db, 7, configs.SMS_ACCESS_SECRET_KEY, "e6tAMTcN____EuQwyP1nDF5d2xn8IwfSwU____", "短信accessKey", 0)
 		},
 	},
 	seed.Seed{
